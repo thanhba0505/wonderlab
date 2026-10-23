@@ -1,0 +1,109 @@
+# AGENTS.md — Wonderlab AI Coding Guidelines
+
+Welcome to **Wonderlab**. This document is the primary source of truth and authoritative set of rules for AI coding assistants working in this repository.
+
+---
+
+## 1. Product Overview
+
+Wonderlab is an interactive web platform dedicated to exploring science, probability, paradoxes, logic puzzles, thought experiments, visual simulations, and mind games.
+
+- **Audience**: General public with curiosity for science, math, and logic; no formal prerequisite knowledge required.
+- **Mission**: Demystify counter-intuitive concepts into hands-on visual experiences where users directly manipulate parameters, observe outcomes, and develop intuitive understanding.
+- **Current Scope**: Monorepo foundation stage. Includes Next.js client with high-fidelity dark-mode homepage and admin placeholder, NestJS backend with `/health` endpoint, Docker Compose for local PostgreSQL, comprehensive tooling, test suites, and CI/CD.
+
+---
+
+## 2. Monorepo Architecture
+
+Wonderlab uses a unified **pnpm workspace** monorepo:
+
+```text
+wonderlab/
+├── client/          # Next.js 15 App Router frontend
+├── server/          # NestJS 10 REST API backend
+├── docs/            # Engineering & architecture documentation
+├── .github/         # CI/CD workflows, issue templates, PR template
+├── .agents/skills/  # Project-specific AI agent playbooks
+├── scripts/         # Local development & verification scripts
+├── docker-compose.yml # Local PostgreSQL container service
+└── render.yaml      # Render blueprint deployment specification
+```
+
+### Boundaries & Responsibilities:
+
+- **Client (`/client`)**: User interface, routing, interactive simulations, client-side state. Communicates with server via REST (`NEXT_PUBLIC_API_BASE_URL`).
+- **Server (`/server`)**: Standalone REST API backend. Global prefix `/api/v1`. Swagger documentation at `/api/docs`. Currently exposes only `/health`.
+- **Database (`docker-compose.yml`)**: Local PostgreSQL 16 on loopback `127.0.0.1:5432`. Not connected to server in foundation phase; ORM choice is intentionally deferred.
+
+---
+
+## 3. Technology & Version Policy
+
+- **Node.js**: `v24.x` / LTS (see `.nvmrc`).
+- **Package Manager**: `pnpm@12.11.2` (pinned in root `package.json`). Never use `npm` or `yarn`. Never edit `pnpm-lock.yaml` manually.
+- **Client**: Next.js 15 (App Router), React 19, TypeScript strict, Tailwind CSS, Lucide React, Motion.
+- **Server**: NestJS 10, TypeScript strict, `@nestjs/terminus`, `@nestjs/swagger`, `class-validator`, `class-transformer`.
+- **Database**: PostgreSQL 16 Alpine containerized with Docker Compose.
+
+---
+
+## 4. Environment & Security Rules
+
+1. **Zero Secret Leakage**: Never commit `.env`, `.env.local`, API tokens, or database passwords. All environment files with secrets must be ignored by `.gitignore`.
+2. **Client Boundaries**: Only variables prefixed with `NEXT_PUBLIC_` are accessible in client bundles. Never place server secrets or credentials in `NEXT_PUBLIC_*`.
+3. **Database Security**: Local PostgreSQL must bind exclusively to `127.0.0.1` (loopback) to prevent public network exposure.
+4. **Admin Route**: `/admin` is currently an unauthenticated development placeholder. Do not assume or declare that it is secure.
+5. **CORS Policy**: CORS origins must be explicitly matched against `CORS_ORIGINS` environment variables.
+
+---
+
+## 5. UI/UX Design Principles for Wonderlab
+
+- **Visual Aesthetic**: "Science Lab meets Editorial Journal" — premium dark interface with charcoal/navy backgrounds (`#0b0f19`, `#030712`), refined borders, and vibrant accents (cyan, violet, amber, emerald).
+- **No Faux Data**: Never display mock user counters, fake review badges, or placeholder vanity statistics. Show honest simulation counters calculated live.
+- **No Lorem Ipsum**: All copy must be meaningful, scientific, engaging, and in Vietnamese or English according to user language settings.
+- **Interactive Authenticity**: Every clickable element (e.g. Monty Hall doors) must function accurately and update mathematical probabilities live.
+- **Accessibility & Motion**: Respect `prefers-reduced-motion`. Provide clear keyboard focus indicators (`focus-visible:ring-2 focus-visible:ring-cyan-400`).
+
+---
+
+## 6. Coding & TypeScript Conventions
+
+- **TypeScript Strict Mode**: No `any`. Explicit function return types and interface contracts.
+- **Clean Code & Guard Clauses**: Validate inputs early; return early. Avoid nested `if/else` past 2 levels.
+- **Naming**: Intent-revealing names (`isDoorRevealed`, `calculateMontyProbabilities`). No abbreviations or single-character variables except standard loop indices.
+- **Imports**: Group imports (standard/external first, internal path aliases `@/...` second, relative third).
+
+---
+
+## 7. Testing & Verification Policy
+
+Always run the unified root scripts before declaring work complete:
+
+```bash
+pnpm format:check   # Prettier formatting verification
+pnpm lint           # ESLint across all workspaces
+pnpm typecheck      # TypeScript typecheck for client and server
+pnpm test           # Unit tests across packages
+pnpm test:e2e       # Server E2E tests
+pnpm build          # Production builds for client and server
+pnpm check          # Runs all verification steps in sequence
+```
+
+---
+
+## 8. Git & Workflow Conventions
+
+- Commit format: Conventional Commits (`feat:`, `fix:`, `chore:`, `docs:`, `test:`, `refactor:`, `ci:`).
+- Always verify working tree and secrets with `git status` before committing.
+- Never force push (`--force`) to `main`.
+
+---
+
+## 9. Non-Negotiable Agent Rules
+
+1. **Read Before Writing**: Inspect existing files and documentation before editing.
+2. **No Unrequested Scope Creep**: Do not add user management, authentication, payment, or complex databases until explicitly requested.
+3. **No Fake Completions**: Never declare tests or builds have succeeded without actually executing them and inspecting the output.
+4. **Preserve Documentation Integrity**: Update docs in `docs/` whenever architectural decisions or workflows change.

@@ -1,0 +1,23 @@
+{
+  "name": "wonderlab-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@12.11.2",
+  "scripts": {
+    "dev": "concurrently -n client,server -c cyan,magenta \"pnpm dev:client\" \"pnpm dev:server\"",
+    "dev:client": "pnpm --filter wonderlab-client dev",
+    "dev:server": "pnpm --filter wonderlab-server start:dev",
+    "build": "pnpm --filter wonderlab-client build && pnpm --filter wonderlab-server build",
+    "lint": "pnpm -r lint",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "test:e2e": "pnpm --filter wonderlab-server test:e2e",
+    "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm test:e2e && pnpm build"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "prettier": "^3.4.2"
+  }
+}

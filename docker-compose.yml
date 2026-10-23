@@ -1,0 +1,31 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: wonderlab-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-wonderlab}
+      POSTGRES_USER: ${POSTGRES_USER:-wonderlab}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-wonderlab_dev_pass}
+    ports:
+      # Bind exclusively to 127.0.0.1 (loopback) to prevent public network exposure.
+      # Default host port 5433 avoids collisions with native PostgreSQL instances running on 5432.
+      - '127.0.0.1:${POSTGRES_PORT:-5433}:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-wonderlab} -d ${POSTGRES_DB:-wonderlab}']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - wonderlab-network
+
+networks:
+  wonderlab-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    name: wonderlab_postgres_data

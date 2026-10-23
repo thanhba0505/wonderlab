@@ -1,0 +1,33 @@
+services:
+  # Wonderlab Server (NestJS API Service)
+  - type: web
+    name: wonderlab-server
+    runtime: node
+    plan: free
+    region: oregon
+    buildCommand: pnpm install --frozen-lockfile && pnpm --filter server build
+    startCommand: pnpm --filter server start:prod
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: SERVER_PORT
+        value: 10000
+      - key: CORS_ORIGINS
+        sync: false # Set via Render dashboard to client domain
+
+  # Wonderlab Client (Next.js App Router)
+  - type: web
+    name: wonderlab-client
+    runtime: node
+    plan: free
+    region: oregon
+    buildCommand: pnpm install --frozen-lockfile && pnpm --filter client build
+    startCommand: pnpm --filter client start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_PUBLIC_APP_NAME
+        value: Wonderlab
+      - key: NEXT_PUBLIC_API_BASE_URL
+        sync: false # Set via Render dashboard to server URL, e.g. https://wonderlab-server.onrender.com/api/v1
