@@ -21,7 +21,7 @@ describe('utils', () => {
       const originalEnv = process.env.NEXT_PUBLIC_API_BASE_URL;
       delete process.env.NEXT_PUBLIC_API_BASE_URL;
 
-      expect(getApiBaseUrl()).toBe('http://localhost:3001/api/v1');
+      expect(getApiBaseUrl()).toBe('http://localhost:4101/api/v1');
 
       process.env.NEXT_PUBLIC_API_BASE_URL = originalEnv;
     });

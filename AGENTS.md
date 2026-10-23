@@ -34,7 +34,7 @@ wonderlab/
 
 - **Client (`/client`)**: User interface, routing, interactive simulations, client-side state. Communicates with server via REST (`NEXT_PUBLIC_API_BASE_URL`).
 - **Server (`/server`)**: Standalone REST API backend. Global prefix `/api/v1`. Swagger documentation at `/api/docs`. Currently exposes only `/health`.
-- **Database (`docker-compose.yml`)**: Local PostgreSQL 16 on loopback `127.0.0.1:5432`. Not connected to server in foundation phase; ORM choice is intentionally deferred.
+- **Database (`docker-compose.yml`)**: Local PostgreSQL 16 on loopback `127.0.0.1:5434`. Not connected to server in foundation phase; ORM choice is intentionally deferred.
 
 ---
 

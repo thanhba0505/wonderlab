@@ -75,19 +75,19 @@ docker compose ps
 pnpm dev
 
 # Hoặc chạy riêng biệt:
-pnpm dev:client   # Next.js tại http://localhost:3000 (hoặc :3002 nếu 3000 bận)
-pnpm dev:server   # NestJS tại http://localhost:3001
+pnpm dev:client   # Next.js tại http://localhost:4100
+pnpm dev:server   # NestJS tại http://localhost:4101
 ```
 
 ---
 
 ## 5. Địa chỉ truy cập Local (Local URLs)
 
-- **Website Client (Homepage)**: [http://localhost:3000](http://localhost:3000) (hoặc [http://localhost:3002](http://localhost:3002))
-- **Admin Placeholder**: [http://localhost:3000/admin](http://localhost:3000/admin) (hoặc [http://localhost:3002/admin](http://localhost:3002/admin))
-- **Backend Health Check**: [http://localhost:3001/api/v1/health](http://localhost:3001/api/v1/health)
-- **Swagger API Documentation**: [http://localhost:3001/api/docs](http://localhost:3001/api/docs)
-- **PostgreSQL**: `127.0.0.1:5433` (được bảo vệ chỉ bind loopback)
+- **Website Client (Homepage)**: [http://localhost:4100](http://localhost:4100)
+- **Admin Placeholder**: [http://localhost:4100/admin](http://localhost:4100/admin)
+- **Backend Health Check**: [http://localhost:4101/api/v1/health](http://localhost:4101/api/v1/health)
+- **Swagger API Documentation**: [http://localhost:4101/api/docs](http://localhost:4101/api/docs)
+- **PostgreSQL**: `127.0.0.1:5434` (được bảo vệ chỉ bind loopback)
 
 ---
 

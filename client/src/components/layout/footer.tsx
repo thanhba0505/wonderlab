@@ -78,7 +78,7 @@ export function Footer() {
               </li>
               <li>
                 <a
-                  href="http://localhost:3001/api/docs"
+                  href="http://localhost:4101/api/docs"
                   target="_blank"
                   rel="noreferrer"
                   className="flex items-center gap-1.5 hover:text-cyan-400 transition-colors"

@@ -13,7 +13,7 @@ We decided to **defer the selection of an ORM** (Prisma, Drizzle, TypeORM, or Ky
 
 - Avoids locking the project into an ORM paradigm before knowing whether schema access is read-heavy, analytical, or transactional.
 - Keeps backend foundation minimal, fast-compiling, and strictly focused on system health (`GET /api/v1/health`).
-- PostgreSQL container is running, healthy, and tested on loopback port `5433`.
+- PostgreSQL container is running, healthy, and tested on loopback port `5434`.
 
 ## Consequences
 

@@ -24,7 +24,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-wonderlab}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-wonderlab_dev_pass}
     ports:
-      - '127.0.0.1:${POSTGRES_PORT:-5433}:5432'
+      - '127.0.0.1:${POSTGRES_PORT:-5434}:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -37,8 +37,8 @@ services:
 
 ### Key Security & Operational Traits:
 
-- **Loopback Port Binding**: Strictly bound to `127.0.0.1:${POSTGRES_PORT:-5433}` so the database is never accessible across LAN or the public Internet.
-- **Port 5433 Default**: Avoids collision with native PostgreSQL servers running on standard port 5432.
+- **Loopback Port Binding**: Strictly bound to `127.0.0.1:${POSTGRES_PORT:-5434}` so the database is never accessible across LAN or the public Internet.
+- **Port 5434 Default**: Avoids collision with native PostgreSQL servers running on standard port 5432 or other local services.
 - **Automated Healthcheck**: Runs `pg_isready` inside the container every 5 seconds.
 - **Named Volume**: Data is stored persistently in Docker volume `wonderlab_postgres_data`.
 
@@ -83,7 +83,7 @@ docker compose down
 Use GUI tools like **DBeaver**, **TablePlus**, or CLI `psql`:
 
 - **Host**: `127.0.0.1` (or `localhost`)
-- **Port**: `5433`
+- **Port**: `5434`
 - **Database**: `wonderlab`
 - **Username**: `wonderlab`
 - **Password**: _(value of `POSTGRES_PASSWORD` in `.env`)_
@@ -91,7 +91,7 @@ Use GUI tools like **DBeaver**, **TablePlus**, or CLI `psql`:
 CLI example:
 
 ```bash
-psql -h 127.0.0.1 -p 5433 -U wonderlab -d wonderlab
+psql -h 127.0.0.1 -p 5434 -U wonderlab -d wonderlab
 ```
 
 ---

@@ -5,8 +5,8 @@ echo "=========================================================="
 echo "  Wonderlab — Foundation Smoke Test Suite"
 echo "=========================================================="
 
-CLIENT_URL="${CLIENT_URL:-http://localhost:3002}"
-SERVER_URL="${SERVER_URL:-http://localhost:3001}"
+CLIENT_URL="${CLIENT_URL:-http://localhost:4100}"
+SERVER_URL="${SERVER_URL:-http://localhost:4101}"
 
 # 1. Test Server Health API
 echo -n "• Testing Server Health API (${SERVER_URL}/api/v1/health)... "

@@ -45,10 +45,10 @@ flowchart TD
 ## 3. Communication Contracts
 
 1. **Client to Server**:
-   - Client resolves backend via `NEXT_PUBLIC_API_BASE_URL` (default: `http://localhost:3001/api/v1`).
+   - Client resolves backend via `NEXT_PUBLIC_API_BASE_URL` (default: `http://localhost:4101/api/v1`).
    - Server enforces global prefix `/api/v1`.
 2. **CORS Policy**:
-   - Server allows origins specified in `CORS_ORIGINS` (comma-separated list, default: `http://localhost:3000`).
+   - Server allows origins specified in `CORS_ORIGINS` (comma-separated list, default: `http://localhost:4100`).
 3. **Data Transfer & Validation**:
    - DTOs validated using `class-validator` and `class-transformer` with `whitelist: true` and `forbidNonWhitelisted: true`.
 

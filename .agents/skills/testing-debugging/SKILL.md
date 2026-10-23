@@ -15,5 +15,5 @@ description: Testing standards, smoke testing procedures, and systematic debuggi
 ## 2. Systematic Debugging Rules
 
 - **Reproduce First**: Never apply speculative fixes without first running a failing test or observing the exact error trace.
-- **Check Boundaries**: Verify environment variable loading, port bindings (3000 vs 3001), CORS headers, and JSON serialization.
+- **Check Boundaries**: Verify environment variable loading, port bindings (4100 vs 4101), CORS headers, and JSON serialization.
 - **No Test Circumvention**: Do not skip tests (`it.skip`), silence TypeScript errors (`@ts-ignore`), or disable linter rules without justification.

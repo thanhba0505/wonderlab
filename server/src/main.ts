@@ -22,7 +22,7 @@ async function bootstrap() {
   // CORS Configuration
   const corsOrigins = process.env.CORS_ORIGINS
     ? process.env.CORS_ORIGINS.split(',').map(origin => origin.trim())
-    : ['http://localhost:3000'];
+    : ['http://localhost:4100'];
 
   app.enableCors({
     origin: corsOrigins,
@@ -49,7 +49,7 @@ async function bootstrap() {
   // Graceful shutdown hooks
   app.enableShutdownHooks();
 
-  const port = parseInt(process.env.SERVER_PORT || '3001', 10);
+  const port = parseInt(process.env.SERVER_PORT || '4101', 10);
   await app.listen(port);
   logger.log(`Wonderlab server listening on port ${port} (API: /api/v1)`);
 }

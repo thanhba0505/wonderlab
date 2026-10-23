@@ -55,8 +55,8 @@ pnpm dev
 
 Alternatively, run individually in separate terminal sessions:
 
-- **Client**: `pnpm dev:client` (starts Next.js at `http://localhost:3000`)
-- **Server**: `pnpm dev:server` (starts NestJS at `http://localhost:3001`)
+- **Client**: `pnpm dev:client` (starts Next.js at `http://localhost:4100`)
+- **Server**: `pnpm dev:server` (starts NestJS at `http://localhost:4101`)
 
 ---
 
@@ -64,11 +64,11 @@ Alternatively, run individually in separate terminal sessions:
 
 | Service               | Address                                                                    | Description                               |
 | --------------------- | -------------------------------------------------------------------------- | ----------------------------------------- |
-| **Frontend Homepage** | [http://localhost:3000](http://localhost:3000)                             | Public science lab & simulation hub       |
-| **Admin Placeholder** | [http://localhost:3000/admin](http://localhost:3000/admin)                 | Future administration layout preview      |
-| **Server Health API** | [http://localhost:3001/api/v1/health](http://localhost:3001/api/v1/health) | Microservice health check contract        |
-| **Swagger OpenAPI**   | [http://localhost:3001/api/docs](http://localhost:3001/api/docs)           | Interactive API exploration documentation |
-| **PostgreSQL**        | `localhost:5432`                                                           | Bound to `127.0.0.1` (loopback only)      |
+| **Frontend Homepage** | [http://localhost:4100](http://localhost:4100)                             | Public science lab & simulation hub       |
+| **Admin Placeholder** | [http://localhost:4100/admin](http://localhost:4100/admin)                 | Future administration layout preview      |
+| **Server Health API** | [http://localhost:4101/api/v1/health](http://localhost:4101/api/v1/health) | Microservice health check contract        |
+| **Swagger OpenAPI**   | [http://localhost:4101/api/docs](http://localhost:4101/api/docs)           | Interactive API exploration documentation |
+| **PostgreSQL**        | `localhost:5434`                                                           | Bound to `127.0.0.1` (loopback only)      |
 
 ---
 
