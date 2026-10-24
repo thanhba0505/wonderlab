@@ -14,6 +14,21 @@ jobs:
     name: Lint, Test & Build
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgrespassword
+          POSTGRES_DB: wonderlab
+        ports:
+          - 5434:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -27,7 +42,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           cache: 'pnpm'
 
       - name: Install dependencies
@@ -42,11 +57,21 @@ jobs:
       - name: Typecheck TypeScript
         run: pnpm typecheck
 
+      - name: Run Prisma Migrations & Seed
+        run: |
+          cd server
+          pnpm prisma migrate deploy
+          pnpm seed
+        env:
+          DATABASE_URL: postgres://postgres:postgrespassword@localhost:5434/wonderlab?schema=public
+
       - name: Run unit tests
         run: pnpm test
 
       - name: Run E2E tests
         run: pnpm test:e2e
+        env:
+          DATABASE_URL: postgres://postgres:postgrespassword@localhost:5434/wonderlab?schema=public
 
       - name: Build applications
         run: pnpm build

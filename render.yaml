@@ -5,14 +5,19 @@ services:
     runtime: node
     plan: free
     region: oregon
-    buildCommand: pnpm install --frozen-lockfile && pnpm --filter server build
-    startCommand: pnpm --filter server start:prod
+    autoDeploy: false
+    buildCommand: pnpm install --frozen-lockfile && pnpm --filter wonderlab-server db:generate && pnpm --filter wonderlab-server build
+    startCommand: pnpm --filter wonderlab-server prisma migrate deploy && pnpm --filter wonderlab-server db:seed && pnpm --filter wonderlab-server start:prod
     healthCheckPath: /api/v1/health
     envVars:
       - key: NODE_ENV
         value: production
       - key: SERVER_PORT
         value: 10000
+      - key: DATABASE_URL
+        fromDatabase:
+          name: wonderlab-db
+          property: connectionString
       - key: CORS_ORIGINS
         sync: false # Set via Render dashboard to client domain
 
@@ -22,8 +27,9 @@ services:
     runtime: node
     plan: free
     region: oregon
-    buildCommand: pnpm install --frozen-lockfile && pnpm --filter client build
-    startCommand: pnpm --filter client start
+    autoDeploy: false
+    buildCommand: pnpm install --frozen-lockfile && pnpm --filter wonderlab-client build
+    startCommand: pnpm --filter wonderlab-client start
     envVars:
       - key: NODE_ENV
         value: production
@@ -31,3 +37,11 @@ services:
         value: Wonderlab
       - key: NEXT_PUBLIC_API_BASE_URL
         sync: false # Set via Render dashboard to server URL, e.g. https://wonderlab-server.onrender.com/api/v1
+
+databases:
+  # Wonderlab Managed PostgreSQL Database
+  - name: wonderlab-db
+    plan: free
+    region: oregon
+    databaseName: wonderlab
+    user: wonderlab_user
