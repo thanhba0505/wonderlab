@@ -25,6 +25,39 @@ export class UsersService {
   }
 
   /**
+   * Internal auth lookup by username or email
+   */
+  async findByIdentifierWithHash(identifier: string): Promise<User | null> {
+    const isEmail = identifier.includes('@');
+    if (isEmail) {
+      return this.prisma.user.findUnique({
+        where: { email: identifier.toLowerCase() },
+      });
+    }
+    return this.prisma.user.findUnique({
+      where: { username: identifier },
+    });
+  }
+
+  /**
+   * Lookup user by email
+   */
+  async findByEmail(email: string): Promise<User | null> {
+    return this.prisma.user.findUnique({
+      where: { email: email.toLowerCase() },
+    });
+  }
+
+  /**
+   * Lookup user by Google ID
+   */
+  async findByGoogleId(googleId: string): Promise<User | null> {
+    return this.prisma.user.findUnique({
+      where: { googleId },
+    });
+  }
+
+  /**
    * Safe user lookup by ID - strips passwordHash
    */
   async findById(id: string): Promise<SafeUser | null> {
@@ -62,19 +95,37 @@ export class UsersService {
   async create(data: {
     username: string;
     email?: string;
-    passwordHash: string;
+    passwordHash?: string;
+    googleId?: string;
+    isEmailVerified?: boolean;
+    avatarUrl?: string;
     role?: Role;
   }): Promise<SafeUser> {
     const user = await this.prisma.user.create({
       data: {
         username: data.username,
-        email: data.email,
+        email: data.email?.toLowerCase(),
         passwordHash: data.passwordHash,
+        googleId: data.googleId,
+        isEmailVerified: data.isEmailVerified ?? false,
+        avatarUrl: data.avatarUrl,
         role: data.role ?? Role.USER,
       },
     });
 
     const { passwordHash: _, ...safeUser } = user;
+    return safeUser;
+  }
+
+  /**
+   * Update user fields
+   */
+  async update(id: string, data: Partial<User>): Promise<SafeUser> {
+    const updated = await this.prisma.user.update({
+      where: { id },
+      data,
+    });
+    const { passwordHash: _, ...safeUser } = updated;
     return safeUser;
   }
 
@@ -88,6 +139,9 @@ export class UsersService {
         username: true,
         email: true,
         role: true,
+        isEmailVerified: true,
+        avatarUrl: true,
+        googleId: true,
         createdAt: true,
         updatedAt: true,
         _count: {

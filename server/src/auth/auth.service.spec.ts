@@ -6,6 +6,8 @@ import { Response } from 'express';
 import * as argon2 from 'argon2';
 import { AuthService } from './auth.service';
 import { UsersService } from '../users/users.service';
+import { OtpService } from './otp.service';
+import { PrismaService } from '../prisma/prisma.service';
 
 describe('AuthService', () => {
   let authService: AuthService;
@@ -18,6 +20,9 @@ describe('AuthService', () => {
     email: 'admin@wonderlab.local',
     passwordHash: '',
     role: Role.ADMIN,
+    googleId: null,
+    isEmailVerified: true,
+    avatarUrl: null,
     createdAt: new Date(),
     updatedAt: new Date(),
   };
@@ -29,14 +34,28 @@ describe('AuthService', () => {
 
   beforeEach(async () => {
     const mockUsersService = {
+      findByIdentifierWithHash: jest.fn(),
       findByUsernameWithHash: jest.fn(),
       findById: jest.fn(),
       findByUsername: jest.fn(),
+      findByEmail: jest.fn(),
       create: jest.fn(),
+      update: jest.fn(),
     };
 
     const mockJwtService = {
       sign: jest.fn().mockReturnValue('mock.jwt.token'),
+    };
+
+    const mockOtpService = {
+      createAndSendOtp: jest.fn(),
+      verifyOtp: jest.fn(),
+    };
+
+    const mockPrismaService = {
+      user: {
+        findUnique: jest.fn().mockResolvedValue(mockUser),
+      },
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -44,6 +63,8 @@ describe('AuthService', () => {
         AuthService,
         { provide: UsersService, useValue: mockUsersService },
         { provide: JwtService, useValue: mockJwtService },
+        { provide: OtpService, useValue: mockOtpService },
+        { provide: PrismaService, useValue: mockPrismaService },
       ],
     }).compile();
 
@@ -54,7 +75,7 @@ describe('AuthService', () => {
 
   describe('validateUser', () => {
     it('should validate and return safe user when credentials match', async () => {
-      usersService.findByUsernameWithHash.mockResolvedValue(mockUser);
+      usersService.findByIdentifierWithHash.mockResolvedValue(mockUser);
 
       const result = await authService.validateUser({
         username: 'admin',
@@ -67,7 +88,7 @@ describe('AuthService', () => {
     });
 
     it('should throw UnauthorizedException with generic message when password does not match', async () => {
-      usersService.findByUsernameWithHash.mockResolvedValue(mockUser);
+      usersService.findByIdentifierWithHash.mockResolvedValue(mockUser);
 
       await expect(
         authService.validateUser({
@@ -78,7 +99,7 @@ describe('AuthService', () => {
     });
 
     it('should throw UnauthorizedException with generic message when user does not exist', async () => {
-      usersService.findByUsernameWithHash.mockResolvedValue(null);
+      usersService.findByIdentifierWithHash.mockResolvedValue(null);
 
       await expect(
         authService.validateUser({

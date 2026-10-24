@@ -12,18 +12,43 @@ enum Role {
   USER
 }
 
+enum OtpType {
+  REGISTER_VERIFY
+  RESET_PASSWORD
+}
+
 model User {
-  id             String          @id @default(uuid())
-  username       String          @unique
-  email          String?         @unique
-  passwordHash   String          @map("password_hash")
-  role           Role            @default(ADMIN)
-  createdAt      DateTime        @default(now()) @map("created_at")
-  updatedAt      DateTime        @updatedAt @map("updated_at")
-  simulationRuns SimulationRun[]
-  comments       Comment[]
+  id              String          @id @default(uuid())
+  username        String          @unique
+  email           String?         @unique
+  passwordHash    String?         @map("password_hash")
+  googleId        String?         @unique @map("google_id")
+  isEmailVerified Boolean         @default(false) @map("is_email_verified")
+  avatarUrl       String?         @map("avatar_url")
+  role            Role            @default(USER)
+  createdAt       DateTime        @default(now()) @map("created_at")
+  updatedAt       DateTime        @updatedAt @map("updated_at")
+  simulationRuns  SimulationRun[]
+  comments        Comment[]
+  otpTokens       OtpToken[]
 
   @@map("users")
+}
+
+model OtpToken {
+  id        String    @id @default(uuid())
+  email     String
+  code      String    @db.VarChar(6)
+  type      OtpType
+  expiresAt DateTime  @map("expires_at")
+  usedAt    DateTime? @map("used_at")
+  userId    String?   @map("user_id")
+  user      User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  @@index([email, type])
+  @@index([code])
+  @@map("otp_tokens")
 }
 
 model SimulationRun {

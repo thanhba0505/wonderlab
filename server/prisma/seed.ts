@@ -19,12 +19,14 @@ async function main() {
       email,
       passwordHash,
       role: Role.ADMIN,
+      isEmailVerified: true,
     },
     create: {
       username,
       email,
       passwordHash,
       role: Role.ADMIN,
+      isEmailVerified: true,
     },
   });
 

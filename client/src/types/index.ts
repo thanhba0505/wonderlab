@@ -34,7 +34,11 @@ export interface AuthUser {
   id: string;
   username: string;
   email: string | null;
-  role: 'ADMIN';
+  role: 'ADMIN' | 'USER';
+  isEmailVerified?: boolean;
+  hasPassword?: boolean;
+  isGoogleLinked?: boolean;
+  avatarUrl?: string | null;
   createdAt: string;
   updatedAt: string;
 }

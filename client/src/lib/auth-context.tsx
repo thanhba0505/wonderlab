@@ -3,10 +3,52 @@
 import * as React from 'react';
 import { AuthUser } from '@/types';
 
+export type AuthModalView = 'login' | 'register' | 'otp' | 'forgot' | 'reset';
+
 interface AuthContextType {
   user: AuthUser | null;
   isLoading: boolean;
-  login: (username: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  // Modal states
+  isAuthModalOpen: boolean;
+  authModalMode: AuthModalView;
+  pendingEmail: string;
+  isProfileModalOpen: boolean;
+  openAuthModal: (mode?: AuthModalView, email?: string) => void;
+  closeAuthModal: () => void;
+  openProfileModal: () => void;
+  closeProfileModal: () => void;
+  // Actions
+  login: (
+    username: string,
+    password: string,
+  ) => Promise<{ success: boolean; error?: string; requireOtp?: boolean; email?: string }>;
+  register: (
+    username: string,
+    email: string,
+    password: string,
+  ) => Promise<{ success: boolean; error?: string; email?: string }>;
+  verifyEmail: (email: string, code: string) => Promise<{ success: boolean; error?: string }>;
+  resendOtp: (
+    email: string,
+    type?: 'REGISTER_VERIFY' | 'RESET_PASSWORD',
+  ) => Promise<{ success: boolean; error?: string }>;
+  loginWithGoogle: (payload: {
+    email?: string;
+    name?: string;
+    googleId?: string;
+    credential?: string;
+  }) => Promise<{ success: boolean; error?: string }>;
+  forgotPassword: (email: string) => Promise<{ success: boolean; error?: string }>;
+  resetPassword: (
+    email: string,
+    code: string,
+    newPassword: string,
+  ) => Promise<{ success: boolean; error?: string }>;
+  changePassword: (
+    currentPassword: string,
+    newPassword: string,
+  ) => Promise<{ success: boolean; error?: string }>;
+  setPassword: (newPassword: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
 }
@@ -19,14 +61,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = React.useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = React.useState<boolean>(true);
 
+  // Modal controls
+  const [isAuthModalOpen, setIsAuthModalOpen] = React.useState<boolean>(false);
+  const [authModalMode, setAuthModalMode] = React.useState<AuthModalView>('login');
+  const [pendingEmail, setPendingEmail] = React.useState<string>('');
+  const [isProfileModalOpen, setIsProfileModalOpen] = React.useState<boolean>(false);
+
+  const openAuthModal = React.useCallback((mode: AuthModalView = 'login', email: string = '') => {
+    setAuthModalMode(mode);
+    if (email) setPendingEmail(email);
+    setIsAuthModalOpen(true);
+  }, []);
+
+  const closeAuthModal = React.useCallback(() => {
+    setIsAuthModalOpen(false);
+  }, []);
+
+  const openProfileModal = React.useCallback(() => {
+    setIsProfileModalOpen(true);
+  }, []);
+
+  const closeProfileModal = React.useCallback(() => {
+    setIsProfileModalOpen(false);
+  }, []);
+
   const refreshUser = React.useCallback(async () => {
     try {
       const response = await fetch(`${API_BASE_URL}/auth/me`, {
         method: 'GET',
-        headers: {
-          Accept: 'application/json',
-        },
-        credentials: 'include', // Automatically send and receive HttpOnly cookie
+        headers: { Accept: 'application/json' },
+        credentials: 'include',
       });
 
       if (response.ok) {
@@ -49,7 +113,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (
     username: string,
     password: string,
-  ): Promise<{ success: boolean; error?: string }> => {
+  ): Promise<{ success: boolean; error?: string; requireOtp?: boolean; email?: string }> => {
     setIsLoading(true);
     try {
       const response = await fetch(`${API_BASE_URL}/auth/login`, {
@@ -65,18 +129,311 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const data = await response.json();
 
       if (!response.ok) {
-        return {
-          success: false,
-          error: data.message || 'Tên đăng nhập hoặc mật khẩu không chính xác',
-        };
+        const message = data.message || 'Tên đăng nhập hoặc mật khẩu không chính xác';
+        if (message.includes('chưa được xác thực') && username.includes('@')) {
+          return { success: false, error: message, requireOtp: true, email: username };
+        }
+        return { success: false, error: message };
       }
 
       setUser(data.user);
+      setIsAuthModalOpen(false);
       return { success: true };
     } catch {
       return {
         success: false,
-        error: 'Không thể kết nối đến máy chủ bảo mật. Vui lòng kiểm tra lại.',
+        error: 'Không thể kết nối đến máy chủ bảo mật. Vui lòng thử lại sau.',
+      };
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const register = async (
+    username: string,
+    email: string,
+    password: string,
+  ): Promise<{ success: boolean; error?: string; email?: string }> => {
+    setIsLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ username, email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return {
+          success: false,
+          error: data.message || 'Đăng ký tài khoản không thành công.',
+        };
+      }
+
+      setPendingEmail(email);
+      setAuthModalMode('otp');
+      return { success: true, email };
+    } catch {
+      return {
+        success: false,
+        error: 'Lỗi kết nối mạng khi tạo tài khoản.',
+      };
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const verifyEmail = async (
+    email: string,
+    code: string,
+  ): Promise<{ success: boolean; error?: string }> => {
+    setIsLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/verify-email`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ email, code }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return {
+          success: false,
+          error: data.message || 'Mã xác thực không hợp lệ hoặc đã hết hạn.',
+        };
+      }
+
+      setUser(data.user);
+      setIsAuthModalOpen(false);
+      return { success: true };
+    } catch {
+      return {
+        success: false,
+        error: 'Lỗi kết nối khi xác thực OTP.',
+      };
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const resendOtp = async (
+    email: string,
+    type: 'REGISTER_VERIFY' | 'RESET_PASSWORD' = 'REGISTER_VERIFY',
+  ): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/resend-otp`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ email, type }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        return {
+          success: false,
+          error: data.message || 'Không thể gửi lại mã xác thực lúc này.',
+        };
+      }
+
+      return { success: true };
+    } catch {
+      return {
+        success: false,
+        error: 'Lỗi kết nối mạng.',
+      };
+    }
+  };
+
+  const loginWithGoogle = async (payload: {
+    email?: string;
+    name?: string;
+    googleId?: string;
+    credential?: string;
+  }): Promise<{ success: boolean; error?: string }> => {
+    setIsLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/google`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(payload),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return {
+          success: false,
+          error: data.message || 'Đăng nhập bằng Google thất bại.',
+        };
+      }
+
+      setUser(data.user);
+      setIsAuthModalOpen(false);
+      return { success: true };
+    } catch {
+      return {
+        success: false,
+        error: 'Lỗi kết nối máy chủ khi đăng nhập Google.',
+      };
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const forgotPassword = async (email: string): Promise<{ success: boolean; error?: string }> => {
+    setIsLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        return {
+          success: false,
+          error: data.message || 'Không thể xử lý yêu cầu quên mật khẩu.',
+        };
+      }
+
+      setPendingEmail(email);
+      setAuthModalMode('reset');
+      return { success: true };
+    } catch {
+      return {
+        success: false,
+        error: 'Lỗi kết nối khi gửi yêu cầu quên mật khẩu.',
+      };
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const resetPassword = async (
+    email: string,
+    code: string,
+    newPassword: string,
+  ): Promise<{ success: boolean; error?: string }> => {
+    setIsLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/reset-password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ email, code, newPassword }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        return {
+          success: false,
+          error: data.message || 'Đặt lại mật khẩu không thành công.',
+        };
+      }
+
+      setAuthModalMode('login');
+      return { success: true };
+    } catch {
+      return {
+        success: false,
+        error: 'Lỗi kết nối khi đặt lại mật khẩu.',
+      };
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const changePassword = async (
+    currentPassword: string,
+    newPassword: string,
+  ): Promise<{ success: boolean; error?: string }> => {
+    setIsLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/change-password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ currentPassword, newPassword }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        return {
+          success: false,
+          error: data.message || 'Đổi mật khẩu thất bại.',
+        };
+      }
+
+      await refreshUser();
+      return { success: true };
+    } catch {
+      return {
+        success: false,
+        error: 'Lỗi kết nối khi đổi mật khẩu.',
+      };
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const setPassword = async (
+    newPassword: string,
+  ): Promise<{ success: boolean; error?: string }> => {
+    setIsLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/set-password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ newPassword }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        return {
+          success: false,
+          error: data.message || 'Thiết lập mật khẩu thất bại.',
+        };
+      }
+
+      await refreshUser();
+      return { success: true };
+    } catch {
+      return {
+        success: false,
+        error: 'Lỗi kết nối khi thiết lập mật khẩu.',
       };
     } finally {
       setIsLoading(false);
@@ -91,23 +448,48 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         credentials: 'include',
       });
     } catch {
-      // Ignored: clear client user state regardless of network error
+      // Ignored
     } finally {
       setUser(null);
       setIsLoading(false);
+      setIsProfileModalOpen(false);
     }
   };
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, logout, refreshUser }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        isLoading,
+        isAuthModalOpen,
+        authModalMode,
+        pendingEmail,
+        isProfileModalOpen,
+        openAuthModal,
+        closeAuthModal,
+        openProfileModal,
+        closeProfileModal,
+        login,
+        register,
+        verifyEmail,
+        resendOtp,
+        loginWithGoogle,
+        forgotPassword,
+        resetPassword,
+        changePassword,
+        setPassword,
+        logout,
+        refreshUser,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
 }
 
-export function useAuth(): AuthContextType {
+export function useAuth() {
   const context = React.useContext(AuthContext);
-  if (!context) {
+  if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;

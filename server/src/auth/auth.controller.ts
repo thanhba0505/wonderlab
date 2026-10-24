@@ -4,6 +4,13 @@ import { Response } from 'express';
 import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
+import { RegisterDto } from './dto/register.dto';
+import { VerifyEmailDto } from './dto/verify-email.dto';
+import { ResendOtpDto } from './dto/resend-otp.dto';
+import { GoogleLoginDto } from './dto/google-login.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
+import { ChangePasswordDto, SetPasswordDto } from './dto/change-password.dto';
 import { LoginResponseDto, LogoutResponseDto, UserProfileDto } from './dto/auth-response.dto';
 import { Public } from './decorators/public.decorator';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
@@ -47,6 +54,133 @@ export class AuthController {
   }
 
   @Public()
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
+  @Post('register')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({
+    summary: 'Đăng ký tài khoản mới',
+    description: 'Tạo tài khoản và gửi mã xác thực OTP 6 số đến email',
+  })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    description: 'Đăng ký thành công, mã OTP đã gửi đến email',
+  })
+  async register(@Body() dto: RegisterDto) {
+    return this.authService.register(dto);
+  }
+
+  @Public()
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
+  @Post('verify-email')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Xác thực email bằng mã OTP 6 số',
+    description: 'Kích hoạt tài khoản và tự động đăng nhập cấp cookie',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Xác thực thành công và đã đăng nhập',
+    type: LoginResponseDto,
+  })
+  async verifyEmail(
+    @Body() dto: VerifyEmailDto,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<LoginResponseDto> {
+    return this.authService.verifyEmail(dto, response);
+  }
+
+  @Public()
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
+  @Post('resend-otp')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Gửi lại mã OTP (Giới hạn giãn cách 60 giây)',
+    description: 'Tạo và gửi mã OTP mới nếu đã quá 60s kể từ lần gửi trước',
+  })
+  async resendOtp(@Body() dto: ResendOtpDto) {
+    return this.authService.resendOtp(dto.email, dto.type);
+  }
+
+  @Public()
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
+  @Post('google')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Đăng nhập / Đăng ký qua Google OAuth',
+    description:
+      'Tự động đăng ký hoặc liên kết tài khoản nếu cùng email, đồng thời cấp session cookie',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Đăng nhập Google thành công',
+    type: LoginResponseDto,
+  })
+  async googleLogin(
+    @Body() dto: GoogleLoginDto,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<LoginResponseDto> {
+    return this.authService.loginWithGoogle(dto, response);
+  }
+
+  @Public()
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
+  @Post('forgot-password')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Quên mật khẩu (Gửi mã OTP 6 số)',
+    description: 'Gửi mã xác thực đặt lại mật khẩu qua email',
+  })
+  async forgotPassword(@Body() dto: ForgotPasswordDto) {
+    return this.authService.forgotPassword(dto);
+  }
+
+  @Public()
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
+  @Post('reset-password')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Đặt lại mật khẩu với mã OTP 6 số',
+    description: 'Xác thực mã 6 số và cập nhật mật khẩu mới',
+  })
+  async resetPassword(@Body() dto: ResetPasswordDto) {
+    return this.authService.resetPassword(dto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
+  @Post('change-password')
+  @HttpCode(HttpStatus.OK)
+  @ApiCookieAuth('access_token')
+  @ApiOperation({
+    summary: 'Đổi mật khẩu cho người dùng hiện tại',
+    description: 'Yêu cầu mật khẩu hiện tại nếu tài khoản đã có mật khẩu',
+  })
+  async changePassword(@CurrentUser() user: SafeUser, @Body() dto: ChangePasswordDto) {
+    return this.authService.changePassword(user.id, dto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
+  @Post('set-password')
+  @HttpCode(HttpStatus.OK)
+  @ApiCookieAuth('access_token')
+  @ApiOperation({
+    summary: 'Thiết lập mật khẩu cho tài khoản Google chưa có mật khẩu',
+    description: 'Cho phép người dùng Google tạo mật khẩu để có thể đăng nhập bằng email',
+  })
+  async setPassword(@CurrentUser() user: SafeUser, @Body() dto: SetPasswordDto) {
+    return this.authService.setPassword(user.id, dto);
+  }
+
+  @Public()
   @Post('logout')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
@@ -78,7 +212,7 @@ export class AuthController {
     status: HttpStatus.UNAUTHORIZED,
     description: 'Chưa đăng nhập hoặc phiên làm việc đã hết hạn',
   })
-  getMe(@CurrentUser() user: SafeUser): UserProfileDto {
-    return user;
+  async getMe(@CurrentUser() user: SafeUser): Promise<UserProfileDto> {
+    return this.authService.getDetailedProfile(user);
   }
 }

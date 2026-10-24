@@ -29,6 +29,31 @@ export class UserProfileDto {
   role!: Role;
 
   @ApiProperty({
+    example: true,
+    description: 'Email verified status',
+  })
+  isEmailVerified!: boolean;
+
+  @ApiProperty({
+    example: true,
+    description: 'Tài khoản đã có mật khẩu cá nhân hay chưa',
+  })
+  hasPassword!: boolean;
+
+  @ApiProperty({
+    example: false,
+    description: 'Tài khoản đã liên kết với Google OAuth',
+  })
+  isGoogleLinked!: boolean;
+
+  @ApiProperty({
+    example: 'https://lh3.googleusercontent.com/...',
+    description: 'User avatar URL',
+    nullable: true,
+  })
+  avatarUrl!: string | null;
+
+  @ApiProperty({
     example: '2026-10-24T09:11:16.571Z',
     description: 'Account creation ISO timestamp',
   })

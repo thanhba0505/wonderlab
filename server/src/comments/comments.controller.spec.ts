@@ -18,6 +18,9 @@ describe('CommentsController', () => {
     username: 'scientist_bob',
     email: 'bob@example.com',
     role: Role.USER,
+    googleId: null,
+    isEmailVerified: true,
+    avatarUrl: null,
     createdAt: new Date(),
     updatedAt: new Date(),
   };

@@ -1,7 +1,13 @@
+'use client';
+
+import * as React from 'react';
 import Link from 'next/link';
-import { Sparkles, Github, ArrowUpRight, Scale } from 'lucide-react';
+import { Sparkles, Github, ArrowUpRight, Scale, Shield } from 'lucide-react';
+import { useAuth } from '@/lib/auth-context';
 
 export function Footer() {
+  const { user } = useAuth();
+
   return (
     <footer className="border-t border-slate-300/80 bg-slate-200/40 py-12 text-slate-600">
       <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -29,45 +35,53 @@ export function Footer() {
             </h4>
             <ul className="space-y-2.5 text-sm font-medium">
               <li>
-                <a
-                  href="#featured"
+                <Link
+                  href="/simulations"
                   className="text-slate-600 hover:text-slate-900 transition-colors"
                 >
-                  Nghịch lý Monty Hall
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#explore"
-                  className="text-slate-600 hover:text-slate-900 transition-colors"
-                >
-                  Chủ đề khoa học & Bento
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#curated"
-                  className="text-slate-600 hover:text-slate-900 transition-colors"
-                >
-                  Danh mục tuyển chọn
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#editorial"
-                  className="text-slate-600 hover:text-slate-900 transition-colors"
-                >
-                  Tiểu luận & Tư duy
-                </a>
+                  Phòng Thí Nghiệm
+                </Link>
               </li>
               <li>
                 <Link
-                  href="/admin"
-                  className="text-amber-700 hover:text-amber-800 transition-colors font-medium"
+                  href="/simulations/monty-hall"
+                  className="text-slate-600 hover:text-slate-900 transition-colors"
                 >
-                  Quản trị (Admin)
+                  Nghịch lý Monty Hall
                 </Link>
               </li>
+              <li>
+                <Link
+                  href="/simulations/birthday-paradox"
+                  className="text-slate-600 hover:text-slate-900 transition-colors"
+                >
+                  Nghịch lý Ngày sinh
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/#editorial"
+                  className="text-slate-600 hover:text-slate-900 transition-colors"
+                >
+                  Tiểu luận & Tư duy
+                </Link>
+              </li>
+
+              {/* Chỉ hiển thị link Admin khi đã đăng nhập tài khoản ADMIN */}
+              {user?.role === 'ADMIN' && (
+                <li className="pt-1">
+                  <Link
+                    href="/admin"
+                    className="text-blue-700 hover:text-blue-800 transition-colors font-medium flex items-center gap-1.5"
+                  >
+                    <Shield className="h-3.5 w-3.5" />
+                    <span>Cổng Quản Trị</span>
+                    <span className="text-[9px] font-mono bg-blue-100 text-blue-800 px-1 py-0.2 rounded font-bold">
+                      ADMIN
+                    </span>
+                  </Link>
+                </li>
+              )}
             </ul>
           </div>
 

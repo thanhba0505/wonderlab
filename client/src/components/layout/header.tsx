@@ -2,23 +2,14 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import {
-  Sparkles,
-  Menu,
-  X,
-  Compass,
-  FlaskConical,
-  BookOpen,
-  ShieldAlert,
-  LogOut,
-  ShieldCheck,
-} from 'lucide-react';
+import { Sparkles, Menu, X, Compass, FlaskConical, BookOpen, LogOut, LogIn } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/lib/auth-context';
 
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
-  const { user, logout } = useAuth();
+  const { user, logout, openAuthModal, openProfileModal } = useAuth();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-slate-300/80 bg-white/95 backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(15,23,42,0.06)]">
@@ -79,47 +70,50 @@ export function Header() {
         <div className="hidden md:flex items-center gap-3">
           {user ? (
             <div className="flex items-center gap-2">
-              <Link href="/admin">
-                <Button
+              <button
+                type="button"
+                onClick={() => openProfileModal()}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 transition shadow-2xs group"
+                title="Quản lý tài khoản"
+              >
+                <div className="h-6 w-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-mono font-bold">
+                  {user.username.charAt(0).toUpperCase()}
+                </div>
+                <span className="font-mono text-xs font-bold text-slate-800 group-hover:text-blue-600 transition-colors">
+                  {user.username}
+                </span>
+                <Badge
                   variant="outline"
-                  size="sm"
-                  className="text-xs text-blue-900 border-blue-200 bg-blue-50/80 hover:bg-blue-100 font-medium"
+                  className={`text-[9px] font-mono px-1.5 py-0.2 font-bold uppercase ${
+                    user.role === 'ADMIN'
+                      ? 'border-amber-300 bg-amber-50 text-amber-800'
+                      : 'border-blue-200 bg-blue-50 text-blue-700'
+                  }`}
                 >
-                  <ShieldCheck className="h-3.5 w-3.5 text-blue-600 mr-1.5" />
-                  <span className="font-mono">{user.username}</span>
-                  <span className="ml-1 text-[10px] px-1.5 py-0.2 bg-blue-600 text-white rounded font-mono font-bold">
-                    {user.role}
-                  </span>
-                </Button>
-              </Link>
+                  {user.role}
+                </Badge>
+              </button>
+
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => logout()}
-                className="text-xs text-slate-500 hover:text-rose-600 hover:bg-rose-50 p-2 h-8"
+                className="text-xs text-slate-400 hover:text-rose-600 hover:bg-rose-50 p-2 h-9 w-9"
                 title="Đăng xuất"
               >
-                <LogOut className="h-3.5 w-3.5" />
+                <LogOut className="h-4 w-4" />
               </Button>
             </div>
           ) : (
-            <Link href="/admin">
-              <Button
-                variant="outline"
-                size="sm"
-                className="text-xs text-slate-700 hover:text-slate-900 border-slate-300 bg-white"
-              >
-                <ShieldAlert className="h-3.5 w-3.5 text-amber-600 mr-1.5" />
-                Admin
-              </Button>
-            </Link>
-          )}
-
-          <a href="#featured">
-            <Button size="sm" className="font-semibold shadow-sm">
-              Bắt đầu trải nghiệm
+            <Button
+              size="sm"
+              onClick={() => openAuthModal('login')}
+              className="font-semibold shadow-xs flex items-center gap-1.5"
+            >
+              <LogIn className="h-4 w-4" />
+              Đăng nhập
             </Button>
-          </a>
+          )}
         </div>
 
         {/* Mobile menu trigger */}
@@ -147,7 +141,7 @@ export function Header() {
               Phòng Thí nghiệm
             </Link>
             <Link
-              href="#explore"
+              href="/#explore"
               onClick={() => setIsMobileMenuOpen(false)}
               className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-slate-700 hover:bg-slate-100"
             >
@@ -155,7 +149,7 @@ export function Header() {
               Khám phá chủ đề
             </Link>
             <Link
-              href="#curated"
+              href="/#curated"
               onClick={() => setIsMobileMenuOpen(false)}
               className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-slate-700 hover:bg-slate-100"
             >
@@ -163,25 +157,61 @@ export function Header() {
               Tuyển chọn thực nghiệm
             </Link>
             <Link
-              href="#editorial"
+              href="/#editorial"
               onClick={() => setIsMobileMenuOpen(false)}
               className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-slate-700 hover:bg-slate-100"
             >
               <BookOpen className="h-4 w-4 text-emerald-600" />
               Góc tư duy
             </Link>
-            <Link
-              href="/admin"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-amber-800 hover:bg-amber-50 border border-amber-200"
-            >
-              <ShieldAlert className="h-4 w-4 text-amber-600" />
-              Khu vực Admin
-            </Link>
-            <div className="pt-2">
-              <a href="#featured" onClick={() => setIsMobileMenuOpen(false)} className="w-full">
-                <Button className="w-full font-bold">Bắt đầu trải nghiệm</Button>
-              </a>
+
+            <div className="pt-2 border-t border-slate-100">
+              {user ? (
+                <div className="space-y-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsMobileMenuOpen(false);
+                      openProfileModal();
+                    }}
+                    className="w-full flex items-center justify-between p-2.5 rounded-lg bg-slate-50 border border-slate-200 text-xs"
+                  >
+                    <div className="flex items-center gap-2">
+                      <div className="h-6 w-6 rounded-full bg-blue-600 text-white flex items-center justify-center font-mono font-bold">
+                        {user.username.charAt(0).toUpperCase()}
+                      </div>
+                      <span className="font-mono font-bold text-slate-800">{user.username}</span>
+                    </div>
+                    <Badge variant="outline" className="text-[10px] font-mono">
+                      {user.role}
+                    </Badge>
+                  </button>
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setIsMobileMenuOpen(false);
+                      logout();
+                    }}
+                    className="w-full text-xs text-rose-600 border-rose-200 hover:bg-rose-50"
+                  >
+                    <LogOut className="h-3.5 w-3.5 mr-1.5" />
+                    Đăng xuất
+                  </Button>
+                </div>
+              ) : (
+                <Button
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    openAuthModal('login');
+                  }}
+                  className="w-full font-bold flex items-center justify-center gap-1.5"
+                >
+                  <LogIn className="h-4 w-4" />
+                  Đăng nhập tài khoản
+                </Button>
+              )}
             </div>
           </nav>
         </div>

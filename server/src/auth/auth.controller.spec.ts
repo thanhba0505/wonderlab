@@ -14,8 +14,17 @@ describe('AuthController', () => {
     username: 'admin',
     email: 'admin@wonderlab.local',
     role: Role.ADMIN,
+    googleId: null,
+    isEmailVerified: true,
+    avatarUrl: null,
     createdAt: new Date(),
     updatedAt: new Date(),
+  };
+
+  const mockDetailedUser = {
+    ...mockSafeUser,
+    hasPassword: true,
+    isGoogleLinked: false,
   };
 
   beforeEach(async () => {
@@ -23,12 +32,13 @@ describe('AuthController', () => {
       validateUser: jest.fn().mockResolvedValue(mockSafeUser),
       login: jest.fn().mockResolvedValue({
         message: 'Đăng nhập thành công',
-        user: mockSafeUser,
+        user: mockDetailedUser,
       }),
       logout: jest.fn().mockReturnValue({
         success: true,
         message: 'Đăng xuất thành công',
       }),
+      getDetailedProfile: jest.fn().mockResolvedValue(mockDetailedUser),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -71,8 +81,8 @@ describe('AuthController', () => {
   });
 
   describe('getMe', () => {
-    it('should return the current user profile', () => {
-      const result = controller.getMe(mockSafeUser);
+    it('should return the current user profile', async () => {
+      const result = await controller.getMe(mockSafeUser);
       expect(result.id).toBe(mockSafeUser.id);
       expect(result.username).toBe('admin');
     });
