@@ -49,13 +49,21 @@ client/
 
 ## 3. Design System, Human Craft & Anti-AI Guidelines
 
-- **Dark Mode First**: Grounded charcoal/navy background (`#080c14`) with solid dark cards (`#0f172a`), hairline borders (`border-slate-800`), and subtle top bevel highlights (`shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)]`).
+- **Visual Aesthetic: Clean Paper & Lab Editorial**: High-craft scientific editorial design with a slate-100 canvas (`#f1f5f9`), solid white laboratory cards (`#ffffff`), hairline technical borders (`border-slate-300/85`), and subtle layered depth (`shadow-[0_2px_8px_-2px_rgba(15,23,42,0.06),0_1px_3px_0_rgba(15,23,42,0.04)]`).
+- **Typography Architecture**:
+  - **Body Text**: `Be Vietnam Pro` — purpose-built for Vietnamese diacritics with balanced tone marks, clear x-height, and optimal readability.
+  - **Headings & Display**: `Space Grotesk` — sharp geometric sans with tight tracking (`tracking-tight text-slate-900`) for an authoritative scientific character.
+  - **Data & Mathematics**: `JetBrains Mono` with `tabular-nums` for simulation counters, probabilities, and formulas ($P(A)$, $\lambda = 532nm$).
 - **Anti-AI Slop Guardrails**:
-  - _No arbitrary purple/pink gradients_ on text or buttons; colors must hold semantic scientific meaning (cyan for physics, amber for probability, violet for paradoxes, emerald for logic).
-  - _No muddy glassmorphism_; avoid blurred translucent overlays that impair legibility.
-  - _No generic 3-box grids_; use asymmetric Bento Grids and dynamic proportions.
+  - _No arbitrary purple/pink gradients_ on text or buttons; colors hold strict semantic meaning:
+    - 🔵 **Cobalt Blue (`#2563eb`)**: Physics, optics, and primary action.
+    - 🟠 **Warm Amber (`#d97706`)**: Probability, random processes, and alerts.
+    - 🟢 **Emerald Green (`#059669`)**: Success, verified facts, and game theoretic optimal.
+    - 🟣 **Deep Violet (`#7c3aed`)**: Paradoxes and thought experiments.
+  - _No muddy glassmorphism_; crisp, well-defined opaque surfaces with clear contrast.
+  - _No generic 3-box grids_; asymmetric Bento Grids with interactive micro-simulations (Double-slit wave toggle, live dice roller, Prisoner's Dilemma matrix).
   - _No AI fluff copy_; copy is intellectually rigorous, direct, and curiosity-driven.
-- **Tactile Laboratory Feel**: Physical button click states (`active:scale-[0.98]`), calibrated border radii (6px badges, 8px buttons, 12px cards), subtle grid guides, and live status pulses.
-- **Focus Rings & Accessibility**: Prominent focus outlines (`focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950`) on all interactive buttons and cards.
+- **Tactile Laboratory Feel**: Physical button click states (`active:scale-[0.98]`), calibrated border radii (6px badges, 8px buttons, 12px cards, 16px vaults), technical coordinate markers, and live status pulses.
+- **Focus Rings & Accessibility**: Prominent focus outlines (`focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:outline-none`) on all interactive buttons and cards.
 - **No Faux Statistics**: All probability counters are calculated directly in the browser via pure math or client-side Monte Carlo simulations with `font-mono tabular-nums`.
 - **Zero Broken Links**: Unreleased modules route explicitly to `/admin` (marked with an in-development warning) or smoothly jump to anchor sections.

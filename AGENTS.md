@@ -60,7 +60,11 @@ wonderlab/
 
 ## 5. UI/UX Design Principles & Anti-AI Standards for Wonderlab
 
-- **Visual Aesthetic**: "Science Lab meets Editorial Journal" — premium dark interface with charcoal/navy backgrounds (`#080c14`, `#0b0f19`), refined hairline borders (`border-slate-800`), top inner highlights (`shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)]`), and semantic accents (cyan, violet, amber, emerald).
+- **Visual Aesthetic**: "Clean Paper & Lab Editorial" — high-craft scientific editorial design with slate-100 canvas (`#f1f5f9`), crisp white surfaces (`#ffffff`), hairline technical borders (`border-slate-300/85`), layered depth (`shadow-[0_2px_8px_-2px_rgba(15,23,42,0.06),0_1px_3px_0_rgba(15,23,42,0.04)]`), and semantic accents (Cobalt, Violet, Amber, Emerald).
+- **Typography Architecture**:
+  - `Be Vietnam Pro` (Sans) for optical Vietnamese readability, balanced tone diacritics, and relaxed reading lines.
+  - `Space Grotesk` (Heading) for geometric, authoritative scientific titles (`text-slate-900`).
+  - `JetBrains Mono` (Mono) with `tabular-nums` for simulation counters, probabilities, and formulas.
 - **Anti-AI Slop Guardrails**:
   1. _No unmotivated purple/pink linear gradients_ on buttons or text.
   2. _No muddy glassmorphism everywhere_ (`backdrop-blur` stacked blindly). Use crisp, opaque surfaces.
