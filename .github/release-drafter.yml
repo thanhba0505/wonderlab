@@ -1,4 +1,4 @@
-name-template: 'v$RESOLVED_VERSION'
+name-template: '✨ Wonderlab v$RESOLVED_VERSION'
 tag-template: 'v$RESOLVED_VERSION'
 
 categories:
@@ -47,7 +47,7 @@ version-resolver:
   default: patch
 
 template: |
-  ## Wonderlab $RESOLVED_VERSION ($DATE)
+  ## ✨ Wonderlab v$RESOLVED_VERSION ($DATE)
 
   $CHANGES
 

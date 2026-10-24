@@ -1,4 +1,4 @@
-name: CD Deploy to Render
+name: 🚀 Deploy to Render
 
 on:
   release:
@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       service:
-        description: 'Target service to deploy (client, server, or all)'
+        description: 'Target service to deploy'
         required: true
         default: 'all'
         type: choice
@@ -14,31 +14,47 @@ on:
           - all
           - client
           - server
+          - db
 
 permissions:
   contents: read
+  deployments: write
 
 jobs:
-  deploy:
-    name: Trigger Render Deployment
+  deploy-db:
+    name: 🗄️ Wonderlab DB
     runs-on: ubuntu-latest
-
+    if: ${{ inputs.service == 'all' || inputs.service == 'db' || github.event_name == 'release' }}
+    environment:
+      name: Wonderlab DB
+      url: https://dashboard.render.com
     steps:
-      - name: Report Release Deployment Context
+      - name: Report Database Infrastructure
         run: |
           echo "============================================="
-          echo "Triggering Wonderlab Production Deployment on Render"
+          echo "Database: Wonderlab DB (PostgreSQL 16 Alpine)"
+          echo "Managed on Render Cloud Infrastructure"
           echo "Event: ${{ github.event_name }}"
-          echo "Release Tag: ${{ github.event.release.tag_name || 'Manual Dispatch' }}"
-          echo "Release Name: ${{ github.event.release.name || 'Manual Dispatch' }}"
-          echo "Target Service: ${{ inputs.service || 'all' }}"
+          echo "Release: ${{ github.event.release.tag_name || 'Manual Dispatch' }}"
           echo "============================================="
 
+  deploy-server:
+    name: 🛡️ Wonderlab Server
+    runs-on: ubuntu-latest
+    if: ${{ inputs.service == 'all' || inputs.service == 'server' || github.event_name == 'release' }}
+    environment:
+      name: Wonderlab Server
+      url: https://wonderlab-server.onrender.com
+    steps:
       - name: Trigger Server Deploy Hook
-        if: ${{ (inputs.service == 'all' || inputs.service == 'server' || github.event_name == 'release') && env.RENDER_SERVER_DEPLOY_HOOK != '' }}
         env:
           RENDER_SERVER_DEPLOY_HOOK: ${{ secrets.RENDER_SERVER_DEPLOY_HOOK }}
         run: |
+          if [ -z "$RENDER_SERVER_DEPLOY_HOOK" ]; then
+            echo "::warning::RENDER_SERVER_DEPLOY_HOOK is not set in GitHub Repository Secrets."
+            echo "To enable automated deployment, add RENDER_SERVER_DEPLOY_HOOK at Settings -> Secrets and variables -> Actions"
+            exit 0
+          fi
           echo "Deploying wonderlab-server to Render..."
           HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST "$RENDER_SERVER_DEPLOY_HOOK")
           echo "Server deploy hook response HTTP status: $HTTP_STATUS"
@@ -48,11 +64,23 @@ jobs:
           fi
           echo "wonderlab-server deployment successfully initiated."
 
+  deploy-client:
+    name: 💻 Wonderlab Client
+    runs-on: ubuntu-latest
+    if: ${{ inputs.service == 'all' || inputs.service == 'client' || github.event_name == 'release' }}
+    environment:
+      name: Wonderlab Client
+      url: https://wonderlab-client.onrender.com
+    steps:
       - name: Trigger Client Deploy Hook
-        if: ${{ (inputs.service == 'all' || inputs.service == 'client' || github.event_name == 'release') && env.RENDER_CLIENT_DEPLOY_HOOK != '' }}
         env:
           RENDER_CLIENT_DEPLOY_HOOK: ${{ secrets.RENDER_CLIENT_DEPLOY_HOOK }}
         run: |
+          if [ -z "$RENDER_CLIENT_DEPLOY_HOOK" ]; then
+            echo "::warning::RENDER_CLIENT_DEPLOY_HOOK is not set in GitHub Repository Secrets."
+            echo "To enable automated deployment, add RENDER_CLIENT_DEPLOY_HOOK at Settings -> Secrets and variables -> Actions"
+            exit 0
+          fi
           echo "Deploying wonderlab-client to Render..."
           HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST "$RENDER_CLIENT_DEPLOY_HOOK")
           echo "Client deploy hook response HTTP status: $HTTP_STATUS"
@@ -61,17 +89,3 @@ jobs:
             exit 1
           fi
           echo "wonderlab-client deployment successfully initiated."
-
-      - name: Verify Webhook Configuration
-        if: ${{ env.RENDER_SERVER_DEPLOY_HOOK == '' && env.RENDER_CLIENT_DEPLOY_HOOK == '' }}
-        env:
-          RENDER_SERVER_DEPLOY_HOOK: ${{ secrets.RENDER_SERVER_DEPLOY_HOOK }}
-          RENDER_CLIENT_DEPLOY_HOOK: ${{ secrets.RENDER_CLIENT_DEPLOY_HOOK }}
-        run: |
-          echo "::warning::Neither RENDER_SERVER_DEPLOY_HOOK nor RENDER_CLIENT_DEPLOY_HOOK are set in GitHub Repository Secrets."
-          echo "To enable automated deployment on release:"
-          echo "1. Go to your Render Dashboard -> Service Settings -> Deploy Hook."
-          echo "2. Copy the Deploy Hook URLs."
-          echo "3. Add them to GitHub -> Settings -> Secrets and variables -> Actions as:"
-          echo "   - RENDER_SERVER_DEPLOY_HOOK"
-          echo "   - RENDER_CLIENT_DEPLOY_HOOK"

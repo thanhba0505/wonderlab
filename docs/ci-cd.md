@@ -6,9 +6,9 @@ Wonderlab utilizes GitHub Actions for continuous integration and automated quali
 
 Workflows reside in `.github/workflows/`:
 
-- **`ci.yml`**: Validates every pull request and push to the `main` branch with containerized PostgreSQL.
-- **`release-drafter.yml`**: Tự động tổng hợp và cập nhật bản thảo release notes (draft) theo chuẩn Conventional Commits.
-- **`deploy.yml`**: Tự động trigger triển khai lên Render khi một Release được xuất bản (`release: [published]`) hoặc trigger thủ công (`workflow_dispatch`).
+- **`ci.yml`** (`🧪 CI`): Validates every pull request and push to the `main` branch with containerized PostgreSQL.
+- **`release-drafter.yml`** (`📝 Release Drafter`): Tự động tổng hợp và cập nhật bản thảo release notes (`✨ Wonderlab vX.Y.Z`) theo chuẩn Conventional Commits.
+- **`deploy.yml`** (`🚀 Deploy to Render`): Tự động trigger triển khai lên Render khi một Release được xuất bản (`release: [published]`) hoặc trigger thủ công (`workflow_dispatch`), ghi nhận trạng thái vào GitHub Deployments theo từng môi trường (`Wonderlab Server`, `Wonderlab Client`, `Wonderlab DB`).
 
 ---
 
