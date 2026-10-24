@@ -72,6 +72,11 @@ wonderlab/
   4. _No SaaS buzzword copy_ ("Supercharge your mind", "Revolutionary platform"). Keep copy intellectually curious, authentic, and scientific.
   5. _No oversized toy-like border radiuses_. Calibrate radii: `rounded-md` (badges/inputs), `rounded-lg` (buttons), `rounded-xl` (cards).
   6. _No multi-nested border boxes (> 2 layers)_. Never wrap container boxes inside cards when children already have borders. Use borderless background tints (`bg-slate-100/70`), left accents (`border-l-4`), or dividers.
+  7. _No internal tech stack boasting or leaking dev endpoints to public UI_.
+     - **NEVER** expose internal library/algorithm names (e.g. `Argon2id`, `HttpOnly Cookie`, `OWASP compliant`, `Prisma`, `JWT`) on public forms or login screens.
+     - **NEVER** place internal developer links, localhost ports, or raw health endpoints (e.g. `http://localhost:4101/api/docs`, `NestJS Server API: Sẵn sàng hoạt động (/api/v1/health)`) in public footers or public navigation.
+     - **NEVER** dump framework version strings (e.g. `Next.js 15 • React 19 • NestJS 10 • Clean Paper Lab`) into client UI copy.
+     - **NO MODAL FOR LOGIN**: When user clicks Login or Admin, route directly to the page (`/admin`). Login forms must live in the page body, not in floating modals.
 - **No Faux Data**: Never display mock user counters, fake review badges, or placeholder vanity statistics. Show honest simulation counters calculated live in the browser.
 - **No Lorem Ipsum**: All copy must be meaningful, scientific, engaging, and in Vietnamese or English according to user language settings.
 - **Interactive Authenticity & Tactile Feel**: Every clickable element (e.g. Monty Hall doors) must function accurately with physical feedback (`active:scale-[0.98]`) and update mathematical probabilities live with `font-mono tabular-nums`.

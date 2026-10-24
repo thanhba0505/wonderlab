@@ -28,7 +28,6 @@ client/
 │   │   ├── layout.tsx      # Root HTML shell, fonts, AuthProvider, header/footer
 │   │   └── globals.css     # Clean Paper design tokens, lab grid pattern
 │   ├── components/
-│   │   ├── auth/           # LoginDialog modal and authentication forms
 │   │   ├── ui/             # shadcn atomic components (button, card, badge)
 │   │   └── layout/         # Shell components (header with session state, footer)
 │   ├── features/           # Domain feature components
@@ -65,6 +64,7 @@ client/
   - _No muddy glassmorphism_; crisp, well-defined opaque surfaces with clear contrast.
   - _No generic 3-box grids_; asymmetric Bento Grids with interactive micro-simulations (Double-slit wave toggle, live dice roller, Prisoner's Dilemma matrix).
   - _No AI fluff copy_; copy is intellectually rigorous, direct, and curiosity-driven.
+  - _No internal tech-stack boasting or leaked dev endpoints_: Tuyệt đối không phô diễn thuật toán mã hóa (Argon2id, OWASP, HttpOnly Token), không đưa link localhost (`http://localhost:4101/api/docs`), không gắn badge trạng thái server API `/api/v1/health` hoặc chuỗi phiên bản (`Next.js 15 • React 19 • NestJS 10`) ra giao diện công cộng. Đăng nhập phải dẫn trực tiếp vào trang `/admin` và render form trong body, không dùng popup modal.
 - **Tactile Laboratory Feel**: Physical button click states (`active:scale-[0.98]`), calibrated border radii (6px badges, 8px buttons, 12px cards, 16px vaults), technical coordinate markers, and live status pulses.
 - **Border Architecture & Max 2-Layer Depth (Chống Đóng Khung Lồng Hộp)**:
   - Tuyệt đối không đóng khung vượt quá 2 tầng viền (`Card` viền ngoài -> Phần tử tương tác/đo đạc viền trong).

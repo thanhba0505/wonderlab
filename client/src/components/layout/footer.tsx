@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Sparkles, Github, Terminal, ArrowUpRight } from 'lucide-react';
+import { Sparkles, Github, ArrowUpRight, Scale } from 'lucide-react';
 
 export function Footer() {
   return (
@@ -20,13 +20,6 @@ export function Footer() {
               Không gian thí nghiệm trực quan cho khoa học, toán học, xác suất và nghịch lý logic.
               Khám phá cách thế giới vận hành qua những hiện tượng phản trực giác.
             </p>
-            <div className="flex items-center gap-2 text-xs font-mono text-emerald-700 pt-2 font-semibold">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-600"></span>
-              </span>
-              <span>NestJS Server API: Sẵn sàng hoạt động (/api/v1/health)</span>
-            </div>
           </div>
 
           {/* Quick links */}
@@ -78,7 +71,7 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Open source & dev */}
+          {/* Open source & Community */}
           <div className="space-y-3">
             <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-blue-700">
               Mã nguồn
@@ -97,16 +90,10 @@ export function Footer() {
                 </a>
               </li>
               <li>
-                <a
-                  href="http://localhost:4101/api/docs"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex items-center gap-1.5 text-slate-600 hover:text-slate-900 transition-colors"
-                >
-                  <Terminal className="h-4 w-4" />
-                  Swagger API Docs
-                  <ArrowUpRight className="h-3 w-3" />
-                </a>
+                <span className="flex items-center gap-1.5 text-slate-500">
+                  <Scale className="h-4 w-4" />
+                  Giấy phép MIT License
+                </span>
               </li>
             </ul>
           </div>
@@ -114,8 +101,8 @@ export function Footer() {
 
         <div className="mt-8 border-t border-slate-200 pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500">
           <p>© 2026 Wonderlab Foundation. Mã nguồn mở phục vụ nghiên cứu và giáo dục cộng đồng.</p>
-          <p className="mt-2 sm:mt-0 font-mono text-blue-700 font-semibold">
-            Next.js 15 • React 19 • NestJS 10 • Clean Paper Lab
+          <p className="mt-2 sm:mt-0 font-sans text-slate-500">
+            Khoa học thực nghiệm & Giáo dục khai phóng
           </p>
         </div>
       </div>

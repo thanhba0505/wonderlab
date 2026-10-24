@@ -16,7 +16,6 @@ import {
   Activity,
   Cpu,
   RefreshCw,
-  Sparkles,
   AlertCircle,
   Loader2,
   Sliders,
@@ -81,12 +80,6 @@ function AdminDashboard() {
     }
   };
 
-  const handleFillDemo = () => {
-    setUsername('admin');
-    setPassword('Admin@Wonderlab2026!');
-    setLoginError(null);
-  };
-
   if (isLoading) {
     return (
       <div className="container mx-auto max-w-4xl px-4 py-24 flex flex-col items-center justify-center space-y-4">
@@ -120,13 +113,13 @@ function AdminDashboard() {
           <div className="p-6 border-b border-slate-200 bg-slate-50/70 space-y-1">
             <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-blue-50 border border-blue-200 text-blue-700 text-[10px] font-mono font-bold uppercase tracking-wider mb-2">
               <Lock className="h-3 w-3" />
-              CỔNG BẢO MẬT QUẢN TRỊ
+              XÁC THỰC QUẢN TRỊ
             </div>
             <h1 className="font-heading text-xl font-bold text-slate-900">
               Đăng nhập Admin Console
             </h1>
             <p className="text-xs text-slate-500 font-sans">
-              Khu vực yêu cầu xác thực tài khoản quản trị viên với quyền hạn Role.ADMIN.
+              Khu vực dành cho quản trị viên vận hành hệ thống Wonderlab.
             </p>
           </div>
 
@@ -150,7 +143,7 @@ function AdminDashboard() {
                 type="text"
                 value={username}
                 onChange={e => setUsername(e.target.value)}
-                placeholder="admin"
+                placeholder="Nhập tên đăng nhập"
                 autoComplete="username"
                 className="w-full px-3.5 py-2.5 text-sm rounded-lg border border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition-all font-sans"
                 disabled={isSubmitting}
@@ -176,28 +169,9 @@ function AdminDashboard() {
               />
             </div>
 
-            <div className="pt-1">
-              <button
-                type="button"
-                onClick={handleFillDemo}
-                className="w-full flex items-center justify-center gap-1.5 py-2 text-xs font-mono text-blue-700 bg-blue-50/80 hover:bg-blue-100 rounded-lg border border-blue-200 transition-colors"
-              >
-                <Sparkles className="h-3.5 w-3.5 text-blue-600" />
-                Điền tài khoản Admin mẫu (admin)
-              </button>
-            </div>
-
-            <div className="rounded-lg bg-slate-50 p-3 text-[11px] font-sans text-slate-600 flex items-start gap-2 border border-slate-200">
-              <ShieldCheck className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
-              <span>
-                Mã hóa Argon2id chuẩn OWASP, phòng chống brute-force và cấp token qua HttpOnly
-                Cookie.
-              </span>
-            </div>
-
             <Button
               type="submit"
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 mt-2"
               disabled={isSubmitting}
             >
               {isSubmitting ? (
@@ -451,12 +425,14 @@ function AdminDashboard() {
             <div>
               Đường dẫn OpenAPI Docs:{' '}
               <a
-                href="http://localhost:4101/api/docs"
+                href={(
+                  process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4101/api/v1'
+                ).replace(/\/api\/v1\/?$/, '/api/docs')}
                 target="_blank"
                 rel="noreferrer"
                 className="text-blue-700 underline font-bold"
               >
-                http://localhost:4101/api/docs
+                OpenAPI Specification
               </a>
             </div>
           </div>

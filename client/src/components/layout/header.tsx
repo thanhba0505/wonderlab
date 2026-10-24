@@ -15,11 +15,9 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/lib/auth-context';
-import { LoginDialog } from '@/components/auth/login-dialog';
 
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
-  const [isLoginDialogOpen, setIsLoginDialogOpen] = React.useState(false);
   const { user, logout } = useAuth();
 
   return (
@@ -105,15 +103,16 @@ export function Header() {
               </Button>
             </div>
           ) : (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setIsLoginDialogOpen(true)}
-              className="text-xs text-slate-700 hover:text-slate-900 border-slate-300 bg-white"
-            >
-              <ShieldAlert className="h-3.5 w-3.5 text-amber-600 mr-1.5" />
-              Admin
-            </Button>
+            <Link href="/admin">
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-xs text-slate-700 hover:text-slate-900 border-slate-300 bg-white"
+              >
+                <ShieldAlert className="h-3.5 w-3.5 text-amber-600 mr-1.5" />
+                Admin
+              </Button>
+            </Link>
           )}
 
           <a href="#featured">
@@ -187,9 +186,6 @@ export function Header() {
           </nav>
         </div>
       )}
-
-      {/* Security Login Dialog Modal */}
-      <LoginDialog isOpen={isLoginDialogOpen} onClose={() => setIsLoginDialogOpen(false)} />
     </header>
   );
 }
