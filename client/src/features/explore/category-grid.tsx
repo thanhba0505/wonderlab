@@ -40,7 +40,7 @@ export function CategoryGrid() {
       {/* ==================================================================== */}
       {/* TILE 1: Khoa học Thực nghiệm (Bento Span 2 cols) */}
       {/* ==================================================================== */}
-      <Card className="lg:col-span-2 group relative overflow-hidden border-slate-200/90 bg-white hover:border-blue-400 hover:shadow-md transition-all duration-300">
+      <Card className="lg:col-span-2 group relative overflow-hidden border-slate-300/85 bg-white hover:border-blue-500 hover:shadow-md transition-all duration-300">
         <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none">
           <Atom className="h-48 w-48 text-blue-600" />
         </div>
@@ -71,7 +71,7 @@ export function CategoryGrid() {
           </CardDescription>
 
           {/* Micro Interactive: Double Slit Wave Visualizer */}
-          <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-4 space-y-3">
+          <div className="rounded-xl border border-slate-300/80 bg-slate-100/70 p-4 space-y-3">
             <div className="flex items-center justify-between text-xs">
               <span className="font-mono text-slate-800 flex items-center gap-1.5 font-bold">
                 <Sparkles className="h-3.5 w-3.5 text-blue-600" />
@@ -148,7 +148,7 @@ export function CategoryGrid() {
       {/* ==================================================================== */}
       {/* TILE 2: Xác suất & Thống kê (Span 1 col) */}
       {/* ==================================================================== */}
-      <Card className="group relative overflow-hidden border-slate-200/90 bg-white hover:border-amber-400 hover:shadow-md transition-all duration-300 flex flex-col justify-between">
+      <Card className="group relative overflow-hidden border-slate-300/85 bg-white hover:border-amber-500 hover:shadow-md transition-all duration-300 flex flex-col justify-between">
         <div>
           <CardHeader className="space-y-3 pb-3">
             <div className="flex items-center justify-between">
@@ -174,7 +174,7 @@ export function CategoryGrid() {
             </CardDescription>
 
             {/* Micro Interactive: Dice Roller */}
-            <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-3.5 space-y-2">
+            <div className="rounded-xl border border-slate-300/80 bg-slate-100/70 p-3.5 space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-mono text-slate-800 font-semibold">
                   Tung 2 Xúc xắc:
@@ -191,11 +191,11 @@ export function CategoryGrid() {
               </div>
 
               <div className="flex items-center justify-center gap-3 py-1">
-                <div className="w-10 h-10 rounded-lg bg-white border border-slate-200 flex items-center justify-center font-mono font-black text-xl text-amber-800 shadow-2xs">
+                <div className="w-10 h-10 rounded-lg bg-white border border-slate-300 flex items-center justify-center font-mono font-black text-xl text-amber-800 shadow-2xs">
                   {diceRoll.d1}
                 </div>
                 <span className="text-slate-400 font-mono text-sm">+</span>
-                <div className="w-10 h-10 rounded-lg bg-white border border-slate-200 flex items-center justify-center font-mono font-black text-xl text-amber-800 shadow-2xs">
+                <div className="w-10 h-10 rounded-lg bg-white border border-slate-300 flex items-center justify-center font-mono font-black text-xl text-amber-800 shadow-2xs">
                   {diceRoll.d2}
                 </div>
                 <span className="text-slate-400 font-mono text-sm">=</span>
@@ -223,7 +223,7 @@ export function CategoryGrid() {
       {/* ==================================================================== */}
       {/* TILE 3: Nghịch lý Tư duy (Span 1 col) */}
       {/* ==================================================================== */}
-      <Card className="group relative overflow-hidden border-slate-200/90 bg-white hover:border-violet-400 hover:shadow-md transition-all duration-300 flex flex-col justify-between">
+      <Card className="group relative overflow-hidden border-slate-300/85 bg-white hover:border-violet-500 hover:shadow-md transition-all duration-300 flex flex-col justify-between">
         <div>
           <CardHeader className="space-y-3 pb-3">
             <div className="flex items-center justify-between">
@@ -248,7 +248,7 @@ export function CategoryGrid() {
               và nghịch lý Fermi về sự im lặng của vũ trụ.
             </CardDescription>
 
-            <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-3 text-xs font-mono space-y-1.5">
+            <div className="rounded-xl border border-slate-300/80 bg-slate-100/70 p-3 text-xs font-mono space-y-1.5">
               <div className="text-violet-800 font-bold">Achilles & Con Rùa (Zeno):</div>
               <div className="text-slate-600 text-[11px] leading-relaxed">
                 Khoảng cách: 100m → 50m → 25m → ...
@@ -270,7 +270,7 @@ export function CategoryGrid() {
       {/* ==================================================================== */}
       {/* TILE 4: Lý thuyết Trò chơi (Bento Span 2 cols) */}
       {/* ==================================================================== */}
-      <Card className="lg:col-span-2 group relative overflow-hidden border-slate-200/90 bg-white hover:border-emerald-400 hover:shadow-md transition-all duration-300">
+      <Card className="lg:col-span-2 group relative overflow-hidden border-slate-300/85 bg-white hover:border-emerald-500 hover:shadow-md transition-all duration-300">
         <CardHeader className="space-y-3 pb-3">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="flex items-center gap-3">
@@ -298,7 +298,7 @@ export function CategoryGrid() {
           </CardDescription>
 
           {/* Micro Interactive: Prisoner's Dilemma Decision Matrix */}
-          <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-4 space-y-3">
+          <div className="rounded-xl border border-slate-300/80 bg-slate-100/70 p-4 space-y-3">
             <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
               <span className="font-mono text-slate-800 font-bold">
                 Chọn nước đi của bạn trong Song đề Tù nhân:
@@ -373,7 +373,7 @@ export function CategoryGrid() {
       {/* ==================================================================== */}
       {/* TILE 5: Logic Học (Span 1 col) */}
       {/* ==================================================================== */}
-      <Card className="group relative overflow-hidden border-slate-200/90 bg-white hover:border-blue-400 hover:shadow-md transition-all duration-300 flex flex-col justify-between">
+      <Card className="group relative overflow-hidden border-slate-300/85 bg-white hover:border-blue-500 hover:shadow-md transition-all duration-300 flex flex-col justify-between">
         <div>
           <CardHeader className="space-y-3 pb-3">
             <div className="flex items-center justify-between">
@@ -398,7 +398,7 @@ export function CategoryGrid() {
               đố hòn đảo hiệp sĩ & kẻ nói dối.
             </CardDescription>
 
-            <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-3 text-xs font-mono space-y-1">
+            <div className="rounded-xl border border-slate-300/80 bg-slate-100/70 p-3 text-xs font-mono space-y-1">
               <span className="text-blue-800 font-bold">Nghịch lý Russell:</span>
               <p className="text-slate-600 text-[11px]">
                 R = &#123; x | x ∉ x &#125; ⇒ R ∈ R ⟺ R ∉ R

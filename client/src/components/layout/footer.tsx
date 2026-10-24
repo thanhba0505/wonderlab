@@ -3,7 +3,7 @@ import { Sparkles, Github, Terminal, ArrowUpRight } from 'lucide-react';
 
 export function Footer() {
   return (
-    <footer className="border-t border-slate-200 bg-slate-100/70 py-12 text-slate-600">
+    <footer className="border-t border-slate-300/80 bg-slate-200/40 py-12 text-slate-600">
       <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
           {/* Brand info */}

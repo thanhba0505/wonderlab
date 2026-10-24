@@ -44,7 +44,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  themeColor: '#f8fafc',
+  themeColor: '#f1f5f9',
 };
 
 export default function RootLayout({
@@ -57,7 +57,7 @@ export default function RootLayout({
       lang="vi"
       className={`${beVietnamPro.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable}`}
     >
-      <body className="min-h-screen flex flex-col font-sans bg-[#f8fafc] text-slate-800 antialiased selection:bg-blue-500/20 selection:text-blue-900">
+      <body className="min-h-screen flex flex-col font-sans bg-[#f1f5f9] text-slate-800 antialiased selection:bg-blue-500/20 selection:text-blue-900">
         <Header />
         <main className="flex-1">{children}</main>
         <Footer />

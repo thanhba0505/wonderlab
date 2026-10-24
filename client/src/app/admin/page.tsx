@@ -61,7 +61,7 @@ export default function AdminPlaceholderPage() {
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card className="border-slate-200 bg-white shadow-xs">
+          <Card className="border-slate-300/85 bg-white shadow-xs">
             <CardHeader className="space-y-2">
               <FlaskConical className="h-5 w-5 text-blue-600" />
               <CardTitle className="text-base text-slate-900">Quản lý Thí nghiệm</CardTitle>
@@ -76,7 +76,7 @@ export default function AdminPlaceholderPage() {
             </CardContent>
           </Card>
 
-          <Card className="border-slate-200 bg-white shadow-xs">
+          <Card className="border-slate-300/85 bg-white shadow-xs">
             <CardHeader className="space-y-2">
               <Puzzle className="h-5 w-5 text-violet-600" />
               <CardTitle className="text-base text-slate-900">Quản lý Câu đố Logic</CardTitle>
@@ -91,7 +91,7 @@ export default function AdminPlaceholderPage() {
             </CardContent>
           </Card>
 
-          <Card className="border-slate-200 bg-white shadow-xs">
+          <Card className="border-slate-300/85 bg-white shadow-xs">
             <CardHeader className="space-y-2">
               <Settings className="h-5 w-5 text-emerald-600" />
               <CardTitle className="text-base text-slate-900">Cấu hình Hệ thống</CardTitle>

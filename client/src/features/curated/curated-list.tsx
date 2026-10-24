@@ -70,7 +70,7 @@ export function CuratedList() {
       {CURATED_LIST.map((item, index) => (
         <Card
           key={item.id}
-          className="group relative border-slate-200/90 bg-white hover:border-blue-400 hover:shadow-md transition-all duration-300 p-6 shadow-xs"
+          className="group relative border-slate-300/85 bg-white hover:border-blue-500 hover:shadow-md transition-all duration-300 p-6 shadow-xs"
         >
           <CardContent className="p-0 flex flex-col md:flex-row md:items-center justify-between gap-5">
             <div className="space-y-2.5 max-w-3xl">

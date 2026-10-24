@@ -42,7 +42,7 @@ export function EditorialSection() {
       {ARTICLES.map((article, idx) => (
         <Card
           key={article.id}
-          className="group relative border-slate-200/90 bg-white flex flex-col justify-between hover:border-blue-400 hover:shadow-md transition-all duration-300 p-6 overflow-hidden shadow-xs"
+          className="group relative border-slate-300/85 bg-white flex flex-col justify-between hover:border-blue-500 hover:shadow-md transition-all duration-300 p-6 overflow-hidden shadow-xs"
         >
           {/* Subtle watermark background number */}
           <div className="absolute top-2 right-4 text-7xl font-mono font-black text-slate-100 select-none pointer-events-none group-hover:text-blue-50 transition-colors">

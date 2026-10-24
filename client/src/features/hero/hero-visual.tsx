@@ -79,12 +79,12 @@ export function HeroVisual() {
   const currentNode = nodes.find(n => n.id === activeNode) ?? nodes[0];
 
   return (
-    <div className="relative w-full max-w-md mx-auto rounded-2xl border border-slate-200/90 bg-white/95 p-5 shadow-xl shadow-slate-200/50 overflow-hidden">
+    <div className="relative w-full max-w-md mx-auto rounded-2xl border border-slate-300/85 bg-white p-5 shadow-lg shadow-slate-300/40 overflow-hidden">
       {/* Background laboratory grid */}
       <div className="absolute inset-0 lab-grid opacity-60 pointer-events-none" />
 
       {/* Top telemetry status bar */}
-      <div className="relative z-10 flex items-center justify-between pb-3 border-b border-slate-100 text-[11px] font-mono text-slate-500">
+      <div className="relative z-10 flex items-center justify-between pb-3 border-b border-slate-200 text-[11px] font-mono text-slate-500">
         <div className="flex items-center gap-2">
           <span className="relative flex h-2 w-2">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-500 opacity-75"></span>

@@ -159,8 +159,8 @@ export function MontyHallSimulation() {
       : null;
 
   return (
-    <Card className="border-slate-200/90 bg-white shadow-xl shadow-slate-200/40">
-      <CardHeader className="border-b border-slate-100 pb-5">
+    <Card className="border-slate-300/85 bg-white shadow-md shadow-slate-300/30">
+      <CardHeader className="border-b border-slate-200/80 pb-5">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="space-y-1.5">
             <div className="flex items-center gap-2">
@@ -212,7 +212,7 @@ export function MontyHallSimulation() {
 
       <CardContent className="pt-6 space-y-6">
         {/* State / Instructions Banner */}
-        <div className="rounded-xl bg-slate-50 p-4 border border-slate-200 shadow-2xs flex items-center justify-between">
+        <div className="rounded-xl bg-slate-100/90 p-4 border border-slate-300/80 shadow-2xs flex items-center justify-between">
           <div className="text-sm font-medium">
             {step === 'pick' && (
               <span className="text-blue-700 flex items-center gap-2.5">
@@ -270,30 +270,30 @@ export function MontyHallSimulation() {
             const isFinalChoice = finalDoor === doorIndex;
             const hasCar = carDoor === doorIndex;
 
-            let borderColor = 'border-slate-200 hover:border-blue-500';
-            let bgColor = 'bg-slate-50/70';
+            let borderColor = 'border-slate-300/90 hover:border-blue-500';
+            let bgColor = 'bg-slate-100/70';
             let glowEffect = '';
 
             if (step === 'revealed') {
               if (isSelected) {
                 borderColor = 'border-blue-600 ring-2 ring-blue-500/20';
-                bgColor = 'bg-blue-50/60';
+                bgColor = 'bg-blue-50/70';
                 glowEffect = 'shadow-md shadow-blue-500/10';
               } else if (isRevealedGoat) {
-                borderColor = 'border-amber-300';
-                bgColor = 'bg-amber-50/50';
+                borderColor = 'border-amber-400';
+                bgColor = 'bg-amber-50/60';
               } else {
-                borderColor = 'border-violet-400 ring-2 ring-violet-500/10';
-                bgColor = 'bg-violet-50/40';
+                borderColor = 'border-violet-400 ring-2 ring-violet-500/15';
+                bgColor = 'bg-violet-50/50';
               }
             } else if (step === 'result') {
               if (hasCar) {
-                borderColor = 'border-emerald-500 ring-2 ring-emerald-500/20';
-                bgColor = 'bg-emerald-50/70';
-                glowEffect = 'shadow-md shadow-emerald-500/10';
+                borderColor = 'border-emerald-600 ring-2 ring-emerald-500/25';
+                bgColor = 'bg-emerald-50/80';
+                glowEffect = 'shadow-md shadow-emerald-500/15';
               } else if (isFinalChoice) {
                 borderColor = 'border-red-400';
-                bgColor = 'bg-red-50/40';
+                bgColor = 'bg-red-50/50';
               }
             }
 
@@ -309,7 +309,7 @@ export function MontyHallSimulation() {
               >
                 {/* Door Header Tag */}
                 <div className="w-full flex items-center justify-between">
-                  <span className="font-mono text-xs font-bold px-2 py-0.5 rounded border border-slate-200 bg-white text-slate-700 shadow-2xs">
+                  <span className="font-mono text-xs font-bold px-2 py-0.5 rounded border border-slate-300 bg-white text-slate-800 shadow-2xs">
                     CỬA #{doorIndex + 1}
                   </span>
 
@@ -359,7 +359,7 @@ export function MontyHallSimulation() {
                     </div>
                   ) : (
                     <div className="flex flex-col items-center space-y-3">
-                      <div className="relative w-20 h-28 rounded-xl border border-slate-200 bg-white flex flex-col items-center justify-center shadow-xs group-hover:border-blue-400 group-hover:shadow-md transition-all">
+                      <div className="relative w-20 h-28 rounded-xl border border-slate-300 bg-white flex flex-col items-center justify-center shadow-xs group-hover:border-blue-500 group-hover:shadow-md transition-all">
                         <Lock className="h-5 w-5 text-slate-400 group-hover:text-blue-600 transition-colors mb-1" />
                         <span className="font-mono text-2xl font-black text-slate-800 group-hover:text-blue-700 transition-colors">
                           0{doorIndex + 1}
@@ -413,7 +413,7 @@ export function MontyHallSimulation() {
 
         {/* Dedicated Decision Bar when revealed */}
         {step === 'revealed' && remainingSwitchDoor !== null && selectedDoor !== null && (
-          <div className="rounded-xl border border-blue-200 bg-gradient-to-r from-blue-50/80 via-white to-violet-50/80 p-4 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="rounded-xl border border-blue-300 bg-gradient-to-r from-blue-50/90 via-white to-violet-50/90 p-4 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="space-y-0.5">
               <div className="text-sm font-bold text-slate-900 flex items-center gap-2">
                 <Sparkles className="h-4 w-4 text-blue-600" />
@@ -428,7 +428,7 @@ export function MontyHallSimulation() {
                 variant="secondary"
                 size="sm"
                 onClick={() => handleFinalDecision(false)}
-                className="flex-1 sm:flex-initial text-xs font-semibold"
+                className="flex-1 sm:flex-initial text-xs font-semibold border-slate-300"
               >
                 Giữ Cửa #{selectedDoor + 1} (33%)
               </Button>
@@ -445,9 +445,9 @@ export function MontyHallSimulation() {
         )}
 
         {/* Live Empirical Statistics Dashboard */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 rounded-xl border border-slate-200 bg-slate-50/80 p-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 rounded-xl border border-slate-300/80 bg-slate-100/70 p-5">
           {/* Switch strategy card */}
-          <div className="space-y-3 p-4 rounded-xl border border-blue-200 bg-white shadow-2xs">
+          <div className="space-y-3 p-4 rounded-xl border border-blue-300/80 bg-white shadow-xs">
             <div className="flex items-center justify-between text-xs font-semibold">
               <span className="text-blue-700 uppercase tracking-wide flex items-center gap-1.5 font-bold">
                 <span className="h-2 w-2 rounded-full bg-blue-600" />
@@ -484,7 +484,7 @@ export function MontyHallSimulation() {
           </div>
 
           {/* Stay strategy card */}
-          <div className="space-y-3 p-4 rounded-xl border border-violet-200 bg-white shadow-2xs">
+          <div className="space-y-3 p-4 rounded-xl border border-violet-300/80 bg-white shadow-xs">
             <div className="flex items-center justify-between text-xs font-semibold">
               <span className="text-violet-700 uppercase tracking-wide flex items-center gap-1.5 font-bold">
                 <span className="h-2 w-2 rounded-full bg-violet-600" />
@@ -544,7 +544,7 @@ export function MontyHallSimulation() {
         </div>
 
         {/* Mathematical Insight Deep Dive */}
-        <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-4 text-xs leading-relaxed text-slate-700 space-y-2">
+        <div className="rounded-xl border border-slate-300/80 bg-slate-100/70 p-4 text-xs leading-relaxed text-slate-700 space-y-2">
           <div className="font-heading font-bold text-sm text-slate-900 flex items-center gap-2">
             <CheckCircle2 className="h-4 w-4 text-blue-600" />
             Bản chất toán học của Nghịch lý Monty Hall:
@@ -556,7 +556,7 @@ export function MontyHallSimulation() {
             . Vì MC luôn bắt buộc phải mở một cánh cửa có dê, toàn bộ xác suất 2/3 này dồn về cánh
             cửa còn lại chưa mở.
           </p>
-          <div className="font-mono text-[11px] text-blue-900 bg-blue-50 p-2.5 rounded-lg border border-blue-200">
+          <div className="font-mono text-[11px] text-blue-900 bg-blue-50/90 p-2.5 rounded-lg border border-blue-200">
             P(Thắng | Đổi) = P(Chọn ban đầu là Dê) = 2/3 ≈ 66.67%
             <br />
             P(Thắng | Giữ) = P(Chọn ban đầu là Xe) = 1/3 ≈ 33.33%
