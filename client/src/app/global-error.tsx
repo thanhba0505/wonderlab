@@ -1,25 +1,46 @@
 'use client';
 
+import * as React from 'react';
+import { Button } from '@/components/ui/button';
+import { AlertTriangle, RotateCcw } from 'lucide-react';
+
 export default function GlobalError({
   reset,
 }: {
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const handleReload = () => {
+    if (typeof window !== 'undefined') {
+      window.location.reload();
+    } else {
+      reset();
+    }
+  };
+
   return (
-    <html lang="vi" className="dark">
-      <body className="min-h-screen flex items-center justify-center bg-[#080c14] text-slate-100 p-4">
-        <div className="max-w-md text-center space-y-4">
-          <h2 className="text-2xl font-bold text-red-400">Lỗi Hệ thống Cốt lõi</h2>
-          <p className="text-sm text-slate-400">
-            Ứng dụng gặp sự cố nghiêm trọng tại tầng HTML shell.
+    <html lang="vi">
+      <body className="min-h-screen flex items-center justify-center bg-[#f1f5f9] text-slate-800 p-4 font-sans">
+        <div className="max-w-md w-full text-center space-y-4 p-8 rounded-2xl bg-white border border-slate-300 shadow-md">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-rose-50 text-rose-600 border border-rose-200">
+            <AlertTriangle className="h-6 w-6" />
+          </div>
+          <span className="text-xs font-mono font-bold tracking-widest text-rose-600 uppercase block">
+            Lỗi Hệ Thống Cốt Lõi
+          </span>
+          <h2 className="text-xl font-heading font-extrabold text-slate-900">
+            Sự cố tại tầng khung ứng dụng
+          </h2>
+          <p className="text-xs text-slate-600 leading-relaxed">
+            Đã xảy ra xung đột trong quá trình khởi tạo cấu trúc HTML gốc. Hãy tải lại toàn bộ trang
+            để khôi phục phiên làm việc.
           </p>
-          <button
-            onClick={() => reset()}
-            className="px-4 py-2 bg-cyan-500 text-slate-950 font-bold rounded-md hover:bg-cyan-400"
-          >
-            Khởi động lại toàn bộ
-          </button>
+          <div className="pt-2">
+            <Button onClick={handleReload} className="gap-2 font-semibold text-xs shadow-sm">
+              <RotateCcw className="h-3.5 w-3.5" />
+              Khởi động lại toàn bộ
+            </Button>
+          </div>
         </div>
       </body>
     </html>

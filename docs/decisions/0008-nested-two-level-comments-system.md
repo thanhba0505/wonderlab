@@ -11,6 +11,7 @@ Accepted
 Wonderlab hướng tới việc trở thành một nền tảng khám phá khoa học tương tác cao, nơi người học không chỉ quan sát mô phỏng mà còn có thể thảo luận, đặt câu hỏi phản biện và chia sẻ kết quả thực nghiệm.
 
 Yêu cầu đặt ra:
+
 1. Cho phép người dùng đã xác thực (Authenticated Users) đăng bình luận và phản hồi lẫn nhau.
 2. Cấu trúc thảo luận phải rõ ràng, chống việc lồng phân cấp vô hạn (infinite nesting depth) gây vỡ giao diện và phân mảnh luồng hội thoại. Hệ thống cần giới hạn nghiêm ngặt **tối đa 2 cấp (Root comment -> Direct reply)**.
 3. Người dùng chưa đăng nhập có thể đọc bình luận và được hướng dẫn đăng nhập nhanh.
