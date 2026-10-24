@@ -20,6 +20,9 @@ import { useSimulationTelemetry } from '@/lib/hooks/use-simulation-telemetry';
 import { ExportSuitePanel } from '@/features/simulations/components/export-suite-panel';
 import { SimulationHistoryTable } from '@/features/simulations/components/simulation-history-table';
 import { GlobalTelemetryWidget } from '@/features/simulations/components/global-telemetry-widget';
+import { IntuitionChallengeCard } from '@/features/simulations/components/intuition-challenge-card';
+import { getSimulationBySlug } from '@/features/simulations/registry';
+import { HypothesisOption } from '@/features/simulations/types';
 
 type Step = 'pick' | 'revealed' | 'result';
 
@@ -31,6 +34,12 @@ interface Stats {
 }
 
 export function MontyHallSimulation() {
+  const meta = getSimulationBySlug('monty-hall');
+  const [userPrediction, setUserPrediction] = React.useState<{
+    option: HypothesisOption;
+    gap: number;
+  } | null>(null);
+
   const { history, globalStats, recordRun } = useSimulationTelemetry('monty-hall');
   const [carDoor, setCarDoor] = React.useState<number>(0);
   const [selectedDoor, setSelectedDoor] = React.useState<number | null>(null);
@@ -147,7 +156,11 @@ export function MontyHallSimulation() {
     // Record simulation run in background telemetry
     const switchWinRate = newSwitchPlays > 0 ? newSwitchWins / newSwitchPlays : 0;
     recordRun(
-      { doorsCount: 3, strategy: 'monte-carlo-mix' },
+      {
+        doorsCount: 3,
+        strategy: 'monte-carlo-mix',
+        userPrediction: userPrediction?.option.value,
+      },
       {
         switchPlays: newSwitchPlays,
         switchWins: newSwitchWins,
@@ -155,6 +168,7 @@ export function MontyHallSimulation() {
         stayWins: newStayWins,
         empiricalProbability: switchWinRate,
         theoreticalProbability: 2 / 3,
+        intuitionGap: userPrediction?.gap,
       },
       batchCount,
       duration,
@@ -186,6 +200,15 @@ export function MontyHallSimulation() {
     <div className="space-y-6">
       {/* Global Telemetry Banner */}
       <GlobalTelemetryWidget stats={globalStats} className="w-full justify-between" />
+
+      {/* Thử thách dự đoán trực giác */}
+      {meta?.hypothesis && (
+        <IntuitionChallengeCard
+          challenge={meta.hypothesis}
+          simulationSlug="monty-hall"
+          onPredictionSelected={(option, gap) => setUserPrediction({ option, gap })}
+        />
+      )}
 
       <Card className="border-slate-300/85 bg-white shadow-md shadow-slate-300/30">
         <CardHeader className="border-b border-slate-200/80 pb-5">

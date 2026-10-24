@@ -16,6 +16,47 @@ export const SIMULATIONS_REGISTRY: SimulationMeta[] = [
     tags: ['Xác suất', 'Tổ hợp', 'Thống kê', 'Monte Carlo'],
     status: 'active',
     accentColor: 'amber',
+    hypothesis: {
+      question:
+        'Theo trực giác tự nhiên của bạn, trong một phòng có 23 người ngẫu nhiên, cơ hội để có ít nhất 2 người trùng ngày sinh là bao nhiêu?',
+      context: 'Một năm có 365 ngày. Nhóm chỉ có 23 người (chiếm chưa đầy 6.3% số ngày trong năm).',
+      options: [
+        {
+          id: 'opt-a',
+          label: 'Rất hiếm gặp (< 10%)',
+          value: 0.08,
+          explanation:
+            'Trực giác tuyến tính so sánh 23 với 365, cho rằng cơ hội hai người trùng nhau là cực kỳ thấp.',
+        },
+        {
+          id: 'opt-b',
+          label: 'Xác suất vừa phải (20% – 30%)',
+          value: 0.25,
+          explanation:
+            'Cảm giác có khả năng xảy ra nhưng không thể vượt quá một nửa số trường hợp.',
+        },
+        {
+          id: 'opt-c',
+          label: 'Khoảng một nửa (~ 50%)',
+          value: 0.5073,
+          explanation:
+            'Chính xác! 23 người tạo ra tới C(23, 2) = 253 cặp đối sánh, đẩy xác suất chạm mốc 50.73%.',
+        },
+        {
+          id: 'opt-d',
+          label: 'Gần như chắc chắn (> 80%)',
+          value: 0.85,
+          explanation: 'Đoán quá cao so với quy mô nhóm 23 người (mốc 80% cần khoảng 35 người).',
+        },
+      ],
+      theoreticalTruth: 0.5073,
+      truthExplanation:
+        'Số cặp đối sánh trong phòng bùng nổ theo cấp số bậc hai C(23, 2) = 253 cặp. Xác suất để TẤT CẢ 253 cặp này đều không trùng là (364/365) x (363/365) x ... ≈ 49.27%, do đó cơ hội có ít nhất 1 cặp trùng là 50.73%!',
+      biasType: 'linear-scaling-trap',
+      biasName: 'Bẫy Tư duy Tuyến tính (Linear Scaling Bias)',
+      biasDescription:
+        'Não bộ tiến hóa để so sánh quan hệ 1-1 (tôi với từng người) thay vì hình dung toàn bộ không gian tổ hợp O(n²).',
+    },
   },
   {
     slug: 'monty-hall',
@@ -33,6 +74,42 @@ export const SIMULATIONS_REGISTRY: SimulationMeta[] = [
     tags: ['Xác suất có điều kiện', 'Bayes', 'Lý thuyết quyết định'],
     status: 'active',
     accentColor: 'amber',
+    hypothesis: {
+      question:
+        'Sau khi bạn chọn 1 cửa và MC mở ra 1 con dê, cơ hội chiến thắng của bạn sẽ ra sao nếu bạn ĐỔI sang cánh cửa còn lại?',
+      context:
+        'Còn lại đúng 2 cánh cửa đang đóng: 1 cửa chứa ô tô thể thao, 1 cửa chứa một chú dê.',
+      options: [
+        {
+          id: 'opt-a',
+          label: '50 / 50 (Giữ hay đổi đều như nhau)',
+          value: 0.5,
+          explanation:
+            'Ảo tưởng kinh điển: Vì chỉ còn 2 cánh cửa đóng nên bộ não tự động giả định cơ hội chia đều 50/50.',
+        },
+        {
+          id: 'opt-b',
+          label: 'Giữ nguyên tốt hơn (~ 66.7%)',
+          value: 0.3333,
+          explanation:
+            'Hiệu ứng sở hữu tâm lý (Endowment Effect): Tin rằng trực giác đầu tiên của mình linh thiêng hơn.',
+        },
+        {
+          id: 'opt-c',
+          label: 'Đổi cửa nhân đôi cơ hội thắng (66.7%)',
+          value: 0.6667,
+          explanation:
+            'Chính xác! Cửa ban đầu chỉ có 1/3 cơ hội. MC biết rõ và triệt tiêu con dê, dồn 2/3 xác suất sang cửa còn lại.',
+        },
+      ],
+      theoreticalTruth: 0.6667,
+      truthExplanation:
+        'Bạn chỉ thua khi đổi nếu bạn chọn trúng ô tô ngay từ đầu (xác suất 1/3). Bạn thắng khi đổi nếu bạn chọn trúng dê từ đầu (xác suất 2/3). Do đó, đổi cửa cho bạn chính xác 2/3 (66.67%) cơ hội chiến thắng!',
+      biasType: 'conditional-probability-fallacy',
+      biasName: 'Ảo tưởng Xác suất Đồng đều (Uniformity Fallacy)',
+      biasDescription:
+        'Bộ não bỏ qua thông tin điều kiện do hành động có chủ đích của người dẫn chương trình mang lại.',
+    },
   },
   {
     slug: 'double-slit',

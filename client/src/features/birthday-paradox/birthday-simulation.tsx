@@ -21,6 +21,9 @@ import { useSimulationTelemetry } from '@/lib/hooks/use-simulation-telemetry';
 import { SimulationHistoryTable } from '@/features/simulations/components/simulation-history-table';
 import { ExportSuitePanel } from '@/features/simulations/components/export-suite-panel';
 import { GlobalTelemetryWidget } from '@/features/simulations/components/global-telemetry-widget';
+import { IntuitionChallengeCard } from '@/features/simulations/components/intuition-challenge-card';
+import { getSimulationBySlug } from '@/features/simulations/registry';
+import { HypothesisOption } from '@/features/simulations/types';
 
 function createDeterministicRng(seed = 2026) {
   let s = seed % 2147483647;
@@ -32,6 +35,12 @@ function createDeterministicRng(seed = 2026) {
 }
 
 export const BirthdaySimulation: React.FC = () => {
+  const meta = getSimulationBySlug('birthday-paradox');
+  const [userPrediction, setUserPrediction] = useState<{
+    option: HypothesisOption;
+    gap: number;
+  } | null>(null);
+
   const [n, setN] = useState<number>(23);
   const [room, setRoom] = useState<RoomSimulationResult>(() =>
     simulateRoom(23, 365, createDeterministicRng(2026)),
@@ -115,11 +124,15 @@ export const BirthdaySimulation: React.FC = () => {
 
       // Lưu trữ lượt chạy lên telemetry API
       recordRun(
-        { groupSize: n },
+        {
+          groupSize: n,
+          userPrediction: userPrediction?.option.value,
+        },
         {
           collisions: result.collisions,
           empiricalProbability: result.empiricalRate,
           theoreticalProbability: theoreticalP,
+          intuitionGap: userPrediction?.gap,
         },
         trials,
         duration,
@@ -147,6 +160,15 @@ export const BirthdaySimulation: React.FC = () => {
     <div className="flex flex-col gap-6">
       {/* Telemetry toàn cầu */}
       <GlobalTelemetryWidget stats={globalStats} className="w-full justify-between" />
+
+      {/* Thử thách dự đoán trực giác */}
+      {meta?.hypothesis && (
+        <IntuitionChallengeCard
+          challenge={meta.hypothesis}
+          simulationSlug="birthday-paradox"
+          onPredictionSelected={(option, gap) => setUserPrediction({ option, gap })}
+        />
+      )}
 
       {/* Thanh đo lường Telemetry chính */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">

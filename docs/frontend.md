@@ -119,3 +119,23 @@ Nhằm nâng cao tính khoa học và thực nghiệm có thể tái lặp (repr
 - **Bộ đếm Telemetry Cộng đồng (`GlobalTelemetryWidget`)**:
   - Hiển thị số liệu thực tế thời gian thực tích lũy của toàn bộ cộng đồng người dùng Wonderlab.
   - Tuân thủ nguyên tắc số 5 trong AGENTS.md (_No Faux Data_): 100% số liệu thật từ PostgreSQL.
+
+---
+
+## 6. Intuition Gap & Hypothesis Testing Engine
+
+Để chuyển dịch từ việc quan sát thụ động sang phương pháp học tập chủ động (Active Inquiry Learning), mỗi phòng lab được trang bị công cụ kiểm tra giả thuyết trước thực nghiệm:
+
+- **Khảo sát Dự đoán Trước Thực nghiệm (`IntuitionChallengeCard`)**:
+  - Đưa ra câu hỏi tình huống toán học kích thích trực giác trước khi người dùng can thiệp vào mô hình.
+  - Tự động lưu lựa chọn vào `localStorage` (`wonderlab_guess_<slug>`) để ghi nhớ trạng thái phiên.
+- **Thước đo Độ lệch Trực giác (Intuition Gap Meter)**:
+  - Đo lường khoảng cách sai lệch giữa niềm tin chủ quan và định lý khách quan: $\Delta_{gap} = |P_{guess} - P_{truth}| \times 100\%$.
+  - Phân loại trực giác:
+    - $\Delta < 5\%$: _Trực giác Ngoại cảm_ (Nhà quan sát sắc bén).
+    - $5\% \le \Delta \le 30\%$: _Độ lệch Vừa phải_.
+    - $\Delta > 30\%$: _Mắc Bẫy Trực giác Tuyến tính_.
+- **Giải mã Tâm lý Nhận thức (Cognitive Bias Explainer)**:
+  - Phân tích cội nguồn tiến hóa của các cạm bẫy tư duy (Bẫy Tư duy Tuyến tính $O(n^2)$, Ảo tưởng Xác suất Đồng đều $50/50$, v.v.).
+- **Tích hợp Telemetry**:
+  - Tự động gắn kèm `userPrediction` và `intuitionGap` vào lượt chạy Monte Carlo để lưu trữ và tổng hợp trên hệ thống.
