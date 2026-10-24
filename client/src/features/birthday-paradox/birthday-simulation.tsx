@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useEffect, useState, useTransition } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
   calculateComparisonPairs,
   calculateTheoreticalProbability,
@@ -16,14 +16,28 @@ import { CalendarHeatmap } from './components/calendar-heatmap';
 import { ProbabilityChart } from './components/probability-chart';
 import { ControlsPanel } from './components/controls-panel';
 import { IntuitionExplainer } from './components/intuition-explainer';
-import { CheckCircle2, Sparkles, XCircle } from 'lucide-react';
+import {
+  CheckCircle2,
+  Sparkles,
+  XCircle,
+  FileSpreadsheet,
+  FileJson,
+  Copy,
+  Share2,
+  Check,
+  Activity,
+  Database,
+  Sliders,
+  Radar,
+  LineChart,
+  Calendar,
+} from 'lucide-react';
 import { useSimulationTelemetry } from '@/lib/hooks/use-simulation-telemetry';
 import { SimulationHistoryTable } from '@/features/simulations/components/simulation-history-table';
-import { ExportSuitePanel } from '@/features/simulations/components/export-suite-panel';
-import { GlobalTelemetryWidget } from '@/features/simulations/components/global-telemetry-widget';
 import { IntuitionChallengeCard } from '@/features/simulations/components/intuition-challenge-card';
 import { getSimulationBySlug } from '@/features/simulations/registry';
 import { HypothesisOption } from '@/features/simulations/types';
+import { exportToCsv, exportToJson, copyToClipboard } from '../simulations/utils/export-data';
 
 function createDeterministicRng(seed = 2026) {
   let s = seed % 2147483647;
@@ -49,6 +63,9 @@ export const BirthdaySimulation: React.FC = () => {
   const [selectedPersonId, setSelectedPersonId] = useState<number | null>(null);
   const [monteCarloResult, setMonteCarloResult] = useState<MonteCarloBatchResult | null>(null);
   const [isPending, startTransition] = useTransition();
+
+  // Export clipboard feedback
+  const [copiedType, setCopiedType] = useState<'report' | 'url' | null>(null);
 
   // Background Telemetry Hook
   const { history, globalStats, recordRun } = useSimulationTelemetry('birthday-paradox');
@@ -166,219 +183,468 @@ export const BirthdaySimulation: React.FC = () => {
     ? monteCarloResult.empiricalRate
     : sessionCollisionCount / sessionRoomsCount;
 
+  // Tool: Export CSV
+  const handleExportCsv = () => {
+    const headers = ['Timestamp', 'Group_Size_N', 'Trials_Count', 'Empirical_P', 'Theoretical_P'];
+    const rows = history.map(r => [
+      r.createdAt,
+      String(
+        (r.parameters as Record<string, unknown>)?.groupSize ??
+          (r.parameters as Record<string, unknown>)?.n ??
+          n,
+      ),
+      r.trialsCount,
+      typeof (r.results as Record<string, unknown>)?.empiricalProbability === 'number'
+        ? (((r.results as Record<string, unknown>).empiricalProbability as number) * 100).toFixed(
+            2,
+          ) + '%'
+        : 'N/A',
+      typeof (r.results as Record<string, unknown>)?.theoreticalProbability === 'number'
+        ? (((r.results as Record<string, unknown>).theoreticalProbability as number) * 100).toFixed(
+            2,
+          ) + '%'
+        : 'N/A',
+    ]);
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+    exportToCsv(`wonderlab-birthday-paradox-${timestamp}`, headers, rows);
+  };
+
+  // Tool: Export JSON
+  const handleExportJson = () => {
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+    const exportPayload = {
+      platform: 'Wonderlab Open Science Platform',
+      title: 'Nghịch lý Ngày sinh (Birthday Paradox)',
+      slug: 'birthday-paradox',
+      exportedAt: new Date().toISOString(),
+      parameters: { groupSize: n, comparisonPairs: totalPairs },
+      results: {
+        empiricalProbability: currentEmpiricalRate,
+        theoreticalProbability: theoreticalP,
+        hasCollisionCurrentRoom: room.hasCollision,
+        collisionPairsCount: room.collisionPairs.length,
+      },
+    };
+    exportToJson(`wonderlab-birthday-paradox-${timestamp}`, exportPayload);
+  };
+
+  // Tool: Copy Markdown Report
+  const handleCopyReport = async () => {
+    const markdown = [
+      `# Báo cáo Thực nghiệm: Nghịch lý Ngày sinh (Birthday Paradox)`,
+      `- **Nền tảng**: Wonderlab Interactive Science Platform`,
+      `- **Thời điểm**: ${new Date().toLocaleString('vi-VN')}`,
+      `- **Mã thí nghiệm**: \`birthday-paradox\``,
+      '',
+      `## Tham số đầu vào:`,
+      `- **Số người trong phòng (n)**: \`${n}\``,
+      `- **Số cặp đối sánh**: \`${totalPairs}\``,
+      '',
+      `## Kết quả thực nghiệm:`,
+      `- **Xác suất Lý thuyết P(n)**: \`${(theoreticalP * 100).toFixed(2)}%\``,
+      `- **Xác suất Thực nghiệm**: \`${(currentEmpiricalRate * 100).toFixed(2)}%\``,
+      `- **Phòng hiện tại có trùng**: \`${room.hasCollision ? 'Có' : 'Không'}\``,
+      '',
+      `> Trích xuất từ Wonderlab (https://wonderlab.local/simulations/birthday-paradox)`,
+    ].join('\n');
+
+    const ok = await copyToClipboard(markdown);
+    if (ok) {
+      setCopiedType('report');
+      setTimeout(() => setCopiedType(null), 2500);
+    }
+  };
+
+  // Tool: Share URL
+  const handleShareUrl = async () => {
+    if (typeof window === 'undefined') return;
+    const url = new URL(window.location.href);
+    url.searchParams.set('n', String(n));
+
+    const ok = await copyToClipboard(url.toString());
+    if (ok) {
+      setCopiedType('url');
+      setTimeout(() => setCopiedType(null), 2500);
+    }
+  };
+
   return (
-    <div className="flex flex-col gap-6">
-      {/* Telemetry toàn cầu */}
-      <GlobalTelemetryWidget stats={globalStats} className="w-full justify-between" />
+    <div className="flex flex-col gap-8">
+      {/* ────────────────────────── (Line phân cách sau intro/formula) ────────────────────────── */}
+      <hr className="border-slate-200/80 -mt-2" />
 
-      {/* Thử thách dự đoán trực giác */}
-      {meta?.hypothesis && (
-        <IntuitionChallengeCard
-          challenge={meta.hypothesis}
-          simulationSlug="birthday-paradox"
-          onPredictionSelected={(option, gap) => setUserPrediction({ option, gap })}
-          onStatusChange={resolved => setIsChallengeResolved(resolved)}
-        />
-      )}
-
-      {/* Thanh đo lường Telemetry chính */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <div className="rounded-lg p-3 border border-slate-300/85 bg-white shadow-2xs">
-          <div className="text-[11px] font-medium tracking-wide text-slate-500 uppercase">
-            Số người trong phòng (n)
+      {/* 2. TITLE CÂU HỎI & CÂU HỎI TRỰC GIÁC */}
+      <div className="space-y-4">
+        {/* Title không number đầu, không khung, nổi bật */}
+        <div className="space-y-1">
+          <div className="flex items-center gap-2.5">
+            <span className="h-2.5 w-2.5 rounded-full bg-amber-500 shadow-xs shadow-amber-500/40" />
+            <h2 className="font-heading text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
+              Khảo Sát Trực Giác Trước Thực Nghiệm
+            </h2>
           </div>
-          <div className="mt-1 font-mono text-2xl font-bold text-slate-900 tabular-nums">{n}</div>
-          <div className="mt-0.5 text-[11px] text-slate-500">{totalPairs} cặp đối sánh</div>
+          <p className="text-xs sm:text-sm text-slate-500 font-sans">
+            Đưa ra dự đoán cá nhân để đo lường khoảng cách giữa trực giác thông thường và toán học
+            xác suất
+          </p>
         </div>
 
-        <div
-          className={`rounded-lg p-3 border transition-all shadow-2xs ${
-            !isChallengeResolved
-              ? 'border-dashed border-amber-300/90 bg-amber-50/50'
-              : 'border-blue-200/90 bg-blue-50/40'
-          }`}
-        >
-          <div className="text-[11px] font-medium tracking-wide text-slate-500 uppercase flex items-center justify-between">
-            <span>Xác suất Lý thuyết P(n)</span>
-            {!isChallengeResolved && (
-              <Badge variant="amber" className="text-[9px] font-mono py-0 px-1.5">
-                Đang khóa
-              </Badge>
-            )}
-          </div>
-          <div
-            className={`mt-1 font-mono text-2xl font-bold tabular-nums ${
-              !isChallengeResolved ? 'text-amber-700/80 select-none' : 'text-blue-700'
-            }`}
-          >
-            {!isChallengeResolved ? '??.?%' : `${(theoreticalP * 100).toFixed(1)}%`}
-          </div>
-          <div className="mt-0.5 text-[11px] text-slate-500 font-sans">
-            {!isChallengeResolved
-              ? 'Dự đoán hoặc Bỏ qua để mở'
-              : n >= 23
-                ? 'Vượt ngưỡng 50% ★'
-                : 'Dưới ngưỡng 50%'}
-          </div>
-        </div>
-
-        <div
-          className={`rounded-lg p-3 border shadow-2xs transition-all ${
-            room.hasCollision ? 'border-amber-200 bg-amber-50/30' : 'border-slate-300/85 bg-white'
-          }`}
-        >
-          <div className="text-[11px] font-medium tracking-wide text-slate-500 uppercase">
-            Phòng hiện tại
-          </div>
-          <div className="mt-1 flex items-center gap-1.5 font-mono text-lg font-bold">
-            {room.hasCollision ? (
-              <>
-                <CheckCircle2 className="h-5 w-5 text-amber-600" />
-                <span className="text-amber-700">Có trùng</span>
-              </>
-            ) : (
-              <>
-                <XCircle className="h-5 w-5 text-slate-400" />
-                <span className="text-slate-600">Không trùng</span>
-              </>
-            )}
-          </div>
-          <div className="mt-0.5 font-mono text-[11px] text-slate-500 tabular-nums">
-            {room.collisionPairs.length} cặp trùng nhau
-          </div>
-        </div>
-
-        <div className="rounded-lg p-3 border border-emerald-200/90 bg-emerald-50/30 shadow-2xs">
-          <div className="text-[11px] font-medium tracking-wide text-slate-500 uppercase">
-            Thực nghiệm Monte Carlo
-          </div>
-          <div className="mt-1 font-mono text-2xl font-bold text-emerald-700 tabular-nums">
-            {(currentEmpiricalRate * 100).toFixed(1)}%
-          </div>
-          <div className="mt-0.5 font-mono text-[11px] text-slate-500 tabular-nums">
-            {monteCarloResult
-              ? `${monteCarloResult.collisions}/${monteCarloResult.trials} phòng`
-              : `${sessionCollisionCount}/${sessionRoomsCount} lần thử`}
-          </div>
-        </div>
+        {/* Khối Thử thách Dự đoán */}
+        {meta?.hypothesis && (
+          <IntuitionChallengeCard
+            challenge={meta.hypothesis}
+            simulationSlug="birthday-paradox"
+            onPredictionSelected={(option, gap) => setUserPrediction({ option, gap })}
+            onStatusChange={resolved => setIsChallengeResolved(resolved)}
+          />
+        )}
       </div>
 
-      {/* Bento Grid 2 cột chính */}
-      <div className="grid gap-6 lg:grid-cols-12">
-        {/* Cột trái: Bộ điều khiển & Vòng tròn radar */}
-        <div className="flex flex-col gap-6 lg:col-span-5">
-          <Card className="rounded-xl border border-slate-300/90 bg-slate-50/70 shadow-xs">
-            <CardHeader className="pb-3 border-b border-slate-200/70">
-              <CardTitle className="flex items-center justify-between text-sm font-bold text-slate-900">
-                <span>Tham số Buồng Thí nghiệm</span>
-                {room.hasCollision && (
-                  <Badge className="bg-amber-100 text-amber-800 border-amber-300">
-                    <Sparkles className="mr-1 h-3 w-3" />
-                    Phát hiện va chạm!
+      {/* 3. TITLE CHỖ THÍ NGHIỆM & BLOCK THÍ NGHIỆM HỢP NHẤT */}
+      <div className="space-y-4">
+        {/* Title không number đầu, không khung, nổi bật */}
+        <div className="space-y-1">
+          <div className="flex items-center gap-2.5">
+            <span className="h-2.5 w-2.5 rounded-full bg-blue-600 shadow-xs shadow-blue-500/40" />
+            <h2 className="font-heading text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
+              Buồng Thí Nghiệm & Mô Phỏng Trực Quan
+            </h2>
+          </div>
+          <p className="text-xs sm:text-sm text-slate-500 font-sans">
+            Không gian thao tác tham số trực tiếp, radar va chạm không gian và mô phỏng Monte Carlo
+          </p>
+        </div>
+
+        {/* 🧪 BLOCK THÍ NGHIỆM HỢP NHẤT (Single Unified Lab Workbench) */}
+        <div className="rounded-2xl border border-slate-300/85 bg-white shadow-xs p-5 sm:p-6 space-y-6">
+          {/* [A] Thanh trạng thái đo lường nhỏ gọn (Metric Strip) */}
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {/* Metric 1: Group size n */}
+            <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3 shadow-2xs">
+              <div className="text-[11px] font-medium tracking-wide text-slate-500 uppercase">
+                Số người trong phòng (n)
+              </div>
+              <div className="mt-1 font-mono text-2xl font-bold text-slate-900 tabular-nums">
+                {n}
+              </div>
+              <div className="mt-0.5 text-[11px] text-slate-500 font-mono">
+                {totalPairs} cặp đối sánh
+              </div>
+            </div>
+
+            {/* Metric 2: Theoretical P(n) */}
+            <div
+              className={`rounded-xl border p-3 shadow-2xs transition-all ${
+                !isChallengeResolved
+                  ? 'border-dashed border-amber-300/90 bg-amber-50/50'
+                  : 'border-blue-200/90 bg-blue-50/40'
+              }`}
+            >
+              <div className="text-[11px] font-medium tracking-wide text-slate-500 uppercase flex items-center justify-between">
+                <span>Xác suất Lý thuyết P(n)</span>
+                {!isChallengeResolved && (
+                  <Badge variant="amber" className="text-[9px] font-mono py-0 px-1.5">
+                    Đang khóa
                   </Badge>
                 )}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-4">
-              <ControlsPanel
-                n={n}
-                onChangeN={handleNChange}
-                onRandomizeRoom={handleRandomizeRoom}
-                onRunBatch={handleRunBatch}
-                onReset={handleReset}
-                isSimulatingBatch={isPending}
-              />
-            </CardContent>
-          </Card>
+              </div>
+              <div
+                className={`mt-1 font-mono text-2xl font-bold tabular-nums ${
+                  !isChallengeResolved ? 'text-amber-700/80 select-none' : 'text-blue-700'
+                }`}
+              >
+                {!isChallengeResolved ? '??.?%' : `${(theoreticalP * 100).toFixed(1)}%`}
+              </div>
+              <div className="mt-0.5 text-[11px] text-slate-500 font-sans">
+                {!isChallengeResolved
+                  ? 'Dự đoán hoặc Bỏ qua để mở'
+                  : n >= 23
+                    ? 'Vượt ngưỡng 50% ★'
+                    : 'Dưới ngưỡng 50%'}
+              </div>
+            </div>
 
-          <Card className="rounded-xl border border-slate-300/85 bg-white shadow-xs">
-            <CardHeader className="pb-2 border-b border-slate-100">
-              <CardTitle className="text-sm font-bold text-slate-900">
-                Buồng Radar Không gian (Chamber View)
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-2 flex justify-center">
-              <ChamberRadar
-                people={room.people}
-                collisionPairs={room.collisionPairs}
-                selectedPersonId={selectedPersonId}
-                onSelectPerson={setSelectedPersonId}
-              />
-            </CardContent>
-          </Card>
-        </div>
+            {/* Metric 3: Current room collision */}
+            <div
+              className={`rounded-xl border shadow-2xs transition-all p-3 ${
+                room.hasCollision
+                  ? 'border-amber-200 bg-amber-50/40'
+                  : 'border-slate-200 bg-slate-50/70'
+              }`}
+            >
+              <div className="text-[11px] font-medium tracking-wide text-slate-500 uppercase">
+                Phòng hiện tại
+              </div>
+              <div className="mt-1 flex items-center gap-1.5 font-mono text-lg font-bold">
+                {room.hasCollision ? (
+                  <>
+                    <CheckCircle2 className="h-5 w-5 text-amber-600" />
+                    <span className="text-amber-700">Có trùng</span>
+                  </>
+                ) : (
+                  <>
+                    <XCircle className="h-5 w-5 text-slate-400" />
+                    <span className="text-slate-600">Không trùng</span>
+                  </>
+                )}
+              </div>
+              <div className="mt-0.5 font-mono text-[11px] text-slate-500 tabular-nums">
+                {room.collisionPairs.length} cặp trùng nhau
+              </div>
+            </div>
 
-        {/* Cột phải: Đồ thị xác suất & Lịch phân bổ */}
-        <div className="flex flex-col gap-6 lg:col-span-7">
-          <Card className="rounded-xl border border-slate-300/85 bg-white shadow-xs">
-            <CardContent className="pt-4">
-              <ProbabilityChart currentN={n} monteCarloResult={monteCarloResult} />
-            </CardContent>
-          </Card>
+            {/* Metric 4: Monte Carlo rate */}
+            <div className="rounded-xl border border-emerald-200/90 bg-emerald-50/30 p-3 shadow-2xs">
+              <div className="text-[11px] font-medium tracking-wide text-slate-500 uppercase">
+                Thực nghiệm Monte Carlo
+              </div>
+              <div className="mt-1 font-mono text-2xl font-bold text-emerald-700 tabular-nums">
+                {(currentEmpiricalRate * 100).toFixed(1)}%
+              </div>
+              <div className="mt-0.5 font-mono text-[11px] text-slate-500 tabular-nums">
+                {monteCarloResult
+                  ? `${monteCarloResult.collisions}/${monteCarloResult.trials} phòng`
+                  : `${sessionCollisionCount}/${sessionRoomsCount} lần thử`}
+              </div>
+            </div>
+          </div>
 
-          <Card className="rounded-xl border border-slate-300/80 bg-slate-50/40 shadow-xs">
-            <CardContent className="pt-4">
-              <CalendarHeatmap
-                people={room.people}
-                sharedDates={room.sharedDates}
-                selectedPersonId={selectedPersonId}
-                onSelectPerson={setSelectedPersonId}
-              />
-            </CardContent>
-          </Card>
+          {/* [B] Vùng thực nghiệm tương tác chính (Grid 2 cột) */}
+          <div className="grid gap-6 lg:grid-cols-12">
+            {/* Cột trái: Bộ điều khiển & Vòng tròn radar */}
+            <div className="flex flex-col gap-6 lg:col-span-5">
+              {/* Controls Section */}
+              <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4 space-y-3">
+                <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+                  <div className="flex items-center gap-2">
+                    <Sliders className="h-4 w-4 text-blue-600" />
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800 font-heading">
+                      Tham số Buồng Thí nghiệm
+                    </h3>
+                  </div>
+                  {room.hasCollision && (
+                    <Badge className="bg-amber-100 text-amber-800 border-amber-300 text-[10px]">
+                      <Sparkles className="mr-1 h-3 w-3" />
+                      Va chạm!
+                    </Badge>
+                  )}
+                </div>
+
+                <ControlsPanel
+                  n={n}
+                  onChangeN={handleNChange}
+                  onRandomizeRoom={handleRandomizeRoom}
+                  onRunBatch={handleRunBatch}
+                  onReset={handleReset}
+                  isSimulatingBatch={isPending}
+                />
+              </div>
+
+              {/* Chamber Radar Section */}
+              <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 space-y-3">
+                <div className="flex items-center gap-2 border-b border-slate-200 pb-2">
+                  <Radar className="h-4 w-4 text-violet-600" />
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800 font-heading">
+                    Buồng Radar Không gian (Chamber View)
+                  </h3>
+                </div>
+                <div className="flex justify-center pt-1">
+                  <ChamberRadar
+                    people={room.people}
+                    collisionPairs={room.collisionPairs}
+                    selectedPersonId={selectedPersonId}
+                    onSelectPerson={setSelectedPersonId}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Cột phải: Đồ thị xác suất & Lịch phân bổ */}
+            <div className="flex flex-col gap-6 lg:col-span-7">
+              {/* Probability Chart Section */}
+              <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 space-y-3">
+                <div className="flex items-center gap-2 border-b border-slate-200 pb-2">
+                  <LineChart className="h-4 w-4 text-blue-600" />
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800 font-heading">
+                    Đồ thị Xác suất Lý thuyết vs Thực nghiệm
+                  </h3>
+                </div>
+                <div className="pt-1">
+                  <ProbabilityChart currentN={n} monteCarloResult={monteCarloResult} />
+                </div>
+              </div>
+
+              {/* Calendar Heatmap Section */}
+              <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 space-y-3">
+                <div className="flex items-center gap-2 border-b border-slate-200 pb-2">
+                  <Calendar className="h-4 w-4 text-emerald-600" />
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800 font-heading">
+                    Phân bổ Ngày sinh trên Lịch 365 Ngày
+                  </h3>
+                </div>
+                <div className="pt-1">
+                  <CalendarHeatmap
+                    people={room.people}
+                    sharedDates={room.sharedDates}
+                    selectedPersonId={selectedPersonId}
+                    onSelectPerson={setSelectedPersonId}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ─────────────────────── (Line ngăn cách công cụ & telemetry) ──────────────────────── */}
+          <div className="border-t border-slate-200/80 pt-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            {/* [C.1] Mấy nút công cụ ở bottom block này (góc trái/giữa) */}
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-400 mr-1">
+                Công cụ:
+              </span>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleExportCsv}
+                className="h-7 gap-1.5 border-slate-300 bg-white font-mono text-xs text-slate-700 hover:bg-slate-50 hover:text-slate-900"
+                title="Tải tệp bảng tính CSV"
+              >
+                <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-600" />
+                Xuất CSV
+              </Button>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleExportJson}
+                className="h-7 gap-1.5 border-slate-300 bg-white font-mono text-xs text-slate-700 hover:bg-slate-50 hover:text-slate-900"
+                title="Tải tệp JSON dữ liệu"
+              >
+                <FileJson className="h-3.5 w-3.5 text-blue-600" />
+                Xuất JSON
+              </Button>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleCopyReport}
+                className="h-7 gap-1.5 border-slate-300 bg-white font-mono text-xs text-slate-700 hover:bg-slate-50 hover:text-slate-900"
+                title="Sao chép báo cáo Markdown"
+              >
+                {copiedType === 'report' ? (
+                  <>
+                    <Check className="h-3.5 w-3.5 text-emerald-600" />
+                    <span className="text-emerald-700 font-semibold">Đã chép!</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="h-3.5 w-3.5 text-slate-500" />
+                    Chép Báo cáo
+                  </>
+                )}
+              </Button>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleShareUrl}
+                className="h-7 gap-1.5 border-slate-300 bg-white font-mono text-xs text-slate-700 hover:bg-slate-50 hover:text-slate-900"
+                title="Sao chép liên kết chia sẻ tham số"
+              >
+                {copiedType === 'url' ? (
+                  <>
+                    <Check className="h-3.5 w-3.5 text-emerald-600" />
+                    <span className="text-emerald-700 font-semibold">Đã chép Link!</span>
+                  </>
+                ) : (
+                  <>
+                    <Share2 className="h-3.5 w-3.5 text-violet-600" />
+                    Chia sẻ URL
+                  </>
+                )}
+              </Button>
+            </div>
+
+            {/* [C.2] Thông số Telemetry góc dưới phải */}
+            <div className="flex items-center gap-2 self-end md:self-auto text-xs font-mono">
+              {globalStats && globalStats.totalTrials > 0 ? (
+                <div className="flex items-center gap-2.5 rounded-lg border border-slate-200 bg-slate-50/80 px-3 py-1.5 text-slate-600 shadow-2xs">
+                  <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="font-semibold text-slate-800">Telemetry:</span>
+                  <div className="flex items-center gap-1 text-slate-700">
+                    <Database className="h-3 w-3 text-blue-600" />
+                    <span className="font-bold text-blue-700 tabular-nums">
+                      {globalStats.totalTrials.toLocaleString('vi-VN')}
+                    </span>
+                    <span className="text-slate-400">phép thử</span>
+                  </div>
+                  <span className="text-slate-300">•</span>
+                  <div className="flex items-center gap-1 text-slate-600">
+                    <Sparkles className="h-3 w-3 text-amber-500" />
+                    <span className="font-bold text-slate-800 tabular-nums">
+                      {globalStats.totalRuns.toLocaleString('vi-VN')}
+                    </span>
+                    <span className="text-slate-400">lượt</span>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50/80 px-3 py-1.5 text-[11px] text-slate-500">
+                  <Activity className="h-3 w-3 text-blue-600 animate-pulse" />
+                  <span>Sẵn sàng thu thập telemetry</span>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Bộ công cụ xuất dữ liệu & Chia sẻ cấu hình */}
-      <ExportSuitePanel
-        simulationTitle="Nghịch lý Ngày sinh (Birthday Paradox)"
-        simulationSlug="birthday-paradox"
-        parameters={{ groupSize: n, comparisonPairs: totalPairs }}
-        results={{
-          empiricalProbability: currentEmpiricalRate,
-          theoreticalProbability: theoreticalP,
-          hasCollisionCurrentRoom: room.hasCollision,
-          collisionPairsCount: room.collisionPairs.length,
-        }}
-        csvHeaders={['Timestamp', 'Group_Size_N', 'Trials_Count', 'Empirical_P', 'Theoretical_P']}
-        historyRows={history.map(r => [
-          r.createdAt,
-          String(
-            (r.parameters as Record<string, unknown>)?.groupSize ??
-              (r.parameters as Record<string, unknown>)?.n ??
-              n,
-          ),
-          r.trialsCount,
-          typeof (r.results as Record<string, unknown>)?.empiricalProbability === 'number'
-            ? (
-                ((r.results as Record<string, unknown>).empiricalProbability as number) * 100
-              ).toFixed(2) + '%'
-            : 'N/A',
-          typeof (r.results as Record<string, unknown>)?.theoreticalProbability === 'number'
-            ? (
-                ((r.results as Record<string, unknown>).theoreticalProbability as number) * 100
-              ).toFixed(2) + '%'
-            : 'N/A',
-        ])}
-      />
+      {/* 4. TITLE NHẬT KÝ & NHẬT KÝ THỰC NGHIỆM */}
+      <div className="space-y-4">
+        {/* Title không number đầu, không khung, nổi bật */}
+        <div className="space-y-1">
+          <div className="flex items-center gap-2.5">
+            <span className="h-2.5 w-2.5 rounded-full bg-emerald-600 shadow-xs shadow-emerald-500/40" />
+            <h2 className="font-heading text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
+              Nhật Ký Thực Nghiệm
+            </h2>
+          </div>
+          <p className="text-xs sm:text-sm text-slate-500 font-sans">
+            Bảng lưu trữ chi tiết các lượt chạy và kết quả thực nghiệm trong phiên nghiên cứu
+          </p>
+        </div>
 
-      {/* Lịch sử lượt chạy thực nghiệm của phiên */}
-      <SimulationHistoryTable
-        runs={history}
-        onReloadParams={params => {
-          const reloadedN = params.groupSize ?? params.n;
-          if (typeof reloadedN === 'number') {
-            handleNChange(reloadedN);
-          }
-        }}
-      />
+        {/* Bảng lịch sử */}
+        <SimulationHistoryTable
+          runs={history}
+          onReloadParams={params => {
+            const reloadedN = params.groupSize ?? params.n;
+            if (typeof reloadedN === 'number') {
+              handleNChange(reloadedN);
+            }
+          }}
+        />
+      </div>
 
-      {/* Khối giải thích trực giác toán học */}
-      <Card className="rounded-xl border border-blue-200/90 bg-blue-50/40 border-l-4 border-l-blue-600 shadow-xs">
-        <CardContent className="pt-5">
+      {/* 5. TITLE GIẢI THÍCH & GIẢI THÍCH KHOA HỌC */}
+      <div className="space-y-4">
+        {/* Title không number đầu, không khung, nổi bật */}
+        <div className="space-y-1">
+          <div className="flex items-center gap-2.5">
+            <span className="h-2.5 w-2.5 rounded-full bg-violet-600 shadow-xs shadow-violet-500/40" />
+            <h2 className="font-heading text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
+              Giải Thích Khoa Học & Bản Chất Toán Học
+            </h2>
+          </div>
+          <p className="text-xs sm:text-sm text-slate-500 font-sans">
+            Bóc tách nguyên nhân nghịch lý và sự bùng nổ tổ hợp của các cặp đối sánh
+          </p>
+        </div>
+
+        {/* Khối giải thích trực giác toán học */}
+        <div className="rounded-2xl border border-slate-300/85 bg-white p-5 sm:p-6 shadow-xs border-l-4 border-l-violet-600">
           <IntuitionExplainer currentN={n} />
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 };

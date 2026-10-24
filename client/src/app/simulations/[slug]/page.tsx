@@ -140,6 +140,9 @@ export default async function SimulationPage({ params }: SimulationPageProps) {
         </div>
       )}
 
+      {/* Đường phân cách trước phần thảo luận */}
+      <hr className="border-slate-200/80 my-2" />
+
       {/* Góc Thảo luận & Phản biện Khoa học (2 cấp) */}
       <CommentSection simulationSlug={sim.slug} />
     </div>
