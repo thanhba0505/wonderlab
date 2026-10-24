@@ -64,9 +64,10 @@ export function ZenoExplainer() {
           </div>
           <p className="text-xs text-slate-700 leading-relaxed font-sans">
             Vật lý lượng tử thế kỷ 20 chỉ ra rằng giả thiết của Zeno về không gian liên tục bị sụp
-            đổ ở mức vi mô: Độ dài Planck (&ell;<sub className="text-xs">P</sub> &asymp; 1.6 &times; 10<sup className="text-xs font-semibold">-35</sup> m)
-            là khoảng cách nhỏ nhất có ý nghĩa vật lý. Không gian không thể bị chia cắt vô hạn; nó
-            có tính chất rời rạc ở thang đo hạ nguyên tử!
+            đổ ở mức vi mô: Độ dài Planck (&ell;<sub className="text-xs">P</sub> &asymp; 1.6 &times;
+            10<sup className="text-xs font-semibold">-35</sup> m) là khoảng cách nhỏ nhất có ý nghĩa
+            vật lý. Không gian không thể bị chia cắt vô hạn; nó có tính chất rời rạc ở thang đo hạ
+            nguyên tử!
           </p>
         </div>
       </div>

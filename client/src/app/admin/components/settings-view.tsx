@@ -116,7 +116,7 @@ export function SettingsView({ overview }: SettingsViewProps) {
               <div className="space-y-0.5">
                 <div className="font-bold text-slate-900">Tính năng thảo luận cộng đồng</div>
                 <div className="text-slate-500 text-xs">
-                  Bật hoặc tạm khóa toàn bộ khung bình luận 2 cấp trên tất cả các phòng Lab.
+                  Bật hoặc tạm khóa toàn bộ khung thảo luận trên tất cả các phòng Lab.
                 </div>
               </div>
               <button

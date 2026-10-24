@@ -50,14 +50,11 @@ export const SimulationMathCard: React.FC<SimulationMathCardProps> = ({ slug, su
 
       {/* Khối mô hình toán học - KHÔNG ĐÓNG KHUNG BÊN NGOÀI, line phân cách ở trên */}
       <div className="pt-4 border-t border-slate-200/80 space-y-3 font-mono">
-        <div className="flex items-center justify-between pb-1">
-          <div className="flex items-center gap-2">
-            <Sigma className="h-4 w-4 text-blue-700" />
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-800 font-heading">
-              Mô Hình Toán Học & Công Thức Giải Tích
-            </span>
-          </div>
-          <span className="text-xs text-slate-400 font-sans">Biểu diễn phân số & số mũ</span>
+        <div className="flex items-center gap-2 pb-1">
+          <Sigma className="h-4 w-4 text-blue-700" />
+          <span className="text-xs font-bold uppercase tracking-wider text-slate-800 font-heading">
+            Mô Hình Toán Học & Công Thức Giải Tích
+          </span>
         </div>
 
         {/* NGHỊCH LÝ NGÀY SINH (BIRTHDAY PARADOX) */}

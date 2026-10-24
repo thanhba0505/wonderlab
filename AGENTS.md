@@ -79,6 +79,13 @@ wonderlab/
      - **NEVER** place internal developer links, localhost ports, or raw health endpoints (e.g. `http://localhost:4101/api/docs`, `NestJS Server API: Sẵn sàng hoạt động (/api/v1/health)`) in public footers or public navigation.
      - **NEVER** dump framework version strings into client UI copy.
   8. _No micro font sizes (< 12px)_. Never use arbitrary micro font sizes (`text-[11px]`, `text-[10px]`, `text-[9px]`, `text-[8px]`). The minimum allowed font size across the entire platform is strictly 12px (`text-xs`). Section headings are standardized to `18px` (`text-[18px]`).
+  9. _No developer self-narration, code concepts, config names, or architecture descriptions on user UI_.
+     - **NEVER** expose architecture models, backend implementation details, configuration labels, code concepts, or developer self-narration on any user-facing screens or public UI.
+     - **Strictly Forbidden Examples**:
+       - Architecture/pattern jargon: `"Mô hình phản biện 2 cấp"`, `"cấu trúc lồng 2 cấp (Root -> Reply)"`, `"xử lý bất đồng bộ"`, `"REST API"`, `"MVC pattern"`.
+       - Formatting / implementation self-narration: `"Biểu diễn phân số & số mũ"`, `"render trực tiếp từ state"`, `"dữ liệu tính toán live"`, `"cấu hình tham số"`, `"component"`.
+       - Developer / code jargon: Variable names, database column names, internal algorithm versions, config keys.
+     - **Rule of Thumb**: If a phrase describes _how the software is coded, configured, or architected_ rather than the _scientific subject matter or authentic user action_, it MUST NOT appear in the UI. Keep all copy strictly scientific, editorial, and natural.
 - **No Faux Data**: Never display mock user counters, fake review badges, or placeholder vanity statistics. Show honest simulation counters calculated live in the browser.
 - **No Lorem Ipsum**: All copy must be meaningful, scientific, engaging, and in Vietnamese or English according to user language settings.
 - **Interactive Authenticity & Tactile Feel**: Every clickable element (e.g. Monty Hall doors) must function accurately with physical feedback (`active:scale-[0.98]`) and update mathematical probabilities live with `font-mono tabular-nums`.

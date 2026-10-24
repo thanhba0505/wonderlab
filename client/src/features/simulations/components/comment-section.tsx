@@ -159,8 +159,6 @@ export function CommentSection({ simulationSlug }: CommentSectionProps) {
             <span className="font-mono text-xs font-bold text-slate-800 uppercase tracking-wide">
               {totalCommentsCount} bình luận
             </span>
-            <span className="text-slate-300">•</span>
-            <span className="text-xs text-slate-500 font-sans">Mô hình phản biện 2 cấp</span>
           </div>
 
           {user && (
@@ -201,10 +199,7 @@ export function CommentSection({ simulationSlug }: CommentSectionProps) {
               </span>
             </div>
 
-            <div className="flex justify-between items-center">
-              <span className="text-xs text-slate-500 font-sans">
-                Hỗ trợ phản hồi lồng tối đa 2 cấp (Root &rarr; Reply).
-              </span>
+            <div className="flex justify-end items-center">
               <Button
                 type="submit"
                 size="sm"
