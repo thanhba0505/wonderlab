@@ -60,6 +60,14 @@ export function Footer() {
               </li>
               <li>
                 <Link
+                  href="/simulations/double-slit"
+                  className="text-slate-600 hover:text-slate-900 transition-colors"
+                >
+                  Thí nghiệm Hai khe Young
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/#editorial"
                   className="text-slate-600 hover:text-slate-900 transition-colors"
                 >

@@ -255,7 +255,17 @@ export function HeroVisual() {
         </div>
 
         <div className="text-sm font-bold text-slate-900 tracking-tight flex items-center justify-between">
-          <span>{currentNode.label}</span>
+          <div className="flex items-center gap-2">
+            <span>{currentNode.label}</span>
+            {(currentNode.id === 1 || currentNode.id === 2) && (
+              <a
+                href={currentNode.id === 1 ? '/simulations/monty-hall' : '/simulations/double-slit'}
+                className="text-[10px] font-mono px-2 py-0.5 rounded bg-blue-100 text-blue-800 hover:bg-blue-200 font-bold transition-colors"
+              >
+                Vào phòng lab →
+              </a>
+            )}
+          </div>
           <span className="text-xs font-mono font-semibold text-blue-700 tabular-nums">
             {currentNode.formula}
           </span>

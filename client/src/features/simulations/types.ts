@@ -17,7 +17,11 @@ export interface SimulationHypothesisChallenge {
   options: HypothesisOption[];
   theoreticalTruth: number;
   truthExplanation: string;
-  biasType: 'linear-scaling-trap' | 'uniformity-illusion' | 'conditional-probability-fallacy';
+  biasType:
+    | 'linear-scaling-trap'
+    | 'uniformity-illusion'
+    | 'conditional-probability-fallacy'
+    | 'classical-mechanics-bias';
   biasName: string;
   biasDescription: string;
 }

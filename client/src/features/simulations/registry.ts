@@ -124,8 +124,51 @@ export const SIMULATIONS_REGISTRY: SimulationMeta[] = [
     description:
       'Thí nghiệm chứng minh nền tảng của cơ học lượng tử: hạt vi mô hành xử như sóng xác suất cho đến khi chịu sự đo lường vật lý.',
     tags: ['Cơ học lượng tử', 'Quang học', 'Hàm sóng'],
-    status: 'in-development',
+    status: 'active',
     accentColor: 'blue',
+    hypothesis: {
+      question:
+        'Nếu ta bắn từng hạt photon đơn lẻ một qua 2 khe hẹp (mỗi hạt bắn cách nhau vài giây), trên màn hứng sẽ xuất hiện hình ảnh gì sau 1.000 hạt?',
+      context:
+        'Chỉ có đúng 1 hạt bay trong buồng thí nghiệm tại một thời điểm. Hạt hoàn toàn không thể va chạm vật lý với bất kỳ hạt nào khác.',
+      options: [
+        {
+          id: 'opt-a',
+          label: 'Hai dải vạch thẳng song song (như ném bi qua 2 khe)',
+          value: 0.1,
+          explanation:
+            'Trực giác cơ học cổ điển: Cho rằng hạt là vật thể rắn, chỉ có thể bay qua khe trái hoặc khe phải nên tạo thành 2 dải vạch.',
+        },
+        {
+          id: 'opt-b',
+          label: 'Các hạt phân tán hỗn loạn ngẫu nhiên không có quy luật',
+          value: 0.25,
+          explanation:
+            'Cảm giác chuyển động nhiệt ngẫu nhiên: Cho rằng hạt lượng tử bay hỗn loạn như phân tử khí.',
+        },
+        {
+          id: 'opt-c',
+          label: 'Vẫn xuất hiện hệ vân giao thoa sóng sáng tối rõ rệt',
+          value: 1.0,
+          explanation:
+            'Chính xác tuyệt đối! Mỗi hạt tự đi qua cả 2 khe cùng lúc dưới dạng sóng xác suất và tự giao thoa với chính nó, tích lũy dần thành vân giao thoa!',
+        },
+        {
+          id: 'opt-d',
+          label: 'Màn hứng hoàn toàn tối đen vì các hạt tự triệt tiêu',
+          value: 0.05,
+          explanation:
+            'Hiểu lầm về sự triệt tiêu: Sự giao thoa không làm biến mất năng lượng mà chỉ tái phân bố xác suất không gian.',
+        },
+      ],
+      theoreticalTruth: 1.0,
+      truthExplanation:
+        'Ngay cả khi chỉ có 1 hạt duy nhất, hàm sóng Schrödinger của nó lan truyền qua cả hai khe đồng thời. Các điểm va chạm tích tụ theo mật độ xác suất I(y) tạo nên vân giao thoa hoàn hảo — trừ khi bạn đặt máy quan sát!',
+      biasType: 'classical-mechanics-bias',
+      biasName: 'Định kiến Cơ học Cổ điển (Classical Particle Fallacy)',
+      biasDescription:
+        'Não bộ người quen với thế giới vĩ mô (ném bi, quả bóng) nên không thể tự nhiên hình dung được trạng thái chồng chập lượng tử vừa là sóng vừa là hạt.',
+    },
   },
   {
     slug: 'prisoners-dilemma',

@@ -4,6 +4,7 @@ import type { Metadata } from 'next';
 import { getAllSimulations, getSimulationBySlug } from '@/features/simulations/registry';
 import { BirthdaySimulation } from '@/features/birthday-paradox/birthday-simulation';
 import { MontyHallSimulation } from '@/features/monty-hall/monty-hall-simulation';
+import { DoubleSlitSimulation } from '@/features/double-slit/double-slit-simulation';
 import { CommentSection } from '@/features/simulations/components/comment-section';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -106,6 +107,7 @@ export default async function SimulationPage({ params }: SimulationPageProps) {
       {/* Vùng hiển thị tương tác */}
       {sim.slug === 'birthday-paradox' && <BirthdaySimulation />}
       {sim.slug === 'monty-hall' && <MontyHallSimulation />}
+      {sim.slug === 'double-slit' && <DoubleSlitSimulation />}
 
       {/* Hiển thị cho các mô phỏng đang phát triển */}
       {sim.status === 'in-development' && (
