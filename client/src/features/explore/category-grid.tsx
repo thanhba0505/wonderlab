@@ -70,8 +70,8 @@ export function CategoryGrid() {
             thoa lượng tử khi có hoặc không có người quan sát.
           </CardDescription>
 
-          {/* Micro Interactive: Double Slit Wave Visualizer */}
-          <div className="rounded-xl border border-slate-300/80 bg-slate-100/70 p-4 space-y-3">
+          {/* Micro Interactive: Double Slit Wave Visualizer - Borderless grouping container */}
+          <div className="rounded-xl bg-slate-100/70 p-4 space-y-3">
             <div className="flex items-center justify-between text-xs">
               <span className="font-mono text-slate-800 flex items-center gap-1.5 font-bold">
                 <Sparkles className="h-3.5 w-3.5 text-blue-600" />
@@ -173,8 +173,8 @@ export function CategoryGrid() {
               Monte Carlo sống động.
             </CardDescription>
 
-            {/* Micro Interactive: Dice Roller */}
-            <div className="rounded-xl border border-slate-300/80 bg-slate-100/70 p-3.5 space-y-2">
+            {/* Micro Interactive: Dice Roller - Borderless grouping container */}
+            <div className="rounded-xl bg-slate-100/70 p-3.5 space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-mono text-slate-800 font-semibold">
                   Tung 2 Xúc xắc:
@@ -248,7 +248,7 @@ export function CategoryGrid() {
               và nghịch lý Fermi về sự im lặng của vũ trụ.
             </CardDescription>
 
-            <div className="rounded-xl border border-slate-300/80 bg-slate-100/70 p-3 text-xs font-mono space-y-1.5">
+            <div className="rounded-xl bg-slate-100/70 border-l-4 border-l-violet-600 p-3.5 text-xs font-mono space-y-1.5">
               <div className="text-violet-800 font-bold">Achilles & Con Rùa (Zeno):</div>
               <div className="text-slate-600 text-[11px] leading-relaxed">
                 Khoảng cách: 100m → 50m → 25m → ...
@@ -297,8 +297,8 @@ export function CategoryGrid() {
             dựng sự hợp tác.
           </CardDescription>
 
-          {/* Micro Interactive: Prisoner's Dilemma Decision Matrix */}
-          <div className="rounded-xl border border-slate-300/80 bg-slate-100/70 p-4 space-y-3">
+          {/* Micro Interactive: Prisoner's Dilemma - Borderless container with left-accent outcome cards */}
+          <div className="rounded-xl bg-slate-100/70 p-4 space-y-3">
             <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
               <span className="font-mono text-slate-800 font-bold">
                 Chọn nước đi của bạn trong Song đề Tù nhân:
@@ -329,17 +329,21 @@ export function CategoryGrid() {
               </div>
             </div>
 
-            {/* Payoff Result View */}
+            {/* Payoff Result View - Clean Left Accent without nested 4-sided borders */}
             <div className="grid grid-cols-2 gap-3 text-xs font-mono">
               <div
-                className={`p-3 rounded-lg border transition-all ${
+                className={`p-3 rounded-lg bg-white shadow-2xs transition-all ${
                   prisonerChoice === 'cooperate'
-                    ? 'border-emerald-300 bg-emerald-50 text-emerald-900'
-                    : 'border-slate-200 bg-white text-slate-600'
+                    ? 'border-l-4 border-l-emerald-600'
+                    : 'border-l-4 border-l-slate-300 opacity-80'
                 }`}
               >
                 <div className="font-bold text-slate-900">Nếu đối phương cũng Hợp tác:</div>
-                <div className="mt-1 text-emerald-800">
+                <div
+                  className={`mt-1 font-semibold ${
+                    prisonerChoice === 'cooperate' ? 'text-emerald-700' : 'text-slate-600'
+                  }`}
+                >
                   {prisonerChoice === 'cooperate'
                     ? 'Mỗi người ngồi tù 1 năm (Tối ưu chung)'
                     : 'Bạn được tha bổng, đối phương 5 năm!'}
@@ -347,14 +351,18 @@ export function CategoryGrid() {
               </div>
 
               <div
-                className={`p-3 rounded-lg border transition-all ${
+                className={`p-3 rounded-lg bg-white shadow-2xs transition-all ${
                   prisonerChoice === 'defect'
-                    ? 'border-red-300 bg-red-50 text-red-900'
-                    : 'border-slate-200 bg-white text-slate-600'
+                    ? 'border-l-4 border-l-red-500'
+                    : 'border-l-4 border-l-slate-300 opacity-80'
                 }`}
               >
                 <div className="font-bold text-slate-900">Nếu đối phương Phản bội:</div>
-                <div className="mt-1 text-red-800">
+                <div
+                  className={`mt-1 font-semibold ${
+                    prisonerChoice === 'defect' ? 'text-red-700' : 'text-slate-600'
+                  }`}
+                >
                   {prisonerChoice === 'defect'
                     ? 'Mỗi người 3 năm tù (Điểm Cân bằng Nash)'
                     : 'Bạn lãnh đủ 5 năm, đối phương được tha!'}
@@ -398,7 +406,7 @@ export function CategoryGrid() {
               đố hòn đảo hiệp sĩ & kẻ nói dối.
             </CardDescription>
 
-            <div className="rounded-xl border border-slate-300/80 bg-slate-100/70 p-3 text-xs font-mono space-y-1">
+            <div className="rounded-xl bg-slate-100/70 border-l-4 border-l-blue-600 p-3.5 text-xs font-mono space-y-1">
               <span className="text-blue-800 font-bold">Nghịch lý Russell:</span>
               <p className="text-slate-600 text-[11px]">
                 R = &#123; x | x ∉ x &#125; ⇒ R ∈ R ⟺ R ∉ R

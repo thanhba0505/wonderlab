@@ -242,8 +242,8 @@ export function HeroVisual() {
         </svg>
       </div>
 
-      {/* Dynamic Inspector / HUD Card */}
-      <div className="relative z-10 rounded-xl border border-slate-200 bg-slate-50/90 p-3.5 shadow-xs transition-all duration-200">
+      {/* Dynamic Inspector / HUD Card - Clean Left Accent without full 4-sided box */}
+      <div className="relative z-10 rounded-xl bg-slate-50/90 border-l-4 border-blue-600 p-3.5 shadow-2xs transition-all duration-200">
         <div className="flex items-center justify-between gap-2 mb-1.5">
           <div className="flex items-center gap-1.5 text-[10px] font-mono font-bold text-blue-700">
             <Sparkles className="h-3 w-3" />

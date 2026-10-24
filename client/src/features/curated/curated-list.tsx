@@ -93,7 +93,7 @@ export function CuratedList() {
 
               <div className="flex items-center gap-2 pt-1">
                 <Sparkles className="h-3.5 w-3.5 text-blue-600 shrink-0" />
-                <span className="text-xs font-mono font-medium text-blue-800 bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-md">
+                <span className="text-xs font-mono font-medium text-blue-900 bg-slate-100 px-2.5 py-1 rounded-md">
                   {item.concept}
                 </span>
               </div>

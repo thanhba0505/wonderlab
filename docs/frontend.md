@@ -64,6 +64,9 @@ client/
   - _No generic 3-box grids_; asymmetric Bento Grids with interactive micro-simulations (Double-slit wave toggle, live dice roller, Prisoner's Dilemma matrix).
   - _No AI fluff copy_; copy is intellectually rigorous, direct, and curiosity-driven.
 - **Tactile Laboratory Feel**: Physical button click states (`active:scale-[0.98]`), calibrated border radii (6px badges, 8px buttons, 12px cards, 16px vaults), technical coordinate markers, and live status pulses.
+- **Border Architecture & Max 2-Layer Depth (Chống Đóng Khung Lồng Hộp)**:
+  - Tuyệt đối không đóng khung vượt quá 2 tầng viền (`Card` viền ngoài -> Phần tử tương tác/đo đạc viền trong).
+  - Nghiêm cấm bọc container trung gian bằng viền 4 cạnh khi bên trong đã có phần tử viền. Thay vào đó, sử dụng nền phân vùng không viền (`bg-slate-100/70`), thanh chỉ thị cạnh trái (`border-l-4`), hoặc đường kẻ phân cách một chiều.
 - **Focus Rings & Accessibility**: Prominent focus outlines (`focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:outline-none`) on all interactive buttons and cards.
 - **No Faux Statistics**: All probability counters are calculated directly in the browser via pure math or client-side Monte Carlo simulations with `font-mono tabular-nums`.
 - **Zero Broken Links**: Unreleased modules route explicitly to `/admin` (marked with an in-development warning) or smoothly jump to anchor sections.
