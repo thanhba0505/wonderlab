@@ -4,33 +4,33 @@
 
 @layer base {
   :root {
-    --background: 222 47% 6%;
-    --foreground: 210 40% 98%;
+    --background: 210 40% 98%;
+    --foreground: 222 47% 11%;
 
-    --card: 222 47% 9%;
-    --card-foreground: 210 40% 98%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
 
-    --popover: 222 47% 9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
 
-    --primary: 189 94% 43%;
-    --primary-foreground: 222 47% 6%;
+    --primary: 221 83% 53%;
+    --primary-foreground: 210 40% 98%;
 
-    --secondary: 217 33% 17%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222 47% 11%;
 
-    --muted: 217 33% 15%;
-    --muted-foreground: 215 20% 65%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 263 70% 50%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222 47% 11%;
 
-    --destructive: 0 84% 60%;
+    --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 217 33% 20%;
-    --input: 217 33% 20%;
-    --ring: 189 94% 43%;
+    --border: 215 25% 86%;
+    --input: 215 25% 86%;
+    --ring: 221.2 83.2% 53.3%;
 
     --radius: 0.5rem;
   }
@@ -40,16 +40,24 @@
   * {
     @apply border-border;
   }
+  html {
+    scroll-behavior: smooth;
+    color-scheme: light;
+  }
   body {
-    @apply bg-background text-foreground antialiased selection:bg-cyan-500/30 selection:text-cyan-200;
+    @apply bg-background text-foreground antialiased selection:bg-blue-500/20 selection:text-blue-900;
     font-feature-settings:
       'rlig' 1,
-      'calt' 1;
-    background-color: #080c14;
+      'calt' 1,
+      'cv02' 1,
+      'cv03' 1,
+      'cv04' 1;
+    background-color: #f1f5f9;
     background-image:
-      radial-gradient(at 0% 0%, rgba(6, 182, 212, 0.08) 0px, transparent 50%),
-      radial-gradient(at 100% 0%, rgba(139, 92, 246, 0.07) 0px, transparent 50%),
-      radial-gradient(at 50% 100%, rgba(16, 185, 129, 0.05) 0px, transparent 50%);
+      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(37, 99, 235, 0.09), transparent 70%),
+      radial-gradient(ellipse 60% 40% at 90% 20%, rgba(99, 102, 241, 0.07), transparent 60%),
+      radial-gradient(ellipse 50% 30% at 10% 60%, rgba(14, 165, 233, 0.06), transparent 50%),
+      radial-gradient(ellipse 70% 40% at 50% 100%, rgba(16, 185, 129, 0.06), transparent 60%);
     background-attachment: fixed;
     min-height: 100vh;
   }
@@ -57,14 +65,59 @@
 
 /* Custom subtle grid background for Science Lab feel */
 .lab-grid {
-  background-size: 32px 32px;
+  background-size: 40px 40px;
   background-image:
-    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    linear-gradient(to right, rgba(15, 23, 42, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(15, 23, 42, 0.05) 1px, transparent 1px);
+}
+
+.lab-grid-dense {
+  background-size: 20px 20px;
+  background-image:
+    linear-gradient(to right, rgba(37, 99, 235, 0.07) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(37, 99, 235, 0.07) 1px, transparent 1px);
+}
+
+/* Specular lab card with subtle depth and clean borders */
+.lab-card {
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  box-shadow:
+    0 2px 8px -2px rgba(15, 23, 42, 0.06),
+    0 1px 3px 0 rgba(15, 23, 42, 0.04);
+}
+
+.lab-card-hover {
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.lab-card-hover:hover {
+  border-color: rgba(37, 99, 235, 0.45);
+  box-shadow:
+    0 12px 28px -4px rgba(37, 99, 235, 0.1),
+    0 4px 10px -2px rgba(0, 0, 0, 0.04);
+  transform: translateY(-2px);
+}
+
+/* Luminous accents in light mode */
+.lab-glow-cyan {
+  box-shadow: 0 4px 20px -2px rgba(14, 165, 233, 0.25);
+}
+
+.lab-glow-violet {
+  box-shadow: 0 4px 20px -2px rgba(124, 58, 237, 0.25);
+}
+
+.lab-glow-amber {
+  box-shadow: 0 4px 20px -2px rgba(217, 119, 6, 0.25);
+}
+
+.lab-glow-emerald {
+  box-shadow: 0 4px 20px -2px rgba(5, 150, 105, 0.25);
 }
 
 /* Accessible focus outline */
 :focus-visible {
-  outline: 2px solid #06b6d4;
+  outline: 2px solid #2563eb;
   outline-offset: 2px;
 }

@@ -4,7 +4,18 @@ import * as React from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { RotateCcw, Play, CheckCircle2, XCircle, Trophy, HelpCircle, Sparkles } from 'lucide-react';
+import {
+  RotateCcw,
+  Play,
+  CheckCircle2,
+  XCircle,
+  Trophy,
+  Sparkles,
+  Lock,
+  ArrowRightLeft,
+  Flame,
+  Info,
+} from 'lucide-react';
 
 type Step = 'pick' | 'revealed' | 'result';
 
@@ -66,7 +77,6 @@ export function MontyHallSimulation() {
     if (step !== 'revealed' || selectedDoor === null || revealedGoatDoor === null) return;
 
     const remainingDoor = [0, 1, 2].find(d => d !== selectedDoor && d !== revealedGoatDoor)!;
-
     const choice = shouldSwitch ? remainingDoor : selectedDoor;
     const won = choice === carDoor;
 
@@ -91,14 +101,14 @@ export function MontyHallSimulation() {
     });
   };
 
-  // Fast forward 50 simulated games to observe Law of Large Numbers
-  const handleSimulateBatch = () => {
+  // Batch simulation for empirical Law of Large Numbers
+  const handleSimulateBatch = (batchCount: number) => {
     let newSwitchPlays = 0;
     let newSwitchWins = 0;
     let newStayPlays = 0;
     let newStayWins = 0;
 
-    for (let i = 0; i < 50; i++) {
+    for (let i = 0; i < batchCount; i++) {
       const simCar = Math.floor(Math.random() * 3);
       const simPick = Math.floor(Math.random() * 3);
       const simSwitch = Math.random() < 0.5;
@@ -127,6 +137,16 @@ export function MontyHallSimulation() {
     }));
   };
 
+  const resetStats = () => {
+    setStats({
+      switchPlays: 0,
+      switchWins: 0,
+      stayPlays: 0,
+      stayWins: 0,
+    });
+    startNewRound();
+  };
+
   const switchRate =
     stats.switchPlays > 0 ? Math.round((stats.switchWins / stats.switchPlays) * 100) : null;
 
@@ -139,103 +159,141 @@ export function MontyHallSimulation() {
       : null;
 
   return (
-    <Card className="border-cyan-500/30 bg-slate-900/80 shadow-2xl shadow-cyan-950/20">
-      <CardHeader className="border-b border-slate-800/80 pb-5">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="space-y-1">
+    <Card className="border-slate-300/85 bg-white shadow-md shadow-slate-300/30">
+      <CardHeader className="border-b border-slate-200/80 pb-5">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="space-y-1.5">
             <div className="flex items-center gap-2">
               <Badge variant="cyan">THÍ NGHIỆM TƯƠNG TÁC SỐ 01</Badge>
-              <Badge variant="outline" className="text-slate-400">
-                Xác suất & Nghịch lý
-              </Badge>
+              <Badge variant="outline">Xác suất & Nghịch lý</Badge>
             </div>
-            <CardTitle className="text-2xl font-bold tracking-tight text-white flex items-center gap-2 pt-1">
+            <CardTitle className="text-2xl sm:text-3xl font-heading font-extrabold tracking-tight text-slate-900 flex items-center gap-2">
               Nghịch lý Monty Hall: Bạn có nên đổi cửa?
             </CardTitle>
           </div>
+
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
               size="sm"
-              onClick={handleSimulateBatch}
-              className="text-xs border-cyan-800 text-cyan-300 hover:bg-cyan-950/40"
+              onClick={() => handleSimulateBatch(50)}
+              className="text-xs font-semibold border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100"
             >
               <Play className="h-3.5 w-3.5 mr-1" />
-              Mô phỏng +50 lượt
+              +50 Ván
             </Button>
-            <Button variant="secondary" size="sm" onClick={startNewRound} className="text-xs">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleSimulateBatch(500)}
+              className="hidden sm:inline-flex text-xs font-semibold border-slate-200 text-slate-700 hover:bg-slate-100"
+            >
+              <Flame className="h-3.5 w-3.5 mr-1 text-amber-600" />
+              +500 Ván
+            </Button>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={startNewRound}
+              className="text-xs font-semibold"
+            >
               <RotateCcw className="h-3.5 w-3.5 mr-1" />
               Vòng mới
             </Button>
           </div>
         </div>
-        <CardDescription className="text-slate-300 text-sm pt-2">
-          Đằng sau 3 cánh cửa có 1 chiếc xe ô tô thể thao và 2 con dê. Sau khi bạn chọn 1 cửa, MC mở
-          một cửa có dê. Bạn có nên thay đổi quyết định để nhận xe hơi?
+
+        <CardDescription className="text-slate-600 text-sm pt-2 max-w-4xl font-sans">
+          Đằng sau 3 cánh cửa chỉ có 1 chiếc ô tô thể thao và 2 con dê cỏ. Sau khi bạn chọn 1 cửa,
+          MC mở một cửa có dê để tiết lộ. Liệu việc thay đổi quyết định có thực sự tăng gấp đôi cơ
+          hội chiến thắng của bạn?
         </CardDescription>
       </CardHeader>
 
       <CardContent className="pt-6 space-y-6">
-        {/* Instructions banner */}
-        <div className="rounded-lg bg-slate-950/60 p-4 border border-slate-800 flex items-center justify-between">
-          <div className="text-sm">
+        {/* State / Instructions Banner */}
+        <div className="rounded-xl bg-slate-100/90 p-4 border border-slate-300/80 shadow-2xs flex items-center justify-between">
+          <div className="text-sm font-medium">
             {step === 'pick' && (
-              <span className="text-cyan-300 font-medium flex items-center gap-2">
-                <HelpCircle className="h-4 w-4" />
-                Bước 1: Nhấp vào 1 trong 3 cánh cửa bên dưới để đưa ra lựa chọn đầu tiên.
+              <span className="text-blue-700 flex items-center gap-2.5">
+                <span className="flex h-2.5 w-2.5 rounded-full bg-blue-600 animate-pulse" />
+                <strong>Bước 1:</strong> Nhấp vào bất kỳ cánh cửa nào bên dưới để đưa ra lựa chọn
+                đầu tiên của bạn.
               </span>
             )}
             {step === 'revealed' && (
-              <span className="text-amber-300 font-medium flex items-center gap-2">
-                <Sparkles className="h-4 w-4" />
-                Bước 2: MC đã mở Cửa số {(revealedGoatDoor ?? 0) + 1} (chứa Dê). Bạn muốn Giữ nguyên
-                hay Đổi sang Cửa số {(remainingSwitchDoor ?? 0) + 1}?
+              <span className="text-amber-800 flex items-center gap-2.5">
+                <span className="flex h-2.5 w-2.5 rounded-full bg-amber-500 animate-pulse" />
+                <strong>Bước 2:</strong> MC đã mở Cửa #{Number(revealedGoatDoor ?? 0) + 1} (chứa
+                Dê). Bạn muốn Giữ nguyên hay Đổi sang Cửa #{Number(remainingSwitchDoor ?? 0) + 1}?
               </span>
             )}
             {step === 'result' && (
-              <span className="text-slate-200 font-medium flex items-center gap-2">
+              <span className="flex items-center gap-2">
                 {finalDoor === carDoor ? (
-                  <span className="text-emerald-400 flex items-center gap-1.5 font-bold">
-                    <Trophy className="h-4 w-4" /> Chúc mừng! Bạn đã thắng được Ô tô thể thao (
-                    {didSwitch ? 'Chiến lược ĐỔI' : 'Chiến lược GIỮ'})!
+                  <span className="text-emerald-700 flex items-center gap-2 font-bold text-base">
+                    <Trophy className="h-5 w-5 text-emerald-600" />
+                    Chiến thắng rực rỡ! Bạn đã nhận Ô tô thể thao với{' '}
+                    <span className="underline decoration-emerald-500">
+                      {didSwitch ? 'Chiến lược ĐỔI CỬA' : 'Chiến lược GIỮ NGUYÊN'}
+                    </span>
+                    !
                   </span>
                 ) : (
-                  <span className="text-slate-400 flex items-center gap-1.5">
-                    <XCircle className="h-4 w-4 text-red-400" /> Rất tiếc, đằng sau là chú Dê cỏ (
-                    {didSwitch ? 'Chiến lược ĐỔI' : 'Chiến lược GIỮ'}).
+                  <span className="text-slate-700 flex items-center gap-2">
+                    <XCircle className="h-5 w-5 text-red-500" />
+                    Rất tiếc! Đằng sau là chú Dê cỏ (
+                    {didSwitch ? 'Chiến lược ĐỔI' : 'Chiến lược GIỮ'}
+                    ). Thử thêm các lượt khác nhé!
                   </span>
                 )}
               </span>
             )}
           </div>
+
+          {step === 'result' && (
+            <Button
+              size="sm"
+              onClick={startNewRound}
+              className="text-xs font-bold shrink-0 ml-4 shadow-sm"
+            >
+              Chơi ván mới
+            </Button>
+          )}
         </div>
 
-        {/* 3 Doors Graphic */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {/* 3 Physical Vault Doors */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
           {[0, 1, 2].map(doorIndex => {
             const isSelected = selectedDoor === doorIndex;
             const isRevealedGoat = revealedGoatDoor === doorIndex;
             const isFinalChoice = finalDoor === doorIndex;
             const hasCar = carDoor === doorIndex;
 
-            let borderColor = 'border-slate-800 hover:border-slate-600';
-            let bgColor = 'bg-slate-950/40';
+            let borderColor = 'border-slate-300/90 hover:border-blue-500';
+            let bgColor = 'bg-slate-100/70';
+            let glowEffect = '';
 
             if (step === 'revealed') {
               if (isSelected) {
-                borderColor = 'border-cyan-400 ring-2 ring-cyan-500/20';
-                bgColor = 'bg-cyan-950/20';
+                borderColor = 'border-blue-600 ring-2 ring-blue-500/20';
+                bgColor = 'bg-blue-50/70';
+                glowEffect = 'shadow-md shadow-blue-500/10';
               } else if (isRevealedGoat) {
-                borderColor = 'border-amber-700/60';
-                bgColor = 'bg-amber-950/20';
+                borderColor = 'border-amber-400';
+                bgColor = 'bg-amber-50/60';
+              } else {
+                borderColor = 'border-violet-400 ring-2 ring-violet-500/15';
+                bgColor = 'bg-violet-50/50';
               }
             } else if (step === 'result') {
               if (hasCar) {
-                borderColor = 'border-emerald-500 ring-2 ring-emerald-500/30';
-                bgColor = 'bg-emerald-950/20';
+                borderColor = 'border-emerald-600 ring-2 ring-emerald-500/25';
+                bgColor = 'bg-emerald-50/80';
+                glowEffect = 'shadow-md shadow-emerald-500/15';
               } else if (isFinalChoice) {
-                borderColor = 'border-red-500';
-                bgColor = 'bg-red-950/20';
+                borderColor = 'border-red-400';
+                bgColor = 'bg-red-50/50';
               }
             }
 
@@ -243,57 +301,79 @@ export function MontyHallSimulation() {
               <div
                 key={doorIndex}
                 onClick={() => step === 'pick' && handleSelectDoor(doorIndex)}
-                className={`relative flex flex-col items-center justify-center p-6 rounded-xl border transition-all duration-200 min-h-[220px] ${borderColor} ${bgColor} ${
-                  step === 'pick' ? 'cursor-pointer hover:scale-[1.02]' : ''
+                className={`group relative flex flex-col items-center justify-between p-6 rounded-2xl border transition-all duration-200 min-h-[250px] ${borderColor} ${bgColor} ${glowEffect} ${
+                  step === 'pick'
+                    ? 'cursor-pointer hover:-translate-y-1 hover:shadow-lg hover:shadow-blue-500/10 hover:bg-white'
+                    : ''
                 }`}
               >
-                {/* Door header tag */}
-                <span className="absolute top-3 left-3 text-xs font-mono font-bold px-2 py-0.5 rounded bg-slate-800 text-slate-300">
-                  CỬA #{doorIndex + 1}
-                </span>
+                {/* Door Header Tag */}
+                <div className="w-full flex items-center justify-between">
+                  <span className="font-mono text-xs font-bold px-2 py-0.5 rounded border border-slate-300 bg-white text-slate-800 shadow-2xs">
+                    CỬA #{doorIndex + 1}
+                  </span>
 
-                {isSelected && step !== 'result' && (
-                  <Badge variant="cyan" className="absolute top-3 right-3 text-[10px]">
-                    Bạn đang chọn
-                  </Badge>
-                )}
+                  {isSelected && step !== 'result' && (
+                    <Badge variant="cyan" className="text-[10px]">
+                      LỰA CHỌN CỦA BẠN
+                    </Badge>
+                  )}
 
-                {/* Door Content Representation */}
-                <div className="my-4 flex flex-col items-center text-center">
+                  {isRevealedGoat && (
+                    <Badge variant="amber" className="text-[10px]">
+                      MC ĐÃ MỞ (DÊ)
+                    </Badge>
+                  )}
+
+                  {step === 'result' && hasCar && (
+                    <Badge variant="emerald" className="text-[10px] font-bold">
+                      TRÚNG Ô TÔ 🏎️
+                    </Badge>
+                  )}
+                </div>
+
+                {/* Vault Door Art / Content */}
+                <div className="my-6 flex flex-col items-center text-center">
                   {step === 'result' ? (
                     hasCar ? (
                       <div className="space-y-2 animate-in zoom-in-75">
-                        <div className="text-4xl">🏎️</div>
-                        <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider">
-                          Ô tô thể thao
-                        </span>
+                        <div className="text-5xl filter drop-shadow-md">🏎️</div>
+                        <div className="font-heading font-extrabold text-sm text-emerald-700 uppercase tracking-wider">
+                          Ô Tô Thể Thao
+                        </div>
                       </div>
                     ) : (
                       <div className="space-y-2 animate-in zoom-in-75">
-                        <div className="text-4xl">🐐</div>
-                        <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">
-                          Dê cỏ
-                        </span>
+                        <div className="text-5xl">🐐</div>
+                        <div className="font-heading font-medium text-xs text-slate-500 uppercase tracking-wider">
+                          Dê Cỏ
+                        </div>
                       </div>
                     )
                   ) : isRevealedGoat ? (
                     <div className="space-y-2 animate-in fade-in">
-                      <div className="text-4xl">🐐</div>
-                      <span className="text-xs font-semibold text-amber-400 uppercase tracking-wider">
-                        MC mở: Dê
-                      </span>
+                      <div className="text-5xl">🐐</div>
+                      <div className="font-heading font-semibold text-xs text-amber-700 uppercase tracking-wider">
+                        Đằng sau là Dê!
+                      </div>
                     </div>
                   ) : (
-                    <div className="space-y-2">
-                      <div className="w-16 h-24 rounded border-2 border-dashed border-slate-700 flex items-center justify-center text-slate-500 font-mono text-2xl font-bold">
-                        ?
+                    <div className="flex flex-col items-center space-y-3">
+                      <div className="relative w-20 h-28 rounded-xl border border-slate-300 bg-white flex flex-col items-center justify-center shadow-xs group-hover:border-blue-500 group-hover:shadow-md transition-all">
+                        <Lock className="h-5 w-5 text-slate-400 group-hover:text-blue-600 transition-colors mb-1" />
+                        <span className="font-mono text-2xl font-black text-slate-800 group-hover:text-blue-700 transition-colors">
+                          0{doorIndex + 1}
+                        </span>
+                        <div className="absolute bottom-2 h-1 w-6 rounded-full bg-slate-200 group-hover:bg-blue-500 transition-colors" />
                       </div>
-                      <span className="text-xs text-slate-400">Đang đóng</span>
+                      <span className="text-xs font-mono text-slate-500 group-hover:text-blue-600 transition-colors">
+                        {step === 'pick' ? 'Nhấp để chọn' : 'Cửa đang đóng'}
+                      </span>
                     </div>
                   )}
                 </div>
 
-                {/* Action button inside door when revealed */}
+                {/* In-door Action Button */}
                 {step === 'revealed' && !isRevealedGoat && (
                   <div className="w-full mt-2">
                     {isSelected ? (
@@ -301,20 +381,29 @@ export function MontyHallSimulation() {
                         size="sm"
                         variant="secondary"
                         onClick={() => handleFinalDecision(false)}
-                        className="w-full text-xs font-semibold text-slate-200"
+                        className="w-full text-xs font-bold"
                       >
-                        Giữ nguyên lựa chọn
+                        Giữ cửa #{doorIndex + 1} (33.3%)
                       </Button>
                     ) : (
                       <Button
                         size="sm"
                         variant="default"
                         onClick={() => handleFinalDecision(true)}
-                        className="w-full text-xs font-bold bg-cyan-400 text-slate-950 hover:bg-cyan-300 shadow-md shadow-cyan-500/20"
+                        className="w-full text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm"
                       >
-                        Đổi sang cửa này
+                        <ArrowRightLeft className="h-3.5 w-3.5" />
+                        Đổi sang cửa #{doorIndex + 1} (66.7%)
                       </Button>
                     )}
+                  </div>
+                )}
+
+                {step === 'pick' && (
+                  <div className="w-full text-center">
+                    <span className="text-[11px] font-mono text-slate-500 group-hover:text-blue-700 transition-colors">
+                      Xác suất ban đầu: 1/3 (33.3%)
+                    </span>
                   </div>
                 )}
               </div>
@@ -322,66 +411,156 @@ export function MontyHallSimulation() {
           })}
         </div>
 
-        {/* Live Empirical Statistics Panel */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 rounded-xl border border-slate-800 bg-slate-950/50 p-4">
-          <div className="space-y-1.5 p-3 rounded-lg border border-cyan-500/20 bg-cyan-950/10">
+        {/* Dedicated Decision Bar when revealed */}
+        {step === 'revealed' && remainingSwitchDoor !== null && selectedDoor !== null && (
+          <div className="rounded-xl border border-blue-300 bg-gradient-to-r from-blue-50/90 via-white to-violet-50/90 p-4 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="space-y-0.5">
+              <div className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-blue-600" />
+                Khoảnh khắc quyết định: Bạn sẽ Đổi hay Giữ?
+              </div>
+              <p className="text-xs text-slate-600 font-sans">
+                Toán học chứng minh: Đổi cửa giúp xác suất thắng tăng từ 1/3 lên 2/3!
+              </p>
+            </div>
+            <div className="flex items-center gap-3 w-full sm:w-auto">
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => handleFinalDecision(false)}
+                className="flex-1 sm:flex-initial text-xs font-semibold border-slate-300"
+              >
+                Giữ Cửa #{selectedDoor + 1} (33%)
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => handleFinalDecision(true)}
+                className="flex-1 sm:flex-initial text-xs font-bold shadow-sm"
+              >
+                <ArrowRightLeft className="h-3.5 w-3.5 mr-1" />
+                Đổi Cửa #{Number(remainingSwitchDoor ?? 0) + 1} (67%)
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Live Empirical Statistics Dashboard */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 rounded-xl border border-slate-300/80 bg-slate-100/70 p-5">
+          {/* Switch strategy card */}
+          <div className="space-y-3 p-4 rounded-xl border border-blue-300/80 bg-white shadow-xs">
             <div className="flex items-center justify-between text-xs font-semibold">
-              <span className="text-cyan-300 uppercase tracking-wide">
+              <span className="text-blue-700 uppercase tracking-wide flex items-center gap-1.5 font-bold">
+                <span className="h-2 w-2 rounded-full bg-blue-600" />
                 Chiến lược ĐỔI CỬA (Switch)
               </span>
-              <span className="font-mono text-cyan-400 text-sm">Lý thuyết: ~66.7% (2/3)</span>
+              <span className="font-mono text-blue-700 text-xs font-bold">Lý thuyết: 66.7%</span>
             </div>
-            <div className="flex items-baseline justify-between pt-1">
-              <span className="text-2xl font-bold font-mono text-white">
-                {switchRate !== null ? `${switchRate}%` : 'Chưa có lượt'}
-              </span>
-              <span className="text-xs text-slate-400 font-mono">
+
+            <div className="flex items-baseline justify-between">
+              <div>
+                <span className="text-3xl font-mono font-black text-slate-900 tabular-nums">
+                  {switchRate !== null ? `${switchRate}%` : '—'}
+                </span>
+                <span className="text-xs text-slate-500 ml-2">tỷ lệ thắng thực nghiệm</span>
+              </div>
+              <span className="text-xs text-slate-500 font-mono tabular-nums">
                 {stats.switchWins} thắng / {stats.switchPlays} lượt
               </span>
             </div>
-            <div className="w-full bg-slate-800 rounded-full h-2 overflow-hidden mt-1">
-              <div
-                className="bg-cyan-400 h-2 rounded-full transition-all duration-500"
-                style={{ width: `${switchRate ?? 0}%` }}
-              />
+
+            <div className="space-y-1">
+              <div className="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden border border-slate-200">
+                <div
+                  className="bg-blue-600 h-2.5 rounded-full transition-all duration-300"
+                  style={{ width: `${switchRate ?? 0}%` }}
+                />
+              </div>
+              <div className="flex justify-between text-[10px] font-mono text-slate-500">
+                <span>0%</span>
+                <span className="text-blue-700 font-semibold">Kỳ vọng lý thuyết: 66.7%</span>
+                <span>100%</span>
+              </div>
             </div>
           </div>
 
-          <div className="space-y-1.5 p-3 rounded-lg border border-slate-800 bg-slate-900/20">
+          {/* Stay strategy card */}
+          <div className="space-y-3 p-4 rounded-xl border border-violet-300/80 bg-white shadow-xs">
             <div className="flex items-center justify-between text-xs font-semibold">
-              <span className="text-slate-300 uppercase tracking-wide">
+              <span className="text-violet-700 uppercase tracking-wide flex items-center gap-1.5 font-bold">
+                <span className="h-2 w-2 rounded-full bg-violet-600" />
                 Chiến lược GIỮ NGUYÊN (Stay)
               </span>
-              <span className="font-mono text-slate-400 text-sm">Lý thuyết: ~33.3% (1/3)</span>
+              <span className="font-mono text-violet-700 text-xs font-bold">Lý thuyết: 33.3%</span>
             </div>
-            <div className="flex items-baseline justify-between pt-1">
-              <span className="text-2xl font-bold font-mono text-white">
-                {stayRate !== null ? `${stayRate}%` : 'Chưa có lượt'}
-              </span>
-              <span className="text-xs text-slate-400 font-mono">
+
+            <div className="flex items-baseline justify-between">
+              <div>
+                <span className="text-3xl font-mono font-black text-slate-900 tabular-nums">
+                  {stayRate !== null ? `${stayRate}%` : '—'}
+                </span>
+                <span className="text-xs text-slate-500 ml-2">tỷ lệ thắng thực nghiệm</span>
+              </div>
+              <span className="text-xs text-slate-500 font-mono tabular-nums">
                 {stats.stayWins} thắng / {stats.stayPlays} lượt
               </span>
             </div>
-            <div className="w-full bg-slate-800 rounded-full h-2 overflow-hidden mt-1">
-              <div
-                className="bg-violet-400 h-2 rounded-full transition-all duration-500"
-                style={{ width: `${stayRate ?? 0}%` }}
-              />
+
+            <div className="space-y-1">
+              <div className="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden border border-slate-200">
+                <div
+                  className="bg-violet-600 h-2.5 rounded-full transition-all duration-300"
+                  style={{ width: `${stayRate ?? 0}%` }}
+                />
+              </div>
+              <div className="flex justify-between text-[10px] font-mono text-slate-500">
+                <span>0%</span>
+                <span className="text-violet-700 font-semibold">Kỳ vọng lý thuyết: 33.3%</span>
+                <span>100%</span>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Insight Explanation */}
-        <div className="rounded-lg border border-slate-800/80 bg-slate-950/40 p-4 text-xs leading-relaxed text-slate-300 space-y-1">
-          <p className="font-semibold text-slate-100 flex items-center gap-1.5">
-            <CheckCircle2 className="h-4 w-4 text-cyan-400" />
-            Giải thích toán học:
+        {/* Footer controls & mathematical explanation */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-2">
+          <div className="flex items-center gap-2 text-xs text-slate-500 font-sans">
+            <Info className="h-4 w-4 text-blue-600 shrink-0" />
+            <span>
+              Mỗi lượt mô phỏng được tính toán trực tiếp trong trình duyệt qua thuật toán Monte
+              Carlo ngẫu nhiên.
+            </span>
+          </div>
+
+          {(stats.switchPlays > 0 || stats.stayPlays > 0) && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={resetStats}
+              className="text-xs text-slate-500 hover:text-slate-900 h-7 px-2"
+            >
+              Đặt lại bảng thống kê
+            </Button>
+          )}
+        </div>
+
+        {/* Mathematical Insight Deep Dive */}
+        <div className="rounded-xl border border-slate-300/80 bg-slate-100/70 p-4 text-xs leading-relaxed text-slate-700 space-y-2">
+          <div className="font-heading font-bold text-sm text-slate-900 flex items-center gap-2">
+            <CheckCircle2 className="h-4 w-4 text-blue-600" />
+            Bản chất toán học của Nghịch lý Monty Hall:
+          </div>
+          <p className="font-sans">
+            Tại thời điểm chọn đầu tiên, xác suất bạn chọn đúng ô tô là{' '}
+            <strong className="text-blue-700 font-mono">1/3</strong> và xác suất ô tô nằm ở một
+            trong hai cánh cửa còn lại là <strong className="text-violet-700 font-mono">2/3</strong>
+            . Vì MC luôn bắt buộc phải mở một cánh cửa có dê, toàn bộ xác suất 2/3 này dồn về cánh
+            cửa còn lại chưa mở.
           </p>
-          <p>
-            Lúc đầu bạn có 1/3 cơ hội chọn trúng xe và 2/3 cơ hội chọn trúng dê. Khi MC loại bỏ một
-            con dê, việc chuyển đổi giúp bạn nhận toàn bộ xác suất 2/3 còn lại. Vì vậy,{' '}
-            <strong>luôn đổi cửa</strong> nhân đôi tỷ lệ thắng của bạn từ 33.3% lên 66.7%!
-          </p>
+          <div className="font-mono text-[11px] text-blue-900 bg-blue-50/90 p-2.5 rounded-lg border border-blue-200">
+            P(Thắng | Đổi) = P(Chọn ban đầu là Dê) = 2/3 ≈ 66.67%
+            <br />
+            P(Thắng | Giữ) = P(Chọn ban đầu là Xe) = 1/3 ≈ 33.33%
+          </div>
         </div>
       </CardContent>
     </Card>
