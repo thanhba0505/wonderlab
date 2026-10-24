@@ -69,9 +69,9 @@ export const IntuitionExplainer: React.FC<IntuitionExplainerProps> = ({ currentN
             </span>
           </p>
 
-          {/* Công thức: Biểu diễn phân số, số mũ nhiều dòng đẹp mắt */}
-          <div className="rounded-xl bg-amber-50/70 border border-amber-200/80 shadow-2xs p-3.5 font-mono text-xs text-slate-800 space-y-2">
-            <div className="text-xs font-sans text-amber-800 font-semibold">
+          {/* Công thức: Biểu diễn phân số, số mũ nhiều dòng đẹp mắt - Sắc độ nhạt dịu thanh thoát */}
+          <div className="rounded-xl bg-amber-50/25 border border-amber-200/40 shadow-2xs p-3.5 font-mono text-xs text-slate-800 space-y-2">
+            <div className="text-xs font-sans text-amber-900/80 font-semibold">
               Xác suất trùng với BẠN:
             </div>
             <div className="flex items-center flex-wrap gap-2 text-sm">
@@ -118,9 +118,9 @@ export const IntuitionExplainer: React.FC<IntuitionExplainerProps> = ({ currentN
             .
           </p>
 
-          {/* Công thức: Biểu diễn phân số, số mũ nhiều dòng đẹp mắt */}
-          <div className="rounded-xl bg-amber-50/70 border border-amber-200/80 shadow-2xs p-3.5 font-mono text-xs text-slate-800 space-y-2">
-            <div className="text-xs font-sans text-amber-800 font-semibold">
+          {/* Công thức: Biểu diễn phân số, số mũ nhiều dòng đẹp mắt - Sắc độ nhạt dịu thanh thoát */}
+          <div className="rounded-xl bg-amber-50/25 border border-amber-200/40 shadow-2xs p-3.5 font-mono text-xs text-slate-800 space-y-2">
+            <div className="text-xs font-sans text-amber-900/80 font-semibold">
               Số cặp ghép đôi tổ hợp & xác suất va chạm:
             </div>
             <div className="flex items-center flex-wrap gap-2 text-sm text-slate-900">

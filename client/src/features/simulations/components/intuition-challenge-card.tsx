@@ -223,8 +223,8 @@ export function IntuitionChallengeCard({
             ) : (
               /* Intuition Gap Analysis View */
               <div className="space-y-4 pt-1 animate-in fade-in duration-300">
-                {/* Visual Gap Meter */}
-                <div className="rounded-xl bg-white p-4 border border-amber-200/80 space-y-3 shadow-2xs">
+                {/* Visual Gap Meter - Không đóng khung bao ngoài, hiển thị phẳng trực tiếp */}
+                <div className="space-y-3 pt-1">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <span className="text-xs font-mono uppercase tracking-wider text-slate-500 font-bold">
                       Thước đo Độ lệch Trực giác (Intuition Gap Meter)
@@ -241,14 +241,14 @@ export function IntuitionChallengeCard({
                     </Badge>
                   </div>
 
-                  {/* Dual Progress / Values */}
+                  {/* Dual Progress / Values: 2 ô cùng 1 màu xanh đồng nhất */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                    <div className="rounded-lg bg-amber-50/60 p-3 border border-amber-200/70 shadow-2xs">
-                      <span className="text-xs font-mono text-amber-800 uppercase block font-semibold">
+                    <div className="rounded-lg bg-blue-50/60 p-3 border border-blue-200/70 shadow-2xs">
+                      <span className="text-xs font-mono text-blue-800 uppercase block font-semibold">
                         Bạn đã dự đoán:
                       </span>
                       <div className="flex items-baseline justify-between mt-1">
-                        <span className="font-mono text-xl font-extrabold text-amber-700 tabular-nums">
+                        <span className="font-mono text-xl font-extrabold text-blue-700 tabular-nums">
                           {selectedOption ? (selectedOption.value * 100).toFixed(1) : 0}%
                         </span>
                         <span className="text-xs text-slate-600 font-medium">
@@ -302,8 +302,8 @@ export function IntuitionChallengeCard({
                   </div>
                 </div>
 
-                {/* Cognitive Bias Breakdown */}
-                <div className="rounded-xl bg-white/90 border border-slate-200/90 border-l-4 border-l-amber-500 p-4 text-xs text-slate-700 space-y-2 shadow-2xs">
+                {/* Cognitive Bias Breakdown - Bỏ khung, dùng divider ngăn cách nhẹ */}
+                <div className="border-t border-slate-200/80 pt-4 text-xs text-slate-700 space-y-2">
                   <div className="font-heading font-bold text-sm text-slate-900 flex items-center gap-2">
                     <CheckCircle2 className="h-4 w-4 text-amber-600" />
                     Giải mã Tâm lý Nhận thức: {challenge.biasName}
