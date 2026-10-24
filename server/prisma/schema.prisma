@@ -9,6 +9,7 @@ generator client {
 
 enum Role {
   ADMIN
+  USER
 }
 
 model User {
@@ -20,6 +21,7 @@ model User {
   createdAt      DateTime        @default(now()) @map("created_at")
   updatedAt      DateTime        @updatedAt @map("updated_at")
   simulationRuns SimulationRun[]
+  comments       Comment[]
 
   @@map("users")
 }
@@ -40,4 +42,22 @@ model SimulationRun {
   @@index([clientSession])
   @@index([createdAt(sort: Desc)])
   @@map("simulation_runs")
+}
+
+model Comment {
+  id             String    @id @default(uuid())
+  content        String    @db.VarChar(2000)
+  simulationSlug String    @map("simulation_slug") @db.VarChar(64)
+  userId         String    @map("user_id")
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parentId       String?   @map("parent_id")
+  parent         Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies        Comment[] @relation("CommentReplies")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  @@index([simulationSlug])
+  @@index([parentId])
+  @@index([createdAt(sort: Desc)])
+  @@map("comments")
 }

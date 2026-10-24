@@ -39,6 +39,7 @@ export function MontyHallSimulation() {
     option: HypothesisOption;
     gap: number;
   } | null>(null);
+  const [isChallengeResolved, setIsChallengeResolved] = React.useState<boolean>(false);
 
   const { history, globalStats, recordRun } = useSimulationTelemetry('monty-hall');
   const [carDoor, setCarDoor] = React.useState<number>(0);
@@ -67,6 +68,13 @@ export function MontyHallSimulation() {
 
   React.useEffect(() => {
     startNewRound();
+    if (typeof window === 'undefined') return;
+    try {
+      const saved = localStorage.getItem('wonderlab_guess_monty-hall');
+      if (saved) setIsChallengeResolved(true);
+    } catch {
+      // Ignore storage errors
+    }
   }, [startNewRound]);
 
   // Step 1: User picks a door
@@ -207,6 +215,7 @@ export function MontyHallSimulation() {
           challenge={meta.hypothesis}
           simulationSlug="monty-hall"
           onPredictionSelected={(option, gap) => setUserPrediction({ option, gap })}
+          onStatusChange={resolved => setIsChallengeResolved(resolved)}
         />
       )}
 
@@ -434,7 +443,7 @@ export function MontyHallSimulation() {
                           onClick={() => handleFinalDecision(false)}
                           className="w-full text-xs font-bold"
                         >
-                          Giữ cửa #{doorIndex + 1} (33.3%)
+                          Giữ cửa #{doorIndex + 1} {isChallengeResolved ? '(33.3%)' : ''}
                         </Button>
                       ) : (
                         <Button
@@ -444,7 +453,7 @@ export function MontyHallSimulation() {
                           className="w-full text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm"
                         >
                           <ArrowRightLeft className="h-3.5 w-3.5" />
-                          Đổi sang cửa #{doorIndex + 1} (66.7%)
+                          Đổi sang cửa #{doorIndex + 1} {isChallengeResolved ? '(66.7%)' : ''}
                         </Button>
                       )}
                     </div>
@@ -453,7 +462,9 @@ export function MontyHallSimulation() {
                   {step === 'pick' && (
                     <div className="w-full text-center">
                       <span className="text-[11px] font-mono text-slate-500 group-hover:text-blue-700 transition-colors">
-                        Xác suất ban đầu: 1/3 (33.3%)
+                        {isChallengeResolved
+                          ? 'Xác suất ban đầu: 1/3 (33.3%)'
+                          : 'Nhấp vào cánh cửa để chọn'}
                       </span>
                     </div>
                   )}
@@ -471,7 +482,9 @@ export function MontyHallSimulation() {
                   Khoảnh khắc quyết định: Bạn sẽ Đổi hay Giữ?
                 </div>
                 <p className="text-xs text-slate-600 font-sans">
-                  Toán học chứng minh: Đổi cửa giúp xác suất thắng tăng từ 1/3 lên 2/3!
+                  {isChallengeResolved
+                    ? 'Toán học chứng minh: Đổi cửa giúp xác suất thắng tăng từ 1/3 lên 2/3!'
+                    : 'Hãy quyết định dựa trên trực giác của bạn: Liệu việc đổi cửa có tạo ra khác biệt?'}
                 </p>
               </div>
               <div className="flex items-center gap-3 w-full sm:w-auto">
@@ -481,7 +494,7 @@ export function MontyHallSimulation() {
                   onClick={() => handleFinalDecision(false)}
                   className="flex-1 sm:flex-initial text-xs font-semibold bg-white/90 hover:bg-white text-slate-700"
                 >
-                  Giữ Cửa #{selectedDoor + 1} (33%)
+                  Giữ Cửa #{selectedDoor + 1} {isChallengeResolved ? '(33%)' : ''}
                 </Button>
                 <Button
                   size="sm"
@@ -489,7 +502,8 @@ export function MontyHallSimulation() {
                   className="flex-1 sm:flex-initial text-xs font-bold shadow-sm"
                 >
                   <ArrowRightLeft className="h-3.5 w-3.5 mr-1" />
-                  Đổi Cửa #{Number(remainingSwitchDoor ?? 0) + 1} (67%)
+                  Đổi Cửa #{Number(remainingSwitchDoor ?? 0) + 1}{' '}
+                  {isChallengeResolved ? '(67%)' : ''}
                 </Button>
               </div>
             </div>
@@ -498,13 +512,21 @@ export function MontyHallSimulation() {
           {/* Live Empirical Statistics Dashboard - Direct 2-column cards without redundant outer box */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Switch strategy card */}
-            <div className="space-y-3 p-4 rounded-xl border border-blue-200 border-t-4 border-t-blue-600 bg-white shadow-2xs">
+            <div className="space-y-3 p-4 rounded-xl border border-blue-200 border-t-4 border-t-blue-600 bg-blue-50/20 shadow-2xs">
               <div className="flex items-center justify-between text-xs font-semibold">
                 <span className="text-blue-700 uppercase tracking-wide flex items-center gap-1.5 font-bold">
                   <span className="h-2 w-2 rounded-full bg-blue-600" />
                   Chiến lược ĐỔI CỬA (Switch)
                 </span>
-                <span className="font-mono text-blue-700 text-xs font-bold">Lý thuyết: 66.7%</span>
+                <span className="font-mono text-xs font-bold">
+                  {isChallengeResolved ? (
+                    <span className="text-blue-700">Lý thuyết: 66.7%</span>
+                  ) : (
+                    <span className="text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
+                      Lý thuyết: ??.?%
+                    </span>
+                  )}
+                </span>
               </div>
 
               <div className="flex items-baseline justify-between">
@@ -528,21 +550,29 @@ export function MontyHallSimulation() {
                 </div>
                 <div className="flex justify-between text-[10px] font-mono text-slate-500">
                   <span>0%</span>
-                  <span className="text-blue-700 font-semibold">Kỳ vọng lý thuyết: 66.7%</span>
+                  <span className="text-blue-700 font-semibold">
+                    {isChallengeResolved ? 'Kỳ vọng lý thuyết: 66.7%' : 'Kỳ vọng: [Đang khóa]'}
+                  </span>
                   <span>100%</span>
                 </div>
               </div>
             </div>
 
             {/* Stay strategy card */}
-            <div className="space-y-3 p-4 rounded-xl border border-violet-200 border-t-4 border-t-violet-600 bg-white shadow-2xs">
+            <div className="space-y-3 p-4 rounded-xl border border-violet-200 border-t-4 border-t-violet-600 bg-violet-50/20 shadow-2xs">
               <div className="flex items-center justify-between text-xs font-semibold">
                 <span className="text-violet-700 uppercase tracking-wide flex items-center gap-1.5 font-bold">
                   <span className="h-2 w-2 rounded-full bg-violet-600" />
                   Chiến lược GIỮ NGUYÊN (Stay)
                 </span>
-                <span className="font-mono text-violet-700 text-xs font-bold">
-                  Lý thuyết: 33.3%
+                <span className="font-mono text-xs font-bold">
+                  {isChallengeResolved ? (
+                    <span className="text-violet-700">Lý thuyết: 33.3%</span>
+                  ) : (
+                    <span className="text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
+                      Lý thuyết: ??.?%
+                    </span>
+                  )}
                 </span>
               </div>
 
@@ -567,7 +597,9 @@ export function MontyHallSimulation() {
                 </div>
                 <div className="flex justify-between text-[10px] font-mono text-slate-500">
                   <span>0%</span>
-                  <span className="text-violet-700 font-semibold">Kỳ vọng lý thuyết: 33.3%</span>
+                  <span className="text-violet-700 font-semibold">
+                    {isChallengeResolved ? 'Kỳ vọng lý thuyết: 33.3%' : 'Kỳ vọng: [Đang khóa]'}
+                  </span>
                   <span>100%</span>
                 </div>
               </div>
@@ -597,24 +629,37 @@ export function MontyHallSimulation() {
           </div>
 
           {/* Mathematical Insight Deep Dive - Left Accent Panel, zero 4-sided nested box */}
-          <div className="rounded-xl bg-slate-100/70 border-l-4 border-blue-600 p-4 text-xs leading-relaxed text-slate-700 space-y-2.5">
-            <div className="font-heading font-bold text-sm text-slate-900 flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4 text-blue-600" />
-              Bản chất toán học của Nghịch lý Monty Hall:
+          {isChallengeResolved ? (
+            <div className="rounded-xl bg-blue-50/50 border-l-4 border-blue-600 p-4 text-xs leading-relaxed text-slate-700 space-y-2.5">
+              <div className="font-heading font-bold text-sm text-slate-900 flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4 text-blue-600" />
+                Bản chất toán học của Nghịch lý Monty Hall:
+              </div>
+              <p className="font-sans">
+                Tại thời điểm chọn đầu tiên, xác suất bạn chọn đúng ô tô là{' '}
+                <strong className="text-blue-700 font-mono">1/3</strong> và xác suất ô tô nằm ở một
+                trong hai cánh cửa còn lại là{' '}
+                <strong className="text-violet-700 font-mono">2/3</strong>. Vì MC luôn bắt buộc phải
+                mở một cánh cửa có dê, toàn bộ xác suất 2/3 này dồn về cánh cửa còn lại chưa mở.
+              </p>
+              <div className="font-mono text-[11px] text-blue-950 bg-white p-3 rounded-lg shadow-2xs">
+                P(Thắng | Đổi) = P(Chọn ban đầu là Dê) = 2/3 ≈ 66.67%
+                <br />
+                P(Thắng | Giữ) = P(Chọn ban đầu là Xe) = 1/3 ≈ 33.33%
+              </div>
             </div>
-            <p className="font-sans">
-              Tại thời điểm chọn đầu tiên, xác suất bạn chọn đúng ô tô là{' '}
-              <strong className="text-blue-700 font-mono">1/3</strong> và xác suất ô tô nằm ở một
-              trong hai cánh cửa còn lại là{' '}
-              <strong className="text-violet-700 font-mono">2/3</strong>. Vì MC luôn bắt buộc phải
-              mở một cánh cửa có dê, toàn bộ xác suất 2/3 này dồn về cánh cửa còn lại chưa mở.
-            </p>
-            <div className="font-mono text-[11px] text-blue-950 bg-white p-3 rounded-lg shadow-2xs">
-              P(Thắng | Đổi) = P(Chọn ban đầu là Dê) = 2/3 ≈ 66.67%
-              <br />
-              P(Thắng | Giữ) = P(Chọn ban đầu là Xe) = 1/3 ≈ 33.33%
+          ) : (
+            <div className="rounded-xl bg-amber-50/50 border-l-4 border-amber-500 p-4 text-xs leading-relaxed text-amber-900 space-y-1.5">
+              <div className="font-heading font-bold text-sm text-amber-950 flex items-center gap-2">
+                <Lock className="h-4 w-4 text-amber-600" />
+                Giải thích toán học đang tạm khóa
+              </div>
+              <p className="font-sans text-amber-800">
+                Hãy đưa ra dự đoán trực giác ở phần thử thách phía trên (hoặc bấm bỏ qua) để mở khóa
+                lời giải toán học và công thức xác suất chính xác.
+              </p>
             </div>
-          </div>
+          )}
         </CardContent>
       </Card>
 

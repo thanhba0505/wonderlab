@@ -40,6 +40,7 @@ export const BirthdaySimulation: React.FC = () => {
     option: HypothesisOption;
     gap: number;
   } | null>(null);
+  const [isChallengeResolved, setIsChallengeResolved] = useState<boolean>(false);
 
   const [n, setN] = useState<number>(23);
   const [room, setRoom] = useState<RoomSimulationResult>(() =>
@@ -58,7 +59,7 @@ export const BirthdaySimulation: React.FC = () => {
     room.hasCollision ? 1 : 0,
   );
 
-  // Synchronize initial n from URL query params
+  // Synchronize initial n from URL query params and check challenge status
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const urlParams = new URLSearchParams(window.location.search);
@@ -69,6 +70,15 @@ export const BirthdaySimulation: React.FC = () => {
         setN(parsedN);
         setRoom(simulateRoom(parsedN));
       }
+    }
+
+    try {
+      const saved = localStorage.getItem('wonderlab_guess_birthday-paradox');
+      if (saved) {
+        setIsChallengeResolved(true);
+      }
+    } catch {
+      // Ignore storage errors
     }
   }, []);
 
@@ -167,12 +177,13 @@ export const BirthdaySimulation: React.FC = () => {
           challenge={meta.hypothesis}
           simulationSlug="birthday-paradox"
           onPredictionSelected={(option, gap) => setUserPrediction({ option, gap })}
+          onStatusChange={resolved => setIsChallengeResolved(resolved)}
         />
       )}
 
       {/* Thanh đo lường Telemetry chính */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <div className="lab-card rounded-lg p-3">
+        <div className="rounded-lg p-3 border border-slate-300/85 bg-white shadow-2xs">
           <div className="text-[11px] font-medium tracking-wide text-slate-500 uppercase">
             Số người trong phòng (n)
           </div>
@@ -180,19 +191,42 @@ export const BirthdaySimulation: React.FC = () => {
           <div className="mt-0.5 text-[11px] text-slate-500">{totalPairs} cặp đối sánh</div>
         </div>
 
-        <div className="lab-card rounded-lg p-3">
-          <div className="text-[11px] font-medium tracking-wide text-slate-500 uppercase">
-            Xác suất Lý thuyết P(n)
+        <div
+          className={`rounded-lg p-3 border transition-all shadow-2xs ${
+            !isChallengeResolved
+              ? 'border-dashed border-amber-300/90 bg-amber-50/50'
+              : 'border-blue-200/90 bg-blue-50/40'
+          }`}
+        >
+          <div className="text-[11px] font-medium tracking-wide text-slate-500 uppercase flex items-center justify-between">
+            <span>Xác suất Lý thuyết P(n)</span>
+            {!isChallengeResolved && (
+              <Badge variant="amber" className="text-[9px] font-mono py-0 px-1.5">
+                Đang khóa
+              </Badge>
+            )}
           </div>
-          <div className="mt-1 font-mono text-2xl font-bold text-blue-600 tabular-nums">
-            {(theoreticalP * 100).toFixed(1)}%
+          <div
+            className={`mt-1 font-mono text-2xl font-bold tabular-nums ${
+              !isChallengeResolved ? 'text-amber-700/80 select-none' : 'text-blue-700'
+            }`}
+          >
+            {!isChallengeResolved ? '??.?%' : `${(theoreticalP * 100).toFixed(1)}%`}
           </div>
-          <div className="mt-0.5 text-[11px] text-slate-500">
-            {n >= 23 ? 'Vượt ngưỡng 50% ★' : 'Dưới ngưỡng 50%'}
+          <div className="mt-0.5 text-[11px] text-slate-500 font-sans">
+            {!isChallengeResolved
+              ? 'Dự đoán hoặc Bỏ qua để mở'
+              : n >= 23
+                ? 'Vượt ngưỡng 50% ★'
+                : 'Dưới ngưỡng 50%'}
           </div>
         </div>
 
-        <div className="lab-card rounded-lg p-3">
+        <div
+          className={`rounded-lg p-3 border shadow-2xs transition-all ${
+            room.hasCollision ? 'border-amber-200 bg-amber-50/30' : 'border-slate-300/85 bg-white'
+          }`}
+        >
           <div className="text-[11px] font-medium tracking-wide text-slate-500 uppercase">
             Phòng hiện tại
           </div>
@@ -214,11 +248,11 @@ export const BirthdaySimulation: React.FC = () => {
           </div>
         </div>
 
-        <div className="lab-card rounded-lg p-3">
+        <div className="rounded-lg p-3 border border-emerald-200/90 bg-emerald-50/30 shadow-2xs">
           <div className="text-[11px] font-medium tracking-wide text-slate-500 uppercase">
             Thực nghiệm Monte Carlo
           </div>
-          <div className="mt-1 font-mono text-2xl font-bold text-emerald-600 tabular-nums">
+          <div className="mt-1 font-mono text-2xl font-bold text-emerald-700 tabular-nums">
             {(currentEmpiricalRate * 100).toFixed(1)}%
           </div>
           <div className="mt-0.5 font-mono text-[11px] text-slate-500 tabular-nums">
@@ -233,8 +267,8 @@ export const BirthdaySimulation: React.FC = () => {
       <div className="grid gap-6 lg:grid-cols-12">
         {/* Cột trái: Bộ điều khiển & Vòng tròn radar */}
         <div className="flex flex-col gap-6 lg:col-span-5">
-          <Card className="lab-card rounded-xl border-slate-300">
-            <CardHeader className="pb-3 border-b border-slate-100">
+          <Card className="rounded-xl border border-slate-300/90 bg-slate-50/70 shadow-xs">
+            <CardHeader className="pb-3 border-b border-slate-200/70">
               <CardTitle className="flex items-center justify-between text-sm font-bold text-slate-900">
                 <span>Tham số Buồng Thí nghiệm</span>
                 {room.hasCollision && (
@@ -257,7 +291,7 @@ export const BirthdaySimulation: React.FC = () => {
             </CardContent>
           </Card>
 
-          <Card className="lab-card rounded-xl border-slate-300">
+          <Card className="rounded-xl border border-slate-300/85 bg-white shadow-xs">
             <CardHeader className="pb-2 border-b border-slate-100">
               <CardTitle className="text-sm font-bold text-slate-900">
                 Buồng Radar Không gian (Chamber View)
@@ -276,13 +310,13 @@ export const BirthdaySimulation: React.FC = () => {
 
         {/* Cột phải: Đồ thị xác suất & Lịch phân bổ */}
         <div className="flex flex-col gap-6 lg:col-span-7">
-          <Card className="lab-card rounded-xl border-slate-300">
+          <Card className="rounded-xl border border-slate-300/85 bg-white shadow-xs">
             <CardContent className="pt-4">
               <ProbabilityChart currentN={n} monteCarloResult={monteCarloResult} />
             </CardContent>
           </Card>
 
-          <Card className="lab-card rounded-xl border-slate-300">
+          <Card className="rounded-xl border border-slate-300/80 bg-slate-50/40 shadow-xs">
             <CardContent className="pt-4">
               <CalendarHeatmap
                 people={room.people}
@@ -340,7 +374,7 @@ export const BirthdaySimulation: React.FC = () => {
       />
 
       {/* Khối giải thích trực giác toán học */}
-      <Card className="lab-card rounded-xl border-slate-300">
+      <Card className="rounded-xl border border-blue-200/90 bg-blue-50/40 border-l-4 border-l-blue-600 shadow-xs">
         <CardContent className="pt-5">
           <IntuitionExplainer currentN={n} />
         </CardContent>

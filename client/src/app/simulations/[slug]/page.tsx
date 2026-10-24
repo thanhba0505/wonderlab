@@ -4,6 +4,7 @@ import type { Metadata } from 'next';
 import { getAllSimulations, getSimulationBySlug } from '@/features/simulations/registry';
 import { BirthdaySimulation } from '@/features/birthday-paradox/birthday-simulation';
 import { MontyHallSimulation } from '@/features/monty-hall/monty-hall-simulation';
+import { CommentSection } from '@/features/simulations/components/comment-section';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Clock, FlaskConical, Sparkles } from 'lucide-react';
@@ -132,6 +133,9 @@ export default async function SimulationPage({ params }: SimulationPageProps) {
           </div>
         </div>
       )}
+
+      {/* Góc Thảo luận & Phản biện Khoa học (2 cấp) */}
+      <CommentSection simulationSlug={sim.slug} />
     </div>
   );
 }
