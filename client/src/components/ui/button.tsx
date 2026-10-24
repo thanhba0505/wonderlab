@@ -7,16 +7,15 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default:
-          'bg-cyan-500 text-slate-950 font-semibold shadow-[inset_0_1px_0_0_rgba(255,255,255,0.3)] shadow-cyan-500/20 hover:bg-cyan-400 active:scale-[0.98]',
+        default: 'bg-blue-600 text-white font-bold shadow-xs hover:bg-blue-700 active:scale-[0.98]',
         secondary:
-          'bg-slate-800 text-slate-100 border border-slate-700/80 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] hover:bg-slate-700 hover:text-white active:scale-[0.98]',
+          'bg-white text-slate-700 border border-slate-300 shadow-2xs hover:bg-slate-50 hover:text-slate-900 active:scale-[0.98]',
         outline:
-          'border border-slate-700 bg-transparent text-slate-200 hover:bg-slate-800/80 hover:text-white active:scale-[0.98]',
-        ghost: 'text-slate-300 hover:bg-slate-800/60 hover:text-white',
+          'border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 hover:border-slate-400 hover:text-slate-900 active:scale-[0.98]',
+        ghost: 'text-slate-600 hover:bg-slate-100 hover:text-slate-900',
         accent:
-          'bg-violet-600 text-white font-semibold shadow-[inset_0_1px_0_0_rgba(255,255,255,0.2)] shadow-violet-600/20 hover:bg-violet-500 active:scale-[0.98]',
-        link: 'text-cyan-400 underline-offset-4 hover:underline',
+          'bg-violet-600 text-white font-bold shadow-xs hover:bg-violet-700 active:scale-[0.98]',
+        link: 'text-blue-600 underline-offset-4 hover:underline',
       },
       size: {
         default: 'h-10 px-4 py-2',

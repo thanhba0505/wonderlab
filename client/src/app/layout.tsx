@@ -1,7 +1,29 @@
 import type { Metadata, Viewport } from 'next';
+import { Be_Vietnam_Pro, Space_Grotesk, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
+
+const beVietnamPro = Be_Vietnam_Pro({
+  weight: ['300', '400', '500', '600', '700', '800'],
+  subsets: ['latin', 'vietnamese'],
+  variable: '--font-sans',
+  display: 'swap',
+});
+
+const spaceGrotesk = Space_Grotesk({
+  weight: ['500', '600', '700'],
+  subsets: ['latin', 'vietnamese'],
+  variable: '--font-heading',
+  display: 'swap',
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  weight: ['400', '500', '600', '700'],
+  subsets: ['latin', 'vietnamese'],
+  variable: '--font-mono',
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
   title: 'Wonderlab — Khám phá Khoa học, Xác suất & Nghịch lý Trực quan',
@@ -22,7 +44,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  themeColor: '#080c14',
+  themeColor: '#f8fafc',
 };
 
 export default function RootLayout({
@@ -31,8 +53,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="vi" className="dark">
-      <body className="min-h-screen flex flex-col font-sans bg-[#080c14] text-slate-100">
+    <html
+      lang="vi"
+      className={`${beVietnamPro.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable}`}
+    >
+      <body className="min-h-screen flex flex-col font-sans bg-[#f8fafc] text-slate-800 antialiased selection:bg-blue-500/20 selection:text-blue-900">
         <Header />
         <main className="flex-1">{children}</main>
         <Footer />
