@@ -1,40 +1,57 @@
 'use client';
 
 import * as React from 'react';
-import { Swords, Users, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Move, RoundRecord, StrategyId } from './game-theory-math';
+import {
+  Swords,
+  Users,
+  Sparkles,
+  FileSpreadsheet,
+  FileJson,
+  Copy,
+  Check,
+  Database,
+  Activity,
+} from 'lucide-react';
 import { PayoffMatrixView } from './components/payoff-matrix-view';
 import { DuelArena } from './components/duel-arena';
 import { AxelrodTournament } from './components/axelrod-tournament';
 import { StrategyExplainer } from './components/strategy-explainer';
-import { GlobalTelemetryWidget } from '@/features/simulations/components/global-telemetry-widget';
-import { IntuitionChallengeCard } from '@/features/simulations/components/intuition-challenge-card';
-import { ExportSuitePanel } from '@/features/simulations/components/export-suite-panel';
-import { SimulationHistoryTable } from '@/features/simulations/components/simulation-history-table';
+import {
+  SimulationSection,
+  SimulationWorkbenchCard,
+  SimulationExplainerCard,
+  SimulationHistoryTable,
+  IntuitionChallengeCard,
+} from '@/features/simulations/components';
 import { useSimulationTelemetry } from '@/lib/hooks/use-simulation-telemetry';
 import { getSimulationBySlug } from '@/features/simulations/registry';
 import { HypothesisOption } from '@/features/simulations/types';
+import { Move, RoundRecord, StrategyId } from './game-theory-math';
+import {
+  exportToCsv,
+  exportToJson,
+  copyToClipboard,
+} from '@/features/simulations/utils/export-data';
 
-type SimulationMode = 'duel' | 'tournament';
+type GameMode = 'duel' | 'tournament';
 
 export function PrisonersDilemmaSimulation() {
   const meta = getSimulationBySlug('prisoners-dilemma');
-  const [activeMode, setActiveMode] = React.useState<SimulationMode>('duel');
+  const [activeMode, setActiveMode] = React.useState<GameMode>('duel');
   const [lastMove1, setLastMove1] = React.useState<Move | null>(null);
   const [lastMove2, setLastMove2] = React.useState<Move | null>(null);
-
-  // Match telemetry export cache
   const [recentRounds, setRecentRounds] = React.useState<RoundRecord[]>([]);
   const [lastMatchStats, setLastMatchStats] = React.useState<{
     userScore: number;
     opponentScore: number;
     opponentId?: StrategyId;
   } | null>(null);
+  const [copiedType, setCopiedType] = React.useState<'report' | null>(null);
 
   // Intuition Challenge State
-  const [, setUserPrediction] = React.useState<{
+  const [userPrediction, setUserPrediction] = React.useState<{
     option: HypothesisOption;
     gap: number;
   } | null>(null);
@@ -43,7 +60,7 @@ export function PrisonersDilemmaSimulation() {
   // Background Telemetry Hook
   const { history, globalStats, recordRun } = useSimulationTelemetry('prisoners-dilemma');
 
-  // Handle URL mode query if present
+  // Sync mode with URL param
   React.useEffect(() => {
     if (typeof window === 'undefined') return;
     const urlParams = new URLSearchParams(window.location.search);
@@ -53,7 +70,7 @@ export function PrisonersDilemmaSimulation() {
     }
   }, []);
 
-  const handleModeChange = (mode: SimulationMode) => {
+  const handleModeChange = (mode: GameMode) => {
     setActiveMode(mode);
     if (typeof window === 'undefined') return;
     try {
@@ -72,36 +89,30 @@ export function PrisonersDilemmaSimulation() {
   }, []);
 
   const handleMatchFinished = React.useCallback(
-    (p1Score: number, p2Score: number, rounds: RoundRecord[]) => {
+    (p1Score: number, p2Score: number, matchRecords: RoundRecord[]) => {
       setLastMatchStats({
         userScore: p1Score,
         opponentScore: p2Score,
       });
 
-      // Record match run to telemetry
       recordRun(
         {
           mode: 'duel',
-          totalRounds: rounds.length,
-          userScore: p1Score,
-          opponentScore: p2Score,
-          cooperationRate: parseFloat(
-            (
-              (rounds.filter(r => r.move1 === 'C').length / Math.max(1, rounds.length)) *
-              100
-            ).toFixed(1),
-          ),
+          totalRounds: matchRecords.length,
+          userPrediction: userPrediction?.option.value,
         },
         {
-          outcome: p1Score > p2Score ? 'win' : p1Score === p2Score ? 'draw' : 'lose',
-          scoreDiff: p1Score - p2Score,
-          averageRoundPayoff: parseFloat((p1Score / Math.max(1, rounds.length)).toFixed(2)),
+          userScore: p1Score,
+          opponentScore: p2Score,
+          isUserWinner: p1Score > p2Score,
+          payoffRatio: p2Score > 0 ? (p1Score / p2Score).toFixed(2) : 'N/A',
+          intuitionGap: userPrediction?.gap,
         },
-        rounds.length,
-        Math.min(10000, rounds.length * 400),
+        matchRecords.length,
+        120,
       );
     },
-    [recordRun],
+    [userPrediction, recordRun],
   );
 
   const handleTournamentRecorded = React.useCallback(
@@ -110,28 +121,32 @@ export function PrisonersDilemmaSimulation() {
         {
           mode: 'tournament',
           generation,
-          populationSize: 100,
+          userPrediction: userPrediction?.option.value,
         },
         {
           dominantStrategy,
-          survivalEpochs: generation,
+          isCooperative:
+            dominantStrategy === 'tit_for_tat' || dominantStrategy === 'tit_for_two_tats',
+          intuitionGap: userPrediction?.gap,
         },
-        generation,
-        150,
+        100,
+        180,
       );
     },
-    [recordRun],
+    [userPrediction, recordRun],
   );
 
-  // Format export rows
-  const exportRows = React.useMemo(() => {
-    if (recentRounds.length === 0) {
-      return [
-        [1, 'C', 'C', 3, 3, 3, 3],
-        [2, 'C', 'D', 0, 5, 3, 8],
-      ];
-    }
-    return recentRounds.map(r => [
+  const handleExportCsv = () => {
+    const headers = [
+      'Round',
+      'Player1_Move',
+      'Player2_Move',
+      'Score1',
+      'Score2',
+      'Cumulative1',
+      'Cumulative2',
+    ];
+    const rows = recentRounds.map(r => [
       r.round,
       r.move1,
       r.move2,
@@ -140,117 +155,275 @@ export function PrisonersDilemmaSimulation() {
       r.cumulativeScore1,
       r.cumulativeScore2,
     ]);
-  }, [recentRounds]);
+    exportToCsv('wonderlab-prisoners-dilemma.csv', headers, rows);
+  };
+
+  const handleExportJson = () => {
+    const data = {
+      simulation: 'prisoners-dilemma',
+      exportedAt: new Date().toISOString(),
+      activeMode,
+      recentRounds,
+      lastMatchStats,
+      runs: history,
+    };
+    exportToJson('wonderlab-prisoners-dilemma.json', data);
+  };
+
+  const handleCopyReport = async () => {
+    const report = `# Báo Cáo Thực Nghiệm: Thế lưỡng nan của người tù
+- **Chế độ**: ${activeMode === 'duel' ? 'Đấu tay đôi 1-on-1' : 'Tiến hóa quần thể Axelrod'}
+- **Tổng số hiệp ghi nhận**: ${recentRounds.length}
+- **Kết quả ván gần nhất**: ${lastMatchStats ? `P1: ${lastMatchStats.userScore} vs P2: ${lastMatchStats.opponentScore}` : 'Chưa đấu ván nào'}
+- **Cân bằng Nash**: (Phản bội, Phản bội) -> 1 điểm mỗi bên
+- **Pareto Tối ưu**: (Hợp tác, Hợp tác) -> 3 điểm mỗi bên`;
+    const success = await copyToClipboard(report);
+    if (success) {
+      setCopiedType('report');
+      setTimeout(() => setCopiedType(null), 2500);
+    }
+  };
 
   return (
-    <div className="flex flex-col gap-6">
-      {/* 1. Global Live Telemetry Widget */}
-      <GlobalTelemetryWidget stats={globalStats} />
+    <div className="flex flex-col gap-8">
+      {/* Line phân cách sau intro/formula */}
+      <hr className="border-slate-200/80 -mt-2" />
 
-      {/* 2. Intuition Gap & Hypothesis Challenge */}
-      {meta?.hypothesis && (
-        <IntuitionChallengeCard
-          challenge={meta.hypothesis}
-          simulationSlug="prisoners-dilemma"
-          onPredictionSelected={(option: HypothesisOption, gap: number) => {
-            setUserPrediction({ option, gap });
-            setIsChallengeResolved(true);
-          }}
-          onStatusChange={setIsChallengeResolved}
-        />
-      )}
+      {/* 1. TITLE CÂU HỎI & CÂU HỎI TRỰC GIÁC */}
+      <SimulationSection
+        dotColor="amber"
+        title="Khảo Sát Trực Giác Trước Thực Nghiệm"
+        subtitle="Đưa ra dự đoán cá nhân để đo lường khoảng cách giữa trực giác thông thường và toán học xác suất"
+      >
+        {meta?.hypothesis && (
+          <IntuitionChallengeCard
+            challenge={meta.hypothesis}
+            simulationSlug="prisoners-dilemma"
+            onPredictionSelected={(option: HypothesisOption, gap: number) => {
+              setUserPrediction({ option, gap });
+              setIsChallengeResolved(true);
+            }}
+            onStatusChange={setIsChallengeResolved}
+          />
+        )}
+      </SimulationSection>
 
-      {/* 3. Mode Navigation Switcher */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200/80 pb-4">
-        <div className="flex items-center gap-1.5 rounded-lg border border-slate-300/85 bg-slate-100/80 p-1">
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => handleModeChange('duel')}
-            className={`h-8 gap-2 px-3 text-xs font-medium transition-all ${
-              activeMode === 'duel'
-                ? 'bg-white text-slate-900 shadow-xs font-semibold'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
-            }`}
-          >
-            <Swords className="h-3.5 w-3.5 text-blue-600" />
-            1. Đấu tay đôi (1-on-1 Duel)
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => handleModeChange('tournament')}
-            className={`h-8 gap-2 px-3 text-xs font-medium transition-all ${
-              activeMode === 'tournament'
-                ? 'bg-white text-slate-900 shadow-xs font-semibold'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
-            }`}
-          >
-            <Users className="h-3.5 w-3.5 text-emerald-600" />
-            2. Tiến hóa Quần thể (Axelrod Tournament)
-          </Button>
-        </div>
+      {/* 2. TITLE CHỖ THÍ NGHIỆM & BLOCK THÍ NGHIỆM HỢP NHẤT */}
+      <SimulationSection
+        dotColor="blue"
+        title="Buồng Thí Nghiệm & Mô Phỏng Trực Quan"
+        subtitle="Không gian đấu trường lý thuyết trò chơi, ma trận thanh toán và giải đấu tiến hóa quần thể Axelrod"
+      >
+        <SimulationWorkbenchCard
+          metricsBar={
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 pb-5 border-b border-slate-200/80">
+              <div className="space-y-1">
+                <div className="text-xs font-semibold tracking-wider text-slate-500 uppercase">
+                  Chế độ thi đấu
+                </div>
+                <div className="font-mono text-xl sm:text-2xl font-bold text-slate-900">
+                  {activeMode === 'duel' ? '1-on-1 Duel' : 'Tournament'}
+                </div>
+                <div className="text-xs text-slate-500 font-sans">
+                  {activeMode === 'duel' ? 'Đấu tay đôi đối kháng' : 'Giải đấu tiến hóa Axelrod'}
+                </div>
+              </div>
 
-        <div className="flex items-center gap-2">
-          <Badge variant="outline" className="text-xs font-mono border-slate-300 text-slate-600">
-            <Sparkles className="mr-1 h-3 w-3 text-amber-500" />
-            Cân bằng Nash: (Phản bội, Phản bội)
-          </Badge>
-        </div>
-      </div>
+              <div className="space-y-1 sm:border-l sm:border-slate-200/80 sm:pl-4">
+                <div className="text-xs font-semibold tracking-wider text-slate-500 uppercase">
+                  Cân bằng Nash
+                </div>
+                <div className="font-mono text-xl sm:text-2xl font-bold pt-0.5 text-rose-600">
+                  (Phản bội, Phản bội)
+                </div>
+                <div className="text-xs text-slate-500 font-sans">
+                  Chiến lược chi phối nghiêm ngặt
+                </div>
+              </div>
 
-      {/* 4. Payoff Matrix Grid (Shared Reference) */}
-      <PayoffMatrixView lastMove1={lastMove1} lastMove2={lastMove2} />
+              <div className="space-y-1 border-t sm:border-t-0 pt-3 sm:pt-0 sm:border-l sm:border-slate-200/80 sm:pl-4">
+                <div className="text-xs font-semibold tracking-wider text-slate-500 uppercase">
+                  Pareto Tối ưu
+                </div>
+                <div className="font-mono text-xl sm:text-2xl font-bold pt-0.5 text-emerald-600">
+                  (Hợp tác, Hợp tác)
+                </div>
+                <div className="text-xs text-slate-500 font-sans">
+                  Lợi ích tập thể cao nhất (+6 điểm)
+                </div>
+              </div>
 
-      {/* 5. Main Simulation Screen based on Active Mode */}
-      {activeMode === 'duel' ? (
-        <DuelArena
-          onRoundPlayed={handleRoundPlayed}
-          onMatchFinished={handleMatchFinished}
-          onMovesChanged={(m1, m2) => {
-            setLastMove1(m1);
-            setLastMove2(m2);
-          }}
-        />
-      ) : (
-        <AxelrodTournament onTournamentRecorded={handleTournamentRecorded} />
-      )}
+              <div className="space-y-1 border-t sm:border-t-0 pt-3 sm:pt-0 sm:border-l sm:border-slate-200/80 sm:pl-4">
+                <div className="text-xs font-semibold tracking-wider text-slate-500 uppercase">
+                  Số hiệp đã đấu
+                </div>
+                <div className="font-mono text-2xl sm:text-3xl font-bold text-slate-900 tabular-nums">
+                  {recentRounds.length}
+                </div>
+                <div className="text-xs text-slate-500 font-mono">
+                  {lastMatchStats
+                    ? `P1: ${lastMatchStats.userScore} | P2: ${lastMatchStats.opponentScore}`
+                    : 'Sẵn sàng đấu hiệp'}
+                </div>
+              </div>
+            </div>
+          }
+          tools={
+            <>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleExportCsv}
+                className="h-7 gap-1.5 border-slate-300 bg-white font-mono text-xs text-slate-700 hover:bg-slate-50 hover:text-slate-900"
+                title="Tải tệp bảng tính CSV"
+              >
+                <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-600" />
+                Xuất CSV
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleExportJson}
+                className="h-7 gap-1.5 border-slate-300 bg-white font-mono text-xs text-slate-700 hover:bg-slate-50 hover:text-slate-900"
+                title="Tải tệp JSON dữ liệu"
+              >
+                <FileJson className="h-3.5 w-3.5 text-blue-600" />
+                Xuất JSON
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleCopyReport}
+                className="h-7 gap-1.5 border-slate-300 bg-white font-mono text-xs text-slate-700 hover:bg-slate-50 hover:text-slate-900"
+                title="Sao chép báo cáo Markdown"
+              >
+                {copiedType === 'report' ? (
+                  <>
+                    <Check className="h-3.5 w-3.5 text-emerald-600" />
+                    <span className="text-emerald-700 font-semibold">Đã chép!</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="h-3.5 w-3.5 text-slate-500" />
+                    Chép Báo cáo
+                  </>
+                )}
+              </Button>
+            </>
+          }
+          telemetry={
+            globalStats && globalStats.totalTrials > 0 ? (
+              <div className="flex items-center gap-2 text-slate-600">
+                <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="font-semibold text-slate-700">Telemetry:</span>
+                <div className="flex items-center gap-1 text-slate-700">
+                  <Database className="h-3.5 w-3.5 text-blue-600" />
+                  <span className="font-bold text-blue-700 tabular-nums">
+                    {globalStats.totalTrials.toLocaleString('vi-VN')}
+                  </span>
+                  <span className="text-slate-400">hiệp</span>
+                </div>
+                <span className="text-slate-300">•</span>
+                <div className="flex items-center gap-1 text-slate-600">
+                  <Sparkles className="h-3.5 w-3.5 text-amber-500" />
+                  <span className="font-bold text-slate-800 tabular-nums">
+                    {globalStats.totalRuns.toLocaleString('vi-VN')}
+                  </span>
+                  <span className="text-slate-400">trận</span>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 text-xs text-slate-500">
+                <Activity className="h-3.5 w-3.5 text-blue-600 animate-pulse" />
+                <span>Sẵn sàng thu thập telemetry</span>
+              </div>
+            )
+          }
+        >
+          <div className="space-y-6">
+            {/* Thanh chuyển đổi chế độ */}
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200/80 pb-4">
+              <div className="flex items-center gap-1.5 rounded-lg border border-slate-300/85 bg-slate-100/80 p-1">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleModeChange('duel')}
+                  className={`h-8 gap-2 px-3 text-xs font-medium transition-all ${
+                    activeMode === 'duel'
+                      ? 'bg-white text-slate-900 shadow-xs font-semibold'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+                  }`}
+                >
+                  <Swords className="h-3.5 w-3.5 text-blue-600" />
+                  1. Đấu tay đôi (1-on-1 Duel)
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleModeChange('tournament')}
+                  className={`h-8 gap-2 px-3 text-xs font-medium transition-all ${
+                    activeMode === 'tournament'
+                      ? 'bg-white text-slate-900 shadow-xs font-semibold'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+                  }`}
+                >
+                  <Users className="h-3.5 w-3.5 text-emerald-600" />
+                  2. Tiến hóa Quần thể (Axelrod Tournament)
+                </Button>
+              </div>
 
-      {/* 6. Scientific Explainer on Cooperation Evolution */}
-      <StrategyExplainer />
+              <div className="flex items-center gap-2">
+                <Badge
+                  variant="outline"
+                  className="text-xs font-mono border-slate-300 text-slate-600"
+                >
+                  <Sparkles className="mr-1 h-3 w-3 text-amber-500" />
+                  Cân bằng Nash: (Phản bội, Phản bội)
+                </Badge>
+              </div>
+            </div>
 
-      {/* 7. Research Data Exporter Suite */}
-      <ExportSuitePanel
-        simulationTitle="Thế lưỡng nan của người tù"
-        simulationSlug="prisoners-dilemma"
-        parameters={{
-          mode: activeMode,
-          payoffs: 'T=5, R=3, P=1, S=0',
-          nashEquilibrium: 'Defect-Defect',
-          paretoOptimal: 'Cooperate-Cooperate',
-        }}
-        results={{
-          totalRoundsRecorded: recentRounds.length,
-          lastMatchResult: lastMatchStats
-            ? `P1: ${lastMatchStats.userScore} vs P2: ${lastMatchStats.opponentScore}`
-            : 'Chưa hoàn thành ván đấu',
-        }}
-        csvHeaders={[
-          'Round',
-          'Player1_Move',
-          'Player2_Move',
-          'Payoff1',
-          'Payoff2',
-          'Cumulative1',
-          'Cumulative2',
-        ]}
-        historyRows={exportRows}
-      />
+            {/* Ma trận lợi ích Payoff Matrix */}
+            <PayoffMatrixView lastMove1={lastMove1} lastMove2={lastMove2} />
 
-      {/* 8. Local History Table */}
-      <SimulationHistoryTable runs={history} isLoading={false} />
+            {/* Đấu trường theo chế độ */}
+            {activeMode === 'duel' ? (
+              <DuelArena
+                onRoundPlayed={handleRoundPlayed}
+                onMatchFinished={handleMatchFinished}
+                onMovesChanged={(m1, m2) => {
+                  setLastMove1(m1);
+                  setLastMove2(m2);
+                }}
+              />
+            ) : (
+              <AxelrodTournament onTournamentRecorded={handleTournamentRecorded} />
+            )}
+          </div>
+        </SimulationWorkbenchCard>
+      </SimulationSection>
+
+      {/* 3. TITLE NHẬT KÝ & NHẬT KÝ THỰC NGHIỆM */}
+      <SimulationSection
+        dotColor="emerald"
+        title="Nhật Ký Thực Nghiệm"
+        subtitle="Bảng lưu trữ chi tiết các lượt chơi và kết quả thực nghiệm trong phiên nghiên cứu"
+      >
+        <SimulationHistoryTable runs={history} isLoading={false} />
+      </SimulationSection>
+
+      {/* 4. TITLE GIẢI THÍCH & GIẢI THÍCH KHOA HỌC */}
+      <SimulationSection
+        dotColor="blue"
+        title="Giải Thích Khoa Học & Bản Chất Toán Học"
+        subtitle="Bóc tách cân bằng Nash, thế kẹt Pareto và nguồn gốc sự hợp tác trong trò chơi lặp vô hạn"
+      >
+        <SimulationExplainerCard>
+          <StrategyExplainer />
+        </SimulationExplainerCard>
+      </SimulationSection>
     </div>
   );
 }

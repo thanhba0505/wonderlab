@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { calculateComparisonPairs, calculateTheoreticalProbability } from '../birthday-math';
+import { SimulationFormulaBox } from '@/features/simulations/components';
 
 interface IntuitionExplainerProps {
   currentN: number;
@@ -70,10 +71,7 @@ export const IntuitionExplainer: React.FC<IntuitionExplainerProps> = ({ currentN
           </p>
 
           {/* Công thức: Biểu diễn phân số, số mũ nhiều dòng đẹp mắt - Sắc độ nhạt dịu thanh thoát */}
-          <div className="rounded-xl bg-amber-50/25 border border-amber-200/40 shadow-2xs p-3.5 font-mono text-xs text-slate-800 space-y-2">
-            <div className="text-xs font-sans text-amber-900/80 font-semibold">
-              Xác suất trùng với BẠN:
-            </div>
+          <SimulationFormulaBox title="Xác suất trùng với BẠN:">
             <div className="flex items-center flex-wrap gap-2 text-sm">
               <span className="font-bold text-slate-900">P(bạn)</span>
               <span>=</span>
@@ -89,7 +87,7 @@ export const IntuitionExplainer: React.FC<IntuitionExplainerProps> = ({ currentN
                 {((1 - Math.pow(364 / 365, naivePairs)) * 100).toFixed(1)}%
               </span>
             </div>
-          </div>
+          </SimulationFormulaBox>
           <p className="text-xs text-slate-500 italic">
             Xác suất này rất nhỏ, tạo cảm giác sai lầm rằng biến cố trùng ngày sinh là cực kỳ hiếm
             thấy.
@@ -119,10 +117,7 @@ export const IntuitionExplainer: React.FC<IntuitionExplainerProps> = ({ currentN
           </p>
 
           {/* Công thức: Biểu diễn phân số, số mũ nhiều dòng đẹp mắt - Sắc độ nhạt dịu thanh thoát */}
-          <div className="rounded-xl bg-amber-50/25 border border-amber-200/40 shadow-2xs p-3.5 font-mono text-xs text-slate-800 space-y-2">
-            <div className="text-xs font-sans text-amber-900/80 font-semibold">
-              Số cặp ghép đôi tổ hợp & xác suất va chạm:
-            </div>
+          <SimulationFormulaBox title="Số cặp ghép đôi tổ hợp & xác suất va chạm:">
             <div className="flex items-center flex-wrap gap-2 text-sm text-slate-900">
               <span className="font-bold">C({currentN}, 2)</span>
               <span>=</span>
@@ -151,7 +146,7 @@ export const IntuitionExplainer: React.FC<IntuitionExplainerProps> = ({ currentN
                 {(theoreticalRate * 100).toFixed(1)}%
               </span>
             </div>
-          </div>
+          </SimulationFormulaBox>
           <p className="text-xs text-slate-600">
             Với {currentPairs} cơ hội đối sánh độc lập, việc xuất hiện ít nhất một cặp trùng trở
             thành biến cố tất yếu và rất khả dĩ!

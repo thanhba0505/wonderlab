@@ -3,26 +3,38 @@
 import * as React from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import {
   RotateCcw,
   Play,
-  CheckCircle2,
   XCircle,
   Trophy,
   Sparkles,
   Lock,
   ArrowRightLeft,
   Flame,
-  Info,
+  FileSpreadsheet,
+  FileJson,
+  Copy,
+  Check,
+  Database,
+  Activity,
 } from 'lucide-react';
 import { useSimulationTelemetry } from '@/lib/hooks/use-simulation-telemetry';
-import { ExportSuitePanel } from '@/features/simulations/components/export-suite-panel';
-import { SimulationHistoryTable } from '@/features/simulations/components/simulation-history-table';
-import { GlobalTelemetryWidget } from '@/features/simulations/components/global-telemetry-widget';
-import { IntuitionChallengeCard } from '@/features/simulations/components/intuition-challenge-card';
+import {
+  SimulationSection,
+  SimulationWorkbenchCard,
+  SimulationExplainerCard,
+  SimulationFormulaBox,
+  SimulationHistoryTable,
+  IntuitionChallengeCard,
+} from '@/features/simulations/components';
 import { getSimulationBySlug } from '@/features/simulations/registry';
 import { HypothesisOption } from '@/features/simulations/types';
+import {
+  exportToCsv,
+  exportToJson,
+  copyToClipboard,
+} from '@/features/simulations/utils/export-data';
 
 type Step = 'pick' | 'revealed' | 'result';
 
@@ -40,6 +52,7 @@ export function MontyHallSimulation() {
     gap: number;
   } | null>(null);
   const [isChallengeResolved, setIsChallengeResolved] = React.useState<boolean>(false);
+  const [copiedType, setCopiedType] = React.useState<'report' | null>(null);
 
   const { history, globalStats, recordRun } = useSimulationTelemetry('monty-hall');
   const [carDoor, setCarDoor] = React.useState<number>(0);
@@ -55,7 +68,7 @@ export function MontyHallSimulation() {
     stayWins: 0,
   });
 
-  // Initialize a new game round
+  // Khởi tạo vòng chơi mới
   const startNewRound = React.useCallback(() => {
     const randomCar = Math.floor(Math.random() * 3);
     setCarDoor(randomCar);
@@ -77,13 +90,13 @@ export function MontyHallSimulation() {
     }
   }, [startNewRound]);
 
-  // Step 1: User picks a door
+  // Bước 1: Người chơi chọn 1 cánh cửa
   const handleSelectDoor = (doorIndex: number) => {
     if (step !== 'pick') return;
 
     setSelectedDoor(doorIndex);
 
-    // Host opens a door that has a goat and is NOT the user's selected door
+    // Người dẫn chương trình mở cánh cửa có DÊ và KHÔNG PHẢI cửa người chơi đã chọn
     const possibleGoatDoors = [0, 1, 2].filter(d => d !== doorIndex && d !== carDoor);
     const hostChoice =
       possibleGoatDoors[Math.floor(Math.random() * possibleGoatDoors.length)] ??
@@ -94,7 +107,7 @@ export function MontyHallSimulation() {
     setStep('revealed');
   };
 
-  // Step 2: User decides to Stay or Switch
+  // Bước 2: Quyết định Đổi hay Giữ
   const handleFinalDecision = (shouldSwitch: boolean) => {
     if (step !== 'revealed' || selectedDoor === null || revealedGoatDoor === null) return;
 
@@ -123,7 +136,7 @@ export function MontyHallSimulation() {
     });
   };
 
-  // Batch simulation for empirical Law of Large Numbers
+  // Mô phỏng hàng loạt Monte Carlo để kiểm chứng Luật Số Lớn
   const handleSimulateBatch = (batchCount: number) => {
     const startTime = performance.now();
     let newSwitchPlays = 0;
@@ -161,7 +174,6 @@ export function MontyHallSimulation() {
       stayWins: prev.stayWins + newStayWins,
     }));
 
-    // Record simulation run in background telemetry
     const switchWinRate = newSwitchPlays > 0 ? newSwitchWins / newSwitchPlays : 0;
     recordRun(
       {
@@ -204,40 +216,149 @@ export function MontyHallSimulation() {
       ? [0, 1, 2].find(d => d !== selectedDoor && d !== revealedGoatDoor)
       : null;
 
+  const totalGames = stats.switchPlays + stats.stayPlays;
+
+  const handleExportCsv = () => {
+    const headers = [
+      'Timestamp',
+      'Doors_Count',
+      'Trials_Count',
+      'Empirical_Switch_Rate',
+      'Theoretical_P',
+    ];
+    const rows = history.map(r => [
+      r.createdAt,
+      String((r.parameters as Record<string, unknown>)?.doorsCount ?? 3),
+      r.trialsCount,
+      typeof (r.results as Record<string, unknown>)?.empiricalProbability === 'number'
+        ? (((r.results as Record<string, unknown>).empiricalProbability as number) * 100).toFixed(
+            2,
+          ) + '%'
+        : 'N/A',
+      '66.67%',
+    ]);
+    exportToCsv('wonderlab-monty-hall-empirical.csv', headers, rows);
+  };
+
+  const handleExportJson = () => {
+    const exportData = {
+      simulation: 'monty-hall',
+      exportedAt: new Date().toISOString(),
+      stats,
+      switchRate,
+      stayRate,
+      runs: history,
+    };
+    exportToJson('wonderlab-monty-hall-data.json', exportData);
+  };
+
+  const handleCopyReport = async () => {
+    const report = `# Báo Cáo Thực Nghiệm: Nghịch lý Monty Hall
+- **Tổng số ván đã chơi**: ${totalGames}
+- **Chiến lược Đổi cửa (Switch)**: ${stats.switchWins}/${stats.switchPlays} ván thắng (${switchRate !== null ? `${switchRate}%` : 'N/A'}) | Kỳ vọng lý thuyết: 66.7%
+- **Chiến lược Giữ nguyên (Stay)**: ${stats.stayWins}/${stats.stayPlays} ván thắng (${stayRate !== null ? `${stayRate}%` : 'N/A'}) | Kỳ vọng lý thuyết: 33.3%
+- **Kết luận**: Thực nghiệm xác nhận đổi cửa tăng gấp đôi cơ hội chiến thắng.`;
+    const success = await copyToClipboard(report);
+    if (success) {
+      setCopiedType('report');
+      setTimeout(() => setCopiedType(null), 2500);
+    }
+  };
+
   return (
-    <div className="space-y-6">
-      {/* Global Telemetry Banner */}
-      <GlobalTelemetryWidget stats={globalStats} className="w-full justify-between" />
+    <div className="flex flex-col gap-8">
+      {/* Line phân cách sau intro/formula */}
+      <hr className="border-slate-200/80 -mt-2" />
 
-      {/* Thử thách dự đoán trực giác */}
-      {meta?.hypothesis && (
-        <IntuitionChallengeCard
-          challenge={meta.hypothesis}
-          simulationSlug="monty-hall"
-          onPredictionSelected={(option, gap) => setUserPrediction({ option, gap })}
-          onStatusChange={resolved => setIsChallengeResolved(resolved)}
-        />
-      )}
+      {/* 1. TITLE CÂU HỎI & CÂU HỎI TRỰC GIÁC */}
+      <SimulationSection
+        dotColor="amber"
+        title="Khảo Sát Trực Giác Trước Thực Nghiệm"
+        subtitle="Đưa ra dự đoán cá nhân để đo lường khoảng cách giữa trực giác thông thường và toán học xác suất"
+      >
+        {meta?.hypothesis && (
+          <IntuitionChallengeCard
+            challenge={meta.hypothesis}
+            simulationSlug="monty-hall"
+            onPredictionSelected={(option, gap) => setUserPrediction({ option, gap })}
+            onStatusChange={resolved => setIsChallengeResolved(resolved)}
+          />
+        )}
+      </SimulationSection>
 
-      <Card className="border-slate-300/85 bg-white shadow-md shadow-slate-300/30">
-        <CardHeader className="border-b border-slate-200/80 pb-5">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div className="space-y-1.5">
-              <div className="flex items-center gap-2">
-                <Badge variant="cyan">THÍ NGHIỆM TƯƠNG TÁC SỐ 01</Badge>
-                <Badge variant="outline">Xác suất & Nghịch lý</Badge>
+      {/* 2. TITLE CHỖ THÍ NGHIỆM & BLOCK THÍ NGHIỆM HỢP NHẤT */}
+      <SimulationSection
+        dotColor="blue"
+        title="Buồng Thí Nghiệm & Mô Phỏng Trực Quan"
+        subtitle="Không gian tương tác 3 cánh cửa Monty Hall, thử nghiệm chiến lược Đổi vs Giữ và mô phỏng Monte Carlo"
+      >
+        <SimulationWorkbenchCard
+          metricsBar={
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 pb-5 border-b border-slate-200/80">
+              <div className="space-y-1">
+                <div className="text-xs font-semibold tracking-wider text-slate-500 uppercase">
+                  Tổng ván đã chơi
+                </div>
+                <div className="font-mono text-2xl sm:text-3xl font-bold text-slate-900 tabular-nums">
+                  {totalGames}
+                </div>
+                <div className="text-xs text-slate-500 font-mono">
+                  {stats.switchPlays} đổi / {stats.stayPlays} giữ
+                </div>
               </div>
-              <CardTitle className="text-2xl sm:text-3xl font-heading font-extrabold tracking-tight text-slate-900 flex items-center gap-2">
-                Nghịch lý Monty Hall: Bạn có nên đổi cửa?
-              </CardTitle>
-            </div>
 
-            <div className="flex items-center gap-2">
+              <div className="space-y-1 sm:border-l sm:border-slate-200/80 sm:pl-4">
+                <div className="text-xs font-semibold tracking-wider text-slate-500 uppercase flex items-center justify-between">
+                  <span>Chiến lược Đổi Cửa</span>
+                  <span className="font-mono text-xs text-blue-700">Lý thuyết 66.7%</span>
+                </div>
+                <div className="font-mono text-2xl sm:text-3xl font-bold text-blue-700 tabular-nums">
+                  {switchRate !== null ? `${switchRate}%` : '—'}
+                </div>
+                <div className="text-xs text-slate-500 font-sans">
+                  {stats.switchWins} thắng / {stats.switchPlays} lượt
+                </div>
+              </div>
+
+              <div className="space-y-1 border-t sm:border-t-0 pt-3 sm:pt-0 sm:border-l sm:border-slate-200/80 sm:pl-4">
+                <div className="text-xs font-semibold tracking-wider text-slate-500 uppercase flex items-center justify-between">
+                  <span>Chiến lược Giữ Cửa</span>
+                  <span className="font-mono text-xs text-violet-700">Lý thuyết 33.3%</span>
+                </div>
+                <div className="font-mono text-2xl sm:text-3xl font-bold text-violet-700 tabular-nums">
+                  {stayRate !== null ? `${stayRate}%` : '—'}
+                </div>
+                <div className="text-xs text-slate-500 font-sans">
+                  {stats.stayWins} thắng / {stats.stayPlays} lượt
+                </div>
+              </div>
+
+              <div className="space-y-1 border-t sm:border-t-0 pt-3 sm:pt-0 sm:border-l sm:border-slate-200/80 sm:pl-4">
+                <div className="text-xs font-semibold tracking-wider text-slate-500 uppercase">
+                  Trạng thái hiện tại
+                </div>
+                <div className="font-mono text-xl sm:text-2xl font-bold pt-0.5 text-slate-900">
+                  {step === 'pick' && 'Bước 1: Chọn cửa'}
+                  {step === 'revealed' && 'Bước 2: Đổi hay Giữ?'}
+                  {step === 'result' && (finalDoor === carDoor ? '🎉 Thắng Xe' : '🐐 Vào Dê')}
+                </div>
+                <div className="text-xs text-slate-500 font-sans">
+                  {step === 'result'
+                    ? didSwitch
+                      ? 'Đã đổi cửa'
+                      : 'Đã giữ nguyên'
+                    : 'Đang trong lượt chơi'}
+                </div>
+              </div>
+            </div>
+          }
+          tools={
+            <>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => handleSimulateBatch(50)}
-                className="text-xs font-semibold border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100"
+                className="h-7 text-xs font-semibold border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100"
               >
                 <Play className="h-3.5 w-3.5 mr-1" />
                 +50 Ván
@@ -246,7 +367,7 @@ export function MontyHallSimulation() {
                 variant="outline"
                 size="sm"
                 onClick={() => handleSimulateBatch(500)}
-                className="hidden sm:inline-flex text-xs font-semibold border-slate-200 text-slate-700 hover:bg-slate-100"
+                className="hidden sm:inline-flex h-7 text-xs font-semibold border-slate-200 text-slate-700 hover:bg-slate-100"
               >
                 <Flame className="h-3.5 w-3.5 mr-1 text-amber-600" />
                 +500 Ván
@@ -255,30 +376,99 @@ export function MontyHallSimulation() {
                 variant="secondary"
                 size="sm"
                 onClick={startNewRound}
-                className="text-xs font-semibold"
+                className="h-7 text-xs font-semibold"
               >
                 <RotateCcw className="h-3.5 w-3.5 mr-1" />
                 Vòng mới
               </Button>
-            </div>
-          </div>
-
-          <CardDescription className="text-slate-600 text-sm pt-2 max-w-4xl font-sans">
-            Đằng sau 3 cánh cửa chỉ có 1 chiếc ô tô thể thao và 2 con dê cỏ. Sau khi bạn chọn 1 cửa,
-            MC mở một cửa có dê để tiết lộ. Liệu việc thay đổi quyết định có thực sự tăng gấp đôi cơ
-            hội chiến thắng của bạn?
-          </CardDescription>
-        </CardHeader>
-
-        <CardContent className="pt-6 space-y-6">
-          {/* State / Instructions Banner - Clean Left Accent without 4-sided enclosure */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleExportCsv}
+                className="h-7 gap-1.5 border-slate-300 bg-white font-mono text-xs text-slate-700 hover:bg-slate-50 hover:text-slate-900"
+                title="Tải tệp bảng tính CSV"
+              >
+                <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-600" />
+                Xuất CSV
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleExportJson}
+                className="h-7 gap-1.5 border-slate-300 bg-white font-mono text-xs text-slate-700 hover:bg-slate-50 hover:text-slate-900"
+                title="Tải tệp JSON dữ liệu"
+              >
+                <FileJson className="h-3.5 w-3.5 text-blue-600" />
+                Xuất JSON
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleCopyReport}
+                className="h-7 gap-1.5 border-slate-300 bg-white font-mono text-xs text-slate-700 hover:bg-slate-50 hover:text-slate-900"
+                title="Sao chép báo cáo Markdown"
+              >
+                {copiedType === 'report' ? (
+                  <>
+                    <Check className="h-3.5 w-3.5 text-emerald-600" />
+                    <span className="text-emerald-700 font-semibold">Đã chép!</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="h-3.5 w-3.5 text-slate-500" />
+                    Chép Báo cáo
+                  </>
+                )}
+              </Button>
+              {totalGames > 0 && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={resetStats}
+                  className="h-7 text-xs text-slate-500 hover:text-slate-900 px-2"
+                >
+                  Đặt lại ván
+                </Button>
+              )}
+            </>
+          }
+          telemetry={
+            globalStats && globalStats.totalTrials > 0 ? (
+              <div className="flex items-center gap-2 text-slate-600">
+                <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="font-semibold text-slate-700">Telemetry:</span>
+                <div className="flex items-center gap-1 text-slate-700">
+                  <Database className="h-3.5 w-3.5 text-blue-600" />
+                  <span className="font-bold text-blue-700 tabular-nums">
+                    {globalStats.totalTrials.toLocaleString('vi-VN')}
+                  </span>
+                  <span className="text-slate-400">ván</span>
+                </div>
+                <span className="text-slate-300">•</span>
+                <div className="flex items-center gap-1 text-slate-600">
+                  <Sparkles className="h-3.5 w-3.5 text-amber-500" />
+                  <span className="font-bold text-slate-800 tabular-nums">
+                    {globalStats.totalRuns.toLocaleString('vi-VN')}
+                  </span>
+                  <span className="text-slate-400">lượt</span>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 text-xs text-slate-500">
+                <Activity className="h-3.5 w-3.5 text-blue-600 animate-pulse" />
+                <span>Sẵn sàng thu thập telemetry</span>
+              </div>
+            )
+          }
+        >
+          {/* Hướng dẫn theo từng bước */}
           <div className="rounded-xl bg-slate-100/80 px-4 py-3.5 border-l-4 border-blue-600 flex items-center justify-between">
             <div className="text-sm font-medium">
               {step === 'pick' && (
                 <span className="text-slate-800 flex items-center gap-2.5">
                   <span className="flex h-2.5 w-2.5 rounded-full bg-blue-600 animate-pulse" />
                   <strong className="text-blue-700">Bước 1:</strong> Nhấp vào bất kỳ cánh cửa nào
-                  bên dưới để đưa ra lựa chọn đầu tiên của bạn.
+                  bên dưới để đưa ra lựa chọn đầu tiên.
                 </span>
               )}
               {step === 'revealed' && (
@@ -304,8 +494,7 @@ export function MontyHallSimulation() {
                     <span className="text-slate-700 flex items-center gap-2">
                       <XCircle className="h-5 w-5 text-red-500" />
                       Rất tiếc! Đằng sau là chú Dê cỏ (
-                      {didSwitch ? 'Chiến lược ĐỔI' : 'Chiến lược GIỮ'}
-                      ). Thử thêm các lượt khác nhé!
+                      {didSwitch ? 'Chiến lược ĐỔI' : 'Chiến lược GIỮ'}).
                     </span>
                   )}
                 </span>
@@ -316,14 +505,14 @@ export function MontyHallSimulation() {
               <Button
                 size="sm"
                 onClick={startNewRound}
-                className="text-xs font-bold shrink-0 ml-4 shadow-sm"
+                className="text-xs font-bold shrink-0 ml-4 shadow-xs"
               >
                 Chơi ván mới
               </Button>
             )}
           </div>
 
-          {/* 3 Physical Vault Doors */}
+          {/* 3 Cánh cửa Vault */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
             {[0, 1, 2].map(doorIndex => {
               const isSelected = selectedDoor === doorIndex;
@@ -368,7 +557,6 @@ export function MontyHallSimulation() {
                       : ''
                   }`}
                 >
-                  {/* Door Header Tag */}
                   <div className="w-full flex items-center justify-between">
                     <span className="font-mono text-xs font-bold px-2.5 py-0.5 rounded-md bg-slate-200/70 text-slate-700">
                       CỬA #{doorIndex + 1}
@@ -393,7 +581,6 @@ export function MontyHallSimulation() {
                     )}
                   </div>
 
-                  {/* Vault Door Art / Content - Direct rendering without redundant inner nested box */}
                   <div className="my-6 flex flex-col items-center text-center">
                     {step === 'result' ? (
                       hasCar ? (
@@ -433,7 +620,6 @@ export function MontyHallSimulation() {
                     )}
                   </div>
 
-                  {/* In-door Action Button */}
                   {step === 'revealed' && !isRevealedGoat && (
                     <div className="w-full mt-2">
                       {isSelected ? (
@@ -473,7 +659,7 @@ export function MontyHallSimulation() {
             })}
           </div>
 
-          {/* Dedicated Decision Bar when revealed - Clean borderless callout with left accent */}
+          {/* Banner ra quyết định */}
           {step === 'revealed' && remainingSwitchDoor !== null && selectedDoor !== null && (
             <div className="rounded-xl bg-blue-50/80 border-l-4 border-blue-600 px-4 py-3.5 flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="space-y-0.5">
@@ -499,7 +685,7 @@ export function MontyHallSimulation() {
                 <Button
                   size="sm"
                   onClick={() => handleFinalDecision(true)}
-                  className="flex-1 sm:flex-initial text-xs font-bold shadow-sm"
+                  className="flex-1 sm:flex-initial text-xs font-bold shadow-xs"
                 >
                   <ArrowRightLeft className="h-3.5 w-3.5 mr-1" />
                   Đổi Cửa #{Number(remainingSwitchDoor ?? 0) + 1}{' '}
@@ -509,9 +695,8 @@ export function MontyHallSimulation() {
             </div>
           )}
 
-          {/* Live Empirical Statistics Dashboard - Direct 2-column cards without redundant outer box */}
+          {/* 2 Card thống kê tiến trình thực nghiệm Đổi vs Giữ */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Switch strategy card */}
             <div className="space-y-3 p-4 rounded-xl border border-blue-200 border-t-4 border-t-blue-600 bg-blue-50/20 shadow-2xs">
               <div className="flex items-center justify-between text-xs font-semibold">
                 <span className="text-blue-700 uppercase tracking-wide flex items-center gap-1.5 font-bold">
@@ -558,7 +743,6 @@ export function MontyHallSimulation() {
               </div>
             </div>
 
-            {/* Stay strategy card */}
             <div className="space-y-3 p-4 rounded-xl border border-violet-200 border-t-4 border-t-violet-600 bg-violet-50/20 shadow-2xs">
               <div className="flex items-center justify-between text-xs font-semibold">
                 <span className="text-violet-700 uppercase tracking-wide flex items-center gap-1.5 font-bold">
@@ -605,99 +789,116 @@ export function MontyHallSimulation() {
               </div>
             </div>
           </div>
+        </SimulationWorkbenchCard>
+      </SimulationSection>
 
-          {/* Footer controls & mathematical explanation */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-2">
-            <div className="flex items-center gap-2 text-xs text-slate-500 font-sans">
-              <Info className="h-4 w-4 text-blue-600 shrink-0" />
-              <span>
-                Mỗi lượt mô phỏng được tính toán trực tiếp trong trình duyệt qua thuật toán Monte
-                Carlo ngẫu nhiên.
-              </span>
+      {/* 3. TITLE NHẬT KÝ & NHẬT KÝ THỰC NGHIỆM */}
+      <SimulationSection
+        dotColor="emerald"
+        title="Nhật Ký Thực Nghiệm"
+        subtitle="Bảng lưu trữ chi tiết các lượt chơi và kết quả thực nghiệm trong phiên nghiên cứu"
+      >
+        <SimulationHistoryTable runs={history} />
+      </SimulationSection>
+
+      {/* 4. TITLE GIẢI THÍCH & GIẢI THÍCH KHOA HỌC */}
+      <SimulationSection
+        dotColor="blue"
+        title="Giải Thích Khoa Học & Bản Chất Toán Học"
+        subtitle="Bóc tách nghịch lý xác suất điều kiện và hiệu ứng dồn xác suất về cánh cửa còn lại"
+      >
+        <SimulationExplainerCard>
+          <div className="space-y-6">
+            <div className="space-y-1 border-b border-slate-200/80 pb-4">
+              <h3 className="font-heading text-base font-bold text-slate-900">
+                Tại sao trực giác thường ngộ nhận cơ hội là 50/50?
+              </h3>
+              <p className="text-xs text-slate-600 font-sans leading-relaxed">
+                Khi chỉ còn lại 2 cánh cửa đóng kín, não bộ tự động giả định tính đối xứng ngẫu
+                nhiên giữa 2 lựa chọn. Tuy nhiên, thông tin mở cửa của người dẫn chương trình hoàn
+                toàn không mang tính ngẫu nhiên.
+              </p>
             </div>
 
-            {(stats.switchPlays > 0 || stats.stayPlays > 0) && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={resetStats}
-                className="text-xs text-slate-500 hover:text-slate-900 h-7 px-2"
-              >
-                Đặt lại bảng thống kê
-              </Button>
-            )}
+            <div className="grid gap-6 md:grid-cols-2">
+              {/* Cột 1: Trực giác ngộ nhận */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="font-mono text-xs font-bold text-slate-700 uppercase tracking-wide">
+                    Trực giác Tự nhiên (Ngộ nhận)
+                  </span>
+                  <span className="rounded bg-slate-100 px-2 py-0.5 font-mono text-xs text-slate-600 font-semibold">
+                    Giả định 2 cửa
+                  </span>
+                </div>
+
+                <p className="text-xs leading-relaxed text-slate-700">
+                  Sau khi 1 cửa có dê bị loại bỏ, trực giác cho rằng cánh cửa bạn đang giữ và cánh
+                  cửa còn lại có vai trò ngang nhau, dẫn tới xác suất giả định mỗi bên là 50%.
+                </p>
+
+                <SimulationFormulaBox title="Ngộ nhận trực giác thông thường:">
+                  <div className="flex items-center flex-wrap gap-2 text-sm text-slate-900">
+                    <span className="font-bold">P(Đổi)</span>
+                    <span>=</span>
+                    <span className="font-bold">P(Giữ)</span>
+                    <span>=</span>
+                    <span>1/2 = 50.0%</span>
+                  </div>
+                </SimulationFormulaBox>
+
+                <p className="text-xs text-slate-500 italic">
+                  Sai lầm ở chỗ: Bạn đã chọn cửa từ lúc có 3 cánh cửa (1/3), chứ không phải lúc chỉ
+                  còn 2 cánh cửa.
+                </p>
+              </div>
+
+              {/* Cột 2: Bản chất toán học khách quan */}
+              <div className="space-y-3 md:border-l md:border-slate-200/90 md:pl-6">
+                <div className="flex items-center justify-between">
+                  <span className="font-mono text-xs font-bold text-blue-900 uppercase tracking-wide">
+                    Bản chất Toán học Khách quan
+                  </span>
+                  <span className="rounded bg-blue-100/70 px-2 py-0.5 font-mono text-xs font-bold text-blue-800">
+                    Định lý Bayes (2/3)
+                  </span>
+                </div>
+
+                <p className="text-xs leading-relaxed text-slate-700">
+                  Tại thời điểm chọn đầu tiên, xác suất chọn trúng ô tô là{' '}
+                  <span className="font-mono font-bold text-blue-900">1/3</span>, nghĩa là{' '}
+                  <span className="font-mono font-bold text-blue-900">2/3</span> xe nằm ở 2 cánh cửa
+                  còn lại. Vì MC luôn luôn mở cửa có Dê, toàn bộ 2/3 xác suất dồn vào cánh cửa còn
+                  lại chưa mở.
+                </p>
+
+                <SimulationFormulaBox title="Xác suất điều kiện & Chiến lược tối ưu:">
+                  <div className="space-y-1.5 text-xs text-slate-900">
+                    <div className="flex items-center flex-wrap gap-2">
+                      <span className="font-bold text-blue-900">P(Thắng | Đổi)</span>
+                      <span>=</span>
+                      <span>P(Chọn ban đầu là Dê)</span>
+                      <span>=</span>
+                      <span className="font-bold text-blue-700 text-sm">2/3 ≈ 66.7%</span>
+                    </div>
+                    <div className="flex items-center flex-wrap gap-2 text-slate-600">
+                      <span>P(Thắng | Giữ)</span>
+                      <span>=</span>
+                      <span>P(Chọn ban đầu là Xe)</span>
+                      <span>=</span>
+                      <span className="font-bold">1/3 ≈ 33.3%</span>
+                    </div>
+                  </div>
+                </SimulationFormulaBox>
+
+                <p className="text-xs text-slate-600">
+                  Do đó, đổi cửa nhân đôi cơ hội chiến thắng của bạn từ 33.3% lên 66.7%!
+                </p>
+              </div>
+            </div>
           </div>
-
-          {/* Mathematical Insight Deep Dive - Left Accent Panel, zero 4-sided nested box */}
-          {isChallengeResolved ? (
-            <div className="rounded-xl bg-blue-50/50 border-l-4 border-blue-600 p-4 text-xs leading-relaxed text-slate-700 space-y-2.5">
-              <div className="font-heading font-bold text-sm text-slate-900 flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-blue-600" />
-                Bản chất toán học của Nghịch lý Monty Hall:
-              </div>
-              <p className="font-sans">
-                Tại thời điểm chọn đầu tiên, xác suất bạn chọn đúng ô tô là{' '}
-                <strong className="text-blue-700 font-mono">1/3</strong> và xác suất ô tô nằm ở một
-                trong hai cánh cửa còn lại là{' '}
-                <strong className="text-violet-700 font-mono">2/3</strong>. Vì MC luôn bắt buộc phải
-                mở một cánh cửa có dê, toàn bộ xác suất 2/3 này dồn về cánh cửa còn lại chưa mở.
-              </p>
-              <div className="font-mono text-xs text-blue-950 bg-white p-3 rounded-lg shadow-2xs">
-                P(Thắng | Đổi) = P(Chọn ban đầu là Dê) = 2/3 ≈ 66.67%
-                <br />
-                P(Thắng | Giữ) = P(Chọn ban đầu là Xe) = 1/3 ≈ 33.33%
-              </div>
-            </div>
-          ) : (
-            <div className="rounded-xl bg-amber-50/50 border-l-4 border-amber-500 p-4 text-xs leading-relaxed text-amber-900 space-y-1.5">
-              <div className="font-heading font-bold text-sm text-amber-950 flex items-center gap-2">
-                <Lock className="h-4 w-4 text-amber-600" />
-                Giải thích toán học đang tạm khóa
-              </div>
-              <p className="font-sans text-amber-800">
-                Hãy đưa ra dự đoán trực giác ở phần thử thách phía trên (hoặc bấm bỏ qua) để mở khóa
-                lời giải toán học và công thức xác suất chính xác.
-              </p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Bộ công cụ xuất dữ liệu & Chia sẻ cấu hình */}
-      <ExportSuitePanel
-        simulationTitle="Nghịch lý Monty Hall (Monty Hall Paradox)"
-        simulationSlug="monty-hall"
-        parameters={{ doorsCount: 3, strategy: 'monte-carlo-mix' }}
-        results={{
-          switchPlays: stats.switchPlays,
-          switchWins: stats.switchWins,
-          switchRate: switchRate !== null ? `${switchRate}%` : 'N/A',
-          stayPlays: stats.stayPlays,
-          stayWins: stats.stayWins,
-          stayRate: stayRate !== null ? `${stayRate}%` : 'N/A',
-        }}
-        csvHeaders={[
-          'Timestamp',
-          'Doors_Count',
-          'Trials_Count',
-          'Empirical_Switch_Rate',
-          'Theoretical_P',
-        ]}
-        historyRows={history.map(r => [
-          r.createdAt,
-          String((r.parameters as Record<string, unknown>)?.doorsCount ?? 3),
-          r.trialsCount,
-          typeof (r.results as Record<string, unknown>)?.empiricalProbability === 'number'
-            ? (
-                ((r.results as Record<string, unknown>).empiricalProbability as number) * 100
-              ).toFixed(2) + '%'
-            : 'N/A',
-          '66.67%',
-        ])}
-      />
-
-      {/* Lịch sử lượt chạy thực nghiệm của phiên */}
-      <SimulationHistoryTable runs={history} />
+        </SimulationExplainerCard>
+      </SimulationSection>
     </div>
   );
 }

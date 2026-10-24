@@ -2,10 +2,11 @@
 
 import * as React from 'react';
 import { BookOpen, Heart, Shield, RotateCcw, Lightbulb, Award } from 'lucide-react';
+import { SimulationFormulaBox } from '@/features/simulations/components';
 
 export function StrategyExplainer() {
   return (
-    <div className="rounded-2xl border border-slate-300/85 bg-white p-6 shadow-xs space-y-6">
+    <div className="space-y-6">
       <div className="flex items-center gap-2.5 border-b border-slate-200/80 pb-4">
         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-600 text-white shadow-xs">
           <BookOpen className="h-4 w-4" />
@@ -14,7 +15,7 @@ export function StrategyExplainer() {
           <h3 className="font-heading text-base font-bold text-slate-900">
             Bí quyết Tiến hóa: 4 Phẩm chất Khiến Lòng Vị tha Thống trị
           </h3>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-slate-500 font-sans">
             Khám phá công trình đoạt giải của Robert Axelrod về nguồn gốc sự hợp tác trong tự nhiên
             và xã hội
           </p>
@@ -32,7 +33,7 @@ export function StrategyExplainer() {
           </div>
           <p className="text-xs text-slate-700 leading-relaxed font-sans">
             Không bao giờ là người chủ động phản bội trước. Khởi đầu bằng thiện chí hợp tác giúp mở
-            ra cơ hội đôi bên cùng nhận phần thưởng lớn nhất ($R = 3$).
+            ra cơ hội đôi bên cùng nhận phần thưởng lớn nhất (R = 3).
           </p>
         </div>
 
@@ -60,7 +61,7 @@ export function StrategyExplainer() {
           </div>
           <p className="text-xs text-slate-700 leading-relaxed font-sans">
             Không thù dai như <em>Grudger</em>. Khi đối phương dừng phản bội và quay lại hợp tác,
-            bạn lập tức tha thứ và hợp tác lại để tránh rơi vào vòng xoáy hủy diệt lẫn nhau.
+            bạn lập tức tha thứ và hợp tác lại để tránh vòng xoáy hủy diệt lẫn nhau.
           </p>
         </div>
 
@@ -73,10 +74,36 @@ export function StrategyExplainer() {
             </h4>
           </div>
           <p className="text-xs text-slate-700 leading-relaxed font-sans">
-            Không chơi bài mập mờ, không đố kỵ. Hành vi đơn giản giúp đối thủ nhanh chóng nhận ra
-            quy tắc và nhận thức rằng: <em>hợp tác là con đường duy nhất để cả hai cùng thắng</em>.
+            Không chơi bài mập mờ, không đố kỵ. Hành vi đơn giản giúp đối thủ nhận ra quy tắc:{' '}
+            <em>hợp tác là con đường duy nhất để cả hai cùng thắng</em>.
           </p>
         </div>
+      </div>
+
+      {/* 2 Khối công thức Lý thuyết trò chơi */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <SimulationFormulaBox title="Điều kiện định nghĩa Thế lưỡng nan (Payoff Ranking):">
+          <div className="flex items-center flex-wrap gap-2 text-sm text-slate-900">
+            <span className="font-bold">T (5) &gt; R (3) &gt; P (1) &gt; S (0)</span>
+            <span className="text-slate-400">và</span>
+            <span className="font-bold">2R &gt; T + S (6 &gt; 5)</span>
+          </div>
+          <p className="text-xs text-slate-500 font-sans">
+            Temptation (5), Reward (3), Punishment (1), Sucker (0). Cân bằng Nash đơn lẻ là (P, P),
+            nhưng Pareto tối ưu xã hội là (R, R).
+          </p>
+        </SimulationFormulaBox>
+
+        <SimulationFormulaBox title="Bóng tối của tương lai (Shadow of the Future):">
+          <div className="flex items-center flex-wrap gap-2 text-sm text-slate-900">
+            <span className="font-bold">w &ge; (T &minus; R) / (T &minus; P) = 2/4 = 0.5</span>
+          </div>
+          <p className="text-xs text-slate-500 font-sans">
+            Với w là xác suất trận đấu còn tiếp tục ở hiệp kế tiếp. Khi bóng tương lai đủ dài (w
+            &ge; 0.5), chiến thuật Ăn miếng trả miếng (Tit for Tat) là một trạng thái ổn định tiến
+            hóa (ESS).
+          </p>
+        </SimulationFormulaBox>
       </div>
 
       {/* Quote Banner */}

@@ -9,6 +9,7 @@ import { PrisonersDilemmaSimulation } from '@/features/prisoners-dilemma/prisone
 import { ZenoSimulation } from '@/features/zeno-paradox/zeno-simulation';
 import { CommentSection } from '@/features/simulations/components/comment-section';
 import { SimulationMathCard } from '@/features/simulations/components/simulation-math-card';
+import { SimulationSection } from '@/features/simulations/components/simulation-section';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Clock, FlaskConical, Sparkles } from 'lucide-react';
@@ -141,22 +142,13 @@ export default async function SimulationPage({ params }: SimulationPageProps) {
       <hr className="border-slate-200/80 my-2" />
 
       {/* Title Bình Luận & Thảo Luận - Không số đầu, không khung, nổi bật */}
-      <div className="space-y-4">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2.5">
-            <span className="h-2.5 w-2.5 rounded-full bg-indigo-600 shadow-xs shadow-indigo-500/40" />
-            <h2 className="font-heading text-[18px] font-bold tracking-tight text-slate-900">
-              Góc Thảo Luận & Bình Luận Khoa Học
-            </h2>
-          </div>
-          <p className="text-xs sm:text-sm text-slate-500 font-sans">
-            Không gian trao đổi đa chiều, chia sẻ trực giác và phản biện cùng cộng đồng nghiên cứu
-          </p>
-        </div>
-
-        {/* Khối thảo luận 2 cấp */}
+      <SimulationSection
+        dotColor="indigo"
+        title="Góc Thảo Luận & Bình Luận Khoa Học"
+        subtitle="Không gian trao đổi đa chiều, chia sẻ trực giác và phản biện cùng cộng đồng nghiên cứu"
+      >
         <CommentSection simulationSlug={sim.slug} />
-      </div>
+      </SimulationSection>
     </div>
   );
 }

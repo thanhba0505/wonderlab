@@ -31,8 +31,12 @@ import {
   Radar,
 } from 'lucide-react';
 import { useSimulationTelemetry } from '@/lib/hooks/use-simulation-telemetry';
-import { SimulationHistoryTable } from '@/features/simulations/components/simulation-history-table';
-import { IntuitionChallengeCard } from '@/features/simulations/components/intuition-challenge-card';
+import {
+  SimulationSection,
+  SimulationExplainerCard,
+  SimulationHistoryTable,
+  IntuitionChallengeCard,
+} from '@/features/simulations/components';
 import { getSimulationBySlug } from '@/features/simulations/registry';
 import { HypothesisOption } from '@/features/simulations/types';
 import { exportToCsv, exportToJson, copyToClipboard } from '../simulations/utils/export-data';
@@ -272,22 +276,11 @@ export const BirthdaySimulation: React.FC = () => {
       <hr className="border-slate-200/80 -mt-2" />
 
       {/* 2. TITLE CÂU HỎI & CÂU HỎI TRỰC GIÁC */}
-      <div className="space-y-4">
-        {/* Title không number đầu, không khung, nổi bật */}
-        <div className="space-y-1">
-          <div className="flex items-center gap-2.5">
-            <span className="h-2.5 w-2.5 rounded-full bg-amber-500 shadow-xs shadow-amber-500/40" />
-            <h2 className="font-heading text-[18px] font-bold tracking-tight text-slate-900">
-              Khảo Sát Trực Giác Trước Thực Nghiệm
-            </h2>
-          </div>
-          <p className="text-xs sm:text-sm text-slate-500 font-sans">
-            Đưa ra dự đoán cá nhân để đo lường khoảng cách giữa trực giác thông thường và toán học
-            xác suất
-          </p>
-        </div>
-
-        {/* Khối Thử thách Dự đoán */}
+      <SimulationSection
+        dotColor="amber"
+        title="Khảo Sát Trực Giác Trước Thực Nghiệm"
+        subtitle="Đưa ra dự đoán cá nhân để đo lường khoảng cách giữa trực giác thông thường và toán học xác suất"
+      >
         {meta?.hypothesis && (
           <IntuitionChallengeCard
             challenge={meta.hypothesis}
@@ -296,23 +289,14 @@ export const BirthdaySimulation: React.FC = () => {
             onStatusChange={resolved => setIsChallengeResolved(resolved)}
           />
         )}
-      </div>
+      </SimulationSection>
 
       {/* 3. TITLE CHỖ THÍ NGHIỆM & BLOCK THÍ NGHIỆM HỢP NHẤT */}
-      <div className="space-y-4">
-        {/* Title không number đầu, không khung, nổi bật */}
-        <div className="space-y-1">
-          <div className="flex items-center gap-2.5">
-            <span className="h-2.5 w-2.5 rounded-full bg-blue-600 shadow-xs shadow-blue-500/40" />
-            <h2 className="font-heading text-[18px] font-bold tracking-tight text-slate-900">
-              Buồng Thí Nghiệm & Mô Phỏng Trực Quan
-            </h2>
-          </div>
-          <p className="text-xs sm:text-sm text-slate-500 font-sans">
-            Không gian thao tác tham số trực tiếp, radar va chạm không gian và mô phỏng Monte Carlo
-          </p>
-        </div>
-
+      <SimulationSection
+        dotColor="blue"
+        title="Buồng Thí Nghiệm & Mô Phỏng Trực Quan"
+        subtitle="Không gian thao tác tham số trực tiếp, radar va chạm không gian và mô phỏng Monte Carlo"
+      >
         {/* 🧪 BLOCK THÍ NGHIỆM HỢP NHẤT (Single Unified Lab Workbench - Không lồng khung) */}
         <div className="rounded-2xl border border-slate-300/85 bg-white shadow-xs p-5 sm:p-6 space-y-6">
           {/* [A] Thanh trạng thái đo lường nhỏ gọn (Không viền hộp lồng nhau) */}
@@ -560,24 +544,14 @@ export const BirthdaySimulation: React.FC = () => {
             </div>
           </div>
         </div>
-      </div>
+      </SimulationSection>
 
       {/* 4. TITLE NHẬT KÝ & NHẬT KÝ THỰC NGHIỆM */}
-      <div className="space-y-4">
-        {/* Title không number đầu, không khung, nổi bật */}
-        <div className="space-y-1">
-          <div className="flex items-center gap-2.5">
-            <span className="h-2.5 w-2.5 rounded-full bg-emerald-600 shadow-xs shadow-emerald-500/40" />
-            <h2 className="font-heading text-[18px] font-bold tracking-tight text-slate-900">
-              Nhật Ký Thực Nghiệm
-            </h2>
-          </div>
-          <p className="text-xs sm:text-sm text-slate-500 font-sans">
-            Bảng lưu trữ chi tiết các lượt chạy và kết quả thực nghiệm trong phiên nghiên cứu
-          </p>
-        </div>
-
-        {/* Bảng lịch sử */}
+      <SimulationSection
+        dotColor="emerald"
+        title="Nhật Ký Thực Nghiệm"
+        subtitle="Bảng lưu trữ chi tiết các lượt chạy và kết quả thực nghiệm trong phiên nghiên cứu"
+      >
         <SimulationHistoryTable
           runs={history}
           onReloadParams={params => {
@@ -587,28 +561,18 @@ export const BirthdaySimulation: React.FC = () => {
             }
           }}
         />
-      </div>
+      </SimulationSection>
 
       {/* 5. TITLE GIẢI THÍCH & GIẢI THÍCH KHOA HỌC */}
-      <div className="space-y-4">
-        {/* Title không number đầu, không khung, nổi bật */}
-        <div className="space-y-1">
-          <div className="flex items-center gap-2.5">
-            <span className="h-2.5 w-2.5 rounded-full bg-blue-600 shadow-xs shadow-blue-500/40" />
-            <h2 className="font-heading text-[18px] font-bold tracking-tight text-slate-900">
-              Giải Thích Khoa Học & Bản Chất Toán Học
-            </h2>
-          </div>
-          <p className="text-xs sm:text-sm text-slate-500 font-sans">
-            Bóc tách nguyên nhân nghịch lý và sự bùng nổ tổ hợp của các cặp đối sánh
-          </p>
-        </div>
-
-        {/* Khối giải thích trực giác toán học - Sắc độ blue nhạt thanh thoát tương đương Khảo Sát Trực Giác */}
-        <div className="rounded-2xl border border-blue-300/80 bg-gradient-to-b from-blue-50/50 via-white to-white p-5 sm:p-6 shadow-xs">
+      <SimulationSection
+        dotColor="blue"
+        title="Giải Thích Khoa Học & Bản Chất Toán Học"
+        subtitle="Bóc tách nguyên nhân nghịch lý và sự bùng nổ tổ hợp của các cặp đối sánh"
+      >
+        <SimulationExplainerCard>
           <IntuitionExplainer currentN={n} />
-        </div>
-      </div>
+        </SimulationExplainerCard>
+      </SimulationSection>
     </div>
   );
 };
