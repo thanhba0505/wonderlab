@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import Link from 'next/link';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -138,10 +139,13 @@ export function CategoryGrid() {
             </div>
           </div>
 
-          <div className="flex items-center text-xs font-bold text-blue-600 group-hover:text-blue-700 transition-colors">
+          <Link
+            href="/simulations/double-slit"
+            className="flex items-center text-xs font-bold text-blue-600 group-hover:text-blue-700 transition-colors"
+          >
             <span>Khám phá phòng thí nghiệm quang học</span>
             <ArrowRight className="h-4 w-4 ml-1.5 transition-transform group-hover:translate-x-1" />
-          </div>
+          </Link>
         </CardContent>
       </Card>
 
@@ -213,10 +217,13 @@ export function CategoryGrid() {
         </div>
 
         <div className="p-6 pt-0">
-          <div className="flex items-center text-xs font-bold text-amber-700 group-hover:text-amber-800 transition-colors">
-            <span>Xem các mô phỏng xác suất</span>
+          <Link
+            href="/simulations/birthday-paradox"
+            className="flex items-center text-xs font-bold text-amber-700 group-hover:text-amber-800 transition-colors"
+          >
+            <span>Trải nghiệm Nghịch lý Ngày sinh</span>
             <ArrowRight className="h-4 w-4 ml-1.5 transition-transform group-hover:translate-x-1" />
-          </div>
+          </Link>
         </div>
       </Card>
 
@@ -260,10 +267,13 @@ export function CategoryGrid() {
         </div>
 
         <div className="p-6 pt-0">
-          <div className="flex items-center text-xs font-bold text-violet-700 group-hover:text-violet-800 transition-colors">
+          <Link
+            href="/simulations/zeno-paradox"
+            className="flex items-center text-xs font-bold text-violet-700 group-hover:text-violet-800 transition-colors"
+          >
             <span>Đi sâu vào các nghịch lý</span>
             <ArrowRight className="h-4 w-4 ml-1.5 transition-transform group-hover:translate-x-1" />
-          </div>
+          </Link>
         </div>
       </Card>
 
@@ -371,10 +381,13 @@ export function CategoryGrid() {
             </div>
           </div>
 
-          <div className="flex items-center text-xs font-bold text-emerald-700 group-hover:text-emerald-800 transition-colors">
+          <Link
+            href="/simulations/prisoners-dilemma"
+            className="flex items-center text-xs font-bold text-emerald-700 group-hover:text-emerald-800 transition-colors"
+          >
             <span>Khám phá các thế cờ lý thuyết trò chơi</span>
             <ArrowRight className="h-4 w-4 ml-1.5 transition-transform group-hover:translate-x-1" />
-          </div>
+          </Link>
         </CardContent>
       </Card>
 
@@ -416,10 +429,13 @@ export function CategoryGrid() {
         </div>
 
         <div className="p-6 pt-0">
-          <div className="flex items-center text-xs font-bold text-blue-700 group-hover:text-blue-800 transition-colors">
-            <span>Khám phá Logic học</span>
+          <Link
+            href="/simulations"
+            className="flex items-center text-xs font-bold text-blue-700 group-hover:text-blue-800 transition-colors"
+          >
+            <span>Khám phá toàn bộ phòng lab</span>
             <ArrowRight className="h-4 w-4 ml-1.5 transition-transform group-hover:translate-x-1" />
-          </div>
+          </Link>
         </div>
       </Card>
     </div>

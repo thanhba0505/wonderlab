@@ -46,28 +46,28 @@ export function Header() {
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-1 text-sm font-medium text-slate-600">
           <Link
-            href="#featured"
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg transition-colors hover:text-slate-900 hover:bg-slate-100"
+            href="/simulations"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg transition-colors hover:text-slate-900 hover:bg-slate-100 font-semibold text-blue-700"
           >
             <FlaskConical className="h-4 w-4 text-blue-600" />
-            Thí nghiệm
+            Phòng Lab
           </Link>
           <Link
-            href="#explore"
+            href="/#explore"
             className="flex items-center gap-2 px-3 py-1.5 rounded-lg transition-colors hover:text-slate-900 hover:bg-slate-100"
           >
             <Compass className="h-4 w-4 text-violet-600" />
             Khám phá
           </Link>
           <Link
-            href="#curated"
+            href="/#curated"
             className="flex items-center gap-2 px-3 py-1.5 rounded-lg transition-colors hover:text-slate-900 hover:bg-slate-100"
           >
             <Sparkles className="h-4 w-4 text-amber-600" />
             Tuyển chọn
           </Link>
           <Link
-            href="#editorial"
+            href="/#editorial"
             className="flex items-center gap-2 px-3 py-1.5 rounded-lg transition-colors hover:text-slate-900 hover:bg-slate-100"
           >
             <BookOpen className="h-4 w-4 text-emerald-600" />
@@ -139,12 +139,12 @@ export function Header() {
         <div className="border-b border-slate-200 bg-white px-4 py-4 md:hidden animate-in fade-in slide-in-from-top-2 shadow-lg">
           <nav className="flex flex-col gap-2 text-sm font-medium">
             <Link
-              href="#featured"
+              href="/simulations"
               onClick={() => setIsMobileMenuOpen(false)}
-              className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-slate-700 hover:bg-slate-100"
+              className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-blue-700 font-semibold hover:bg-blue-50"
             >
               <FlaskConical className="h-4 w-4 text-blue-600" />
-              Thí nghiệm Monty Hall
+              Phòng Thí nghiệm
             </Link>
             <Link
               href="#explore"

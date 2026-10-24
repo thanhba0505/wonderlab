@@ -1,0 +1,137 @@
+import { notFound } from 'next/navigation';
+import Link from 'next/link';
+import type { Metadata } from 'next';
+import { getAllSimulations, getSimulationBySlug } from '@/features/simulations/registry';
+import { BirthdaySimulation } from '@/features/birthday-paradox/birthday-simulation';
+import { MontyHallSimulation } from '@/features/monty-hall/monty-hall-simulation';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft, Clock, FlaskConical, Sparkles } from 'lucide-react';
+
+interface SimulationPageProps {
+  params: Promise<{
+    slug: string;
+  }>;
+}
+
+export async function generateStaticParams() {
+  const simulations = getAllSimulations();
+  return simulations.map(sim => ({
+    slug: sim.slug,
+  }));
+}
+
+export async function generateMetadata({ params }: SimulationPageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const sim = getSimulationBySlug(slug);
+
+  if (!sim) {
+    return {
+      title: 'Không tìm thấy mô phỏng — Wonderlab',
+    };
+  }
+
+  return {
+    title: `${sim.title} — Wonderlab`,
+    description: sim.summary,
+  };
+}
+
+export default async function SimulationPage({ params }: SimulationPageProps) {
+  const { slug } = await params;
+  const sim = getSimulationBySlug(slug);
+
+  if (!sim) {
+    notFound();
+  }
+
+  return (
+    <div className="flex flex-col gap-6">
+      {/* Breadcrumb và Header điều hướng */}
+      <div className="flex flex-col gap-3 border-b border-slate-200 pb-5">
+        <div className="flex items-center gap-2 text-xs font-mono text-slate-500">
+          <Link href="/" className="flex items-center gap-1 hover:text-slate-800">
+            <ArrowLeft className="h-3.5 w-3.5" />
+            Trang chủ
+          </Link>
+          <span>/</span>
+          <Link href="/simulations" className="hover:text-slate-800">
+            Phòng Thí nghiệm
+          </Link>
+          <span>/</span>
+          <span className="font-semibold text-slate-800 truncate">{sim.title}</span>
+        </div>
+
+        <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+          <div>
+            <div className="flex flex-wrap items-center gap-2">
+              <h1 className="font-heading text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+                {sim.title}
+              </h1>
+              {sim.status === 'active' ? (
+                <Badge className="bg-emerald-100 text-emerald-800 border-emerald-300">
+                  <Sparkles className="mr-1 h-3 w-3" />
+                  Sẵn sàng tương tác
+                </Badge>
+              ) : (
+                <Badge variant="outline" className="text-slate-500 border-slate-300">
+                  Đang phát triển
+                </Badge>
+              )}
+            </div>
+            <p className="mt-1 text-sm text-slate-600">{sim.subtitle}</p>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3 font-mono text-xs text-slate-500">
+            <span className="flex items-center gap-1 bg-slate-100 px-2 py-1 rounded">
+              <Clock className="h-3.5 w-3.5" />~{sim.estimatedMinutes} phút
+            </span>
+            <span className="bg-slate-100 px-2 py-1 rounded capitalize">
+              Độ khó: {sim.difficulty}
+            </span>
+          </div>
+        </div>
+
+        {/* Tóm tắt & Công thức toán học */}
+        <div className="mt-2 flex flex-col gap-2 rounded-lg bg-white p-3.5 border border-slate-200">
+          <p className="text-xs text-slate-700 leading-relaxed">{sim.summary}</p>
+          <div className="flex items-center gap-2 font-mono text-xs text-blue-700 bg-blue-50/60 px-2.5 py-1.5 rounded border border-blue-200/80">
+            <span className="font-bold text-blue-900">Mô hình toán:</span>
+            <code className="text-[11px]">{sim.formula}</code>
+          </div>
+        </div>
+      </div>
+
+      {/* Vùng hiển thị tương tác */}
+      {sim.slug === 'birthday-paradox' && <BirthdaySimulation />}
+      {sim.slug === 'monty-hall' && <MontyHallSimulation />}
+
+      {/* Hiển thị cho các mô phỏng đang phát triển */}
+      {sim.status === 'in-development' && (
+        <div className="lab-card rounded-xl border-slate-300 p-8 text-center">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-slate-100 text-slate-500 mb-4 border border-slate-200">
+            <FlaskConical className="h-7 w-7 text-blue-600" />
+          </div>
+          <h3 className="font-heading text-lg font-bold text-slate-900">
+            Phòng Thí nghiệm Đang Được Thiết lập
+          </h3>
+          <p className="mx-auto mt-2 max-w-lg text-sm text-slate-600 leading-relaxed">
+            {sim.description}
+          </p>
+          <div className="mt-6 flex justify-center gap-3">
+            <Link href="/simulations/birthday-paradox">
+              <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+                Trải nghiệm Nghịch lý Ngày sinh
+              </Button>
+            </Link>
+            <Link href="/simulations/monty-hall">
+              <Button variant="outline" className="border-slate-300">
+                Thử nghiệm Monty Hall
+              </Button>
+            </Link>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
