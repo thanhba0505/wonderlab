@@ -2,10 +2,10 @@
 
 ## 1. Overview & Current Scope
 
-In this foundation phase:
-
-- **Local PostgreSQL 16** is provisioned and verified via Docker Compose (`docker-compose.yml`).
-- **The backend is NOT yet connected to PostgreSQL**. No ORM (Prisma, Drizzle, TypeORM), migration scripts, or entity tables are bundled. This prevents premature schema locking before business requirements are solidified.
+- **PostgreSQL 16**: Containerized locally via Docker Compose (`docker-compose.yml`) on loopback port `5434`.
+- **ORM & Migrations**: Managed via **Prisma ORM (v6.x)** in `server/prisma/`.
+- **Active Schemas**: `users` table with `Role` enum (`ADMIN`) for administrative authentication.
+- **Seeding**: Bootstrapped via `server/prisma/seed.ts` creating a default administrative account with Argon2id password hashing.
 
 ---
 
