@@ -12,13 +12,32 @@ enum Role {
 }
 
 model User {
-  id           String   @id @default(uuid())
-  username     String   @unique
-  email        String?  @unique
-  passwordHash String   @map("password_hash")
-  role         Role     @default(ADMIN)
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
+  id             String          @id @default(uuid())
+  username       String          @unique
+  email          String?         @unique
+  passwordHash   String          @map("password_hash")
+  role           Role            @default(ADMIN)
+  createdAt      DateTime        @default(now()) @map("created_at")
+  updatedAt      DateTime        @updatedAt @map("updated_at")
+  simulationRuns SimulationRun[]
 
   @@map("users")
+}
+
+model SimulationRun {
+  id             String   @id @default(uuid())
+  simulationSlug String   @map("simulation_slug") @db.VarChar(64)
+  parameters     Json
+  results        Json
+  trialsCount    Int      @default(1) @map("trials_count")
+  durationMs     Int?     @map("duration_ms")
+  clientSession  String?  @map("client_session") @db.VarChar(64)
+  userId         String?  @map("user_id")
+  user           User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  @@index([simulationSlug])
+  @@index([clientSession])
+  @@index([createdAt(sort: Desc)])
+  @@map("simulation_runs")
 }

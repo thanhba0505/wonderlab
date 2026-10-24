@@ -6,6 +6,7 @@ import { useAuth } from '@/lib/auth-context';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { fetchSimulationStats, SimulationGlobalStats } from '@/lib/telemetry';
 import {
   ArrowLeft,
   ShieldCheck,
@@ -38,6 +39,7 @@ function AdminDashboard() {
 
   // Live health telemetry from backend
   const [healthData, setHealthData] = React.useState<HealthData | null>(null);
+  const [simStats, setSimStats] = React.useState<SimulationGlobalStats | null>(null);
   const [isHealthLoading, setIsHealthLoading] = React.useState(false);
   const [activeTab, setActiveTab] = React.useState<'telemetry' | 'simulations' | 'security'>(
     'telemetry',
@@ -47,10 +49,17 @@ function AdminDashboard() {
     setIsHealthLoading(true);
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4101/api/v1';
-      const res = await fetch(`${apiUrl}/health`, { cache: 'no-store' });
-      if (res.ok) {
-        const data = await res.json();
+      const [healthRes, stats] = await Promise.all([
+        fetch(`${apiUrl}/health`, { cache: 'no-store' }),
+        fetchSimulationStats(),
+      ]);
+
+      if (healthRes.ok) {
+        const data = await healthRes.json();
         setHealthData(data);
+      }
+      if (stats) {
+        setSimStats(stats);
       }
     } catch {
       // Ignored
@@ -441,66 +450,131 @@ function AdminDashboard() {
 
       {/* TAB 2: Simulations Management */}
       {activeTab === 'simulations' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card className="border-slate-300/85 bg-white shadow-xs">
-            <CardHeader>
-              <CardTitle className="text-base text-slate-900 flex items-center gap-2">
-                <CheckCircle2 className="h-5 w-5 text-blue-600" />
-                Mô phỏng Monty Hall
-              </CardTitle>
-              <CardDescription className="text-xs text-slate-500 font-sans">
-                Tham số hội tụ theo Định luật số lớn (Monte Carlo)
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3 text-xs font-mono text-slate-700">
-              <div className="flex justify-between py-1.5 border-b border-slate-100">
-                <span>Số lượng cửa:</span>
-                <span className="font-bold text-slate-900">3 Vault Doors</span>
+        <div className="space-y-6">
+          {/* Live Telemetry Summary Banner */}
+          <div className="rounded-xl border border-slate-300/85 bg-white p-4 shadow-xs">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <span className="text-[10px] font-mono uppercase tracking-widest text-slate-500 font-bold">
+                  DATABASE TELEMETRY
+                </span>
+                <h3 className="font-heading text-lg font-bold text-slate-900 mt-0.5">
+                  Dữ liệu Thực nghiệm Tích lũy Toàn Hệ thống
+                </h3>
               </div>
-              <div className="flex justify-between py-1.5 border-b border-slate-100">
-                <span>Tỷ lệ thắng lý thuyết khi Đổi (Switch):</span>
-                <span className="font-bold text-blue-700">66.67% (2/3)</span>
-              </div>
-              <div className="flex justify-between py-1.5 border-b border-slate-100">
-                <span>Tỷ lệ thắng lý thuyết khi Giữ (Stay):</span>
-                <span className="font-bold text-violet-700">33.33% (1/3)</span>
-              </div>
-              <div className="flex justify-between py-1.5">
-                <span>Chế độ mô phỏng hàng loạt:</span>
-                <span className="text-emerald-700 font-bold">+50 / +500 Ván trực tiếp</span>
-              </div>
-            </CardContent>
-          </Card>
 
-          <Card className="border-slate-300/85 bg-white shadow-xs">
-            <CardHeader>
-              <CardTitle className="text-base text-slate-900 flex items-center gap-2">
-                <CheckCircle2 className="h-5 w-5 text-violet-600" />
-                Thí nghiệm Khe Đôi Young (Optics)
-              </CardTitle>
-              <CardDescription className="text-xs text-slate-500 font-sans">
-                Giao thoa sóng và lưỡng tính sóng - hạt
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3 text-xs font-mono text-slate-700">
-              <div className="flex justify-between py-1.5 border-b border-slate-100">
-                <span>Bước sóng Laser:</span>
-                <span className="font-bold text-blue-700">λ = 532 nm (Lục)</span>
+              <div className="flex items-center gap-6 text-xs font-mono">
+                <div>
+                  <span className="text-slate-500 block">Tổng phép thử:</span>
+                  <span className="text-lg font-extrabold text-blue-700 tabular-nums">
+                    {(simStats?.totalTrials ?? 0).toLocaleString('vi-VN')}
+                  </span>
+                </div>
+                <div className="h-8 w-px bg-slate-200" />
+                <div>
+                  <span className="text-slate-500 block">Tổng lượt chạy:</span>
+                  <span className="text-lg font-extrabold text-slate-900 tabular-nums">
+                    {(simStats?.totalRuns ?? 0).toLocaleString('vi-VN')}
+                  </span>
+                </div>
+                <div className="h-8 w-px bg-slate-200" />
+                <div>
+                  <span className="text-slate-500 block">Đồng bộ:</span>
+                  <span className="text-emerald-700 font-bold">PostgreSQL Active</span>
+                </div>
               </div>
-              <div className="flex justify-between py-1.5 border-b border-slate-100">
-                <span>Trạng thái 1 Khe hẹp:</span>
-                <span className="text-slate-800">Cực đại trung tâm duy nhất</span>
-              </div>
-              <div className="flex justify-between py-1.5 border-b border-slate-100">
-                <span>Trạng thái 2 Khe hẹp:</span>
-                <span className="font-bold text-emerald-700">Vân sáng tối giao thoa tuần hoàn</span>
-              </div>
-              <div className="flex justify-between py-1.5">
-                <span>Mô hình toán học:</span>
-                <span className="text-slate-900">d · sin(θ) = m · λ</span>
-              </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Birthday Paradox Card */}
+            <Card className="border-slate-300/85 bg-white shadow-xs">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <Badge variant="cyan" className="text-[10px] font-mono">
+                    PROBABILITY LAB
+                  </Badge>
+                  <span className="text-[11px] font-mono text-slate-500">
+                    {simStats?.bySimulation?.['birthday-paradox']?.runs ?? 0} lượt chạy
+                  </span>
+                </div>
+                <CardTitle className="text-base text-slate-900 flex items-center gap-2 mt-1">
+                  <CheckCircle2 className="h-5 w-5 text-blue-600" />
+                  Nghịch lý Ngày sinh (Birthday Paradox)
+                </CardTitle>
+                <CardDescription className="text-xs text-slate-500 font-sans">
+                  Va chạm ngày sinh trong buồng thử radar và thuật toán Monte Carlo
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3 text-xs font-mono text-slate-700">
+                <div className="flex justify-between py-1.5 border-b border-slate-100">
+                  <span>Mốc quan trọng:</span>
+                  <span className="font-bold text-slate-900">n = 23 (P ≈ 50.7%)</span>
+                </div>
+                <div className="flex justify-between py-1.5 border-b border-slate-100">
+                  <span>Số phép thử đã tích lũy:</span>
+                  <span className="font-bold text-blue-700 tabular-nums">
+                    {(simStats?.bySimulation?.['birthday-paradox']?.trials ?? 0).toLocaleString(
+                      'vi-VN',
+                    )}{' '}
+                    phòng
+                  </span>
+                </div>
+                <div className="flex justify-between py-1.5 border-b border-slate-100">
+                  <span>Số lượt chạy đã ghi nhận:</span>
+                  <span className="text-slate-900 font-bold tabular-nums">
+                    {simStats?.bySimulation?.['birthday-paradox']?.runs ?? 0} lượt
+                  </span>
+                </div>
+                <div className="flex justify-between py-1.5">
+                  <span>Trạng thái telemetry:</span>
+                  <span className="text-emerald-700 font-bold">Đồng bộ thời gian thực</span>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Monty Hall Card */}
+            <Card className="border-slate-300/85 bg-white shadow-xs">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <Badge variant="outline" className="text-[10px] font-mono">
+                    PARADOX LAB
+                  </Badge>
+                  <span className="text-[11px] font-mono text-slate-500">
+                    {simStats?.bySimulation?.['monty-hall']?.runs ?? 0} lượt chạy
+                  </span>
+                </div>
+                <CardTitle className="text-base text-slate-900 flex items-center gap-2 mt-1">
+                  <CheckCircle2 className="h-5 w-5 text-violet-600" />
+                  Mô phỏng Monty Hall
+                </CardTitle>
+                <CardDescription className="text-xs text-slate-500 font-sans">
+                  Tham số hội tụ theo Định luật số lớn (Monte Carlo)
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3 text-xs font-mono text-slate-700">
+                <div className="flex justify-between py-1.5 border-b border-slate-100">
+                  <span>Số lượng cửa:</span>
+                  <span className="font-bold text-slate-900">3 Vault Doors</span>
+                </div>
+                <div className="flex justify-between py-1.5 border-b border-slate-100">
+                  <span>Số ván đã tích lũy:</span>
+                  <span className="font-bold text-violet-700 tabular-nums">
+                    {(simStats?.bySimulation?.['monty-hall']?.trials ?? 0).toLocaleString('vi-VN')}{' '}
+                    ván
+                  </span>
+                </div>
+                <div className="flex justify-between py-1.5 border-b border-slate-100">
+                  <span>Tỷ lệ thắng lý thuyết (Đổi / Giữ):</span>
+                  <span className="text-slate-900 font-bold">66.67% / 33.33%</span>
+                </div>
+                <div className="flex justify-between py-1.5">
+                  <span>Chế độ mô phỏng hàng loạt:</span>
+                  <span className="text-emerald-700 font-bold">+50 / +500 Ván trực tiếp</span>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       )}
 

@@ -4,7 +4,9 @@
 
 - **PostgreSQL 16**: Containerized locally via Docker Compose (`docker-compose.yml`) on loopback port `5434`.
 - **ORM & Migrations**: Managed via **Prisma ORM (v6.x)** in `server/prisma/`.
-- **Active Schemas**: `users` table with `Role` enum (`ADMIN`) for administrative authentication.
+- **Active Schemas**:
+  - `users`: Administrative user authentication and RBAC.
+  - `simulation_runs`: Stores empirical runs, JSON parameters, results, trials count, execution duration, and anonymous session IDs.
 - **Seeding**: Bootstrapped via `server/prisma/seed.ts` creating a default administrative account with Argon2id password hashing.
 
 ---

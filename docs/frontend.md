@@ -97,3 +97,25 @@ Nhằm loại bỏ thanh cuộn dày 17px thô kệch mặc định của hệ �
   - Không áp dụng animation/transition trên `scrollbar-color` để phòng ngừa lỗi giật nháy trên WebKit/macOS.
 - **Utility Classes**:
   - `.no-scrollbar`: Ẩn hoàn toàn thanh cuộn nhưng vẫn duy trì khả năng trượt nội dung cho các thanh công cụ trượt ngang hoặc danh sách cuộn mượt.
+
+---
+
+## 5. Simulation Telemetry & Scientific Export Suite
+
+Nhằm nâng cao tính khoa học và thực nghiệm có thể tái lặp (reproducibility), giao diện phòng lab được tích hợp bộ công cụ nền tảng:
+
+- **Client Telemetry Pipeline (`useSimulationTelemetry`)**:
+  - Tự động cấp phát và duy trì Session UUID ẩn danh trong `localStorage`.
+  - Non-blocking async dispatch: Mọi lượt chạy Monte Carlo (1.000, 10.000 phòng) được ghi nhận ngầm lên REST API mà không gây nghẽn render (< 16ms frame budget).
+  - Tự động fallback ngoại tuyến khi mất kết nối mạng.
+- **Bảng Nhật ký Thực nghiệm (`SimulationHistoryTable`)**:
+  - Hiển thị danh sách các lần chạy của phiên làm việc hiện tại: thời điểm, tham số $n$, quy mô mẫu, tỉ lệ thực nghiệm, xác suất lý thuyết và sai số $\Delta$.
+  - Cung cấp nút **"Nạp lại"** cho phép người dùng khôi phục ngay trạng thái tham số của một lần thử trong quá khứ.
+- **Bộ Công cụ Xuất Dữ liệu Nghiên cứu (`ExportSuitePanel`)**:
+  - **Xuất CSV**: Tạo file bảng tính chuẩn RFC 4180 phục vụ phân tích dữ liệu chuyên sâu trong Excel, Google Sheets, Python Pandas hoặc R.
+  - **Xuất JSON**: Xuất schema dữ liệu đầy đủ của buồng thử.
+  - **Chép Báo cáo**: Sao chép tóm tắt kết quả định dạng Markdown/LaTeX vào clipboard.
+  - **Chia sẻ URL**: Đồng bộ tham số phòng lab vào URL query parameters (`?n=23`) với tính năng 1-click copy link.
+- **Bộ đếm Telemetry Cộng đồng (`GlobalTelemetryWidget`)**:
+  - Hiển thị số liệu thực tế thời gian thực tích lũy của toàn bộ cộng đồng người dùng Wonderlab.
+  - Tuân thủ nguyên tắc số 5 trong AGENTS.md (_No Faux Data_): 100% số liệu thật từ PostgreSQL.

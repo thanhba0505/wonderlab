@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useTransition } from 'react';
+import React, { useEffect, useState, useTransition } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -17,13 +17,31 @@ import { ProbabilityChart } from './components/probability-chart';
 import { ControlsPanel } from './components/controls-panel';
 import { IntuitionExplainer } from './components/intuition-explainer';
 import { CheckCircle2, Sparkles, XCircle } from 'lucide-react';
+import { useSimulationTelemetry } from '@/lib/hooks/use-simulation-telemetry';
+import { SimulationHistoryTable } from '@/features/simulations/components/simulation-history-table';
+import { ExportSuitePanel } from '@/features/simulations/components/export-suite-panel';
+import { GlobalTelemetryWidget } from '@/features/simulations/components/global-telemetry-widget';
+
+function createDeterministicRng(seed = 2026) {
+  let s = seed % 2147483647;
+  if (s <= 0) s += 2147483646;
+  return () => {
+    s = (s * 16807) % 2147483647;
+    return (s - 1) / 2147483646;
+  };
+}
 
 export const BirthdaySimulation: React.FC = () => {
   const [n, setN] = useState<number>(23);
-  const [room, setRoom] = useState<RoomSimulationResult>(() => simulateRoom(23));
+  const [room, setRoom] = useState<RoomSimulationResult>(() =>
+    simulateRoom(23, 365, createDeterministicRng(2026)),
+  );
   const [selectedPersonId, setSelectedPersonId] = useState<number | null>(null);
   const [monteCarloResult, setMonteCarloResult] = useState<MonteCarloBatchResult | null>(null);
   const [isPending, startTransition] = useTransition();
+
+  // Background Telemetry Hook
+  const { history, globalStats, recordRun } = useSimulationTelemetry('birthday-paradox');
 
   // Thống kê phiên người dùng hiện tại
   const [sessionRoomsCount, setSessionRoomsCount] = useState<number>(1);
@@ -31,9 +49,36 @@ export const BirthdaySimulation: React.FC = () => {
     room.hasCollision ? 1 : 0,
   );
 
+  // Synchronize initial n from URL query params
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const urlParams = new URLSearchParams(window.location.search);
+    const nParam = urlParams.get('n');
+    if (nParam && !isNaN(Number(nParam))) {
+      const parsedN = Math.min(100, Math.max(2, Math.round(Number(nParam))));
+      if (parsedN !== 23) {
+        setN(parsedN);
+        setRoom(simulateRoom(parsedN));
+      }
+    }
+  }, []);
+
+  // Update URL search params when n changes
+  const updateUrlParam = (newN: number) => {
+    if (typeof window === 'undefined') return;
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.set('n', String(newN));
+      window.history.replaceState({}, '', url.toString());
+    } catch {
+      // Ignore URL manipulation failures
+    }
+  };
+
   // Đổi số người trong phòng
   const handleNChange = (newN: number) => {
     setN(newN);
+    updateUrlParam(newN);
     const newRoom = simulateRoom(newN);
     setRoom(newRoom);
     setSelectedPersonId(null);
@@ -57,17 +102,35 @@ export const BirthdaySimulation: React.FC = () => {
     }
   };
 
+  const theoreticalP = calculateTheoreticalProbability(n);
+  const totalPairs = calculateComparisonPairs(n);
+
   // Chạy mô phỏng hàng nghìn phòng (Monte Carlo)
   const handleRunBatch = (trials: number) => {
+    const startTime = performance.now();
     startTransition(() => {
       const result = runMonteCarloBatch(n, trials);
+      const duration = Math.round(performance.now() - startTime);
       setMonteCarloResult(result);
+
+      // Lưu trữ lượt chạy lên telemetry API
+      recordRun(
+        { groupSize: n },
+        {
+          collisions: result.collisions,
+          empiricalProbability: result.empiricalRate,
+          theoreticalProbability: theoreticalP,
+        },
+        trials,
+        duration,
+      );
     });
   };
 
   // Đặt lại về trạng thái mặc định ban đầu
   const handleReset = () => {
     setN(23);
+    updateUrlParam(23);
     const newRoom = simulateRoom(23);
     setRoom(newRoom);
     setSelectedPersonId(null);
@@ -76,11 +139,15 @@ export const BirthdaySimulation: React.FC = () => {
     setSessionCollisionCount(newRoom.hasCollision ? 1 : 0);
   };
 
-  const theoreticalP = calculateTheoreticalProbability(n);
-  const totalPairs = calculateComparisonPairs(n);
+  const currentEmpiricalRate = monteCarloResult
+    ? monteCarloResult.empiricalRate
+    : sessionCollisionCount / sessionRoomsCount;
 
   return (
     <div className="flex flex-col gap-6">
+      {/* Telemetry toàn cầu */}
+      <GlobalTelemetryWidget stats={globalStats} className="w-full justify-between" />
+
       {/* Thanh đo lường Telemetry chính */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <div className="lab-card rounded-lg p-3">
@@ -130,9 +197,7 @@ export const BirthdaySimulation: React.FC = () => {
             Thực nghiệm Monte Carlo
           </div>
           <div className="mt-1 font-mono text-2xl font-bold text-emerald-600 tabular-nums">
-            {monteCarloResult
-              ? `${(monteCarloResult.empiricalRate * 100).toFixed(1)}%`
-              : `${((sessionCollisionCount / sessionRoomsCount) * 100).toFixed(1)}%`}
+            {(currentEmpiricalRate * 100).toFixed(1)}%
           </div>
           <div className="mt-0.5 font-mono text-[11px] text-slate-500 tabular-nums">
             {monteCarloResult
@@ -207,6 +272,50 @@ export const BirthdaySimulation: React.FC = () => {
           </Card>
         </div>
       </div>
+
+      {/* Bộ công cụ xuất dữ liệu & Chia sẻ cấu hình */}
+      <ExportSuitePanel
+        simulationTitle="Nghịch lý Ngày sinh (Birthday Paradox)"
+        simulationSlug="birthday-paradox"
+        parameters={{ groupSize: n, comparisonPairs: totalPairs }}
+        results={{
+          empiricalProbability: currentEmpiricalRate,
+          theoreticalProbability: theoreticalP,
+          hasCollisionCurrentRoom: room.hasCollision,
+          collisionPairsCount: room.collisionPairs.length,
+        }}
+        csvHeaders={['Timestamp', 'Group_Size_N', 'Trials_Count', 'Empirical_P', 'Theoretical_P']}
+        historyRows={history.map(r => [
+          r.createdAt,
+          String(
+            (r.parameters as Record<string, unknown>)?.groupSize ??
+              (r.parameters as Record<string, unknown>)?.n ??
+              n,
+          ),
+          r.trialsCount,
+          typeof (r.results as Record<string, unknown>)?.empiricalProbability === 'number'
+            ? (
+                ((r.results as Record<string, unknown>).empiricalProbability as number) * 100
+              ).toFixed(2) + '%'
+            : 'N/A',
+          typeof (r.results as Record<string, unknown>)?.theoreticalProbability === 'number'
+            ? (
+                ((r.results as Record<string, unknown>).theoreticalProbability as number) * 100
+              ).toFixed(2) + '%'
+            : 'N/A',
+        ])}
+      />
+
+      {/* Lịch sử lượt chạy thực nghiệm của phiên */}
+      <SimulationHistoryTable
+        runs={history}
+        onReloadParams={params => {
+          const reloadedN = params.groupSize ?? params.n;
+          if (typeof reloadedN === 'number') {
+            handleNChange(reloadedN);
+          }
+        }}
+      />
 
       {/* Khối giải thích trực giác toán học */}
       <Card className="lab-card rounded-xl border-slate-300">
