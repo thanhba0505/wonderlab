@@ -58,12 +58,18 @@ wonderlab/
 
 ---
 
-## 5. UI/UX Design Principles for Wonderlab
+## 5. UI/UX Design Principles & Anti-AI Standards for Wonderlab
 
-- **Visual Aesthetic**: "Science Lab meets Editorial Journal" — premium dark interface with charcoal/navy backgrounds (`#0b0f19`, `#030712`), refined borders, and vibrant accents (cyan, violet, amber, emerald).
-- **No Faux Data**: Never display mock user counters, fake review badges, or placeholder vanity statistics. Show honest simulation counters calculated live.
+- **Visual Aesthetic**: "Science Lab meets Editorial Journal" — premium dark interface with charcoal/navy backgrounds (`#080c14`, `#0b0f19`), refined hairline borders (`border-slate-800`), top inner highlights (`shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)]`), and semantic accents (cyan, violet, amber, emerald).
+- **Anti-AI Slop Guardrails**:
+  1. _No unmotivated purple/pink linear gradients_ on buttons or text.
+  2. _No muddy glassmorphism everywhere_ (`backdrop-blur` stacked blindly). Use crisp, opaque surfaces.
+  3. _No cookie-cutter 3-column identical card grids_. Use asymmetric Bento Grids and editorial rhythms.
+  4. _No SaaS buzzword copy_ ("Supercharge your mind", "Revolutionary platform"). Keep copy intellectually curious, authentic, and scientific.
+  5. _No oversized toy-like border radiuses_. Calibrate radii: `rounded-md` (badges/inputs), `rounded-lg` (buttons), `rounded-xl` (cards).
+- **No Faux Data**: Never display mock user counters, fake review badges, or placeholder vanity statistics. Show honest simulation counters calculated live in the browser.
 - **No Lorem Ipsum**: All copy must be meaningful, scientific, engaging, and in Vietnamese or English according to user language settings.
-- **Interactive Authenticity**: Every clickable element (e.g. Monty Hall doors) must function accurately and update mathematical probabilities live.
+- **Interactive Authenticity & Tactile Feel**: Every clickable element (e.g. Monty Hall doors) must function accurately with physical feedback (`active:scale-[0.98]`) and update mathematical probabilities live with `font-mono tabular-nums`.
 - **Accessibility & Motion**: Respect `prefers-reduced-motion`. Provide clear keyboard focus indicators (`focus-visible:ring-2 focus-visible:ring-cyan-400`).
 
 ---

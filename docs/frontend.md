@@ -47,9 +47,15 @@ client/
 
 ---
 
-## 3. Design System & Accessibility Baseline
+## 3. Design System, Human Craft & Anti-AI Guidelines
 
-- **Dark Mode First**: Charcoal/navy background (`#080c14`) with glowing cyan (`#06b6d4`), violet (`#8b5cf6`), amber (`#f59e0b`), and emerald (`#10b981`) accents.
-- **Focus Rings**: Prominent focus outlines (`focus-visible:ring-2 focus-visible:ring-cyan-400`) on all interactive buttons and cards.
-- **No Faux Statistics**: All probability counters are calculated directly in the browser via pure math or client-side Monte Carlo simulations.
+- **Dark Mode First**: Grounded charcoal/navy background (`#080c14`) with solid dark cards (`#0f172a`), hairline borders (`border-slate-800`), and subtle top bevel highlights (`shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)]`).
+- **Anti-AI Slop Guardrails**:
+  - _No arbitrary purple/pink gradients_ on text or buttons; colors must hold semantic scientific meaning (cyan for physics, amber for probability, violet for paradoxes, emerald for logic).
+  - _No muddy glassmorphism_; avoid blurred translucent overlays that impair legibility.
+  - _No generic 3-box grids_; use asymmetric Bento Grids and dynamic proportions.
+  - _No AI fluff copy_; copy is intellectually rigorous, direct, and curiosity-driven.
+- **Tactile Laboratory Feel**: Physical button click states (`active:scale-[0.98]`), calibrated border radii (6px badges, 8px buttons, 12px cards), subtle grid guides, and live status pulses.
+- **Focus Rings & Accessibility**: Prominent focus outlines (`focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950`) on all interactive buttons and cards.
+- **No Faux Statistics**: All probability counters are calculated directly in the browser via pure math or client-side Monte Carlo simulations with `font-mono tabular-nums`.
 - **Zero Broken Links**: Unreleased modules route explicitly to `/admin` (marked with an in-development warning) or smoothly jump to anchor sections.

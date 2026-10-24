@@ -10,13 +10,13 @@ Wonderlab is maintained collaboratively with advanced AI coding assistants. To e
 
 The following skills are located in `.agents/skills/`:
 
-| Skill Name               | Path                                         | Purpose                                 | Key Standards                                                                                                                 |
-| ------------------------ | -------------------------------------------- | --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| **`frontend-design`**    | `.agents/skills/frontend-design/SKILL.md`    | UI/UX design and interaction standards. | Science lab dark interface (`#080c14`), clear typography, accessible contrast, interactive simulations, zero fake statistics. |
-| **`nextjs-development`** | `.agents/skills/nextjs-development/SKILL.md` | Next.js 15 App Router conventions.      | RSC vs Client component boundaries, route grouping `(public)`, metadata handling, strict typing, error boundaries.            |
-| **`nestjs-backend`**     | `.agents/skills/nestjs-backend/SKILL.md`     | NestJS 10 architecture patterns.        | Global prefix `/api/v1`, DTO validation pipes, Swagger documentation, health monitoring, clean modules.                       |
-| **`testing-debugging`**  | `.agents/skills/testing-debugging/SKILL.md`  | Verification and root-cause debugging.  | Vitest and Jest execution, Supertest E2E testing, systematic verification before claiming completion.                         |
-| **`git-workflow`**       | `.agents/skills/git-workflow/SKILL.md`       | Version control standards.              | Conventional Commits v1.0.0, branch conventions, pre-commit secret scanning.                                                  |
+| Skill Name               | Path                                         | Purpose                                 | Key Standards                                                                                                                    |
+| ------------------------ | -------------------------------------------- | --------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| **`frontend-design`**    | `.agents/skills/frontend-design/SKILL.md`    | UI/UX design and interaction standards. | Science lab dark interface (`#080c14`), Anti-AI slop guardrails, tactile feedback, asymmetric Bento grids, zero fake statistics. |
+| **`nextjs-development`** | `.agents/skills/nextjs-development/SKILL.md` | Next.js 15 App Router conventions.      | RSC vs Client component boundaries, route grouping `(public)`, metadata handling, strict typing, error boundaries.               |
+| **`nestjs-backend`**     | `.agents/skills/nestjs-backend/SKILL.md`     | NestJS 10 architecture patterns.        | Global prefix `/api/v1`, DTO validation pipes, Swagger documentation, health monitoring, clean modules.                          |
+| **`testing-debugging`**  | `.agents/skills/testing-debugging/SKILL.md`  | Verification and root-cause debugging.  | Vitest and Jest execution, Supertest E2E testing, systematic verification before claiming completion.                            |
+| **`git-workflow`**       | `.agents/skills/git-workflow/SKILL.md`       | Version control standards.              | Conventional Commits v1.0.0, branch conventions, pre-commit secret scanning.                                                     |
 
 ---
 
