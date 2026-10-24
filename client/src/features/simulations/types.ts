@@ -21,7 +21,8 @@ export interface SimulationHypothesisChallenge {
     | 'linear-scaling-trap'
     | 'uniformity-illusion'
     | 'conditional-probability-fallacy'
-    | 'classical-mechanics-bias';
+    | 'classical-mechanics-bias'
+    | 'zero-sum-fallacy';
   biasName: string;
   biasDescription: string;
 }

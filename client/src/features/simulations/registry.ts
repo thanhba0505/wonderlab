@@ -183,8 +183,52 @@ export const SIMULATIONS_REGISTRY: SimulationMeta[] = [
     description:
       'Nền tảng của lý thuyết trò chơi ứng dụng trong kinh tế học, tiến hóa sinh học và đạo đức học. Giải đấu Axelrod chỉ ra chiến lược Tit-for-Tat đem lại hiệu quả bền vững nhất.',
     tags: ['Lý thuyết trò chơi', 'Cân bằng Nash', 'Tiến hóa chiến lược'],
-    status: 'in-development',
+    status: 'active',
     accentColor: 'emerald',
+    hypothesis: {
+      question:
+        "Trong một giải đấu lặp lại nhiều vòng (Iterated Prisoner's Dilemma) với các đối thủ đa dạng, chiến lược nào sẽ đạt tổng điểm trung bình cao nhất và chiếm lĩnh quần thể?",
+      context:
+        'Mỗi cá thể thi đấu nhiều ván với mọi cá thể khác. Điểm số tích lũy quyết định số lượng con cháu ở thế hệ tiếp theo (Replicator Dynamics).',
+      options: [
+        {
+          id: 'opt-a',
+          label: 'Luôn phản bội (Always Defect) — Tối ưu điểm số tức thì trong mọi hoàn cảnh',
+          value: 0.1,
+          explanation:
+            'Bẫy cận thị ngắn hạn: Trong 1 ván đơn lẻ phản bội luôn có lợi hơn, nhưng trong trò chơi lặp lại, hai kẻ phản bội gặp nhau chỉ nhận 1 điểm mỗi ván và nhanh chóng bị đào thải.',
+        },
+        {
+          id: 'opt-b',
+          label:
+            'Ăn miếng trả miếng (Tit-for-Tat) — Khởi đầu hợp tác, sau đó sao chép nước đi của đối phương',
+          value: 1.0,
+          explanation:
+            'Chính xác xuất sắc! Chiến lược đơn giản này bất bại qua hàng trăm giải đấu nhờ 4 phẩm chất: Lương thiện, Sòng phẳng, Khoan dung và Rõ ràng.',
+        },
+        {
+          id: 'opt-c',
+          label: 'Luôn hợp tác (Always Cooperate) — Vị tha vô điều kiện',
+          value: 0.05,
+          explanation:
+            'Ngây thơ sinh học: Cá thể luôn hợp tác dễ dàng bị những kẻ bóc lột (Always Defect) khai thác đến kiệt quệ và tuyệt chủng.',
+        },
+        {
+          id: 'opt-d',
+          label: 'Kẻ ghi thù (Grudger) — Hợp tác đến khi bị phản bội 1 lần thì trả thù vĩnh viễn',
+          value: 0.35,
+          explanation:
+            'Thiếu lòng khoan dung: Nếu chỉ có một hiểu lầm hoặc nhiễu ngẫu nhiên, mối quan hệ sẽ rơi vào vòng xoáy hận thù vĩnh viễn không thể phục hồi.',
+        },
+      ],
+      theoreticalTruth: 1.0,
+      truthExplanation:
+        'Nghiên cứu kinh điển của Robert Axelrod chứng minh rằng trong tương tác lặp lại dài hạn, lòng vị tha có điều kiện (Win-Win) luôn đánh bại sự ích kỷ thuần túy (Zero-Sum). Tit-for-Tat không bao giờ kiếm được nhiều điểm hơn đối thủ trong một trận đơn lẻ, nhưng luôn đạt tổng điểm cao nhất toàn giải đấu!',
+      biasType: 'zero-sum-fallacy',
+      biasName: 'Định kiến Trò chơi Tổng bằng Không (Zero-Sum Fallacy)',
+      biasDescription:
+        'Xu hướng tâm lý nhầm tưởng rằng thành công của bản thân bắt buộc phải đánh đổi bằng sự thất bại hoặc mất mát của người khác.',
+    },
   },
   {
     slug: 'zeno-paradox',

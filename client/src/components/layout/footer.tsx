@@ -68,6 +68,14 @@ export function Footer() {
               </li>
               <li>
                 <Link
+                  href="/simulations/prisoners-dilemma"
+                  className="text-slate-600 hover:text-slate-900 transition-colors"
+                >
+                  Thế lưỡng nan Người tù
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/#editorial"
                   className="text-slate-600 hover:text-slate-900 transition-colors"
                 >
