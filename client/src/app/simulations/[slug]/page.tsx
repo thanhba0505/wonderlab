@@ -8,6 +8,7 @@ import { DoubleSlitSimulation } from '@/features/double-slit/double-slit-simulat
 import { PrisonersDilemmaSimulation } from '@/features/prisoners-dilemma/prisoners-dilemma-simulation';
 import { ZenoSimulation } from '@/features/zeno-paradox/zeno-simulation';
 import { CommentSection } from '@/features/simulations/components/comment-section';
+import { SimulationMathCard } from '@/features/simulations/components/simulation-math-card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Clock, FlaskConical, Sparkles } from 'lucide-react';
@@ -96,13 +97,9 @@ export default async function SimulationPage({ params }: SimulationPageProps) {
           </div>
         </div>
 
-        {/* Tóm tắt & Công thức toán học */}
-        <div className="mt-2 flex flex-col gap-2 rounded-lg bg-white p-3.5 border border-slate-200">
-          <p className="text-xs text-slate-700 leading-relaxed">{sim.summary}</p>
-          <div className="flex items-center gap-2 font-mono text-xs text-blue-700 bg-blue-50/60 px-2.5 py-1.5 rounded border border-blue-200/80">
-            <span className="font-bold text-blue-900">Mô hình toán:</span>
-            <code className="text-[11px]">{sim.formula}</code>
-          </div>
+        {/* Tóm tắt & Mô hình toán học đa tầng, phân số, số mũ */}
+        <div className="mt-2">
+          <SimulationMathCard slug={sim.slug} summary={sim.summary} />
         </div>
       </div>
 
