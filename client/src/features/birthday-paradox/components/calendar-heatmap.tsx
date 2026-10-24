@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useMemo } from 'react';
+import { Calendar } from 'lucide-react';
 import { PersonInRoom, SharedDateInfo } from '../birthday-math';
 
 interface CalendarHeatmapProps {
@@ -48,10 +49,14 @@ export const CalendarHeatmap: React.FC<CalendarHeatmapProps> = ({
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex items-center justify-between border-b border-slate-200 pb-2">
-        <h4 className="text-xs font-semibold tracking-wider text-slate-700 uppercase">
-          Ma trận Phân bổ 365 Ngày (Calendar Heatmap)
-        </h4>
+      {/* Title duy nhất, không kẻ line ngay dưới title */}
+      <div className="flex items-center justify-between pb-1">
+        <div className="flex items-center gap-2">
+          <Calendar className="h-4 w-4 text-emerald-600" />
+          <h4 className="text-xs font-bold uppercase tracking-wider text-slate-800 font-heading">
+            Phân bổ Ngày sinh trên Lịch 365 Ngày
+          </h4>
+        </div>
         <span className="font-mono text-xs text-slate-500">
           {sharedDates.length > 0 ? (
             <span className="font-semibold text-amber-600">

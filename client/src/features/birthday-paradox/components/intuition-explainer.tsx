@@ -13,7 +13,7 @@ export const IntuitionExplainer: React.FC<IntuitionExplainerProps> = ({ currentN
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="border-b border-slate-200 pb-2">
+      <div className="pb-1">
         <h3 className="font-heading text-base font-bold text-slate-900">
           Tại sao Trực giác của bạn lại Sai? (The Intuitive Flaw)
         </h3>

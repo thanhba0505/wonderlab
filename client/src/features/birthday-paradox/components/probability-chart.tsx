@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useMemo } from 'react';
+import { LineChart } from 'lucide-react';
 import { calculateTheoreticalProbability, MonteCarloBatchResult } from '../birthday-math';
 
 interface ProbabilityChartProps {
@@ -57,19 +58,23 @@ export const ProbabilityChart: React.FC<ProbabilityChartProps> = ({
   }, [padding.left, padding.top, plotWidth, plotHeight]);
 
   return (
-    <div className="flex flex-col gap-2">
-      <div className="flex items-center justify-between border-b border-slate-200 pb-2">
-        <h4 className="text-xs font-semibold tracking-wider text-slate-700 uppercase">
-          Đồ thị Xác suất: Lý thuyết vs Thực nghiệm
-        </h4>
+    <div className="flex flex-col gap-3">
+      {/* Title duy nhất, không kẻ line ngay dưới title */}
+      <div className="flex items-center justify-between pb-1">
+        <div className="flex items-center gap-2">
+          <LineChart className="h-4 w-4 text-blue-600" />
+          <h4 className="text-xs font-bold uppercase tracking-wider text-slate-800 font-heading">
+            Đồ thị Xác suất Lý thuyết vs Thực nghiệm
+          </h4>
+        </div>
         <div className="flex items-center gap-3 text-xs font-mono">
           <span className="flex items-center gap-1.5 text-blue-700">
-            <span className="h-2.5 w-2.5 rounded-full bg-blue-600" />
+            <span className="h-2 w-2 rounded-full bg-blue-600" />
             <span>Lý thuyết: {(currentCoord.p * 100).toFixed(1)}%</span>
           </span>
           {monteCarloCoord && (
             <span className="flex items-center gap-1.5 text-emerald-700">
-              <span className="h-2.5 w-2.5 rounded-full bg-emerald-600" />
+              <span className="h-2 w-2 rounded-full bg-emerald-600" />
               <span>Thực nghiệm: {(monteCarloCoord.p * 100).toFixed(1)}%</span>
             </span>
           )}

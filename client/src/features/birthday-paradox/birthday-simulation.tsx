@@ -29,8 +29,6 @@ import {
   Database,
   Sliders,
   Radar,
-  LineChart,
-  Calendar,
 } from 'lucide-react';
 import { useSimulationTelemetry } from '@/lib/hooks/use-simulation-telemetry';
 import { SimulationHistoryTable } from '@/features/simulations/components/simulation-history-table';
@@ -395,13 +393,13 @@ export const BirthdaySimulation: React.FC = () => {
             </div>
           </div>
 
-          {/* [B] Vùng thực nghiệm tương tác chính (Không đóng khung lồng) */}
+          {/* [B] Vùng thực nghiệm tương tác chính (Không đóng khung lồng, không lặp title, line phân khu vực) */}
           <div className="grid gap-6 lg:grid-cols-12">
             {/* Cột trái: Bộ điều khiển & Vòng tròn radar */}
             <div className="flex flex-col gap-6 lg:col-span-5">
-              {/* Controls Section - Phẳng, không lồng khung */}
+              {/* Controls Section - Phẳng, không kẻ line ngay dưới title */}
               <div className="space-y-3">
-                <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                <div className="flex items-center justify-between pb-1">
                   <div className="flex items-center gap-2">
                     <Sliders className="h-4 w-4 text-blue-600" />
                     <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800 font-heading">
@@ -426,9 +424,9 @@ export const BirthdaySimulation: React.FC = () => {
                 />
               </div>
 
-              {/* Chamber Radar Section - Phẳng, không lồng khung */}
-              <div className="space-y-3 pt-4 border-t border-slate-100">
-                <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
+              {/* Chamber Radar Section - Line phân khu vực ở trên, không kẻ line ngay dưới title */}
+              <div className="space-y-3 pt-6 border-t border-slate-200/80">
+                <div className="flex items-center gap-2 pb-1">
                   <Radar className="h-4 w-4 text-violet-600" />
                   <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800 font-heading">
                     Buồng Radar Không gian (Chamber View)
@@ -445,37 +443,21 @@ export const BirthdaySimulation: React.FC = () => {
               </div>
             </div>
 
-            {/* Cột phải: Đồ thị xác suất & Lịch phân bổ */}
+            {/* Cột phải: Đồ thị xác suất & Lịch phân bổ - Phân cách bằng line dọc */}
             <div className="flex flex-col gap-6 lg:col-span-7 lg:border-l lg:border-slate-200/80 lg:pl-6">
-              {/* Probability Chart Section - Phẳng, không lồng khung */}
-              <div className="space-y-3">
-                <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
-                  <LineChart className="h-4 w-4 text-blue-600" />
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800 font-heading">
-                    Đồ thị Xác suất Lý thuyết vs Thực nghiệm
-                  </h3>
-                </div>
-                <div className="pt-1">
-                  <ProbabilityChart currentN={n} monteCarloResult={monteCarloResult} />
-                </div>
+              {/* Probability Chart - Title duy nhất tích hợp bên trong component */}
+              <div>
+                <ProbabilityChart currentN={n} monteCarloResult={monteCarloResult} />
               </div>
 
-              {/* Calendar Heatmap Section - Phẳng, không lồng khung */}
-              <div className="space-y-3 pt-4 border-t border-slate-100">
-                <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
-                  <Calendar className="h-4 w-4 text-emerald-600" />
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800 font-heading">
-                    Phân bổ Ngày sinh trên Lịch 365 Ngày
-                  </h3>
-                </div>
-                <div className="pt-1">
-                  <CalendarHeatmap
-                    people={room.people}
-                    sharedDates={room.sharedDates}
-                    selectedPersonId={selectedPersonId}
-                    onSelectPerson={setSelectedPersonId}
-                  />
-                </div>
+              {/* Calendar Heatmap - Line phân khu vực ở trên, title duy nhất tích hợp bên trong */}
+              <div className="pt-6 border-t border-slate-200/80">
+                <CalendarHeatmap
+                  people={room.people}
+                  sharedDates={room.sharedDates}
+                  selectedPersonId={selectedPersonId}
+                  onSelectPerson={setSelectedPersonId}
+                />
               </div>
             </div>
           </div>
