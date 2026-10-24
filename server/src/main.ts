@@ -1,11 +1,19 @@
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import helmet from 'helmet';
+import cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
   const logger = new Logger('WonderlabServer');
   const app = await NestFactory.create(AppModule);
+
+  // Security HTTP Headers
+  app.use(helmet());
+
+  // Parse Cookie for HttpOnly Session Tokens
+  app.use(cookieParser());
 
   // Global API Prefix
   app.setGlobalPrefix('api/v1');
@@ -38,7 +46,20 @@ async function bootstrap() {
         'Interactive scientific simulation and paradox exploration engine — API documentation',
       )
       .setVersion('1.0.0')
-      .addTag('Health')
+      .addTag('Health', 'System health checks')
+      .addTag('Auth', 'Authentication, session management and user authorization')
+      .addCookieAuth('access_token', {
+        type: 'apiKey',
+        in: 'cookie',
+        name: 'access_token',
+        description: 'HttpOnly session cookie chứa JWT token',
+      })
+      .addBearerAuth({
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        description: 'JWT Bearer token cho REST clients',
+      })
       .build();
 
     const document = SwaggerModule.createDocument(app, config);
