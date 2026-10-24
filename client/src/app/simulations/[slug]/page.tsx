@@ -6,6 +6,7 @@ import { BirthdaySimulation } from '@/features/birthday-paradox/birthday-simulat
 import { MontyHallSimulation } from '@/features/monty-hall/monty-hall-simulation';
 import { DoubleSlitSimulation } from '@/features/double-slit/double-slit-simulation';
 import { PrisonersDilemmaSimulation } from '@/features/prisoners-dilemma/prisoners-dilemma-simulation';
+import { ZenoSimulation } from '@/features/zeno-paradox/zeno-simulation';
 import { CommentSection } from '@/features/simulations/components/comment-section';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -110,6 +111,7 @@ export default async function SimulationPage({ params }: SimulationPageProps) {
       {sim.slug === 'monty-hall' && <MontyHallSimulation />}
       {sim.slug === 'double-slit' && <DoubleSlitSimulation />}
       {sim.slug === 'prisoners-dilemma' && <PrisonersDilemmaSimulation />}
+      {sim.slug === 'zeno-paradox' && <ZenoSimulation />}
 
       {/* Hiển thị cho các mô phỏng đang phát triển */}
       {sim.status === 'in-development' && (

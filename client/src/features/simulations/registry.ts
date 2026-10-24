@@ -243,8 +243,52 @@ export const SIMULATIONS_REGISTRY: SimulationMeta[] = [
     description:
       'Nghịch lý triết học Hy Lạp cổ đại đặt nền móng cho giải tích hiện đại, định nghĩa giới hạn và tính chất topo của không thời gian thực tế.',
     tags: ['Giải tích', 'Nghịch lý', 'Triết học', 'Chuỗi vô hạn'],
-    status: 'in-development',
+    status: 'active',
     accentColor: 'violet',
+    hypothesis: {
+      question:
+        'Nếu khoảng cách giữa Achilles và Rùa bị chia thành vô số (vô hạn) chặng nhỏ kế tiếp nhau, thì tổng thời gian Achilles cần để hoàn thành vô hạn chặng đó là bao nhiêu?',
+      context:
+        'Mỗi chặng sau có độ dài bằng 1/10 chặng trước. Vận tốc của Achilles và Rùa giữ nguyên liên tục không đổi.',
+      options: [
+        {
+          id: 'opt-a',
+          label: 'Vô hạn thời gian — Vì tổng của vô số bước thì không bao giờ kết thúc',
+          value: 0.1,
+          explanation:
+            'Ảo tưởng phân kỳ: Mặc định rằng cứ có vô số số hạng thì tổng phải bằng vô cùng, bỏ qua việc độ dài mỗi bước co lại với tốc độ cấp số nhân.',
+        },
+        {
+          id: 'opt-b',
+          label:
+            'Hữu hạn thời gian — Tổng của vô hạn số hạng nhỏ dần có thể hội tụ về một con số hữu hạn duy nhất',
+          value: 1.0,
+          explanation:
+            'Chính xác xuất sắc! Nền tảng của Vi tích phân (Calculus) chứng minh chuỗi cấp số nhân lùi vô hạn với công bội r < 1 luôn hội tụ về một đại lượng hữu hạn.',
+        },
+        {
+          id: 'opt-c',
+          label: 'Thời gian ngừng trôi — Khi khoảng cách tiến về 0, chuyển động bị đóng băng',
+          value: 0.05,
+          explanation:
+            'Ngộ nhận của trường phái Elea: Zeno nhầm lẫn giữa sự phân chia toán học trên lý thuyết với dòng chảy thực tế liên tục của thời gian vật lý.',
+        },
+        {
+          id: 'opt-d',
+          label: 'Không xác định được — Vì toán học và thế giới vật chất không tương thích',
+          value: 0.2,
+          explanation:
+            'Tư duy hoài nghi cổ đại: Cho rằng chuyển động chỉ là ảo ảnh thị giác (Parmenides).',
+        },
+      ],
+      theoreticalTruth: 1.0,
+      truthExplanation:
+        'Nghịch lý Zeno được giải quyết hoàn toàn nhờ phép tính Giải tích (Calculus): Tổng của một chuỗi vô hạn các số hạng nhỏ dần (cấp số nhân lùi vô hạn với công bội r = 0.1 < 1) là một số thực hữu hạn: T = d0 / (vA - vT) = 100 / (10 - 1) = 11.111... giây. Achilles hoàn thành vô hạn bước đó chỉ trong hơn 11 giây!',
+      biasType: 'infinite-sum-fallacy',
+      biasName: 'Ảo tưởng Phân kỳ Vô hạn (Infinite Sum Divergence Fallacy)',
+      biasDescription:
+        'Não bộ con người thường mặc định rằng hễ cộng vô số thứ lại với nhau thì kết quả bắt buộc phải là vô cực, mà không nhận ra các khoảng vô hạn nhỏ có thể lấp đầy một khoảng thời gian hữu hạn.',
+    },
   },
 ];
 

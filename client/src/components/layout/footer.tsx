@@ -76,6 +76,14 @@ export function Footer() {
               </li>
               <li>
                 <Link
+                  href="/simulations/zeno-paradox"
+                  className="text-slate-600 hover:text-slate-900 transition-colors"
+                >
+                  Nghịch lý Zeno (Achilles & Rùa)
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/#editorial"
                   className="text-slate-600 hover:text-slate-900 transition-colors"
                 >
