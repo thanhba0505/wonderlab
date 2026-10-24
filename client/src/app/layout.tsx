@@ -56,8 +56,12 @@ export default function RootLayout({
     <html
       lang="vi"
       className={`${beVietnamPro.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable}`}
+      suppressHydrationWarning
     >
-      <body className="min-h-screen flex flex-col font-sans bg-[#f1f5f9] text-slate-800 antialiased selection:bg-blue-500/20 selection:text-blue-900">
+      <body
+        className="min-h-screen flex flex-col font-sans bg-[#f1f5f9] text-slate-800 antialiased selection:bg-blue-500/20 selection:text-blue-900"
+        suppressHydrationWarning
+      >
         <Header />
         <main className="flex-1">{children}</main>
         <Footer />
