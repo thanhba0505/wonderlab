@@ -48,12 +48,12 @@ export const SimulationMathCard: React.FC<SimulationMathCardProps> = ({ slug, su
         </div>
       </div>
 
-      {/* Khối mô hình toán học đa tầng, phân số, số mũ */}
-      <div className="rounded-lg bg-slate-50/80 border border-slate-200/90 p-4 space-y-3 font-mono">
-        <div className="flex items-center justify-between border-b border-slate-200/80 pb-2">
+      {/* Khối mô hình toán học - KHÔNG ĐÓNG KHUNG BÊN NGOÀI, line phân cách ở trên */}
+      <div className="pt-4 border-t border-slate-200/80 space-y-3 font-mono">
+        <div className="flex items-center justify-between pb-1">
           <div className="flex items-center gap-2">
             <Sigma className="h-4 w-4 text-blue-700" />
-            <span className="text-xs font-bold uppercase tracking-wider text-blue-900 font-heading">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-800 font-heading">
               Mô Hình Toán Học & Công Thức Giải Tích
             </span>
           </div>
@@ -68,7 +68,7 @@ export const SimulationMathCard: React.FC<SimulationMathCardProps> = ({ slug, su
               <div className="text-[11px] font-sans text-slate-500 font-semibold flex items-center gap-1.5">
                 <span>1. Xác suất bù chính xác (Exact Analytic Probability):</span>
               </div>
-              <div className="flex flex-wrap items-center gap-2 text-sm bg-white p-3 rounded border border-slate-200/70 shadow-2xs">
+              <div className="flex flex-wrap items-center gap-2 text-sm bg-slate-50/80 p-3 rounded-lg">
                 <span className="font-bold text-slate-900">P(n)</span>
                 <span>=</span>
                 <span>1 &minus; P(không trùng)</span>
@@ -105,7 +105,7 @@ export const SimulationMathCard: React.FC<SimulationMathCardProps> = ({ slug, su
               <div className="text-[11px] font-sans text-slate-500 font-semibold flex items-center gap-1.5">
                 <span>2. Xấp xỉ tiệm cận hàm mũ Taylor (Taylor Series Approximation):</span>
               </div>
-              <div className="flex flex-wrap items-center gap-2 text-sm bg-white p-3 rounded border border-slate-200/70 shadow-2xs">
+              <div className="flex flex-wrap items-center gap-2 text-sm bg-slate-50/80 p-3 rounded-lg">
                 <span className="font-bold text-slate-900">P(n)</span>
                 <span className="text-slate-400">&asymp;</span>
                 <span>1 &minus; e</span>
@@ -123,7 +123,7 @@ export const SimulationMathCard: React.FC<SimulationMathCardProps> = ({ slug, su
                   &minus;
                   <MathFraction numerator="C(n, 2)" denominator="365" className="text-[10px]" />
                 </sup>
-                <div className="w-full pt-1.5 mt-1 border-t border-slate-100 text-xs font-sans text-slate-600 flex items-center gap-1.5">
+                <div className="w-full pt-1.5 mt-1 border-t border-slate-200/60 text-xs font-sans text-slate-600 flex items-center gap-1.5">
                   <Sparkles className="h-3.5 w-3.5 text-amber-500 shrink-0" />
                   <span>
                     Tại <strong className="font-mono text-slate-900">n = 23</strong>: có{' '}
@@ -141,7 +141,7 @@ export const SimulationMathCard: React.FC<SimulationMathCardProps> = ({ slug, su
         {/* NGHỊCH LÝ MONTY HALL */}
         {slug === 'monty-hall' && (
           <div className="space-y-3 text-xs text-slate-800">
-            <div className="flex flex-wrap items-center gap-3 bg-white p-3 rounded border border-slate-200/70 shadow-2xs">
+            <div className="flex flex-wrap items-center gap-3 bg-slate-50/80 p-3 rounded-lg">
               <div className="flex items-center gap-1.5">
                 <span className="text-slate-500 font-sans">Giữ nguyên cửa ban đầu:</span>
                 <span className="font-bold text-slate-900">P(Stay) =</span>
@@ -164,7 +164,7 @@ export const SimulationMathCard: React.FC<SimulationMathCardProps> = ({ slug, su
         {/* THÍ NGHIỆM HAI KHE YOUNG */}
         {slug === 'double-slit' && (
           <div className="space-y-3 text-xs text-slate-800">
-            <div className="flex flex-wrap items-center gap-4 bg-white p-3 rounded border border-slate-200/70 shadow-2xs">
+            <div className="flex flex-wrap items-center gap-4 bg-slate-50/80 p-3 rounded-lg">
               <div className="flex items-center gap-1.5">
                 <span className="text-slate-500 font-sans">Vị trí vân sáng:</span>
                 <span className="font-bold text-slate-900">
@@ -195,7 +195,7 @@ export const SimulationMathCard: React.FC<SimulationMathCardProps> = ({ slug, su
         {/* SONG ĐỀ TÙ NHÂN */}
         {slug === 'prisoners-dilemma' && (
           <div className="space-y-3 text-xs text-slate-800">
-            <div className="flex flex-wrap items-center gap-4 bg-white p-3 rounded border border-slate-200/70 shadow-2xs">
+            <div className="flex flex-wrap items-center gap-4 bg-slate-50/80 p-3 rounded-lg">
               <div className="flex items-center gap-1.5">
                 <span className="text-slate-500 font-sans">Điều kiện song đề:</span>
                 <span className="font-bold text-amber-700">T &gt; R &gt; P &gt; S</span>
@@ -215,7 +215,7 @@ export const SimulationMathCard: React.FC<SimulationMathCardProps> = ({ slug, su
         {/* NGHỊCH LÝ ZENO */}
         {slug === 'zeno-paradox' && (
           <div className="space-y-3 text-xs text-slate-800">
-            <div className="flex flex-wrap items-center gap-4 bg-white p-3 rounded border border-slate-200/70 shadow-2xs">
+            <div className="flex flex-wrap items-center gap-4 bg-slate-50/80 p-3 rounded-lg">
               <div className="flex items-center gap-1.5">
                 <span className="text-slate-500 font-sans">Chuỗi hình học hội tụ:</span>
                 <span className="font-bold text-slate-900">
