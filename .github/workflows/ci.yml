@@ -64,7 +64,7 @@ jobs:
         run: |
           cd server
           pnpm prisma migrate deploy
-          pnpm seed
+          pnpm db:seed
         env:
           DATABASE_URL: postgres://postgres:postgrespassword@localhost:5434/wonderlab?schema=public
 
