@@ -604,8 +604,8 @@ export const BirthdaySimulation: React.FC = () => {
           </p>
         </div>
 
-        {/* Khối giải thích trực giác toán học */}
-        <div className="rounded-2xl border border-blue-300/85 bg-gradient-to-b from-blue-50/50 via-white to-white p-5 sm:p-6 shadow-xs border-l-4 border-l-blue-600">
+        {/* Khối giải thích trực giác toán học - Nền blue nhạt đậm hơn, rõ ràng từ trên xuống dưới */}
+        <div className="rounded-2xl border border-blue-300/90 bg-gradient-to-b from-blue-100/75 via-blue-50/90 to-blue-100/60 p-5 sm:p-6 shadow-xs border-l-4 border-l-blue-600">
           <IntuitionExplainer currentN={n} />
         </div>
       </div>
