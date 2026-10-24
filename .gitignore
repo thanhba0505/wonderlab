@@ -41,6 +41,7 @@ Thumbs.db
 postgres_data/
 *.sql
 *.dump
+!**/prisma/migrations/**/*.sql
 
 # Temporary files
 tmp/
