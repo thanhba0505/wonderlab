@@ -29,3 +29,12 @@ export interface EditorialArticle {
   teaser: string;
   quote: string;
 }
+
+export interface AuthUser {
+  id: string;
+  username: string;
+  email: string | null;
+  role: 'ADMIN';
+  createdAt: string;
+  updatedAt: string;
+}

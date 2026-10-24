@@ -2,11 +2,25 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { Sparkles, Menu, X, Compass, FlaskConical, BookOpen, ShieldAlert } from 'lucide-react';
+import {
+  Sparkles,
+  Menu,
+  X,
+  Compass,
+  FlaskConical,
+  BookOpen,
+  ShieldAlert,
+  LogOut,
+  ShieldCheck,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/lib/auth-context';
+import { LoginDialog } from '@/components/auth/login-dialog';
 
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
+  const [isLoginDialogOpen, setIsLoginDialogOpen] = React.useState(false);
+  const { user, logout } = useAuth();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-slate-300/80 bg-white/95 backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(15,23,42,0.06)]">
@@ -65,16 +79,42 @@ export function Header() {
 
         {/* Header Right Actions */}
         <div className="hidden md:flex items-center gap-3">
-          <Link href="/admin">
+          {user ? (
+            <div className="flex items-center gap-2">
+              <Link href="/admin">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-xs text-blue-900 border-blue-200 bg-blue-50/80 hover:bg-blue-100 font-medium"
+                >
+                  <ShieldCheck className="h-3.5 w-3.5 text-blue-600 mr-1.5" />
+                  <span className="font-mono">{user.username}</span>
+                  <span className="ml-1 text-[10px] px-1.5 py-0.2 bg-blue-600 text-white rounded font-mono font-bold">
+                    {user.role}
+                  </span>
+                </Button>
+              </Link>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => logout()}
+                className="text-xs text-slate-500 hover:text-rose-600 hover:bg-rose-50 p-2 h-8"
+                title="Đăng xuất"
+              >
+                <LogOut className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+          ) : (
             <Button
               variant="outline"
               size="sm"
+              onClick={() => setIsLoginDialogOpen(true)}
               className="text-xs text-slate-700 hover:text-slate-900 border-slate-300 bg-white"
             >
               <ShieldAlert className="h-3.5 w-3.5 text-amber-600 mr-1.5" />
               Admin
             </Button>
-          </Link>
+          )}
 
           <a href="#featured">
             <Button size="sm" className="font-semibold shadow-sm">
@@ -147,6 +187,9 @@ export function Header() {
           </nav>
         </div>
       )}
+
+      {/* Security Login Dialog Modal */}
+      <LoginDialog isOpen={isLoginDialogOpen} onClose={() => setIsLoginDialogOpen(false)} />
     </header>
   );
 }

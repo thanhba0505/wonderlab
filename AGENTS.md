@@ -53,7 +53,7 @@ wonderlab/
 1. **Zero Secret Leakage**: Never commit `.env`, `.env.local`, API tokens, or database passwords. All environment files with secrets must be ignored by `.gitignore`.
 2. **Client Boundaries**: Only variables prefixed with `NEXT_PUBLIC_` are accessible in client bundles. Never place server secrets or credentials in `NEXT_PUBLIC_*`.
 3. **Database Security**: Local PostgreSQL must bind exclusively to `127.0.0.1` (loopback) to prevent public network exposure.
-4. **Admin Route**: `/admin` is currently an unauthenticated development placeholder. Do not assume or declare that it is secure.
+4. **Admin Route**: `/admin` is a secure administrative console requiring active `Role.ADMIN` authentication verified via HttpOnly session cookies. Unauthenticated visitors are routed through the authentication wall.
 5. **CORS Policy**: CORS origins must be explicitly matched against `CORS_ORIGINS` environment variables.
 
 ---
