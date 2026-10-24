@@ -58,7 +58,7 @@ jobs:
           echo "Deploying wonderlab-server to Render..."
           HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST "$RENDER_SERVER_DEPLOY_HOOK")
           echo "Server deploy hook response HTTP status: $HTTP_STATUS"
-          if [ "$HTTP_STATUS" -ne 200 ] && [ "$HTTP_STATUS" -ne 201 ]; then
+          if [ "$HTTP_STATUS" -lt 200 ] || [ "$HTTP_STATUS" -ge 300 ]; then
             echo "::error::Failed to trigger wonderlab-server deploy hook (HTTP $HTTP_STATUS)"
             exit 1
           fi
@@ -84,7 +84,7 @@ jobs:
           echo "Deploying wonderlab-client to Render..."
           HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST "$RENDER_CLIENT_DEPLOY_HOOK")
           echo "Client deploy hook response HTTP status: $HTTP_STATUS"
-          if [ "$HTTP_STATUS" -ne 200 ] && [ "$HTTP_STATUS" -ne 201 ]; then
+          if [ "$HTTP_STATUS" -lt 200 ] || [ "$HTTP_STATUS" -ge 300 ]; then
             echo "::error::Failed to trigger wonderlab-client deploy hook (HTTP $HTTP_STATUS)"
             exit 1
           fi
