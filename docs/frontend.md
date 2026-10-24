@@ -20,26 +20,28 @@ client/
 │   ├── app/
 │   │   ├── (public)/       # Public route group (clean URLs)
 │   │   │   └── page.tsx    # Homepage
-│   │   ├── admin/          # Admin area (placeholder in foundation)
+│   │   ├── admin/          # Authenticated Admin Telemetry & Control Console
 │   │   │   └── page.tsx
 │   │   ├── error.tsx       # Route error boundary
 │   │   ├── global-error.tsx # Root HTML error boundary
 │   │   ├── not-found.tsx   # Custom 404 page
-│   │   ├── layout.tsx      # Root HTML shell, fonts, header/footer
-│   │   └── globals.css     # Dark theme tokens, grid patterns
+│   │   ├── layout.tsx      # Root HTML shell, fonts, AuthProvider, header/footer
+│   │   └── globals.css     # Clean Paper design tokens, lab grid pattern
 │   ├── components/
+│   │   ├── auth/           # LoginDialog modal and authentication forms
 │   │   ├── ui/             # shadcn atomic components (button, card, badge)
-│   │   └── layout/         # Shell components (header, footer)
+│   │   └── layout/         # Shell components (header with session state, footer)
 │   ├── features/           # Domain feature components
-│   │   ├── hero/           # Interactive constellation visual
+│   │   ├── hero/           # Interactive telemetry chamber visual
 │   │   ├── monty-hall/     # Interactive Monty Hall simulation & test
-│   │   ├── explore/        # Category cards
+│   │   ├── explore/        # Asymmetric Bento grid with micro-simulations
 │   │   ├── curated/        # Curated science experiences
 │   │   └── editorial/      # Thought-provoking essays & quotes
 │   ├── lib/
+│   │   ├── auth-context.tsx # React Context for HttpOnly cookie authentication
 │   │   ├── utils.ts        # cn() helper and API base URL resolver
 │   │   └── utils.test.ts
-│   └── types/              # Domain TypeScript interfaces
+│   └── types/              # Domain TypeScript interfaces (Category, Article, AuthUser)
 ├── components.json         # shadcn/ui configuration
 ├── next.config.ts          # Next.js compiler settings
 └── tailwind.config.ts      # Design tokens, color system, animations

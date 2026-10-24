@@ -3,6 +3,7 @@ import { Be_Vietnam_Pro, Space_Grotesk, JetBrains_Mono } from 'next/font/google'
 import './globals.css';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
+import { AuthProvider } from '@/lib/auth-context';
 
 const beVietnamPro = Be_Vietnam_Pro({
   weight: ['300', '400', '500', '600', '700', '800'],
@@ -62,9 +63,11 @@ export default function RootLayout({
         className="min-h-screen flex flex-col font-sans bg-[#f1f5f9] text-slate-800 antialiased selection:bg-blue-500/20 selection:text-blue-900"
         suppressHydrationWarning
       >
-        <Header />
-        <main className="flex-1">{children}</main>
-        <Footer />
+        <AuthProvider>
+          <Header />
+          <main className="flex-1">{children}</main>
+          <Footer />
+        </AuthProvider>
       </body>
     </html>
   );
