@@ -15,13 +15,33 @@ import { CreateCommentDto } from './dto/create-comment.dto';
 import { CommentItemDto, DeleteCommentResponseDto } from './dto/comment-response.dto';
 import { Public } from '../auth/decorators/public.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { SafeUser } from '../users/users.service';
+import { Role } from '@prisma/client';
 
 @ApiTags('Comments')
 @Controller()
 export class CommentsController {
   constructor(private readonly commentsService: CommentsService) {}
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @Get('admin/comments')
+  @ApiCookieAuth('access_token')
+  @ApiOperation({
+    summary: 'Lấy toàn bộ bình luận phục vụ kiểm duyệt (Admin only)',
+    description:
+      'Trả về toàn bộ danh sách bình luận trên mọi thí nghiệm, kèm người gửi và thông tin phân cấp.',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Toàn bộ danh sách bình luận kiểm duyệt',
+  })
+  async getAllCommentsForAdmin() {
+    return this.commentsService.findAllForAdmin();
+  }
 
   @Public()
   @Get('simulations/:slug/comments')

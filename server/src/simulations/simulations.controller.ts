@@ -8,8 +8,9 @@ import {
   Post,
   Query,
   Req,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiHeader, ApiOperation, ApiResponse, ApiTags, ApiCookieAuth } from '@nestjs/swagger';
 import { Request } from 'express';
 import {
   SimulationsService,
@@ -19,6 +20,10 @@ import {
 import { CreateSimulationRunDto } from './dto/create-simulation-run.dto';
 import { SimulationStatsQueryDto } from './dto/simulation-stats-query.dto';
 import { SimulationHistoryQueryDto } from './dto/simulation-history-query.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { Role } from '@prisma/client';
 
 interface AuthenticatedRequest extends Request {
   user?: {
@@ -31,6 +36,18 @@ interface AuthenticatedRequest extends Request {
 @Controller('simulations')
 export class SimulationsController {
   constructor(private readonly simulationsService: SimulationsService) {}
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @Get('admin/overview')
+  @ApiCookieAuth('access_token')
+  @ApiOperation({
+    summary: 'Lấy dữ liệu tổng quan KPIs và hoạt động thực nghiệm (Admin only)',
+    description: 'Tổng hợp số lượt chạy, số người dùng, số bình luận và hoạt động gần đây.',
+  })
+  async getAdminOverview() {
+    return this.simulationsService.getAdminOverview();
+  }
 
   @Post('runs')
   @HttpCode(HttpStatus.CREATED)

@@ -174,4 +174,98 @@ export class SimulationsService {
 
     return runs;
   }
+
+  /**
+   * Retrieves comprehensive system overview metrics for the Admin Dashboard
+   */
+  async getAdminOverview(): Promise<{
+    totalRuns: number;
+    totalTrials: number;
+    totalUsers: number;
+    totalComments: number;
+    bySimulation: Record<string, { runs: number; trials: number }>;
+    recentRuns: Array<{
+      id: string;
+      simulationSlug: string;
+      trialsCount: number;
+      durationMs: number | null;
+      createdAt: Date;
+    }>;
+    recentComments: Array<{
+      id: string;
+      content: string;
+      simulationSlug: string;
+      parentId: string | null;
+      createdAt: Date;
+      user: { username: string; role: string };
+    }>;
+  }> {
+    const [
+      totalRuns,
+      trialsAgg,
+      totalUsers,
+      totalComments,
+      recentRuns,
+      recentComments,
+      groupedBySlug,
+    ] = await Promise.all([
+      this.prisma.simulationRun.count(),
+      this.prisma.simulationRun.aggregate({
+        _sum: { trialsCount: true },
+      }),
+      this.prisma.user.count(),
+      this.prisma.comment.count(),
+      this.prisma.simulationRun.findMany({
+        orderBy: { createdAt: 'desc' },
+        take: 8,
+        select: {
+          id: true,
+          simulationSlug: true,
+          trialsCount: true,
+          durationMs: true,
+          createdAt: true,
+        },
+      }),
+      this.prisma.comment.findMany({
+        orderBy: { createdAt: 'desc' },
+        take: 5,
+        select: {
+          id: true,
+          content: true,
+          simulationSlug: true,
+          parentId: true,
+          createdAt: true,
+          user: {
+            select: {
+              username: true,
+              role: true,
+            },
+          },
+        },
+      }),
+      this.prisma.simulationRun.groupBy({
+        by: ['simulationSlug'],
+        _count: { _all: true },
+        _sum: { trialsCount: true },
+      }),
+    ]);
+
+    const bySimulation: Record<string, { runs: number; trials: number }> = {};
+    for (const group of groupedBySlug) {
+      bySimulation[group.simulationSlug] = {
+        runs: group._count._all,
+        trials: group._sum.trialsCount || 0,
+      };
+    }
+
+    return {
+      totalRuns,
+      totalTrials: trialsAgg._sum.trialsCount || 0,
+      totalUsers,
+      totalComments,
+      bySimulation,
+      recentRuns,
+      recentComments,
+    };
+  }
 }

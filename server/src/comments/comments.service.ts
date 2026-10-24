@@ -20,6 +20,41 @@ export class CommentsService {
   constructor(private readonly prisma: PrismaService) {}
 
   /**
+   * Lấy toàn bộ bình luận trên toàn hệ sinh thái phục vụ kiểm duyệt của Quản trị viên
+   */
+  async findAllForAdmin(): Promise<
+    Array<{
+      id: string;
+      content: string;
+      simulationSlug: string;
+      parentId: string | null;
+      createdAt: Date;
+      user: { id: string; username: string; role: Role };
+      parent: { id: string; content: string; user: { username: string } } | null;
+    }>
+  > {
+    return this.prisma.comment.findMany({
+      include: {
+        user: {
+          select: USER_SELECT,
+        },
+        parent: {
+          select: {
+            id: true,
+            content: true,
+            user: {
+              select: { username: true },
+            },
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+  }
+
+  /**
    * Lấy danh sách bình luận cho một mô phỏng (cấu trúc cây tối đa 2 cấp: Root -> Replies)
    */
   async findBySimulation(simulationSlug: string): Promise<CommentItemDto[]> {
