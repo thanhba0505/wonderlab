@@ -82,7 +82,7 @@ export function RaceTrack({
   };
 
   return (
-    <div className="flex flex-col gap-4 rounded-2xl border border-slate-300/85 bg-white p-5 shadow-xs">
+    <div className="flex flex-col gap-4">
       {/* 1. Header & Perspective Switcher */}
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200/80 pb-4">
         <div className="flex items-center gap-2.5">

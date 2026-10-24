@@ -77,7 +77,7 @@ export function AxelrodTournament({ onTournamentRecorded }: AxelrodTournamentPro
   }, [population]);
 
   return (
-    <div className="flex flex-col gap-5 rounded-2xl border border-slate-300/85 bg-white p-5 shadow-xs">
+    <div className="flex flex-col gap-5 pt-6 border-t border-slate-200/80">
       {/* 1. Header & Controls */}
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200/80 pb-4">
         <div className="flex items-center gap-2.5">

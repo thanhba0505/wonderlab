@@ -697,7 +697,7 @@ export function MontyHallSimulation() {
 
           {/* 2 Card thống kê tiến trình thực nghiệm Đổi vs Giữ */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-3 p-4 rounded-xl border border-blue-200 border-t-4 border-t-blue-600 bg-blue-50/20 shadow-2xs">
+            <div className="space-y-3 p-4 rounded-xl border-l-4 border-l-blue-600 bg-blue-50/30">
               <div className="flex items-center justify-between text-xs font-semibold">
                 <span className="text-blue-700 uppercase tracking-wide flex items-center gap-1.5 font-bold">
                   <span className="h-2 w-2 rounded-full bg-blue-600" />
@@ -743,7 +743,7 @@ export function MontyHallSimulation() {
               </div>
             </div>
 
-            <div className="space-y-3 p-4 rounded-xl border border-violet-200 border-t-4 border-t-violet-600 bg-violet-50/20 shadow-2xs">
+            <div className="space-y-3 p-4 rounded-xl border-l-4 border-l-violet-600 bg-violet-50/30">
               <div className="flex items-center justify-between text-xs font-semibold">
                 <span className="text-violet-700 uppercase tracking-wide flex items-center gap-1.5 font-bold">
                   <span className="h-2 w-2 rounded-full bg-violet-600" />

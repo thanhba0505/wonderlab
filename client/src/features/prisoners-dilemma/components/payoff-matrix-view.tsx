@@ -12,7 +12,7 @@ export function PayoffMatrixView({ lastMove1, lastMove2 }: PayoffMatrixViewProps
   const isCellActive = (m1: Move, m2: Move) => lastMove1 === m1 && lastMove2 === m2;
 
   return (
-    <div className="rounded-2xl border border-slate-300/85 bg-white p-5 shadow-xs">
+    <div className="space-y-3">
       <div className="mb-3 flex items-center justify-between">
         <div>
           <h4 className="font-heading text-sm font-bold text-slate-900">

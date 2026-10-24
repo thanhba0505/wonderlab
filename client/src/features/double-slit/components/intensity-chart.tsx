@@ -54,7 +54,7 @@ export function IntensityChart({ params, hits }: IntensityChartProps) {
   }, [profilePoints, plotW, plotH, paddingX, paddingY]);
 
   return (
-    <div className="rounded-2xl border border-slate-300/85 bg-white p-5 shadow-xs">
+    <div className="space-y-4 pt-6 border-t border-slate-200/80">
       <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
         <div className="flex items-center gap-2">
           <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-50 text-blue-700 border border-blue-200">
@@ -153,7 +153,7 @@ export function IntensityChart({ params, hits }: IntensityChartProps) {
       </div>
 
       {/* Insight notice */}
-      <div className="mt-3 flex items-start gap-2 text-xs text-slate-600 bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+      <div className="flex items-start gap-2 text-xs text-slate-600 bg-slate-100/70 p-3 rounded-lg border-l-4 border-blue-600">
         <Info className="h-4 w-4 shrink-0 text-blue-600 mt-0.5" />
         <div className="leading-relaxed">
           {params.isObserverActive ? (

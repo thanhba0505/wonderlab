@@ -45,13 +45,13 @@ export function ControlsPanel({
   const fringeSpacingMm = (params.wavelength * params.screenDistance * 1000) / params.slitDistance;
 
   return (
-    <div className="flex flex-col gap-5 rounded-2xl border border-slate-300/85 bg-white p-5 shadow-xs">
+    <div className="flex flex-col gap-5 pt-6 border-t border-slate-200/80">
       {/* 1. THE QUANTUM OBSERVER TOGGLE (Highlight of the Experiment) */}
       <div
-        className={`rounded-xl border p-4 transition-all duration-300 ${
+        className={`rounded-xl border border-slate-200/70 p-4 transition-all duration-300 ${
           params.isObserverActive
-            ? 'border-rose-300 bg-rose-50/70 shadow-sm'
-            : 'border-blue-300 bg-blue-50/60 shadow-sm'
+            ? 'border-l-4 border-l-rose-600 bg-rose-50/60'
+            : 'border-l-4 border-l-blue-600 bg-blue-50/50'
         }`}
       >
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -264,7 +264,7 @@ export function ControlsPanel({
       </div>
 
       {/* 4. Theoretical Metrics Strip */}
-      <div className="flex flex-wrap items-center justify-between rounded-xl bg-slate-100/70 border border-slate-200 px-4 py-2 text-xs font-mono">
+      <div className="flex flex-wrap items-center justify-between rounded-lg bg-slate-100/80 px-4 py-2.5 text-xs font-mono">
         <div className="flex items-center gap-2">
           <span className="text-slate-500">Khoảng vân giao thoa lý thuyết (i = λD/d):</span>
           <span className="font-bold text-blue-700">{fringeSpacingMm.toFixed(2)} mm</span>
