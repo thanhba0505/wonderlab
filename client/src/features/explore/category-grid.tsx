@@ -82,7 +82,7 @@ export function CategoryGrid() {
                 <button
                   type="button"
                   onClick={() => setSlitsMode('single')}
-                  className={`px-2.5 py-1 text-[11px] font-mono rounded ${
+                  className={`px-2.5 py-1 text-xs font-mono rounded ${
                     slitsMode === 'single'
                       ? 'bg-blue-600 text-white font-bold shadow-xs'
                       : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-100'
@@ -93,7 +93,7 @@ export function CategoryGrid() {
                 <button
                   type="button"
                   onClick={() => setSlitsMode('double')}
-                  className={`px-2.5 py-1 text-[11px] font-mono rounded ${
+                  className={`px-2.5 py-1 text-xs font-mono rounded ${
                     slitsMode === 'double'
                       ? 'bg-blue-600 text-white font-bold shadow-xs'
                       : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-100'
@@ -129,7 +129,7 @@ export function CategoryGrid() {
               })}
             </div>
 
-            <div className="flex items-center justify-between text-[11px] font-mono text-slate-500">
+            <div className="flex items-center justify-between text-xs font-mono text-slate-500">
               <span>Nguồn Laser λ = 532nm</span>
               <span className="text-blue-700 font-semibold">
                 {slitsMode === 'double'
@@ -208,7 +208,7 @@ export function CategoryGrid() {
                 </div>
               </div>
 
-              <div className="text-[11px] font-mono text-center text-slate-500">
+              <div className="text-xs font-mono text-center text-slate-500">
                 Tổng 7 có xác suất xuất hiện cao nhất:{' '}
                 <span className="text-amber-700 font-bold">16.67% (6/36)</span>
               </div>
@@ -257,7 +257,7 @@ export function CategoryGrid() {
 
             <div className="rounded-xl bg-slate-100/70 border-l-4 border-l-violet-600 p-3.5 text-xs font-mono space-y-1.5">
               <div className="text-violet-800 font-bold">Achilles & Con Rùa (Zeno):</div>
-              <div className="text-slate-600 text-[11px] leading-relaxed">
+              <div className="text-slate-600 text-xs leading-relaxed">
                 Khoảng cách: 100m → 50m → 25m → ...
                 <br />
                 Chuỗi vô hạn: Σ (1/2)^n = 1 (Hội tụ hữu hạn)
@@ -421,9 +421,7 @@ export function CategoryGrid() {
 
             <div className="rounded-xl bg-slate-100/70 border-l-4 border-l-blue-600 p-3.5 text-xs font-mono space-y-1">
               <span className="text-blue-800 font-bold">Nghịch lý Russell:</span>
-              <p className="text-slate-600 text-[11px]">
-                R = &#123; x | x ∉ x &#125; ⇒ R ∈ R ⟺ R ∉ R
-              </p>
+              <p className="text-slate-600 text-xs">R = &#123; x | x ∉ x &#125; ⇒ R ∈ R ⟺ R ∉ R</p>
             </div>
           </CardContent>
         </div>

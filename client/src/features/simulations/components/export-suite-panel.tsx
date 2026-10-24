@@ -84,7 +84,7 @@ export function ExportSuitePanel({
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-300/85 bg-white p-3 shadow-xs">
       <div className="flex items-center gap-2">
-        <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500">
+        <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500">
           Bộ công cụ Nghiên cứu:
         </span>
       </div>

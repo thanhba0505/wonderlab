@@ -168,7 +168,7 @@ export function CommentSection({ simulationSlug }: CommentSectionProps) {
               <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
               <span className="text-slate-600 font-sans">Đang đăng nhập:</span>
               <strong className="font-mono text-slate-900">{user.username}</strong>
-              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 font-semibold">
+              <span className="text-xs font-mono px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 font-semibold">
                 {user.role}
               </span>
             </div>
@@ -196,13 +196,13 @@ export function CommentSection({ simulationSlug }: CommentSectionProps) {
                 maxLength={2000}
                 className="w-full rounded-xl border border-slate-300 p-3.5 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-y min-h-[90px]"
               />
-              <span className="absolute bottom-2.5 right-3 text-[10px] font-mono text-slate-400">
+              <span className="absolute bottom-2.5 right-3 text-xs font-mono text-slate-400">
                 {rootContent.length}/2000
               </span>
             </div>
 
             <div className="flex justify-between items-center">
-              <span className="text-[11px] text-slate-500 font-sans">
+              <span className="text-xs text-slate-500 font-sans">
                 Hỗ trợ phản hồi lồng tối đa 2 cấp (Root &rarr; Reply).
               </span>
               <Button
@@ -264,7 +264,7 @@ export function CommentSection({ simulationSlug }: CommentSectionProps) {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="text-[11px] font-semibold text-slate-700 block mb-1">
+                <label className="text-xs font-semibold text-slate-700 block mb-1">
                   Tên đăng nhập
                 </label>
                 <input
@@ -277,9 +277,7 @@ export function CommentSection({ simulationSlug }: CommentSectionProps) {
               </div>
 
               <div>
-                <label className="text-[11px] font-semibold text-slate-700 block mb-1">
-                  Mật khẩu
-                </label>
+                <label className="text-xs font-semibold text-slate-700 block mb-1">Mật khẩu</label>
                 <input
                   type="password"
                   value={loginPassword}
@@ -348,18 +346,18 @@ export function CommentSection({ simulationSlug }: CommentSectionProps) {
                             {rootComment.user.username}
                           </span>
                           {rootComment.user.role === 'ADMIN' ? (
-                            <span className="inline-flex items-center gap-0.5 text-[9px] font-mono font-bold bg-blue-100 text-blue-800 px-1.5 py-0.2 rounded">
+                            <span className="inline-flex items-center gap-0.5 text-xs font-mono font-bold bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded">
                               <Shield className="h-2.5 w-2.5" />
                               ADMIN
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-0.5 text-[9px] font-mono bg-slate-100 text-slate-700 px-1.5 py-0.2 rounded">
+                            <span className="inline-flex items-center gap-0.5 text-xs font-mono bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded">
                               <UserIcon className="h-2.5 w-2.5" />
                               USER
                             </span>
                           )}
                         </div>
-                        <div className="text-[10px] font-mono text-slate-400">
+                        <div className="text-xs font-mono text-slate-400">
                           {formatRelativeTime(rootComment.createdAt)}
                         </div>
                       </div>
@@ -418,7 +416,7 @@ export function CommentSection({ simulationSlug }: CommentSectionProps) {
                   {/* Form gửi câu trả lời Cấp 2 */}
                   {isReplying && user && (
                     <div className="ml-6 sm:ml-10 pl-3 border-l-2 border-blue-400 pt-2 space-y-2">
-                      <div className="text-[11px] font-semibold text-blue-900 flex items-center gap-1">
+                      <div className="text-xs font-semibold text-blue-900 flex items-center gap-1">
                         <CornerDownRight className="h-3 w-3 text-blue-600" />
                         Trả lời @{rootComment.user.username}:
                       </div>
@@ -475,18 +473,18 @@ export function CommentSection({ simulationSlug }: CommentSectionProps) {
                           >
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-2">
-                                <div className="h-5 w-5 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center text-[10px] font-bold font-mono">
+                                <div className="h-5 w-5 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center text-xs font-bold font-mono">
                                   {reply.user.username.charAt(0).toUpperCase()}
                                 </div>
                                 <span className="font-mono text-xs font-bold text-slate-800">
                                   {reply.user.username}
                                 </span>
                                 {reply.user.role === 'ADMIN' && (
-                                  <span className="text-[8px] font-mono font-bold bg-blue-100 text-blue-800 px-1 py-0.2 rounded">
+                                  <span className="text-xs font-mono font-bold bg-blue-100 text-blue-800 px-1 py-0.5 rounded">
                                     ADMIN
                                   </span>
                                 )}
-                                <span className="text-[10px] font-mono text-slate-400">
+                                <span className="text-xs font-mono text-slate-400">
                                   {formatRelativeTime(reply.createdAt)}
                                 </span>
                               </div>

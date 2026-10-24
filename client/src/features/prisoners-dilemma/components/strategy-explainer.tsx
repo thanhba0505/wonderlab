@@ -88,7 +88,7 @@ export function StrategyExplainer() {
               &ldquo;Trong một thế giới có tính lặp lại, lòng vị tha không phải là một sự yếu đuối
               ngây thơ, mà là một chiến lược tiến hóa tối ưu và kiên cường nhất của sự sống.&rdquo;
             </blockquote>
-            <p className="mt-1 text-[11px] text-slate-500 font-bold">
+            <p className="mt-1 text-xs text-slate-500 font-bold">
               — Robert Axelrod (The Evolution of Cooperation, 1984)
             </p>
           </div>

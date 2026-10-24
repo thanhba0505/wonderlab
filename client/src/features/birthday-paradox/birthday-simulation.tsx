@@ -277,7 +277,7 @@ export const BirthdaySimulation: React.FC = () => {
         <div className="space-y-1">
           <div className="flex items-center gap-2.5">
             <span className="h-2.5 w-2.5 rounded-full bg-amber-500 shadow-xs shadow-amber-500/40" />
-            <h2 className="font-heading text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
+            <h2 className="font-heading text-[18px] font-bold tracking-tight text-slate-900">
               Khảo Sát Trực Giác Trước Thực Nghiệm
             </h2>
           </div>
@@ -304,7 +304,7 @@ export const BirthdaySimulation: React.FC = () => {
         <div className="space-y-1">
           <div className="flex items-center gap-2.5">
             <span className="h-2.5 w-2.5 rounded-full bg-blue-600 shadow-xs shadow-blue-500/40" />
-            <h2 className="font-heading text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
+            <h2 className="font-heading text-[18px] font-bold tracking-tight text-slate-900">
               Buồng Thí Nghiệm & Mô Phỏng Trực Quan
             </h2>
           </div>
@@ -319,21 +319,21 @@ export const BirthdaySimulation: React.FC = () => {
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 pb-5 border-b border-slate-200/80">
             {/* Metric 1: Group size n */}
             <div className="space-y-1">
-              <div className="text-[11px] font-semibold tracking-wider text-slate-500 uppercase">
+              <div className="text-xs font-semibold tracking-wider text-slate-500 uppercase">
                 Số người trong phòng (n)
               </div>
               <div className="font-mono text-2xl sm:text-3xl font-bold text-slate-900 tabular-nums">
                 {n}
               </div>
-              <div className="text-[11px] text-slate-500 font-mono">{totalPairs} cặp đối sánh</div>
+              <div className="text-xs text-slate-500 font-mono">{totalPairs} cặp đối sánh</div>
             </div>
 
             {/* Metric 2: Theoretical P(n) */}
             <div className="space-y-1 sm:border-l sm:border-slate-200/80 sm:pl-4">
-              <div className="text-[11px] font-semibold tracking-wider text-slate-500 uppercase flex items-center justify-between">
+              <div className="text-xs font-semibold tracking-wider text-slate-500 uppercase flex items-center justify-between">
                 <span>Xác suất Lý thuyết P(n)</span>
                 {!isChallengeResolved && (
-                  <Badge variant="amber" className="text-[9px] font-mono py-0 px-1.5">
+                  <Badge variant="amber" className="text-xs font-mono py-0 px-1.5">
                     Đang khóa
                   </Badge>
                 )}
@@ -345,7 +345,7 @@ export const BirthdaySimulation: React.FC = () => {
               >
                 {!isChallengeResolved ? '??.?%' : `${(theoreticalP * 100).toFixed(1)}%`}
               </div>
-              <div className="text-[11px] text-slate-500 font-sans">
+              <div className="text-xs text-slate-500 font-sans">
                 {!isChallengeResolved
                   ? 'Dự đoán hoặc Bỏ qua để mở'
                   : n >= 23
@@ -356,7 +356,7 @@ export const BirthdaySimulation: React.FC = () => {
 
             {/* Metric 3: Current room collision */}
             <div className="space-y-1 border-t sm:border-t-0 pt-3 sm:pt-0 sm:border-l sm:border-slate-200/80 sm:pl-4">
-              <div className="text-[11px] font-semibold tracking-wider text-slate-500 uppercase">
+              <div className="text-xs font-semibold tracking-wider text-slate-500 uppercase">
                 Phòng hiện tại
               </div>
               <div className="flex items-center gap-1.5 font-mono text-xl sm:text-2xl font-bold pt-0.5">
@@ -372,20 +372,20 @@ export const BirthdaySimulation: React.FC = () => {
                   </>
                 )}
               </div>
-              <div className="font-mono text-[11px] text-slate-500 tabular-nums">
+              <div className="font-mono text-xs text-slate-500 tabular-nums">
                 {room.collisionPairs.length} cặp trùng nhau
               </div>
             </div>
 
             {/* Metric 4: Monte Carlo rate */}
             <div className="space-y-1 border-t sm:border-t-0 pt-3 sm:pt-0 sm:border-l sm:border-slate-200/80 sm:pl-4">
-              <div className="text-[11px] font-semibold tracking-wider text-slate-500 uppercase">
+              <div className="text-xs font-semibold tracking-wider text-slate-500 uppercase">
                 Thực nghiệm Monte Carlo
               </div>
               <div className="font-mono text-2xl sm:text-3xl font-bold text-emerald-700 tabular-nums">
                 {(currentEmpiricalRate * 100).toFixed(1)}%
               </div>
-              <div className="font-mono text-[11px] text-slate-500 tabular-nums">
+              <div className="font-mono text-xs text-slate-500 tabular-nums">
                 {monteCarloResult
                   ? `${monteCarloResult.collisions}/${monteCarloResult.trials} phòng`
                   : `${sessionCollisionCount}/${sessionRoomsCount} lần thử`}
@@ -407,7 +407,7 @@ export const BirthdaySimulation: React.FC = () => {
                     </h3>
                   </div>
                   {room.hasCollision && (
-                    <Badge className="bg-amber-100 text-amber-800 border-amber-300 text-[10px]">
+                    <Badge className="bg-amber-100 text-amber-800 border-amber-300 text-xs">
                       <Sparkles className="mr-1 h-3 w-3" />
                       Va chạm!
                     </Badge>
@@ -552,7 +552,7 @@ export const BirthdaySimulation: React.FC = () => {
                   </div>
                 </div>
               ) : (
-                <div className="flex items-center gap-2 text-[11px] text-slate-500">
+                <div className="flex items-center gap-2 text-xs text-slate-500">
                   <Activity className="h-3.5 w-3.5 text-blue-600 animate-pulse" />
                   <span>Sẵn sàng thu thập telemetry</span>
                 </div>
@@ -568,7 +568,7 @@ export const BirthdaySimulation: React.FC = () => {
         <div className="space-y-1">
           <div className="flex items-center gap-2.5">
             <span className="h-2.5 w-2.5 rounded-full bg-emerald-600 shadow-xs shadow-emerald-500/40" />
-            <h2 className="font-heading text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
+            <h2 className="font-heading text-[18px] font-bold tracking-tight text-slate-900">
               Nhật Ký Thực Nghiệm
             </h2>
           </div>
@@ -595,7 +595,7 @@ export const BirthdaySimulation: React.FC = () => {
         <div className="space-y-1">
           <div className="flex items-center gap-2.5">
             <span className="h-2.5 w-2.5 rounded-full bg-violet-600 shadow-xs shadow-violet-500/40" />
-            <h2 className="font-heading text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
+            <h2 className="font-heading text-[18px] font-bold tracking-tight text-slate-900">
               Giải Thích Khoa Học & Bản Chất Toán Học
             </h2>
           </div>

@@ -42,11 +42,11 @@ export function SimulationHistoryTable({
           <h3 className="font-heading text-xs font-bold uppercase tracking-wider text-slate-900">
             Nhật ký Lượt chạy Thực nghiệm (Session Runs)
           </h3>
-          <Badge variant="outline" className="font-mono text-[10px] text-slate-600 bg-white">
+          <Badge variant="outline" className="font-mono text-xs text-slate-600 bg-white">
             {runs.length} bản ghi
           </Badge>
         </div>
-        <span className="text-[11px] font-mono text-slate-400 flex items-center gap-1">
+        <span className="text-xs font-mono text-slate-400 flex items-center gap-1">
           <Clock className="h-3 w-3" />
           Tự động đồng bộ
         </span>
@@ -55,7 +55,7 @@ export function SimulationHistoryTable({
       <div className="overflow-x-auto">
         <table className="w-full text-left text-xs font-sans">
           <thead>
-            <tr className="border-b border-slate-200 bg-slate-100/50 text-[11px] font-mono uppercase tracking-wider text-slate-600">
+            <tr className="border-b border-slate-200 bg-slate-100/50 text-xs font-mono uppercase tracking-wider text-slate-600">
               <th className="px-4 py-2.5">Thời điểm</th>
               <th className="px-4 py-2.5">Tham số</th>
               <th className="px-4 py-2.5 text-right">Số phép thử</th>
@@ -131,7 +131,7 @@ export function SimulationHistoryTable({
                       <div className="flex items-center justify-end gap-1.5">
                         <span className="text-slate-600">{(theoRate * 100).toFixed(2)}%</span>
                         <span
-                          className={`text-[11px] font-semibold ${
+                          className={`text-xs font-semibold ${
                             delta < 0.01
                               ? 'text-emerald-700'
                               : delta < 0.03
@@ -153,7 +153,7 @@ export function SimulationHistoryTable({
                         variant="ghost"
                         size="sm"
                         onClick={() => onReloadParams(params)}
-                        className="h-6 px-2 text-[11px] text-blue-700 hover:text-blue-900 hover:bg-blue-50 font-sans gap-1"
+                        className="h-6 px-2 text-xs text-blue-700 hover:text-blue-900 hover:bg-blue-50 font-sans gap-1"
                         title="Nạp lại cấu hình này"
                       >
                         <RotateCcw className="h-3 w-3" />
@@ -168,7 +168,7 @@ export function SimulationHistoryTable({
         </table>
       </div>
 
-      <div className="flex items-center justify-between border-t border-slate-200 bg-slate-50/40 px-4 py-2 text-[11px] text-slate-500 font-sans">
+      <div className="flex items-center justify-between border-t border-slate-200 bg-slate-50/40 px-4 py-2 text-xs text-slate-500 font-sans">
         <span>Hiển thị tối đa 25 lượt gần nhất của phiên này</span>
         <span className="font-mono text-slate-400 flex items-center gap-1">
           Dữ liệu lưu trữ bền vững

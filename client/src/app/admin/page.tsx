@@ -92,7 +92,7 @@ export default function AdminPortalPage() {
 
         <Card className="border-slate-300/85 bg-white shadow-md overflow-hidden">
           <div className="p-6 border-b border-slate-200 bg-slate-50/70 space-y-1">
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-blue-50 border border-blue-200 text-blue-700 text-[10px] font-mono font-bold uppercase tracking-wider mb-2">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-blue-50 border border-blue-200 text-blue-700 text-xs font-mono font-bold uppercase tracking-wider mb-2">
               <Lock className="h-3 w-3" />
               XÁC THỰC QUẢN TRỊ
             </div>

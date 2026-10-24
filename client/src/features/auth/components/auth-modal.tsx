@@ -400,7 +400,7 @@ export function AuthModal() {
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-slate-200" />
                 </div>
-                <span className="relative bg-white px-2 text-[11px] font-mono uppercase text-slate-400">
+                <span className="relative bg-white px-2 text-xs font-mono uppercase text-slate-400">
                   Hoặc tiếp tục với
                 </span>
               </div>
@@ -545,7 +545,7 @@ export function AuthModal() {
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-slate-200" />
                 </div>
-                <span className="relative bg-white px-2 text-[11px] font-mono uppercase text-slate-400">
+                <span className="relative bg-white px-2 text-xs font-mono uppercase text-slate-400">
                   Hoặc
                 </span>
               </div>

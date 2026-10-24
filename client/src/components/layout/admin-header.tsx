@@ -26,7 +26,7 @@ export function AdminHeader() {
               <span className="text-slate-300">/</span>
               <Badge
                 variant="outline"
-                className="text-[10px] font-mono border-blue-200 bg-blue-50/80 text-blue-700 font-bold uppercase tracking-wider"
+                className="text-xs font-mono border-blue-200 bg-blue-50/80 text-blue-700 font-bold uppercase tracking-wider"
               >
                 Admin Console
               </Badge>
@@ -50,11 +50,11 @@ export function AdminHeader() {
           {user && (
             <div className="flex items-center gap-2 pl-2 border-l border-slate-200">
               <div className="flex items-center gap-2 px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-200 text-xs">
-                <div className="h-5 w-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px] font-bold font-mono">
+                <div className="h-5 w-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold font-mono">
                   {user.username.charAt(0).toUpperCase()}
                 </div>
                 <span className="font-mono font-bold text-slate-800">{user.username}</span>
-                <span className="text-[9px] font-mono px-1 py-0.2 rounded bg-blue-100 text-blue-800 font-bold">
+                <span className="text-xs font-mono px-1 py-0.5 rounded bg-blue-100 text-blue-800 font-bold">
                   {user.role}
                 </span>
               </div>

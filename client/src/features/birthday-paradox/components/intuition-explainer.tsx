@@ -55,7 +55,7 @@ export const IntuitionExplainer: React.FC<IntuitionExplainerProps> = ({ currentN
             <span className="font-mono text-xs font-bold text-slate-700 uppercase tracking-wide">
               Trực giác Tự nhiên (Sai lệch)
             </span>
-            <span className="rounded bg-slate-100 px-2 py-0.5 font-mono text-[10px] font-semibold text-slate-600">
+            <span className="rounded bg-slate-100 px-2 py-0.5 font-mono text-xs font-semibold text-slate-600">
               {naivePairs} phép so sánh
             </span>
           </div>
@@ -71,7 +71,7 @@ export const IntuitionExplainer: React.FC<IntuitionExplainerProps> = ({ currentN
 
           {/* Công thức: Biểu diễn phân số, số mũ nhiều dòng đẹp mắt */}
           <div className="rounded-lg bg-slate-50/80 border border-slate-200/70 p-3 font-mono text-xs text-slate-800 space-y-1.5">
-            <div className="text-[11px] font-sans text-slate-500 font-medium">
+            <div className="text-xs font-sans text-slate-500 font-medium">
               Xác suất trùng với BẠN:
             </div>
             <div className="flex items-center flex-wrap gap-2 text-sm">
@@ -90,7 +90,7 @@ export const IntuitionExplainer: React.FC<IntuitionExplainerProps> = ({ currentN
               </span>
             </div>
           </div>
-          <p className="text-[11px] text-slate-500 italic">
+          <p className="text-xs text-slate-500 italic">
             Xác suất này rất nhỏ, tạo cảm giác sai lầm rằng biến cố trùng ngày sinh là cực kỳ hiếm
             thấy.
           </p>
@@ -102,7 +102,7 @@ export const IntuitionExplainer: React.FC<IntuitionExplainerProps> = ({ currentN
             <span className="font-mono text-xs font-bold text-blue-900 uppercase tracking-wide">
               Không gian Tổ hợp Thực tế
             </span>
-            <span className="rounded bg-blue-100/70 px-2 py-0.5 font-mono text-[10px] font-bold text-blue-800">
+            <span className="rounded bg-blue-100/70 px-2 py-0.5 font-mono text-xs font-bold text-blue-800">
               {currentPairs} cặp đối sánh!
             </span>
           </div>
@@ -120,7 +120,7 @@ export const IntuitionExplainer: React.FC<IntuitionExplainerProps> = ({ currentN
 
           {/* Công thức: Biểu diễn phân số, số mũ nhiều dòng đẹp mắt */}
           <div className="rounded-lg bg-blue-50/60 border border-blue-200/70 p-3 font-mono text-xs text-slate-800 space-y-2">
-            <div className="text-[11px] font-sans text-blue-700 font-medium">
+            <div className="text-xs font-sans text-blue-700 font-medium">
               Số cặp ghép đôi tổ hợp & xác suất va chạm:
             </div>
             <div className="flex items-center flex-wrap gap-2 text-sm text-blue-950">
@@ -138,12 +138,12 @@ export const IntuitionExplainer: React.FC<IntuitionExplainerProps> = ({ currentN
               <span className="font-bold text-blue-900">P(n)</span>
               <span>&asymp;</span>
               <span>1 &minus; e</span>
-              <sup className="text-[10px] font-bold text-blue-700 -top-1">
+              <sup className="text-xs font-bold text-blue-700 -top-1">
                 &minus;
                 <MathFraction
                   numerator={String(currentPairs)}
                   denominator="365"
-                  className="text-[9px]"
+                  className="text-xs"
                 />
               </sup>
               <span>=</span>
@@ -152,7 +152,7 @@ export const IntuitionExplainer: React.FC<IntuitionExplainerProps> = ({ currentN
               </span>
             </div>
           </div>
-          <p className="text-[11px] text-slate-600">
+          <p className="text-xs text-slate-600">
             Với {currentPairs} cơ hội đối sánh độc lập, việc xuất hiện ít nhất một cặp trùng trở
             thành biến cố tất yếu và rất khả dĩ!
           </p>

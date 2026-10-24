@@ -76,7 +76,7 @@ export function CuratedList() {
             <div className="space-y-2.5 max-w-3xl">
               <div className="flex flex-wrap items-center gap-3">
                 <span className="font-mono text-xs font-bold text-slate-500">#0{index + 1}</span>
-                <Badge variant={getBadgeVariant(item.category)} className="text-[11px]">
+                <Badge variant={getBadgeVariant(item.category)} className="text-xs">
                   {item.highlightTag}
                 </Badge>
                 <div className="flex items-center gap-1.5 text-xs text-slate-500 font-mono">

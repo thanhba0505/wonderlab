@@ -145,7 +145,7 @@ export default async function SimulationPage({ params }: SimulationPageProps) {
         <div className="space-y-1">
           <div className="flex items-center gap-2.5">
             <span className="h-2.5 w-2.5 rounded-full bg-indigo-600 shadow-xs shadow-indigo-500/40" />
-            <h2 className="font-heading text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
+            <h2 className="font-heading text-[18px] font-bold tracking-tight text-slate-900">
               Góc Thảo Luận & Bình Luận Khoa Học
             </h2>
           </div>

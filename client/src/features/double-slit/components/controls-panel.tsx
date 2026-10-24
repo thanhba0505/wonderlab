@@ -197,7 +197,7 @@ export function ControlsPanel({
             }}
             className="w-full accent-blue-600 cursor-pointer h-1.5 bg-slate-200 rounded-lg"
           />
-          <div className="flex justify-between text-[10px] font-mono text-slate-400">
+          <div className="flex justify-between text-xs font-mono text-slate-400">
             <span>400nm (Tím)</span>
             <span>532nm (Lục)</span>
             <span>700nm (Đỏ)</span>
@@ -225,7 +225,7 @@ export function ControlsPanel({
             }}
             className="w-full accent-blue-600 cursor-pointer h-1.5 bg-slate-200 rounded-lg"
           />
-          <div className="flex justify-between text-[10px] font-mono text-slate-400">
+          <div className="flex justify-between text-xs font-mono text-slate-400">
             <span>15µm (Rộng)</span>
             <span>25µm</span>
             <span>50µm (Hẹp)</span>
@@ -255,7 +255,7 @@ export function ControlsPanel({
             }}
             className="w-full accent-blue-600 cursor-pointer h-1.5 bg-slate-200 rounded-lg"
           />
-          <div className="flex justify-between text-[10px] font-mono text-slate-400">
+          <div className="flex justify-between text-xs font-mono text-slate-400">
             <span>0.5 m</span>
             <span>1.0 m</span>
             <span>2.0 m</span>

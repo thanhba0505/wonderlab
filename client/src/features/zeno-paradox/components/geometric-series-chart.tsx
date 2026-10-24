@@ -80,7 +80,7 @@ export function GeometricSeriesChart({
       <div className="relative overflow-x-auto rounded-xl border border-slate-200 bg-slate-50/50 p-4">
         <svg
           viewBox={`0 0 ${chartWidth} ${chartHeight}`}
-          className="w-full h-auto overflow-visible font-mono text-[10px]"
+          className="w-full h-auto overflow-visible font-mono text-xs"
         >
           {/* Grid lines */}
           <line
@@ -167,7 +167,7 @@ export function GeometricSeriesChart({
       <div className="overflow-x-auto">
         <table className="w-full border-collapse text-left font-mono text-xs">
           <thead>
-            <tr className="border-b border-slate-200 bg-slate-50 text-[11px] text-slate-500">
+            <tr className="border-b border-slate-200 bg-slate-50 text-xs text-slate-500">
               <th className="py-2 px-3 font-semibold">Chặng (n)</th>
               <th className="py-2 px-3 font-semibold">Thời gian chặng (Δt)</th>
               <th className="py-2 px-3 font-semibold">Tổng tích lũy (Sn)</th>
@@ -210,7 +210,7 @@ export function GeometricSeriesChart({
                           style={{ width: `${Math.min(100, s.fractionOfTotalTime)}%` }}
                         />
                       </div>
-                      <span className="text-[11px] text-slate-600">
+                      <span className="text-xs text-slate-600">
                         {s.fractionOfTotalTime.toFixed(2)}%
                       </span>
                     </div>

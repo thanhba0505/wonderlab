@@ -293,12 +293,12 @@ export function SlitVisualizer({
             </span>
           </div>
           <span className="text-slate-600">|</span>
-          <span className="flex items-center gap-1 text-[11px]">
+          <span className="flex items-center gap-1 text-xs">
             <Sparkles className="h-3 w-3 text-amber-400" />
             <span className="text-slate-300">λ = {(params.wavelength * 1e9).toFixed(0)}nm</span>
           </span>
           <span className="text-slate-600">|</span>
-          <span className="text-[11px] text-slate-300">
+          <span className="text-xs text-slate-300">
             d = {(params.slitDistance * 1e6).toFixed(0)}µm
           </span>
         </div>
@@ -306,12 +306,12 @@ export function SlitVisualizer({
         {/* Observer Mode Indicator */}
         <div className="flex items-center gap-2">
           {params.isObserverActive ? (
-            <span className="flex items-center gap-1.5 rounded bg-rose-500/20 px-2 py-0.5 text-[11px] font-bold text-rose-400 border border-rose-500/40 animate-pulse">
+            <span className="flex items-center gap-1.5 rounded bg-rose-500/20 px-2 py-0.5 text-xs font-bold text-rose-400 border border-rose-500/40 animate-pulse">
               <Eye className="h-3.5 w-3.5" />
               OBSERVER ON: HÀM SÓNG SỤP ĐỔ
             </span>
           ) : (
-            <span className="flex items-center gap-1.5 rounded bg-blue-500/20 px-2 py-0.5 text-[11px] font-bold text-blue-400 border border-blue-500/40">
+            <span className="flex items-center gap-1.5 rounded bg-blue-500/20 px-2 py-0.5 text-xs font-bold text-blue-400 border border-blue-500/40">
               <EyeOff className="h-3.5 w-3.5" />
               OBSERVER OFF: GIAO THOA SÓNG
             </span>
@@ -329,7 +329,7 @@ export function SlitVisualizer({
         />
 
         {/* Annotations overlay */}
-        <div className="pointer-events-none absolute bottom-3 left-4 flex gap-4 text-[10px] font-mono text-slate-400">
+        <div className="pointer-events-none absolute bottom-3 left-4 flex gap-4 text-xs font-mono text-slate-400">
           <div className="flex items-center gap-1 bg-slate-900/80 px-2 py-1 rounded border border-slate-700">
             <Radio className="h-3 w-3 text-blue-400" />
             <span>Súng phát xạ (Emitter)</span>

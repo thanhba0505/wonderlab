@@ -194,10 +194,7 @@ export function PrisonersDilemmaSimulation() {
         </div>
 
         <div className="flex items-center gap-2">
-          <Badge
-            variant="outline"
-            className="text-[11px] font-mono border-slate-300 text-slate-600"
-          >
+          <Badge variant="outline" className="text-xs font-mono border-slate-300 text-slate-600">
             <Sparkles className="mr-1 h-3 w-3 text-amber-500" />
             Cân bằng Nash: (Phản bội, Phản bội)
           </Badge>

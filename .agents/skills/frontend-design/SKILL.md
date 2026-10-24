@@ -23,6 +23,7 @@ AI coding agents instinctively converge on predictable, unoriginal UI tropes. **
 | **Oversized Toy-Like Radiuses**                    | Indiscriminately slapping `rounded-3xl` on every container makes UI look childish.                                                                                                                                                     | Calibrate border radiuses: `rounded-md` (6px) for badges/inputs, `rounded-lg` (8px) for buttons, `rounded-xl` (12px) for cards, `rounded-2xl` (16px) only for major simulation stages.                                          |
 | **Multi-Nested Border Boxes (> 2)**                | Stacking boxes within boxes (Card -> Wrapper border -> Sub-item border) creates visual clutter.                                                                                                                                        | **Strict Max 2-Layer Rule**. Use borderless background tints (`bg-slate-100/70`), subtle dividers, or left accent bars (`border-l-4`) instead of 4-sided borders around everything.                                             |
 | **Internal Tech Boasting & Leaking Dev Endpoints** | Exposing internal libraries, cryptographic algorithms (`Argon2id`, `HttpOnly Cookie`, `OWASP`), raw localhost endpoints (`http://localhost:4101/api/docs`), `/api/v1/health` status badges, or framework version strings on public UI. | **Strictly forbidden**. Web platforms must feel like authentic, scholarly productions, not developer playgrounds or tech demos. Keep plumbing, internal security specs, dev ports, and versions strictly out of user-facing UI. |
+| **Micro Font Sizes (< 12px)**                      | Slapping arbitrary tiny text (`text-[8px]`, `text-[10px]`, `text-[11px]`) renders illegible on high-DPI/mobile screens and breaks accessibility.                                                                                       | **Strict Minimum 12px Rule**. Every text element, badge, tag, and caption must be at least `text-xs` (12px). Section headings are standardized to `18px` (`text-[18px]`).                                                       |
 
 ---
 
@@ -49,6 +50,11 @@ AI coding agents instinctively converge on predictable, unoriginal UI tropes. **
 3. **Data, Metrics & Mathematical Formulas (`JetBrains Mono`)**:
    - Always render simulation counters, percentages, and probabilities with `font-mono tabular-nums`.
    - Never let numbers cause layout shifts when updating dynamically.
+4. **Strict Minimum Font Size Standard (>= 12px)**:
+   - Zero tolerance for font sizes below `12px` (`text-xs`). Never use `text-[11px]`, `text-[10px]`, `text-[9px]`, `text-[8px]`, or micro-text.
+   - All badges, status indicators, metadata, captions, and formulas must maintain at least `text-xs` (12px).
+5. **Section Heading Sizing Standard (18px)**:
+   - Section headings (`h2`) are standardized to `18px` (`text-[18px] font-bold`), balancing authority with scientific restraint without overwhelming the layout.
 
 ---
 

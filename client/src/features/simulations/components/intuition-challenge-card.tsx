@@ -154,7 +154,7 @@ export function IntuitionChallengeCard({
 
           <Badge
             variant={isCardActive ? 'amber' : isSkipped ? 'outline' : 'cyan'}
-            className="text-[10px] font-mono"
+            className="text-xs font-mono"
           >
             {hasSubmitted ? 'Đã dự đoán' : isSkipped ? 'Đã bỏ qua' : 'Khảo sát trước thực nghiệm'}
           </Badge>
@@ -164,7 +164,7 @@ export function IntuitionChallengeCard({
               variant="ghost"
               size="sm"
               onClick={handleResetGuess}
-              className="h-6 px-2 text-[11px] text-slate-500 hover:text-slate-900 font-mono gap-1"
+              className="h-6 px-2 text-xs text-slate-500 hover:text-slate-900 font-mono gap-1"
             >
               <RotateCcw className="h-3 w-3" />
               Đoán lại
@@ -222,7 +222,7 @@ export function IntuitionChallengeCard({
                         <div className="font-heading text-xs font-bold text-slate-900">
                           {option.label}
                         </div>
-                        <p className="text-[11px] text-slate-500 font-sans leading-relaxed">
+                        <p className="text-xs text-slate-500 font-sans leading-relaxed">
                           {option.explanation}
                         </p>
                       </div>
@@ -236,10 +236,10 @@ export function IntuitionChallengeCard({
                 {/* Visual Gap Meter */}
                 <div className="rounded-xl bg-slate-50 p-4 border border-slate-200/80 space-y-3">
                   <div className="flex flex-wrap items-center justify-between gap-2">
-                    <span className="text-[11px] font-mono uppercase tracking-wider text-slate-500 font-bold">
+                    <span className="text-xs font-mono uppercase tracking-wider text-slate-500 font-bold">
                       Thước đo Độ lệch Trực giác (Intuition Gap Meter)
                     </span>
-                    <Badge variant={rating.badgeVariant} className="gap-1 font-mono text-[10px]">
+                    <Badge variant={rating.badgeVariant} className="gap-1 font-mono text-xs">
                       {rating.tier === 'master' ? (
                         <Award className="h-3 w-3" />
                       ) : rating.tier === 'moderate' ? (
@@ -254,7 +254,7 @@ export function IntuitionChallengeCard({
                   {/* Dual Progress / Values */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                     <div className="rounded-lg bg-white p-3 border border-slate-200 shadow-2xs">
-                      <span className="text-[10px] font-mono text-slate-500 uppercase block">
+                      <span className="text-xs font-mono text-slate-500 uppercase block">
                         Bạn đã dự đoán:
                       </span>
                       <div className="flex items-baseline justify-between mt-1">
@@ -268,7 +268,7 @@ export function IntuitionChallengeCard({
                     </div>
 
                     <div className="rounded-lg bg-white p-3 border border-slate-200 shadow-2xs">
-                      <span className="text-[10px] font-mono text-slate-500 uppercase block">
+                      <span className="text-xs font-mono text-slate-500 uppercase block">
                         Định lý Toán học Khách quan:
                       </span>
                       <div className="flex items-baseline justify-between mt-1">
@@ -284,7 +284,7 @@ export function IntuitionChallengeCard({
 
                   {/* Visual Distance Bar */}
                   <div className="space-y-1.5 pt-1">
-                    <div className="flex justify-between text-[11px] font-mono text-slate-500">
+                    <div className="flex justify-between text-xs font-mono text-slate-500">
                       <span>0%</span>
                       <span className="text-slate-900 font-bold">
                         Khoảng cách sai lệch: Δ {gapPercentage.toFixed(1)}%
@@ -319,7 +319,7 @@ export function IntuitionChallengeCard({
                     Giải mã Tâm lý Nhận thức: {challenge.biasName}
                   </div>
                   <p className="font-sans leading-relaxed">{challenge.truthExplanation}</p>
-                  <p className="font-sans text-slate-500 text-[11px]">
+                  <p className="font-sans text-slate-500 text-xs">
                     <strong>Bản chất cạm bẫy:</strong> {challenge.biasDescription}
                   </p>
                 </div>

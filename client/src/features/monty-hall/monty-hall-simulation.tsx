@@ -375,19 +375,19 @@ export function MontyHallSimulation() {
                     </span>
 
                     {isSelected && step !== 'result' && (
-                      <Badge variant="cyan" className="text-[10px]">
+                      <Badge variant="cyan" className="text-xs">
                         LỰA CHỌN CỦA BẠN
                       </Badge>
                     )}
 
                     {isRevealedGoat && (
-                      <Badge variant="amber" className="text-[10px]">
+                      <Badge variant="amber" className="text-xs">
                         MC ĐÃ MỞ (DÊ)
                       </Badge>
                     )}
 
                     {step === 'result' && hasCar && (
-                      <Badge variant="emerald" className="text-[10px] font-bold">
+                      <Badge variant="emerald" className="text-xs font-bold">
                         TRÚNG Ô TÔ 🏎️
                       </Badge>
                     )}
@@ -461,7 +461,7 @@ export function MontyHallSimulation() {
 
                   {step === 'pick' && (
                     <div className="w-full text-center">
-                      <span className="text-[11px] font-mono text-slate-500 group-hover:text-blue-700 transition-colors">
+                      <span className="text-xs font-mono text-slate-500 group-hover:text-blue-700 transition-colors">
                         {isChallengeResolved
                           ? 'Xác suất ban đầu: 1/3 (33.3%)'
                           : 'Nhấp vào cánh cửa để chọn'}
@@ -548,7 +548,7 @@ export function MontyHallSimulation() {
                     style={{ width: `${switchRate ?? 0}%` }}
                   />
                 </div>
-                <div className="flex justify-between text-[10px] font-mono text-slate-500">
+                <div className="flex justify-between text-xs font-mono text-slate-500">
                   <span>0%</span>
                   <span className="text-blue-700 font-semibold">
                     {isChallengeResolved ? 'Kỳ vọng lý thuyết: 66.7%' : 'Kỳ vọng: [Đang khóa]'}
@@ -595,7 +595,7 @@ export function MontyHallSimulation() {
                     style={{ width: `${stayRate ?? 0}%` }}
                   />
                 </div>
-                <div className="flex justify-between text-[10px] font-mono text-slate-500">
+                <div className="flex justify-between text-xs font-mono text-slate-500">
                   <span>0%</span>
                   <span className="text-violet-700 font-semibold">
                     {isChallengeResolved ? 'Kỳ vọng lý thuyết: 33.3%' : 'Kỳ vọng: [Đang khóa]'}
@@ -642,7 +642,7 @@ export function MontyHallSimulation() {
                 <strong className="text-violet-700 font-mono">2/3</strong>. Vì MC luôn bắt buộc phải
                 mở một cánh cửa có dê, toàn bộ xác suất 2/3 này dồn về cánh cửa còn lại chưa mở.
               </p>
-              <div className="font-mono text-[11px] text-blue-950 bg-white p-3 rounded-lg shadow-2xs">
+              <div className="font-mono text-xs text-blue-950 bg-white p-3 rounded-lg shadow-2xs">
                 P(Thắng | Đổi) = P(Chọn ban đầu là Dê) = 2/3 ≈ 66.67%
                 <br />
                 P(Thắng | Giữ) = P(Chọn ban đầu là Xe) = 1/3 ≈ 33.33%

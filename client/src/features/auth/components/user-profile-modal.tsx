@@ -181,7 +181,7 @@ export function UserProfileModal() {
                     </h3>
                     <Badge
                       variant="outline"
-                      className={`text-[10px] font-mono font-bold ${
+                      className={`text-xs font-mono font-bold ${
                         user.role === 'ADMIN'
                           ? 'border-amber-300 bg-amber-50 text-amber-800'
                           : 'border-blue-200 bg-blue-50 text-blue-700'

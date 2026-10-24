@@ -119,7 +119,7 @@ export function UsersView({ currentAdminUsername }: UsersViewProps) {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-xs">
               <thead>
-                <tr className="border-b border-slate-200 bg-slate-50/70 font-mono text-[11px] uppercase tracking-wider text-slate-500">
+                <tr className="border-b border-slate-200 bg-slate-50/70 font-mono text-xs uppercase tracking-wider text-slate-500">
                   <th className="p-4">Người dùng</th>
                   <th className="p-4">Email</th>
                   <th className="p-4 text-center">Vai trò</th>
@@ -147,7 +147,7 @@ export function UsersView({ currentAdminUsername }: UsersViewProps) {
                               {item.username}
                             </span>
                             {isCurrent && (
-                              <span className="text-[10px] text-blue-700 font-sans">
+                              <span className="text-xs text-blue-700 font-sans">
                                 (Tài khoản hiện tại)
                               </span>
                             )}
@@ -162,7 +162,7 @@ export function UsersView({ currentAdminUsername }: UsersViewProps) {
                       <td className="p-4 text-center">
                         <Badge
                           variant="outline"
-                          className={`font-mono text-[10px] ${
+                          className={`font-mono text-xs ${
                             item.role === 'ADMIN'
                               ? 'bg-blue-50 text-blue-800 border-blue-200'
                               : 'bg-slate-50 text-slate-700 border-slate-200'
@@ -184,7 +184,7 @@ export function UsersView({ currentAdminUsername }: UsersViewProps) {
                       </td>
 
                       {/* Joined Date */}
-                      <td className="p-4 font-mono text-slate-500 text-[11px]">
+                      <td className="p-4 font-mono text-slate-500 text-xs">
                         {new Date(item.createdAt).toLocaleDateString('vi-VN')}
                       </td>
 

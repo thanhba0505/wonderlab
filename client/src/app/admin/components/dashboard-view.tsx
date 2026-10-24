@@ -120,7 +120,7 @@ export function DashboardView({
                 <div className="text-2xl sm:text-3xl font-mono font-black text-slate-900 tabular-nums">
                   {kpi.value}
                 </div>
-                <div className="text-[11px] font-mono text-slate-500 mt-0.5">{kpi.unit}</div>
+                <div className="text-xs font-mono text-slate-500 mt-0.5">{kpi.unit}</div>
               </div>
             </div>
           );
@@ -168,17 +168,17 @@ export function DashboardView({
                         </span>
                         <Badge
                           variant="outline"
-                          className="font-mono text-[10px] bg-blue-50 text-blue-700 border-blue-200"
+                          className="font-mono text-xs bg-blue-50 text-blue-700 border-blue-200"
                         >
                           {run.trialsCount.toLocaleString('vi-VN')} ván
                         </Badge>
                       </div>
-                      <div className="text-[10px] font-mono text-slate-400">
+                      <div className="text-xs font-mono text-slate-400">
                         {new Date(run.createdAt).toLocaleString('vi-VN')}
                       </div>
                     </div>
                     {run.durationMs && (
-                      <span className="text-[11px] font-mono text-slate-500 flex items-center gap-1">
+                      <span className="text-xs font-mono text-slate-500 flex items-center gap-1">
                         <Clock className="h-3 w-3" />
                         {run.durationMs}ms
                       </span>
@@ -233,18 +233,18 @@ export function DashboardView({
                         </span>
                         <Badge
                           variant="outline"
-                          className="font-mono text-[9px] bg-slate-100 text-slate-700"
+                          className="font-mono text-xs bg-slate-100 text-slate-700"
                         >
                           {comment.user.role}
                         </Badge>
                         <Badge
                           variant="outline"
-                          className="font-mono text-[9px] bg-blue-50 text-blue-700 border-blue-200"
+                          className="font-mono text-xs bg-blue-50 text-blue-700 border-blue-200"
                         >
                           {comment.simulationSlug}
                         </Badge>
                       </div>
-                      <span className="text-[10px] font-mono text-slate-400">
+                      <span className="text-xs font-mono text-slate-400">
                         {new Date(comment.createdAt).toLocaleDateString('vi-VN')}
                       </span>
                     </div>

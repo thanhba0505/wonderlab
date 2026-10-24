@@ -57,7 +57,7 @@ export const SimulationMathCard: React.FC<SimulationMathCardProps> = ({ slug, su
               Mô Hình Toán Học & Công Thức Giải Tích
             </span>
           </div>
-          <span className="text-[10px] text-slate-400 font-sans">Biểu diễn phân số & số mũ</span>
+          <span className="text-xs text-slate-400 font-sans">Biểu diễn phân số & số mũ</span>
         </div>
 
         {/* NGHỊCH LÝ NGÀY SINH (BIRTHDAY PARADOX) */}
@@ -65,7 +65,7 @@ export const SimulationMathCard: React.FC<SimulationMathCardProps> = ({ slug, su
           <div className="space-y-3 text-xs text-slate-800">
             {/* 1. Công thức giải tích chính xác */}
             <div className="space-y-1.5">
-              <div className="text-[11px] font-sans text-slate-500 font-semibold flex items-center gap-1.5">
+              <div className="text-xs font-sans text-slate-500 font-semibold flex items-center gap-1.5">
                 <span>1. Xác suất bù chính xác (Exact Analytic Probability):</span>
               </div>
               <div className="flex flex-wrap items-center gap-2 text-sm bg-slate-50/80 p-3 rounded-lg">
@@ -92,7 +92,8 @@ export const SimulationMathCard: React.FC<SimulationMathCardProps> = ({ slug, su
                     numerator="365!"
                     denominator={
                       <span>
-                        (365 &minus; n)! &middot; 365<sup>n</sup>
+                        (365 &minus; n)! &middot; 365
+                        <sup className="text-xs font-semibold">n</sup>
                       </span>
                     }
                   />
@@ -102,7 +103,7 @@ export const SimulationMathCard: React.FC<SimulationMathCardProps> = ({ slug, su
 
             {/* 2. Xấp xỉ chuỗi hàm mũ Taylor */}
             <div className="space-y-1.5">
-              <div className="text-[11px] font-sans text-slate-500 font-semibold flex items-center gap-1.5">
+              <div className="text-xs font-sans text-slate-500 font-semibold flex items-center gap-1.5">
                 <span>2. Xấp xỉ tiệm cận hàm mũ Taylor (Taylor Series Approximation):</span>
               </div>
               <div className="flex flex-wrap items-center gap-2 text-sm bg-slate-50/80 p-3 rounded-lg">
@@ -114,14 +115,14 @@ export const SimulationMathCard: React.FC<SimulationMathCardProps> = ({ slug, su
                   <MathFraction
                     numerator="n(n &minus; 1)"
                     denominator="2 &times; 365"
-                    className="text-[10px]"
+                    className="text-xs"
                   />
                 </sup>
                 <span>=</span>
                 <span>1 &minus; e</span>
                 <sup className="text-xs font-bold text-blue-700 -top-1.5">
                   &minus;
-                  <MathFraction numerator="C(n, 2)" denominator="365" className="text-[10px]" />
+                  <MathFraction numerator="C(n, 2)" denominator="365" className="text-xs" />
                 </sup>
                 <div className="w-full pt-1.5 mt-1 border-t border-slate-200/60 text-xs font-sans text-slate-600 flex items-center gap-1.5">
                   <Sparkles className="h-3.5 w-3.5 text-amber-500 shrink-0" />
@@ -177,7 +178,8 @@ export const SimulationMathCard: React.FC<SimulationMathCardProps> = ({ slug, su
               <div className="flex items-center gap-1.5">
                 <span className="text-slate-500 font-sans">Cường độ sóng:</span>
                 <span className="font-bold text-blue-700">
-                  I(&theta;) = I<sub>0</sub> &middot; cos<sup>2</sup>
+                  I(&theta;) = I<sub className="text-xs">0</sub> &middot; cos
+                  <sup className="text-xs font-semibold">2</sup>
                 </span>
                 <span className="text-xs text-slate-600">
                   <span className="text-sm font-light text-slate-400">(</span>
@@ -219,8 +221,8 @@ export const SimulationMathCard: React.FC<SimulationMathCardProps> = ({ slug, su
               <div className="flex items-center gap-1.5">
                 <span className="text-slate-500 font-sans">Chuỗi hình học hội tụ:</span>
                 <span className="font-bold text-slate-900">
-                  &sum;<sub>n=1</sub>
-                  <sup>&infin;</sup>
+                  &sum;<sub className="text-xs">n=1</sub>
+                  <sup className="text-xs font-semibold">&infin;</sup>
                 </span>
                 <span className="inline-flex items-center">
                   <span className="text-sm font-light text-slate-400">(</span>
@@ -243,11 +245,19 @@ export const SimulationMathCard: React.FC<SimulationMathCardProps> = ({ slug, su
               <div className="flex items-center gap-1.5">
                 <span className="text-slate-500 font-sans">Thời điểm bắt kịp:</span>
                 <span className="font-bold text-blue-700">
-                  T<sup>*</sup> =
+                  T<sup className="text-xs font-semibold">*</sup> =
                 </span>
                 <MathFraction
-                  numerator="d<sub>0</sub>"
-                  denominator="v<sub>A</sub> &minus; v<sub>T</sub>"
+                  numerator={
+                    <span>
+                      d<sub className="text-xs">0</sub>
+                    </span>
+                  }
+                  denominator={
+                    <span>
+                      v<sub className="text-xs">A</sub> &minus; v<sub className="text-xs">T</sub>
+                    </span>
+                  }
                 />
                 <span className="text-slate-500 font-sans">=</span>
                 <MathFraction numerator="100" denominator="10 &minus; 1" />

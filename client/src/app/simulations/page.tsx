@@ -66,13 +66,13 @@ export default function SimulationsIndexPage() {
                 <p className="mt-3 text-xs text-slate-600 leading-relaxed">{sim.summary}</p>
 
                 {/* Khối công thức */}
-                <div className="mt-4 rounded bg-slate-50 p-2 font-mono text-[11px] text-blue-800 border border-slate-200">
+                <div className="mt-4 rounded bg-slate-50 p-2 font-mono text-xs text-blue-800 border border-slate-200">
                   <code className="block truncate">{sim.formula}</code>
                 </div>
               </div>
 
               <div className="mt-6 flex items-center justify-between border-t border-slate-100 pt-3">
-                <div className="flex items-center gap-1 font-mono text-[11px] text-slate-500">
+                <div className="flex items-center gap-1 font-mono text-xs text-slate-500">
                   <Clock className="h-3 w-3" />
                   <span>~{sim.estimatedMinutes} phút</span>
                 </div>

@@ -78,7 +78,7 @@ export function QuantumExplainer() {
               chứa đựng bí ẩn duy nhất. Hãy quan sát cách nó vận hành, bạn sẽ thấy toàn bộ cơ học
               lượng tử là gì.&rdquo;
             </blockquote>
-            <p className="mt-1 text-[11px] text-slate-500 font-bold">
+            <p className="mt-1 text-xs text-slate-500 font-bold">
               — Richard Feynman (Nobel Vật lý 1965)
             </p>
           </div>

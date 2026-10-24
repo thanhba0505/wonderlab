@@ -97,7 +97,7 @@ export function SimulationsView({ simulationStats = {} }: SimulationsViewProps) 
       {/* Filter Tabs */}
       <div className="flex items-center gap-2 overflow-x-auto pb-1 text-xs font-mono">
         <Filter className="h-3.5 w-3.5 text-slate-400 mr-1" />
-        <span className="text-slate-500 font-bold uppercase tracking-wider text-[11px] mr-2">
+        <span className="text-slate-500 font-bold uppercase tracking-wider text-xs mr-2">
           Chuyên mục:
         </span>
         {categories.map(cat => (
@@ -120,7 +120,7 @@ export function SimulationsView({ simulationStats = {} }: SimulationsViewProps) 
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs">
             <thead>
-              <tr className="border-b border-slate-200 bg-slate-50/70 font-mono text-[11px] uppercase tracking-wider text-slate-500">
+              <tr className="border-b border-slate-200 bg-slate-50/70 font-mono text-xs uppercase tracking-wider text-slate-500">
                 <th className="p-4">Mô hình / Slug</th>
                 <th className="p-4">Chuyên mục</th>
                 <th className="p-4">Độ khó</th>
@@ -142,10 +142,10 @@ export function SimulationsView({ simulationStats = {} }: SimulationsViewProps) 
                       <div className="font-heading font-bold text-slate-900 text-sm">
                         {sim.title}
                       </div>
-                      <div className="font-mono text-[11px] text-blue-700 font-semibold mt-0.5">
+                      <div className="font-mono text-xs text-blue-700 font-semibold mt-0.5">
                         /{sim.slug}
                       </div>
-                      <div className="text-[11px] text-slate-500 line-clamp-1 mt-0.5 max-w-xs font-sans">
+                      <div className="text-xs text-slate-500 line-clamp-1 mt-0.5 max-w-xs font-sans">
                         {sim.summary}
                       </div>
                     </td>
@@ -158,7 +158,7 @@ export function SimulationsView({ simulationStats = {} }: SimulationsViewProps) 
                     </td>
 
                     {/* Difficulty */}
-                    <td className="p-4 font-mono uppercase text-[10px] font-semibold text-slate-600">
+                    <td className="p-4 font-mono uppercase text-xs font-semibold text-slate-600">
                       {sim.difficulty}
                     </td>
 
@@ -167,7 +167,7 @@ export function SimulationsView({ simulationStats = {} }: SimulationsViewProps) 
                       <button
                         type="button"
                         onClick={() => toggleStatus(sim.slug)}
-                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold font-mono transition-colors border ${
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold font-mono transition-colors border ${
                           currentStatus === 'active'
                             ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
                             : 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100'

@@ -100,7 +100,7 @@ export function Footer() {
                   >
                     <Shield className="h-3.5 w-3.5" />
                     <span>Cổng Quản Trị</span>
-                    <span className="text-[9px] font-mono bg-blue-100 text-blue-800 px-1 py-0.2 rounded font-bold">
+                    <span className="text-xs font-mono bg-blue-100 text-blue-800 px-1 py-0.5 rounded font-bold">
                       ADMIN
                     </span>
                   </Link>

@@ -22,7 +22,7 @@ export function PayoffMatrixView({ lastMove1, lastMove2 }: PayoffMatrixViewProps
             Điểm số quy đổi từ cặp quyết định của hai bên (Người 1, Người 2)
           </p>
         </div>
-        <span className="font-mono text-[11px] text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200 font-semibold">
+        <span className="font-mono text-xs text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200 font-semibold">
           T (5) &gt; R (3) &gt; P (1) &gt; S (0)
         </span>
       </div>
@@ -31,7 +31,7 @@ export function PayoffMatrixView({ lastMove1, lastMove2 }: PayoffMatrixViewProps
         <table className="w-full border-collapse text-center text-xs font-mono">
           <thead>
             <tr>
-              <th className="p-2 text-slate-400 font-normal text-[11px] border border-slate-200 bg-slate-50/50">
+              <th className="p-2 text-slate-400 font-normal text-xs border border-slate-200 bg-slate-50/50">
                 P1 \ P2
               </th>
               <th className="p-2 border border-slate-200 bg-emerald-50/70 text-emerald-800 font-bold">
@@ -60,7 +60,7 @@ export function PayoffMatrixView({ lastMove1, lastMove2 }: PayoffMatrixViewProps
                 <div className="text-base font-extrabold text-emerald-700">
                   +{DEFAULT_PAYOFFS.R}, +{DEFAULT_PAYOFFS.R}
                 </div>
-                <div className="text-[10px] text-slate-500 mt-0.5 font-sans">
+                <div className="text-xs text-slate-500 mt-0.5 font-sans">
                   Thưởng đôi bên cùng có lợi
                 </div>
               </td>
@@ -77,7 +77,7 @@ export function PayoffMatrixView({ lastMove1, lastMove2 }: PayoffMatrixViewProps
                   <span className="text-rose-600">+{DEFAULT_PAYOFFS.S}</span>,{' '}
                   <span className="text-emerald-600">+{DEFAULT_PAYOFFS.T}</span>
                 </div>
-                <div className="text-[10px] text-slate-500 mt-0.5 font-sans">
+                <div className="text-xs text-slate-500 mt-0.5 font-sans">
                   Kẻ bị lừa (S) &amp; Kẻ cám dỗ (T)
                 </div>
               </td>
@@ -101,7 +101,7 @@ export function PayoffMatrixView({ lastMove1, lastMove2 }: PayoffMatrixViewProps
                   <span className="text-emerald-600">+{DEFAULT_PAYOFFS.T}</span>,{' '}
                   <span className="text-rose-600">+{DEFAULT_PAYOFFS.S}</span>
                 </div>
-                <div className="text-[10px] text-slate-500 mt-0.5 font-sans">
+                <div className="text-xs text-slate-500 mt-0.5 font-sans">
                   Kẻ cám dỗ (T) &amp; Kẻ bị lừa (S)
                 </div>
               </td>
@@ -117,7 +117,7 @@ export function PayoffMatrixView({ lastMove1, lastMove2 }: PayoffMatrixViewProps
                 <div className="text-base font-extrabold text-rose-700">
                   +{DEFAULT_PAYOFFS.P}, +{DEFAULT_PAYOFFS.P}
                 </div>
-                <div className="text-[10px] text-slate-500 mt-0.5 font-sans">
+                <div className="text-xs text-slate-500 mt-0.5 font-sans">
                   Cân bằng Nash: Cùng chịu phạt
                 </div>
               </td>

@@ -165,7 +165,7 @@ export const ChamberRadar: React.FC<ChamberRadarProps> = ({
                   x={person.x}
                   y={person.y - nodeRadius - 4}
                   textAnchor="middle"
-                  className="fill-slate-600 font-mono text-[9px] font-semibold select-none pointer-events-none"
+                  className="fill-slate-600 font-mono text-xs font-semibold select-none pointer-events-none"
                 >
                   #{person.id}
                 </text>

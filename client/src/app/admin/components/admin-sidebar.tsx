@@ -91,14 +91,14 @@ export function AdminSidebar({
               <div className="font-heading text-base font-extrabold tracking-tight text-slate-900 leading-none">
                 WONDER<span className="text-blue-600">LAB</span>
               </div>
-              <div className="text-[10px] font-mono font-semibold uppercase tracking-wider text-slate-500 mt-0.5">
+              <div className="text-xs font-mono font-semibold uppercase tracking-wider text-slate-500 mt-0.5">
                 Admin Console
               </div>
             </div>
           </Link>
           <Badge
             variant="outline"
-            className="text-[10px] font-mono border-blue-200 bg-blue-50/60 text-blue-700"
+            className="text-xs font-mono border-blue-200 bg-blue-50/60 text-blue-700"
           >
             v0.3
           </Badge>
@@ -106,7 +106,7 @@ export function AdminSidebar({
 
         {/* Navigation Items */}
         <nav className="p-3 space-y-1">
-          <div className="px-3 py-2 text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400">
+          <div className="px-3 py-2 text-xs font-mono font-bold uppercase tracking-wider text-slate-400">
             Quản trị Vận hành
           </div>
           {navItems.map(item => {
@@ -130,7 +130,7 @@ export function AdminSidebar({
                 </div>
                 {item.badge && (
                   <span
-                    className={`text-[10px] font-mono px-1.5 py-0.5 rounded ${
+                    className={`text-xs font-mono px-1.5 py-0.5 rounded ${
                       isActive ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600'
                     }`}
                   >
@@ -155,7 +155,7 @@ export function AdminSidebar({
               <div className="font-mono text-xs font-bold text-slate-900 truncate">
                 {user.username}
               </div>
-              <div className="flex items-center gap-1 text-[10px] font-mono text-slate-500">
+              <div className="flex items-center gap-1 text-xs font-mono text-slate-500">
                 <Shield className="h-3 w-3 text-blue-600" />
                 <span>{user.role}</span>
               </div>

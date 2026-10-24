@@ -93,7 +93,7 @@ export function SettingsView({ overview }: SettingsViewProps) {
             <div className="flex items-center justify-between p-3.5 rounded-xl border border-slate-200 bg-slate-50/50">
               <div className="space-y-0.5">
                 <div className="font-bold text-slate-900">Cho phép khách chạy mô phỏng</div>
-                <div className="text-slate-500 text-[11px]">
+                <div className="text-slate-500 text-xs">
                   Khách vãng lai không cần đăng nhập vẫn có thể thực hiện tối đa 1000 lượt thử.
                 </div>
               </div>
@@ -115,7 +115,7 @@ export function SettingsView({ overview }: SettingsViewProps) {
             <div className="flex items-center justify-between p-3.5 rounded-xl border border-slate-200 bg-slate-50/50">
               <div className="space-y-0.5">
                 <div className="font-bold text-slate-900">Tính năng thảo luận cộng đồng</div>
-                <div className="text-slate-500 text-[11px]">
+                <div className="text-slate-500 text-xs">
                   Bật hoặc tạm khóa toàn bộ khung bình luận 2 cấp trên tất cả các phòng Lab.
                 </div>
               </div>
@@ -160,10 +160,10 @@ export function SettingsView({ overview }: SettingsViewProps) {
             </p>
 
             <div className="p-3.5 rounded-xl border border-slate-200 bg-slate-50/70 space-y-2">
-              <div className="font-mono text-[11px] font-bold text-slate-800">
+              <div className="font-mono text-xs font-bold text-slate-800">
                 Gói dữ liệu sẵn sàng:
               </div>
-              <ul className="text-slate-600 text-[11px] space-y-1 list-disc list-inside">
+              <ul className="text-slate-600 text-xs space-y-1 list-disc list-inside">
                 <li>Toàn bộ chỉ số thực nghiệm của {overview?.totalRuns ?? 0} lượt chạy</li>
                 <li>
                   Thống kê phân bổ theo {Object.keys(overview?.bySimulation ?? {}).length} mô hình

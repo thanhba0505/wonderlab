@@ -188,7 +188,7 @@ export function DuelArena({ onRoundPlayed, onMatchFinished, onMovesChanged }: Du
         <div>
           <div className="font-bold text-slate-900 flex items-center gap-2">
             <span>{opponentInfo.name}</span>
-            <Badge variant="outline" className="text-[10px] font-mono">
+            <Badge variant="outline" className="text-xs font-mono">
               {opponentInfo.tagline}
             </Badge>
           </div>
@@ -207,25 +207,23 @@ export function DuelArena({ onRoundPlayed, onMatchFinished, onMovesChanged }: Du
           <div className="font-mono text-3xl font-extrabold text-blue-700 tabular-nums">
             {score1}
           </div>
-          <div className="text-[11px] font-mono text-slate-500">
+          <div className="text-xs font-mono text-slate-500">
             Tỷ lệ hợp tác: {(coopRate1 * 100).toFixed(0)}%
           </div>
         </div>
 
         {/* Center Round Status */}
         <div className="space-y-1.5 border-y md:border-y-0 md:border-x border-slate-200 py-3 md:py-0">
-          <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-400">
+          <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-400">
             HIỆP ĐẤU
           </span>
           <div className="font-mono text-xl font-bold text-slate-800 tabular-nums">
             {currentRound} / {totalRounds}
           </div>
           {isMatchOver ? (
-            <Badge className="bg-emerald-600 text-white font-mono text-[10px]">
-              VÁN ĐẤU KẾT THÚC
-            </Badge>
+            <Badge className="bg-emerald-600 text-white font-mono text-xs">VÁN ĐẤU KẾT THÚC</Badge>
           ) : (
-            <Badge variant="outline" className="border-blue-300 text-blue-700 text-[10px]">
+            <Badge variant="outline" className="border-blue-300 text-blue-700 text-xs">
               ĐANG DIỄN RA
             </Badge>
           )}
@@ -243,7 +241,7 @@ export function DuelArena({ onRoundPlayed, onMatchFinished, onMovesChanged }: Du
           >
             {score2}
           </div>
-          <div className="text-[11px] font-mono text-slate-500">
+          <div className="text-xs font-mono text-slate-500">
             Tỷ lệ hợp tác: {(coopRate2 * 100).toFixed(0)}%
           </div>
         </div>
@@ -279,7 +277,7 @@ export function DuelArena({ onRoundPlayed, onMatchFinished, onMovesChanged }: Du
           >
             <span className="text-xl mb-1">🤝</span>
             <span className="font-heading font-bold text-sm">HỢP TÁC (Cooperate)</span>
-            <span className="text-[11px] font-mono text-emerald-700 mt-0.5">
+            <span className="text-xs font-mono text-emerald-700 mt-0.5">
               Mong muốn đôi bên cùng có lợi (+3)
             </span>
           </button>
@@ -297,7 +295,7 @@ export function DuelArena({ onRoundPlayed, onMatchFinished, onMovesChanged }: Du
           >
             <span className="text-xl mb-1">🗡️</span>
             <span className="font-heading font-bold text-sm">PHẢN BỘI (Defect)</span>
-            <span className="text-[11px] font-mono text-rose-700 mt-0.5">
+            <span className="text-xs font-mono text-rose-700 mt-0.5">
               Cám dỗ ăn trọn điểm (+5) hoặc phòng thủ (+1)
             </span>
           </button>
@@ -340,7 +338,7 @@ export function DuelArena({ onRoundPlayed, onMatchFinished, onMovesChanged }: Du
                   setTotalRounds(r);
                   resetDuel();
                 }}
-                className={`px-2 py-0.5 rounded border text-[11px] ${
+                className={`px-2 py-0.5 rounded border text-xs ${
                   totalRounds === r
                     ? 'border-blue-600 bg-blue-50 text-blue-700 font-bold'
                     : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
@@ -360,7 +358,7 @@ export function DuelArena({ onRoundPlayed, onMatchFinished, onMovesChanged }: Du
                   setNoiseRate(n);
                   resetDuel();
                 }}
-                className={`px-2 py-0.5 rounded border text-[11px] ${
+                className={`px-2 py-0.5 rounded border text-xs ${
                   noiseRate === n
                     ? 'border-emerald-600 bg-emerald-50 text-emerald-700 font-bold'
                     : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
@@ -385,7 +383,7 @@ export function DuelArena({ onRoundPlayed, onMatchFinished, onMovesChanged }: Du
                 key={i}
                 className="flex flex-col items-center shrink-0 rounded-lg border border-slate-200 bg-slate-50 p-2 text-center min-w-[58px] shadow-2xs font-mono text-xs"
               >
-                <span className="text-[10px] text-slate-400 mb-1">#{rec.round}</span>
+                <span className="text-xs text-slate-400 mb-1">#{rec.round}</span>
                 <div className="flex items-center gap-1 font-bold">
                   <span className={rec.move1 === 'C' ? 'text-emerald-600' : 'text-rose-600'}>
                     {rec.move1}
@@ -395,7 +393,7 @@ export function DuelArena({ onRoundPlayed, onMatchFinished, onMovesChanged }: Du
                     {rec.move2}
                   </span>
                 </div>
-                <div className="text-[10px] text-slate-600 mt-1">
+                <div className="text-xs text-slate-600 mt-1">
                   +{rec.score1} / +{rec.score2}
                 </div>
               </div>

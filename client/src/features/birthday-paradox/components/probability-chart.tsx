@@ -103,7 +103,7 @@ export const ProbabilityChart: React.FC<ProbabilityChartProps> = ({
                   x={padding.left - 8}
                   y={y + 3.5}
                   textAnchor="end"
-                  className={`font-mono text-[10px] ${
+                  className={`font-mono text-xs ${
                     is50Percent ? 'fill-amber-600 font-bold' : 'fill-slate-500'
                   }`}
                 >
@@ -130,7 +130,7 @@ export const ProbabilityChart: React.FC<ProbabilityChartProps> = ({
                   x={x}
                   y={padding.top + plotHeight + 16}
                   textAnchor="middle"
-                  className="fill-slate-500 font-mono text-[10px]"
+                  className="fill-slate-500 font-mono text-xs"
                 >
                   {nVal}
                 </text>
@@ -152,7 +152,7 @@ export const ProbabilityChart: React.FC<ProbabilityChartProps> = ({
             x={milestone23Coord.x}
             y={padding.top + plotHeight + 16}
             textAnchor="middle"
-            className="fill-amber-700 font-mono text-[10px] font-bold"
+            className="fill-amber-700 font-mono text-xs font-bold"
           >
             23★
           </text>
@@ -204,7 +204,7 @@ export const ProbabilityChart: React.FC<ProbabilityChartProps> = ({
             x={width / 2}
             y={height - 2}
             textAnchor="middle"
-            className="fill-slate-600 text-[10px] font-medium"
+            className="fill-slate-600 text-xs font-medium"
           >
             Số người trong phòng (n)
           </text>

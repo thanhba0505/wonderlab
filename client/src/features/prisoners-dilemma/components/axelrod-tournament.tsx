@@ -185,17 +185,15 @@ export function AxelrodTournament({ onTournamentRecorded }: AxelrodTournamentPro
                   className="inline-block h-2 w-2 rounded-full"
                   style={{ backgroundColor: strat.color }}
                 />
-                <span className="font-mono text-[11px] font-bold text-slate-500">
-                  {count} cá thể
-                </span>
+                <span className="font-mono text-xs font-bold text-slate-500">{count} cá thể</span>
               </div>
 
               <h4 className="font-heading text-xs font-bold text-slate-900 truncate">
                 {strat.shortName}
               </h4>
-              <p className="text-[10px] text-slate-500 truncate mt-0.5">{strat.tagline}</p>
+              <p className="text-xs text-slate-500 truncate mt-0.5">{strat.tagline}</p>
 
-              <div className="mt-2 flex items-center justify-between pt-1 border-t border-slate-100 text-[10px] font-mono">
+              <div className="mt-2 flex items-center justify-between pt-1 border-t border-slate-100 text-xs font-mono">
                 <span className="text-slate-400">Thị phần:</span>
                 <span className="font-bold text-slate-800">{count}%</span>
               </div>
@@ -233,7 +231,7 @@ export function AxelrodTournament({ onTournamentRecorded }: AxelrodTournamentPro
         </div>
 
         {/* Noise Setting */}
-        <div className="flex items-center gap-2 font-mono text-[11px] text-slate-600">
+        <div className="flex items-center gap-2 font-mono text-xs text-slate-600">
           <Sliders className="h-3.5 w-3.5 text-slate-400" />
           <span>Nhiễu / Hiểu lầm:</span>
           <select

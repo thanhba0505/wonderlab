@@ -84,7 +84,7 @@ export function HeroVisual() {
       <div className="absolute inset-0 lab-grid opacity-60 pointer-events-none" />
 
       {/* Top telemetry status bar */}
-      <div className="relative z-10 flex items-center justify-between pb-3 border-b border-slate-200 text-[11px] font-mono text-slate-500">
+      <div className="relative z-10 flex items-center justify-between pb-3 border-b border-slate-200 text-xs font-mono text-slate-500">
         <div className="flex items-center gap-2">
           <span className="relative flex h-2 w-2">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-500 opacity-75"></span>
@@ -229,7 +229,7 @@ export function HeroVisual() {
                   x={node.cx}
                   y={node.cy + node.r + 14}
                   textAnchor="middle"
-                  fontSize="10"
+                  fontSize="12"
                   fill={isActive ? '#0f172a' : '#475569'}
                   fontWeight={isActive ? '700' : '600'}
                   fontFamily="var(--font-mono), monospace"
@@ -245,11 +245,11 @@ export function HeroVisual() {
       {/* Dynamic Inspector / HUD Card - Clean Left Accent without full 4-sided box */}
       <div className="relative z-10 rounded-xl bg-slate-50/90 border-l-4 border-blue-600 p-3.5 shadow-2xs transition-all duration-200">
         <div className="flex items-center justify-between gap-2 mb-1.5">
-          <div className="flex items-center gap-1.5 text-[10px] font-mono font-bold text-blue-700">
+          <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-blue-700">
             <Sparkles className="h-3 w-3" />
             <span>{currentNode.tag}</span>
           </div>
-          <span className="text-[10px] font-mono text-slate-500 font-semibold">
+          <span className="text-xs font-mono text-slate-500 font-semibold">
             ID: #0{currentNode.id}
           </span>
         </div>
@@ -260,7 +260,7 @@ export function HeroVisual() {
             {(currentNode.id === 1 || currentNode.id === 2) && (
               <a
                 href={currentNode.id === 1 ? '/simulations/monty-hall' : '/simulations/double-slit'}
-                className="text-[10px] font-mono px-2 py-0.5 rounded bg-blue-100 text-blue-800 hover:bg-blue-200 font-bold transition-colors"
+                className="text-xs font-mono px-2 py-0.5 rounded bg-blue-100 text-blue-800 hover:bg-blue-200 font-bold transition-colors"
               >
                 Vào phòng lab →
               </a>
@@ -277,7 +277,7 @@ export function HeroVisual() {
       </div>
 
       {/* Bottom prompt */}
-      <div className="mt-3 flex items-center justify-center gap-1.5 text-[11px] font-mono text-slate-500">
+      <div className="mt-3 flex items-center justify-center gap-1.5 text-xs font-mono text-slate-500">
         <Binary className="h-3.5 w-3.5 text-blue-600" />
         <span>Rê chuột hoặc nhấp vào các nút để kiểm tra mô hình</span>
       </div>

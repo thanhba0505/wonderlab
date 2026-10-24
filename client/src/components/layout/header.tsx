@@ -27,7 +27,7 @@ export function Header() {
               <span className="font-heading text-xl font-extrabold tracking-tight text-slate-900">
                 WONDER<span className="text-blue-600">LAB</span>
               </span>
-              <span className="hidden sm:inline-flex rounded border border-blue-200 bg-blue-50 px-1.5 py-0.5 text-[10px] font-mono font-semibold text-blue-700">
+              <span className="hidden sm:inline-flex rounded border border-blue-200 bg-blue-50 px-1.5 py-0.5 text-xs font-mono font-semibold text-blue-700">
                 LAB 2026
               </span>
             </div>
@@ -84,7 +84,7 @@ export function Header() {
                 </span>
                 <Badge
                   variant="outline"
-                  className={`text-[9px] font-mono px-1.5 py-0.2 font-bold uppercase ${
+                  className={`text-xs font-mono px-1.5 py-0.5 font-bold uppercase ${
                     user.role === 'ADMIN'
                       ? 'border-amber-300 bg-amber-50 text-amber-800'
                       : 'border-blue-200 bg-blue-50 text-blue-700'
@@ -182,7 +182,7 @@ export function Header() {
                       </div>
                       <span className="font-mono font-bold text-slate-800">{user.username}</span>
                     </div>
-                    <Badge variant="outline" className="text-[10px] font-mono">
+                    <Badge variant="outline" className="text-xs font-mono">
                       {user.role}
                     </Badge>
                   </button>

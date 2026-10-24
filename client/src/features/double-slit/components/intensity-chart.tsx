@@ -143,7 +143,7 @@ export function IntensityChart({ params, hits }: IntensityChartProps) {
         </svg>
 
         {/* Axis Labels */}
-        <div className="flex justify-between px-6 pt-1 text-[10px] font-mono text-slate-400">
+        <div className="flex justify-between px-6 pt-1 text-xs font-mono text-slate-400">
           <span>-40 mm</span>
           <span>-20 mm</span>
           <span className="text-slate-200 font-bold">y = 0 (Tâm trục)</span>

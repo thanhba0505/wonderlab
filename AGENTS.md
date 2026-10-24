@@ -65,6 +65,8 @@ wonderlab/
   - `Be Vietnam Pro` (Sans) for optical Vietnamese readability, balanced tone diacritics, and relaxed reading lines.
   - `Space Grotesk` (Heading) for geometric, authoritative scientific titles (`text-slate-900`).
   - `JetBrains Mono` (Mono) with `tabular-nums` for simulation counters, probabilities, and formulas.
+  - **Minimum Font Size Standard ($\ge 12\text{px}$)**: Strictly forbid any font size below `12px` (`text-xs`). Never use `text-[11px]`, `text-[10px]`, `text-[9px]`, `text-[8px]`, or any micro-text. All captions, badges, metadata, and helper text must be at least `text-xs` (12px / 0.75rem) to guarantee visual accessibility and clean editorial sharpness.
+  - **Section Headings Standard (18px)**: Standardize all primary section headings (`h2`) in simulation workflows and editorial views to `18px` (`text-[18px]` or `text-lg`), keeping titles clean, prominent, and proportional without aggressive oversized headers.
 - **Anti-AI Slop Guardrails**:
   1. _No unmotivated purple/pink linear gradients_ on buttons or text.
   2. _No muddy glassmorphism everywhere_ (`backdrop-blur` stacked blindly). Use crisp, opaque surfaces.
@@ -76,6 +78,7 @@ wonderlab/
      - **NEVER** expose internal library/algorithm names (e.g. `Argon2id`, `HttpOnly Cookie`, `OWASP compliant`, `Prisma`, `JWT`) on public forms or user screens.
      - **NEVER** place internal developer links, localhost ports, or raw health endpoints (e.g. `http://localhost:4101/api/docs`, `NestJS Server API: Sẵn sàng hoạt động (/api/v1/health)`) in public footers or public navigation.
      - **NEVER** dump framework version strings into client UI copy.
+  8. _No micro font sizes (< 12px)_. Never use arbitrary micro font sizes (`text-[11px]`, `text-[10px]`, `text-[9px]`, `text-[8px]`). The minimum allowed font size across the entire platform is strictly 12px (`text-xs`). Section headings are standardized to `18px` (`text-[18px]`).
 - **No Faux Data**: Never display mock user counters, fake review badges, or placeholder vanity statistics. Show honest simulation counters calculated live in the browser.
 - **No Lorem Ipsum**: All copy must be meaningful, scientific, engaging, and in Vietnamese or English according to user language settings.
 - **Interactive Authenticity & Tactile Feel**: Every clickable element (e.g. Monty Hall doors) must function accurately with physical feedback (`active:scale-[0.98]`) and update mathematical probabilities live with `font-mono tabular-nums`.

@@ -67,7 +67,7 @@ export function ControlsPanel({ params, onParamsChange, onReset }: ControlsPanel
             }
             className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-amber-500"
           />
-          <div className="flex justify-between text-[10px] font-mono text-slate-400">
+          <div className="flex justify-between text-xs font-mono text-slate-400">
             <span>4 m/s</span>
             <span>30 m/s</span>
           </div>
@@ -92,7 +92,7 @@ export function ControlsPanel({ params, onParamsChange, onReset }: ControlsPanel
             }
             className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-500"
           />
-          <div className="flex justify-between text-[10px] font-mono text-slate-400">
+          <div className="flex justify-between text-xs font-mono text-slate-400">
             <span>0.5 m/s</span>
             <span>15 m/s</span>
           </div>
@@ -115,7 +115,7 @@ export function ControlsPanel({ params, onParamsChange, onReset }: ControlsPanel
             onChange={e => onParamsChange(p => ({ ...p, headStart: parseFloat(e.target.value) }))}
             className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
           />
-          <div className="flex justify-between text-[10px] font-mono text-slate-400">
+          <div className="flex justify-between text-xs font-mono text-slate-400">
             <span>10 m</span>
             <span>200 m</span>
           </div>
@@ -157,10 +157,7 @@ export function ControlsPanel({ params, onParamsChange, onReset }: ControlsPanel
         </div>
 
         {analytical.isOvertakePossible && Number.isFinite(planckStep) && (
-          <Badge
-            variant="outline"
-            className="text-[11px] font-mono text-violet-700 border-violet-200"
-          >
+          <Badge variant="outline" className="text-xs font-mono text-violet-700 border-violet-200">
             <Sparkles className="mr-1 h-3 w-3" />
             Giới hạn Planck: Chặng #{planckStep}
           </Badge>

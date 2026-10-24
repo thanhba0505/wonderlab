@@ -41,7 +41,7 @@ export const ControlsPanel: React.FC<ControlsPanelProps> = ({
                 key={preset}
                 type="button"
                 onClick={() => onChangeN(preset)}
-                className={`rounded px-2 py-0.5 font-mono text-[11px] font-semibold transition-all ${
+                className={`rounded px-2 py-0.5 font-mono text-xs font-semibold transition-all ${
                   n === preset
                     ? 'bg-blue-600 text-white shadow-sm'
                     : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
@@ -64,7 +64,7 @@ export const ControlsPanel: React.FC<ControlsPanelProps> = ({
           className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-slate-200 accent-blue-600"
         />
 
-        <div className="flex justify-between font-mono text-[10px] text-slate-600">
+        <div className="flex justify-between font-mono text-xs text-slate-600">
           <span>2 người</span>
           <span className="text-amber-600 font-bold">23 người (50%)</span>
           <span>50 người (97%)</span>

@@ -143,14 +143,14 @@ export function RaceTrack({
           {/* Step Metadata Header */}
           <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-violet-50/70 border border-violet-200/80 p-3 text-xs">
             <div className="flex items-center gap-2">
-              <Badge className="bg-violet-700 text-white font-mono text-[11px]">
+              <Badge className="bg-violet-700 text-white font-mono text-xs">
                 CHẶNG PHÂN CHIA #{currentStep.step}
               </Badge>
               <span className="font-semibold text-violet-950 font-sans">
                 Achilles đuổi tới vị trí cũ của Rùa ({currentStep.achillesEnd.toFixed(2)}m)
               </span>
             </div>
-            <div className="flex items-center gap-3 font-mono text-violet-800 text-[11px]">
+            <div className="flex items-center gap-3 font-mono text-violet-800 text-xs">
               <span>
                 Khoảng cách còn lại: <strong>{currentStep.remainingGap.toFixed(4)}m</strong>
               </span>
@@ -169,17 +169,17 @@ export function RaceTrack({
               {/* Distance Ruler Visual */}
               <div className="relative h-14 w-full border-b border-slate-700 pb-2">
                 {/* Segment Start Label */}
-                <div className="absolute left-2 -bottom-2 text-[10px] font-mono text-slate-400">
+                <div className="absolute left-2 -bottom-2 text-xs font-mono text-slate-400">
                   {currentStep.achillesStart.toFixed(2)}m
                 </div>
 
                 {/* Midpoint / Achilles Reach point */}
-                <div className="absolute left-1/2 -translate-x-1/2 -bottom-2 text-[10px] font-mono text-amber-400">
+                <div className="absolute left-1/2 -translate-x-1/2 -bottom-2 text-xs font-mono text-amber-400">
                   {currentStep.achillesEnd.toFixed(2)}m
                 </div>
 
                 {/* Tortoise Advanced Point */}
-                <div className="absolute right-4 -bottom-2 text-[10px] font-mono text-emerald-400">
+                <div className="absolute right-4 -bottom-2 text-xs font-mono text-emerald-400">
                   {currentStep.tortoiseEnd.toFixed(2)}m
                 </div>
 
@@ -191,9 +191,7 @@ export function RaceTrack({
                   <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-500 text-slate-950 font-bold shadow-md shadow-amber-500/30 text-xs">
                     🏃
                   </div>
-                  <span className="mt-1 font-mono text-[10px] font-bold text-amber-300">
-                    Achilles
-                  </span>
+                  <span className="mt-1 font-mono text-xs font-bold text-amber-300">Achilles</span>
                 </div>
 
                 {/* Tortoise Avatar Runner */}
@@ -204,7 +202,7 @@ export function RaceTrack({
                   <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-600 text-white font-bold shadow-md shadow-emerald-500/30 text-xs">
                     🐢
                   </div>
-                  <span className="mt-1 font-mono text-[10px] font-bold text-emerald-300">Rùa</span>
+                  <span className="mt-1 font-mono text-xs font-bold text-emerald-300">Rùa</span>
                 </div>
 
                 {/* Arrow from Achilles old pos to new pos */}
@@ -216,25 +214,25 @@ export function RaceTrack({
               {/* Step Summary Stats */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-slate-800 text-center font-mono">
                 <div className="bg-slate-800/80 p-2 rounded-lg">
-                  <span className="text-[10px] text-slate-400 block">Achilles chạy được</span>
+                  <span className="text-xs text-slate-400 block">Achilles chạy được</span>
                   <span className="text-xs font-bold text-amber-400 tabular-nums">
                     {(currentStep.achillesEnd - currentStep.achillesStart).toFixed(4)}m
                   </span>
                 </div>
                 <div className="bg-slate-800/80 p-2 rounded-lg">
-                  <span className="text-[10px] text-slate-400 block">Rùa nhích thêm</span>
+                  <span className="text-xs text-slate-400 block">Rùa nhích thêm</span>
                   <span className="text-xs font-bold text-emerald-400 tabular-nums">
                     {(currentStep.tortoiseEnd - currentStep.tortoiseStart).toFixed(4)}m
                   </span>
                 </div>
                 <div className="bg-slate-800/80 p-2 rounded-lg">
-                  <span className="text-[10px] text-slate-400 block">Thời gian tích lũy</span>
+                  <span className="text-xs text-slate-400 block">Thời gian tích lũy</span>
                   <span className="text-xs font-bold text-blue-400 tabular-nums">
                     {currentStep.cumulativeTime.toFixed(4)}s
                   </span>
                 </div>
                 <div className="bg-slate-800/80 p-2 rounded-lg">
-                  <span className="text-[10px] text-slate-400 block">Tiến độ tới điểm bắt kịp</span>
+                  <span className="text-xs text-slate-400 block">Tiến độ tới điểm bắt kịp</span>
                   <span className="text-xs font-bold text-violet-400 tabular-nums">
                     {currentStep.fractionOfTotalTime.toFixed(2)}%
                   </span>
@@ -281,7 +279,7 @@ export function RaceTrack({
                 <button
                   key={idx}
                   onClick={() => onStepChange(idx)}
-                  className={`h-6 w-6 rounded text-[11px] font-bold border transition-colors ${
+                  className={`h-6 w-6 rounded text-xs font-bold border transition-colors ${
                     currentStepIndex === idx
                       ? 'bg-violet-600 text-white border-violet-700'
                       : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
@@ -304,8 +302,8 @@ export function RaceTrack({
               <Badge
                 className={
                   currentContinuous.isOvertaken
-                    ? 'bg-emerald-600 text-white font-mono text-[11px]'
-                    : 'bg-blue-600 text-white font-mono text-[11px]'
+                    ? 'bg-emerald-600 text-white font-mono text-xs'
+                    : 'bg-blue-600 text-white font-mono text-xs'
                 }
               >
                 {currentContinuous.isOvertaken ? 'ĐÃ VƯỢT QUA' : 'ĐANG ĐUỔI THEO'}
@@ -317,7 +315,7 @@ export function RaceTrack({
               </span>
             </div>
 
-            <div className="flex items-center gap-2 font-mono text-[11px] text-blue-800">
+            <div className="flex items-center gap-2 font-mono text-xs text-blue-800">
               {currentContinuous.isOvertaken ? (
                 <span className="flex items-center gap-1 font-semibold text-emerald-700">
                   <CheckCircle2 className="h-3.5 w-3.5" />
@@ -336,7 +334,7 @@ export function RaceTrack({
           <div className="relative rounded-xl border border-slate-200 bg-slate-900 p-6 text-white overflow-hidden shadow-inner min-h-[160px]">
             {/* Start line */}
             <div className="absolute top-4 bottom-4 left-6 border-l-2 border-slate-600">
-              <span className="absolute -top-3 left-1 text-[10px] font-mono text-slate-400">
+              <span className="absolute -top-3 left-1 text-xs font-mono text-slate-400">
                 Vạch xuất phát (0m)
               </span>
             </div>
@@ -347,7 +345,7 @@ export function RaceTrack({
                 className="absolute top-4 bottom-4 border-l-2 border-dashed border-rose-500/80"
                 style={{ left: `${getContinuousXPercent(analytical.overtakeDistance)}%` }}
               >
-                <span className="absolute -top-3 left-1 text-[10px] font-mono text-rose-400 font-bold">
+                <span className="absolute -top-3 left-1 text-xs font-mono text-rose-400 font-bold">
                   Bắt kịp ({analytical.overtakeDistance.toFixed(1)}m)
                 </span>
               </div>
@@ -362,7 +360,7 @@ export function RaceTrack({
                 <div className="flex h-7 w-7 items-center justify-center rounded-full bg-amber-500 text-slate-950 font-bold shadow-md shadow-amber-500/40 text-xs">
                   🏃
                 </div>
-                <span className="font-mono text-[9px] text-amber-300 mt-0.5">
+                <span className="font-mono text-xs text-amber-300 mt-0.5">
                   {currentContinuous.achillesPos.toFixed(1)}m
                 </span>
               </div>
@@ -377,7 +375,7 @@ export function RaceTrack({
                 <div className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-600 text-white font-bold shadow-md shadow-emerald-500/40 text-xs">
                   🐢
                 </div>
-                <span className="font-mono text-[9px] text-emerald-300 mt-0.5">
+                <span className="font-mono text-xs text-emerald-300 mt-0.5">
                   {currentContinuous.tortoisePos.toFixed(1)}m
                 </span>
               </div>
@@ -414,7 +412,7 @@ export function RaceTrack({
                 <button
                   key={spd}
                   onClick={() => setPlaybackSpeed(spd)}
-                  className={`px-2 py-0.5 rounded border text-[11px] ${
+                  className={`px-2 py-0.5 rounded border text-xs ${
                     playbackSpeed === spd
                       ? 'border-blue-600 bg-blue-50 text-blue-700 font-bold'
                       : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
@@ -428,7 +426,7 @@ export function RaceTrack({
 
           {/* Time Scrubber Slider */}
           <div className="flex items-center gap-3 pt-1">
-            <span className="font-mono text-[11px] text-slate-400">0s</span>
+            <span className="font-mono text-xs text-slate-400">0s</span>
             <input
               type="range"
               min={0}
@@ -441,7 +439,7 @@ export function RaceTrack({
               }}
               className="flex-1 h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
             />
-            <span className="font-mono text-[11px] text-slate-400">{maxTime.toFixed(1)}s</span>
+            <span className="font-mono text-xs text-slate-400">{maxTime.toFixed(1)}s</span>
           </div>
         </div>
       )}

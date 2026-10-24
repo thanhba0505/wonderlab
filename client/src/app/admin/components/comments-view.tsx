@@ -120,7 +120,7 @@ export function CommentsView() {
 
         <div className="flex items-center gap-2 text-xs font-mono">
           <Filter className="h-3.5 w-3.5 text-slate-400" />
-          <span className="text-slate-500 font-bold uppercase text-[10px]">Thí nghiệm:</span>
+          <span className="text-slate-500 font-bold uppercase text-xs">Thí nghiệm:</span>
           <select
             value={selectedSlug}
             onChange={e => setSelectedSlug(e.target.value)}
@@ -150,7 +150,7 @@ export function CommentsView() {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-xs">
               <thead>
-                <tr className="border-b border-slate-200 bg-slate-50/70 font-mono text-[11px] uppercase tracking-wider text-slate-500">
+                <tr className="border-b border-slate-200 bg-slate-50/70 font-mono text-xs uppercase tracking-wider text-slate-500">
                   <th className="p-4">Tầng / Thí nghiệm</th>
                   <th className="p-4">Tác giả</th>
                   <th className="p-4">Nội dung bình luận</th>
@@ -171,7 +171,7 @@ export function CommentsView() {
                           {isReply ? (
                             <Badge
                               variant="outline"
-                              className="font-mono text-[10px] bg-slate-50 text-slate-700 border-slate-300"
+                              className="font-mono text-xs bg-slate-50 text-slate-700 border-slate-300"
                             >
                               <CornerDownRight className="h-2.5 w-2.5 mr-1 text-slate-500" />
                               Cấp 2 (Phản hồi)
@@ -179,13 +179,13 @@ export function CommentsView() {
                           ) : (
                             <Badge
                               variant="outline"
-                              className="font-mono text-[10px] bg-blue-50 text-blue-800 border-blue-200"
+                              className="font-mono text-xs bg-blue-50 text-blue-800 border-blue-200"
                             >
                               Cấp 1 (Gốc)
                             </Badge>
                           )}
                         </div>
-                        <div className="font-mono text-[11px] text-blue-700 font-semibold flex items-center gap-1">
+                        <div className="font-mono text-xs text-blue-700 font-semibold flex items-center gap-1">
                           <Link
                             href={`/simulations/${item.simulationSlug}`}
                             target="_blank"
@@ -200,14 +200,14 @@ export function CommentsView() {
                       {/* Author */}
                       <td className="p-4">
                         <div className="flex items-center gap-2">
-                          <div className="h-6 w-6 rounded-full bg-slate-100 text-slate-800 flex items-center justify-center text-[10px] font-bold font-mono">
+                          <div className="h-6 w-6 rounded-full bg-slate-100 text-slate-800 flex items-center justify-center text-xs font-bold font-mono">
                             {item.user.username.charAt(0).toUpperCase()}
                           </div>
                           <div>
                             <span className="font-mono font-bold text-slate-900 block">
                               {item.user.username}
                             </span>
-                            <span className="text-[9px] font-mono text-slate-500">
+                            <span className="text-xs font-mono text-slate-500">
                               {item.user.role}
                             </span>
                           </div>
@@ -217,7 +217,7 @@ export function CommentsView() {
                       {/* Content */}
                       <td className="p-4 max-w-md">
                         {isReply && item.parent && (
-                          <div className="text-[11px] text-slate-500 font-sans italic mb-1 border-l-2 border-slate-300 pl-2 line-clamp-1">
+                          <div className="text-xs text-slate-500 font-sans italic mb-1 border-l-2 border-slate-300 pl-2 line-clamp-1">
                             Trả lời @{item.parent.user.username}: &ldquo;{item.parent.content}
                             &rdquo;
                           </div>
@@ -228,7 +228,7 @@ export function CommentsView() {
                       </td>
 
                       {/* Date */}
-                      <td className="p-4 font-mono text-slate-500 text-[11px] whitespace-nowrap">
+                      <td className="p-4 font-mono text-slate-500 text-xs whitespace-nowrap">
                         {new Date(item.createdAt).toLocaleString('vi-VN')}
                       </td>
 
