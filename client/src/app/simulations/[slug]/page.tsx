@@ -143,8 +143,23 @@ export default async function SimulationPage({ params }: SimulationPageProps) {
       {/* Đường phân cách trước phần thảo luận */}
       <hr className="border-slate-200/80 my-2" />
 
-      {/* Góc Thảo luận & Phản biện Khoa học (2 cấp) */}
-      <CommentSection simulationSlug={sim.slug} />
+      {/* Title Bình Luận & Thảo Luận - Không số đầu, không khung, nổi bật */}
+      <div className="space-y-4">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2.5">
+            <span className="h-2.5 w-2.5 rounded-full bg-indigo-600 shadow-xs shadow-indigo-500/40" />
+            <h2 className="font-heading text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
+              Góc Thảo Luận & Bình Luận Khoa Học
+            </h2>
+          </div>
+          <p className="text-xs sm:text-sm text-slate-500 font-sans">
+            Không gian trao đổi đa chiều, chia sẻ trực giác và phản biện cùng cộng đồng nghiên cứu
+          </p>
+        </div>
+
+        {/* Khối thảo luận 2 cấp */}
+        <CommentSection simulationSlug={sim.slug} />
+      </div>
     </div>
   );
 }

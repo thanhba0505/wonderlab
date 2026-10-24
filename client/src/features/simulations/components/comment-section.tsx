@@ -1,9 +1,8 @@
 'use client';
 
 import * as React from 'react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { Card, CardHeader, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import {
   MessageSquare,
   Reply,
@@ -152,20 +151,16 @@ export function CommentSection({ simulationSlug }: CommentSectionProps) {
   };
 
   return (
-    <Card className="border-slate-300/85 bg-white shadow-md shadow-slate-300/30">
-      <CardHeader className="border-b border-slate-200/80 pb-5">
+    <Card className="border-slate-300/85 bg-white shadow-xs">
+      <CardHeader className="border-b border-slate-200/80 py-4 px-5">
         <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <Badge variant="cyan">THẢO LUẬN & PHẢN BIỆN</Badge>
-              <Badge variant="outline" className="font-mono text-slate-700">
-                {totalCommentsCount} bình luận
-              </Badge>
-            </div>
-            <CardTitle className="text-xl sm:text-2xl font-heading font-extrabold tracking-tight text-slate-900 flex items-center gap-2">
-              <MessageSquare className="h-5 w-5 text-blue-600" />
-              Góc Thảo Luận Khoa Học
-            </CardTitle>
+          <div className="flex items-center gap-2.5">
+            <MessageSquare className="h-4 w-4 text-indigo-600" />
+            <span className="font-mono text-xs font-bold text-slate-800 uppercase tracking-wide">
+              {totalCommentsCount} bình luận
+            </span>
+            <span className="text-slate-300">•</span>
+            <span className="text-xs text-slate-500 font-sans">Mô hình phản biện 2 cấp</span>
           </div>
 
           {user && (
@@ -179,10 +174,6 @@ export function CommentSection({ simulationSlug }: CommentSectionProps) {
             </div>
           )}
         </div>
-        <CardDescription className="text-slate-600 text-xs sm:text-sm pt-1 font-sans">
-          Chia sẻ giả thuyết, nhận định trực giác và đối chiếu dữ liệu thực nghiệm cùng cộng đồng
-          Wonderlab.
-        </CardDescription>
       </CardHeader>
 
       <CardContent className="pt-6 space-y-6">

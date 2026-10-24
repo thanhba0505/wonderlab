@@ -23,19 +23,19 @@ export const IntuitionExplainer: React.FC<IntuitionExplainerProps> = ({ currentN
         </p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        {/* Khối 1: Lỗi nhận thức tự nhiên */}
-        <div className="rounded-lg bg-slate-50 p-4 border-l-4 border-slate-400">
+      <div className="grid gap-6 md:grid-cols-2">
+        {/* Cột 1: Lỗi nhận thức tự nhiên - Dùng line dọc ngăn cách, không đóng khung */}
+        <div className="space-y-3 border-l-2 border-slate-300 pl-4 sm:pl-5">
           <div className="flex items-center justify-between">
-            <span className="font-mono text-xs font-bold text-slate-700 uppercase">
-              1. Trực giác Tự nhiên (Sai lệch)
+            <span className="font-mono text-xs font-bold text-slate-700 uppercase tracking-wide">
+              Trực giác Tự nhiên (Sai lệch)
             </span>
-            <span className="rounded bg-slate-200 px-1.5 py-0.5 font-mono text-[10px] text-slate-700">
+            <span className="rounded bg-slate-100 px-2 py-0.5 font-mono text-[10px] font-semibold text-slate-600">
               {naivePairs} phép so sánh
             </span>
           </div>
 
-          <p className="mt-2 text-xs leading-relaxed text-slate-600">
+          <p className="text-xs leading-relaxed text-slate-600">
             Khi bước vào phòng có {currentN} người, bạn thường vô thức đặt mình làm mốc trung tâm và
             tự hỏi:
             <span className="font-semibold text-slate-800">
@@ -44,30 +44,32 @@ export const IntuitionExplainer: React.FC<IntuitionExplainerProps> = ({ currentN
             </span>
           </p>
 
-          <div className="mt-3 rounded bg-white p-2.5 font-mono text-[11px] text-slate-700 border border-slate-200">
-            <div className="text-slate-500">{'//'} Xác suất trùng với BẠN:</div>
-            <div className="mt-1 font-semibold text-slate-900">
+          {/* Công thức: Dùng line dọc nhấn, không đóng khung hộp */}
+          <div className="border-l-2 border-slate-400 bg-slate-50/70 py-2 px-3 rounded-r font-mono text-[11px] text-slate-700">
+            <div className="text-slate-400">{'//'} Xác suất trùng với BẠN:</div>
+            <div className="mt-0.5 font-bold text-slate-900">
               P = 1 - (364/365)^{naivePairs} ≈{' '}
               {((1 - Math.pow(364 / 365, naivePairs)) * 100).toFixed(1)}%
             </div>
           </div>
-          <p className="mt-2 text-[11px] text-slate-500 italic">
-            Xác suất này rất nhỏ, tạo cảm giác sai lầm rằng biến cố trùng ngày sinh là hiếm thấy.
+          <p className="text-[11px] text-slate-500 italic">
+            Xác suất này rất nhỏ, tạo cảm giác sai lầm rằng biến cố trùng ngày sinh là cực kỳ hiếm
+            thấy.
           </p>
         </div>
 
-        {/* Khối 2: Bản chất toán học thực tế */}
-        <div className="rounded-lg bg-blue-50/60 p-4 border-l-4 border-blue-600">
+        {/* Cột 2: Bản chất toán học thực tế - Dùng line dọc lam, không đóng khung */}
+        <div className="space-y-3 border-l-2 border-blue-500 pl-4 sm:pl-5">
           <div className="flex items-center justify-between">
-            <span className="font-mono text-xs font-bold text-blue-900 uppercase">
-              2. Không gian Tổ hợp Thực tế
+            <span className="font-mono text-xs font-bold text-blue-900 uppercase tracking-wide">
+              Không gian Tổ hợp Thực tế
             </span>
-            <span className="rounded bg-blue-100 px-1.5 py-0.5 font-mono text-[10px] font-bold text-blue-800">
+            <span className="rounded bg-blue-100/70 px-2 py-0.5 font-mono text-[10px] font-bold text-blue-800">
               {currentPairs} cặp đối sánh!
             </span>
           </div>
 
-          <p className="mt-2 text-xs leading-relaxed text-slate-700">
+          <p className="text-xs leading-relaxed text-slate-700">
             Nghịch lý không hỏi ai trùng với BẠN, mà tìm{' '}
             <span className="font-semibold text-blue-900">BẤT KỲ CẶP NGƯỜI NÀO</span> trong phòng
             trùng nhau. Số lượng cặp đối sánh tăng theo hàm bậc hai:
@@ -78,17 +80,18 @@ export const IntuitionExplainer: React.FC<IntuitionExplainerProps> = ({ currentN
             .
           </p>
 
-          <div className="mt-3 rounded bg-white p-2.5 font-mono text-[11px] text-slate-800 border border-blue-200">
-            <div className="text-slate-500">
+          {/* Công thức: Dùng line dọc nhấn xanh, không đóng khung hộp */}
+          <div className="border-l-2 border-blue-600 bg-blue-50/60 py-2 px-3 rounded-r font-mono text-[11px] text-slate-800">
+            <div className="text-blue-500">
               {'//'} Xác suất có ít nhất 1 trong {currentPairs} cặp trùng nhau:
             </div>
-            <div className="mt-1 font-semibold text-blue-700">
+            <div className="mt-0.5 font-bold text-blue-700">
               Tại n = 23: C(23, 2) = 253 cặp đối sánh → P = 50.7%
             </div>
           </div>
-          <p className="mt-2 text-[11px] text-slate-600">
+          <p className="text-[11px] text-slate-600">
             Với 253 cơ hội đối sánh độc lập, việc xuất hiện ít nhất một cặp trùng trở thành biến cố
-            rất khả dĩ!
+            tất yếu và rất khả dĩ!
           </p>
         </div>
       </div>
