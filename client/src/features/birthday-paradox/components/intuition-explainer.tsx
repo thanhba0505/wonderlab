@@ -70,8 +70,8 @@ export const IntuitionExplainer: React.FC<IntuitionExplainerProps> = ({ currentN
           </p>
 
           {/* Công thức: Biểu diễn phân số, số mũ nhiều dòng đẹp mắt */}
-          <div className="rounded-lg bg-slate-50/80 border border-slate-200/70 p-3 font-mono text-xs text-slate-800 space-y-1.5">
-            <div className="text-xs font-sans text-slate-500 font-medium">
+          <div className="rounded-xl bg-white border border-slate-200/90 shadow-2xs p-3.5 font-mono text-xs text-slate-800 space-y-2">
+            <div className="text-xs font-sans text-slate-600 font-semibold">
               Xác suất trùng với BẠN:
             </div>
             <div className="flex items-center flex-wrap gap-2 text-sm">
@@ -119,11 +119,11 @@ export const IntuitionExplainer: React.FC<IntuitionExplainerProps> = ({ currentN
           </p>
 
           {/* Công thức: Biểu diễn phân số, số mũ nhiều dòng đẹp mắt */}
-          <div className="rounded-lg bg-blue-50/60 border border-blue-200/70 p-3 font-mono text-xs text-slate-800 space-y-2">
-            <div className="text-xs font-sans text-blue-700 font-medium">
+          <div className="rounded-xl bg-white border border-slate-200/90 shadow-2xs p-3.5 font-mono text-xs text-slate-800 space-y-2">
+            <div className="text-xs font-sans text-slate-600 font-semibold">
               Số cặp ghép đôi tổ hợp & xác suất va chạm:
             </div>
-            <div className="flex items-center flex-wrap gap-2 text-sm text-blue-950">
+            <div className="flex items-center flex-wrap gap-2 text-sm text-slate-900">
               <span className="font-bold">C({currentN}, 2)</span>
               <span>=</span>
               <MathFraction
@@ -133,7 +133,7 @@ export const IntuitionExplainer: React.FC<IntuitionExplainerProps> = ({ currentN
               <span>=</span>
               <span className="font-bold text-blue-700">{currentPairs} cặp</span>
             </div>
-            <div className="pt-2 border-t border-blue-200/60 flex items-center flex-wrap gap-2 text-xs">
+            <div className="pt-2 border-t border-slate-100 flex items-center flex-wrap gap-2 text-xs">
               <span className="font-sans text-slate-600">Tại n = {currentN}:</span>
               <span className="font-bold text-blue-900">P(n)</span>
               <span>&asymp;</span>

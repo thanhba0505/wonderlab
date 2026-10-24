@@ -594,7 +594,7 @@ export const BirthdaySimulation: React.FC = () => {
         {/* Title không number đầu, không khung, nổi bật */}
         <div className="space-y-1">
           <div className="flex items-center gap-2.5">
-            <span className="h-2.5 w-2.5 rounded-full bg-violet-600 shadow-xs shadow-violet-500/40" />
+            <span className="h-2.5 w-2.5 rounded-full bg-blue-600 shadow-xs shadow-blue-500/40" />
             <h2 className="font-heading text-[18px] font-bold tracking-tight text-slate-900">
               Giải Thích Khoa Học & Bản Chất Toán Học
             </h2>
@@ -605,7 +605,7 @@ export const BirthdaySimulation: React.FC = () => {
         </div>
 
         {/* Khối giải thích trực giác toán học */}
-        <div className="rounded-2xl border border-slate-300/85 bg-white p-5 sm:p-6 shadow-xs border-l-4 border-l-violet-600">
+        <div className="rounded-2xl border border-blue-300/85 bg-gradient-to-b from-blue-50/50 via-white to-white p-5 sm:p-6 shadow-xs border-l-4 border-l-blue-600">
           <IntuitionExplainer currentN={n} />
         </div>
       </div>

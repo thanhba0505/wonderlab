@@ -113,22 +113,12 @@ export function IntuitionChallengeCard({
 
   return (
     <div
-      className={`rounded-xl border transition-all ${
-        isCardActive
-          ? 'border-amber-300/85 bg-gradient-to-b from-amber-50/50 via-white to-white shadow-xs'
-          : isSkipped
-            ? 'border-slate-200 bg-slate-50/50'
-            : 'border-slate-300/85 bg-white shadow-xs'
-      } p-5 ${className}`}
+      className={`rounded-xl border border-amber-300/85 bg-gradient-to-b from-amber-50/50 via-white to-white shadow-xs p-5 transition-all ${className}`}
     >
       {/* Header bar */}
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200/80 pb-3">
         <div className="flex items-center gap-2">
-          <div
-            className={`flex h-7 w-7 items-center justify-center rounded-lg ${
-              isCardActive ? 'bg-amber-100 text-amber-800' : 'bg-blue-50 text-blue-700'
-            }`}
-          >
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-100 text-amber-800">
             <Brain className="h-4 w-4" />
           </div>
           <div>
@@ -153,7 +143,7 @@ export function IntuitionChallengeCard({
           )}
 
           <Badge
-            variant={isCardActive ? 'amber' : isSkipped ? 'outline' : 'cyan'}
+            variant={hasSubmitted ? 'emerald' : isSkipped ? 'outline' : 'amber'}
             className="text-xs font-mono"
           >
             {hasSubmitted ? 'Đã dự đoán' : isSkipped ? 'Đã bỏ qua' : 'Khảo sát trước thực nghiệm'}
@@ -234,7 +224,7 @@ export function IntuitionChallengeCard({
               /* Intuition Gap Analysis View */
               <div className="space-y-4 pt-1 animate-in fade-in duration-300">
                 {/* Visual Gap Meter */}
-                <div className="rounded-xl bg-slate-50 p-4 border border-slate-200/80 space-y-3">
+                <div className="rounded-xl bg-white p-4 border border-amber-200/80 space-y-3 shadow-2xs">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <span className="text-xs font-mono uppercase tracking-wider text-slate-500 font-bold">
                       Thước đo Độ lệch Trực giác (Intuition Gap Meter)
@@ -253,8 +243,8 @@ export function IntuitionChallengeCard({
 
                   {/* Dual Progress / Values */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                    <div className="rounded-lg bg-white p-3 border border-slate-200 shadow-2xs">
-                      <span className="text-xs font-mono text-slate-500 uppercase block">
+                    <div className="rounded-lg bg-amber-50/60 p-3 border border-amber-200/70 shadow-2xs">
+                      <span className="text-xs font-mono text-amber-800 uppercase block font-semibold">
                         Bạn đã dự đoán:
                       </span>
                       <div className="flex items-baseline justify-between mt-1">
@@ -267,8 +257,8 @@ export function IntuitionChallengeCard({
                       </div>
                     </div>
 
-                    <div className="rounded-lg bg-white p-3 border border-slate-200 shadow-2xs">
-                      <span className="text-xs font-mono text-slate-500 uppercase block">
+                    <div className="rounded-lg bg-blue-50/60 p-3 border border-blue-200/70 shadow-2xs">
+                      <span className="text-xs font-mono text-blue-800 uppercase block font-semibold">
                         Định lý Toán học Khách quan:
                       </span>
                       <div className="flex items-baseline justify-between mt-1">
@@ -313,9 +303,9 @@ export function IntuitionChallengeCard({
                 </div>
 
                 {/* Cognitive Bias Breakdown */}
-                <div className="rounded-xl bg-slate-100/70 border-l-4 border-blue-600 p-4 text-xs text-slate-700 space-y-2">
+                <div className="rounded-xl bg-white/90 border border-slate-200/90 border-l-4 border-l-amber-500 p-4 text-xs text-slate-700 space-y-2 shadow-2xs">
                   <div className="font-heading font-bold text-sm text-slate-900 flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-blue-600" />
+                    <CheckCircle2 className="h-4 w-4 text-amber-600" />
                     Giải mã Tâm lý Nhận thức: {challenge.biasName}
                   </div>
                   <p className="font-sans leading-relaxed">{challenge.truthExplanation}</p>
