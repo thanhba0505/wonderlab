@@ -31,3 +31,10 @@ description: Next.js App Router engineering standards for Wonderlab. Covers rout
 - Environment variables:
   - Client-accessible: `NEXT_PUBLIC_*` (validate before use; never expose private keys or DB credentials).
   - Server-only: regular environment variables.
+
+## 4. Development Server Lifecycle & Asset Safety
+
+- **Development Server Command**: Always use `pnpm dev` or `pnpm dev:client` (`next dev -p ${PORT:-4100}`).
+- **Strictly Prohibited**: NEVER run `pnpm start`, `pnpm --filter wonderlab-client start`, or `next start` during local development or background tasks.
+- **Root Cause & Asset Lockout**: `next start` serves immutable production bundles tied to an in-memory `BUILD_ID`. Whenever background checks (`pnpm check` / `next build`) rewrite `.next/` on disk, `next start` encounters build ID mismatch and responds with `400 Bad Request` on all CSS and JS chunks, causing stylesheet drops and infinite reload failures in the browser.
+- **Hot Reloading**: `next dev` recompiles routes on demand with Hot Module Replacement (HMR) and is immune to build-ID desynchronization.
