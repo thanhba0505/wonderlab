@@ -26,7 +26,7 @@ interface AuthContextType {
     username: string,
     email: string,
     password: string,
-  ) => Promise<{ success: boolean; error?: string; email?: string }>;
+  ) => Promise<{ success: boolean; error?: string; email?: string; devOtpCode?: string }>;
   verifyEmail: (email: string, code: string) => Promise<{ success: boolean; error?: string }>;
   resendOtp: (
     email: string,
@@ -153,7 +153,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     username: string,
     email: string,
     password: string,
-  ): Promise<{ success: boolean; error?: string; email?: string }> => {
+  ): Promise<{ success: boolean; error?: string; email?: string; devOtpCode?: string }> => {
     setIsLoading(true);
     try {
       const response = await fetch(`${API_BASE_URL}/auth/register`, {
@@ -177,7 +177,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       setPendingEmail(email);
       setAuthModalMode('otp');
-      return { success: true, email };
+      return { success: true, email, devOtpCode: data.devOtpCode };
     } catch {
       return {
         success: false,

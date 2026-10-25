@@ -138,12 +138,17 @@ export class AuthService {
     });
 
     // Phát sinh & gửi mã OTP 6 số
-    await this.otpService.createAndSendOtp(normalizedEmail, OtpType.REGISTER_VERIFY, newUser.id);
+    const { code } = await this.otpService.createAndSendOtp(
+      normalizedEmail,
+      OtpType.REGISTER_VERIFY,
+      newUser.id,
+    );
 
     return {
       message: 'Đăng ký thành công. Vui lòng nhập mã OTP 6 số gửi đến email của bạn để kích hoạt.',
       email: normalizedEmail,
       requireOtp: true,
+      ...(process.env.NODE_ENV !== 'production' ? { devOtpCode: code } : {}),
     };
   }
 

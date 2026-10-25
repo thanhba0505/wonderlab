@@ -45,6 +45,7 @@ export function AuthModal() {
   const [successMessage, setSuccessMessage] = React.useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = React.useState<boolean>(false);
   const [cooldown, setCooldown] = React.useState<number>(0);
+  const isDev = process.env.NODE_ENV !== 'production';
 
   // Sync mode with context
   React.useEffect(() => {
@@ -142,12 +143,17 @@ export function AuthModal() {
     e.preventDefault();
     setErrorMessage(null);
 
-    if (password !== confirmPassword) {
+    if (!isDev && password !== confirmPassword) {
       setErrorMessage('Mật khẩu xác nhận không khớp.');
       return;
     }
 
-    if (password.length < 8) {
+    if (isDev && confirmPassword && password !== confirmPassword) {
+      setErrorMessage('Mật khẩu xác nhận không khớp.');
+      return;
+    }
+
+    if (!isDev && password.length < 8) {
       setErrorMessage('Mật khẩu phải có độ dài tối thiểu 8 ký tự.');
       return;
     }
@@ -161,6 +167,9 @@ export function AuthModal() {
     } else {
       setMode('otp');
       setCooldown(60);
+      if (result.devOtpCode) {
+        setOtpCode(result.devOtpCode.split(''));
+      }
       setSuccessMessage('Đăng ký thành công! Vui lòng nhập mã OTP 6 số để kích hoạt.');
     }
   };
@@ -450,7 +459,7 @@ export function AuthModal() {
 
           {/* VIEW: REGISTER */}
           {mode === 'register' && (
-            <form onSubmit={handleRegisterSubmit} className="space-y-3.5">
+            <form onSubmit={handleRegisterSubmit} noValidate={isDev} className="space-y-3.5">
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1">
                   Tên đăng nhập (Username)
@@ -475,7 +484,7 @@ export function AuthModal() {
                 <div className="relative">
                   <Mail className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
                   <input
-                    type="email"
+                    type={isDev ? 'text' : 'email'}
                     required
                     value={email}
                     onChange={e => setEmail(e.target.value)}
@@ -486,9 +495,7 @@ export function AuthModal() {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Mật khẩu (Tối thiểu 8 ký tự)
-                </label>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Mật khẩu</label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
                   <input
@@ -496,7 +503,7 @@ export function AuthModal() {
                     required
                     value={password}
                     onChange={e => setPassword(e.target.value)}
-                    placeholder="Nhập mật khẩu an toàn..."
+                    placeholder="Nhập mật khẩu..."
                     className="w-full rounded-lg border border-slate-300 bg-white py-2 pl-9 pr-10 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                   />
                   <button
@@ -517,10 +524,10 @@ export function AuthModal() {
                   <KeyRound className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
                   <input
                     type={showPassword ? 'text' : 'password'}
-                    required
+                    required={!isDev}
                     value={confirmPassword}
                     onChange={e => setConfirmPassword(e.target.value)}
-                    placeholder="Gõ lại mật khẩu vừa nhập..."
+                    placeholder="Gõ lại mật khẩu..."
                     className="w-full rounded-lg border border-slate-300 bg-white py-2 pl-9 pr-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                   />
                 </div>

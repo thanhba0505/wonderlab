@@ -1,13 +1,15 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, IsString, Length } from 'class-validator';
+import { IsNotEmpty, IsString, Length } from 'class-validator';
+import { IsEmailIfProd } from './validation-helpers';
 
 export class VerifyEmailDto {
   @ApiProperty({
     example: 'student_alex@example.com',
     description: 'Địa chỉ email đã đăng ký',
   })
-  @IsEmail({}, { message: 'Định dạng email không hợp lệ' })
+  @IsEmailIfProd({ message: 'Định dạng email không hợp lệ' })
   @IsNotEmpty({ message: 'Email không được để trống' })
+  @IsString({ message: 'Email phải là chuỗi ký tự' })
   email!: string;
 
   @ApiProperty({

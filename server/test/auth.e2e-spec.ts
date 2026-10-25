@@ -228,6 +228,40 @@ describe('Auth & Session Security (e2e)', () => {
         })
         .expect(200);
     });
+
+    it('should allow registering with non-standard email format and short password in non-production', async () => {
+      const devTimestamp = Date.now();
+      const devUser = `dev_${devTimestamp}`;
+      const devEmail = `arbitrary_email_${devTimestamp}`;
+      const devPass = '123';
+
+      const response = await request(app.getHttpServer())
+        .post('/api/v1/auth/register')
+        .send({
+          username: devUser,
+          email: devEmail,
+          password: devPass,
+        })
+        .expect(201);
+
+      expect(response.body.requireOtp).toBe(true);
+      expect(response.body.devOtpCode).toBeDefined();
+
+      // Verify OTP with dev bypass code '123456'
+      const verifyRes = await request(app.getHttpServer())
+        .post('/api/v1/auth/verify-email')
+        .send({
+          email: devEmail,
+          code: '123456',
+        })
+        .expect(200);
+
+      expect(verifyRes.body.user.username).toBe(devUser);
+
+      // Clean up
+      await prisma.otpToken.deleteMany({ where: { email: devEmail } });
+      await prisma.user.deleteMany({ where: { username: devUser } });
+    });
   });
 
   describe('Google OAuth & Automatic Account Linking', () => {

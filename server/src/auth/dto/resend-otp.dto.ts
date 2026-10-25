@@ -1,14 +1,16 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { OtpType } from '@prisma/client';
-import { IsEmail, IsEnum, IsNotEmpty } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
+import { IsEmailIfProd } from './validation-helpers';
 
 export class ResendOtpDto {
   @ApiProperty({
     example: 'user@wonderlab.local',
     description: 'Địa chỉ email cần nhận lại mã xác thực',
   })
-  @IsEmail({}, { message: 'Định dạng email không hợp lệ' })
+  @IsEmailIfProd({ message: 'Định dạng email không hợp lệ' })
   @IsNotEmpty({ message: 'Email không được để trống' })
+  @IsString({ message: 'Email phải là chuỗi ký tự' })
   email!: string;
 
   @ApiProperty({
