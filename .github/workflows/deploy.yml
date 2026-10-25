@@ -21,6 +21,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: deploy-render
+  cancel-in-progress: false
+
 jobs:
   deploy:
     name: 🚀 Deploy to Render
