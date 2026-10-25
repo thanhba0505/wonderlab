@@ -186,7 +186,7 @@ export default function AdminPortalPage() {
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 w-full h-full overflow-y-auto min-w-0 pr-1 pb-6">
+      <main className="flex-1 w-full h-full overflow-y-auto min-w-0 p-2 lg:p-3 lg:pt-2.5 pb-10">
         {currentView === 'dashboard' && (
           <DashboardView
             overview={overview}
