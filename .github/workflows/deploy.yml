@@ -1,9 +1,6 @@
 name: 🚀 Deploy to Render
 
 on:
-  push:
-    tags:
-      - 'v*'
   release:
     types: [published]
   workflow_dispatch:
