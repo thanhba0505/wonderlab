@@ -5,6 +5,7 @@ import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import type { Request, Response, NextFunction } from 'express';
 import { AppModule } from './app.module';
+import pkg from '../package.json';
 
 async function bootstrap() {
   const logger = new Logger('WonderlabServer');
@@ -65,7 +66,7 @@ async function bootstrap() {
       .setDescription(
         'Interactive scientific simulation and paradox exploration engine — API documentation',
       )
-      .setVersion('1.0.0')
+      .setVersion(pkg.version)
       .addTag('Health', 'System health checks')
       .addTag('Auth', 'Authentication, session management and user authorization')
       .addTag('Simulations', 'Simulation telemetry, runs history and aggregated stats')

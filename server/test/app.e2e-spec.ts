@@ -4,6 +4,7 @@ import type { Request, Response, NextFunction } from 'express';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { HealthResponseDto } from '../src/health/dto/health-response.dto';
+import pkg from '../package.json';
 
 describe('Server Health (e2e)', () => {
   let app: INestApplication;
@@ -40,7 +41,7 @@ describe('Server Health (e2e)', () => {
     expect(body.status).toBe('ok');
     expect(body.service).toBe('wonderlab-server');
     expect(body.database).toBe('connected');
-    expect(body.version).toBe('1.0.0');
+    expect(body.version).toBe(pkg.version);
     expect(typeof body.timestamp).toBe('string');
     expect(new Date(body.timestamp).toISOString()).toBe(body.timestamp);
   };

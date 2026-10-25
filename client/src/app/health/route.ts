@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import pkg from '../../../package.json';
 
 export const dynamic = 'force-dynamic';
 
@@ -7,6 +8,6 @@ export async function GET() {
     status: 'ok',
     service: 'wonderlab-client',
     timestamp: new Date().toISOString(),
-    version: '1.0.0',
+    version: pkg.version,
   });
 }
