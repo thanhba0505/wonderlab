@@ -177,6 +177,20 @@ export function AppTableFilter<T>({
     }
   }, [fetchData, internalPage, internalPageSize, runFetch]);
 
+  // Sync external page & pageSize props to internal state
+  React.useEffect(() => {
+    if (page !== undefined) {
+      setInternalPage(page);
+    }
+  }, [page]);
+
+  React.useEffect(() => {
+    const size = limit ?? pageSize;
+    if (size !== undefined) {
+      setInternalPageSize(size);
+    }
+  }, [limit, pageSize]);
+
   // Reset internal page if client side data length changes
   React.useEffect(() => {
     if (clientSidePagination) {
@@ -193,12 +207,14 @@ export function AppTableFilter<T>({
   const effectivePage = fetchData ? internalPage : (page ?? internalPage);
   const effectivePageSize = fetchData ? internalPageSize : (limit ?? pageSize ?? internalPageSize);
 
-  // Compute table data based on client-side pagination
+  // Compute table data based on pagination (client-side or overflow fallback)
   const displayedData = React.useMemo(() => {
-    if (!clientSidePagination) return effectiveData;
-    const start = (internalPage - 1) * internalPageSize;
-    return effectiveData.slice(start, start + internalPageSize);
-  }, [clientSidePagination, effectiveData, internalPage, internalPageSize]);
+    const shouldSlice =
+      clientSidePagination || (!fetchData && effectiveData.length > effectivePageSize);
+    if (!shouldSlice) return effectiveData;
+    const start = (effectivePage - 1) * effectivePageSize;
+    return effectiveData.slice(start, start + effectivePageSize);
+  }, [clientSidePagination, fetchData, effectiveData, effectivePage, effectivePageSize]);
 
   const handleFilterClick = React.useCallback(() => {
     if (fetchData) {

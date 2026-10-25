@@ -407,6 +407,7 @@ export function UsersView({ currentAdminUsername }: UsersViewProps) {
         onSort={handleSort}
         page={page}
         limit={limit}
+        pageSize={limit}
         total={total}
         onPageChange={handlePageChange}
         onPageSizeChange={handlePageSizeChange}

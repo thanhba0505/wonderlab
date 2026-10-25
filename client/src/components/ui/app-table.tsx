@@ -154,6 +154,20 @@ export function AppTable<T>({
     };
   }, [fetchData, internalPage, internalLimit, sortColumn, sortDirection]);
 
+  // Sync external page and pageSize props to internal state
+  React.useEffect(() => {
+    if (page !== undefined) {
+      setInternalPage(page);
+    }
+  }, [page]);
+
+  React.useEffect(() => {
+    const size = limit ?? pageSize;
+    if (size !== undefined) {
+      setInternalLimit(size);
+    }
+  }, [limit, pageSize]);
+
   const effectiveData = React.useMemo(
     () => (fetchData ? internalData : (externalData ?? [])),
     [fetchData, internalData, externalData],
@@ -162,6 +176,16 @@ export function AppTable<T>({
   const effectiveTotal = fetchData ? internalTotal : (total ?? effectiveData.length);
   const effectivePage = fetchData ? internalPage : (page ?? 1);
   const effectiveLimit = fetchData ? internalLimit : (limit ?? pageSize ?? 20);
+
+  // Compute table data based on pagination (slicing if external data has more items than limit)
+  const displayedData = React.useMemo(() => {
+    if (fetchData) return internalData;
+    if (externalData && externalData.length > effectiveLimit) {
+      const start = (effectivePage - 1) * effectiveLimit;
+      return externalData.slice(start, start + effectiveLimit);
+    }
+    return effectiveData;
+  }, [fetchData, internalData, externalData, effectiveData, effectiveLimit, effectivePage]);
 
   const handlePageChange = React.useCallback(
     (nextPage: number) => {
@@ -237,17 +261,17 @@ export function AppTable<T>({
   );
 
   const allRowKeys = React.useMemo(
-    () => effectiveData.map((item, index) => getRowKey(item, index)),
-    [effectiveData, getRowKey],
+    () => displayedData.map((item, index) => getRowKey(item, index)),
+    [displayedData, getRowKey],
   );
 
   const isAllSelected =
-    effectiveData.length > 0 &&
+    displayedData.length > 0 &&
     allRowKeys.length > 0 &&
     allRowKeys.every(key => selectedKeys.includes(key));
 
   const isPartiallySelected =
-    effectiveData.length > 0 &&
+    displayedData.length > 0 &&
     selectedKeys.length > 0 &&
     !isAllSelected &&
     allRowKeys.some(key => selectedKeys.includes(key));
@@ -446,7 +470,7 @@ export function AppTable<T>({
                   </div>
                 </td>
               </tr>
-            ) : effectiveData.length === 0 ? (
+            ) : displayedData.length === 0 ? (
               <tr>
                 <td
                   colSpan={columns.length + (selectable ? 1 : 0)}
@@ -463,7 +487,7 @@ export function AppTable<T>({
                 </td>
               </tr>
             ) : (
-              effectiveData.map((item, index) => {
+              displayedData.map((item, index) => {
                 const key = getRowKey(item, index);
                 const isSelected = selectedKeys.includes(key);
 
@@ -537,7 +561,7 @@ export function AppTable<T>({
 
       {/* Optional Table / Pagination Footer */}
       {paginationFooter ? (
-        <div className="border-t border-slate-200 bg-slate-50/60 px-6 py-3 sm:px-7">
+        <div className="border-t border-slate-200 bg-slate-50/60 px-6 py-3 sm:px-7 rounded-b-xl relative z-10">
           {paginationFooter}
         </div>
       ) : null}

@@ -324,6 +324,7 @@ export function CommentsView() {
         emptyMessage="Không có bình luận nào phù hợp bộ lọc hiện tại."
         page={page}
         limit={limit}
+        pageSize={limit}
         total={total}
         onPageChange={handlePageChange}
         onPageSizeChange={handlePageSizeChange}
