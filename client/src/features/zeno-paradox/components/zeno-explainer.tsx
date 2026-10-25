@@ -1,118 +1,135 @@
 'use client';
 
 import * as React from 'react';
-import { BookOpen, Infinity as InfinityIcon, Atom, Sparkles, Scale } from 'lucide-react';
-import { SimulationFormulaBox } from '@/features/simulations/components';
+import { SimulationFormulaBox, MathFraction } from '@/features/simulations/components';
 
 export function ZenoExplainer() {
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-2.5 border-b border-slate-200/80 pb-4">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-600 text-white shadow-xs">
-          <BookOpen className="h-4 w-4" />
-        </div>
-        <div>
-          <h3 className="font-heading text-base font-bold text-slate-900">
-            Giải Mã Nghịch Lý: Từ Triết Học Hy Lạp Đến Vi Tích Phân & Vật Lý Lượng Tử
-          </h3>
-          <p className="text-xs text-slate-500 font-sans">
-            Khám phá cách một nghịch lý cổ xưa đã định hình lại nền tảng của toán học hiện đại và
-            vật lý không thời gian
-          </p>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Cột 1: Bẫy tư duy của Zeno */}
-        <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4 space-y-2">
-          <div className="flex items-center gap-2 text-violet-700">
-            <Scale className="h-4 w-4" />
-            <h4 className="font-heading text-xs font-bold uppercase tracking-wider">
-              1. Bẫy Tư duy Zeno
-            </h4>
-          </div>
-          <p className="text-xs text-slate-700 leading-relaxed font-sans">
-            Zeno thành Elea đưa ra nghịch lý: Nếu không gian và thời gian có thể chia nhỏ vô tận,
-            thì để đi từ A đến B bạn phải đi qua vô số điểm trung gian. Não bộ con người khi ấy lầm
-            tưởng rằng &ldquo;vô số bước&rdquo; bắt buộc phải mất &ldquo;vô hạn thời gian&rdquo;.
-          </p>
-        </div>
-
-        {/* Cột 2: Vi tích phân & Chuỗi hội tụ */}
-        <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4 space-y-2">
-          <div className="flex items-center gap-2 text-blue-700">
-            <InfinityIcon className="h-4 w-4" />
-            <h4 className="font-heading text-xs font-bold uppercase tracking-wider">
-              2. Đột phá Vi Tích Phân
-            </h4>
-          </div>
-          <p className="text-xs text-slate-700 leading-relaxed font-sans">
-            Newton, Leibniz và Cauchy giải quyết triệt để: Tổng của vô số đại lượng nhỏ dần theo cấp
-            số nhân với công bội |r| &lt; 1 là một số thực hữu hạn. Toàn bộ vô hạn khoảng thời gian
-            10s + 1s + 0.1s + ... khép lại chính xác tại thời điểm 11.111... giây.
-          </p>
-        </div>
-
-        {/* Cột 3: Ranh giới Lượng tử Planck */}
-        <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4 space-y-2">
-          <div className="flex items-center gap-2 text-emerald-700">
-            <Atom className="h-4 w-4" />
-            <h4 className="font-heading text-xs font-bold uppercase tracking-wider">
-              3. Giới hạn Planck
-            </h4>
-          </div>
-          <p className="text-xs text-slate-700 leading-relaxed font-sans">
-            Vật lý lượng tử chỉ ra rằng giả thiết của Zeno về không gian liên tục bị chặn ở quy mô
-            hạ nguyên tử: Độ dài Planck (&ell;<sub>P</sub> &asymp; 1.6 &times; 10<sup>-35</sup> m)
-            là khoảng cách nhỏ nhất có ý nghĩa vật lý. Không gian có tính rời rạc!
-          </p>
-        </div>
-      </div>
-
-      {/* 2 Khối công thức toán học cấp số nhân & thời gian hội tụ */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <SimulationFormulaBox title="Tổng chuỗi cấp số nhân lùi vô hạn (Geometric Series):">
-          <div className="flex items-center flex-wrap gap-2 text-sm text-slate-900">
-            <span className="font-bold">
-              S = &sum; a &times; r<sup>k</sup>
-            </span>
-            <span>=</span>
-            <span className="font-bold text-blue-700">a / (1 &minus; r)</span>
-            <span className="text-xs text-slate-500 font-sans">(với |r| &lt; 1)</span>
-          </div>
-          <p className="text-xs text-slate-500 font-sans">
-            Khi công bội r = v<sub>T</sub> / v<sub>A</sub> &lt; 1, chuỗi các khoảng thời gian vô hạn
-            bước hội tụ hoàn hảo về một giới hạn hữu hạn xác định.
-          </p>
-        </SimulationFormulaBox>
-
-        <SimulationFormulaBox title="Thời điểm bắt kịp chính xác (Analytical Overtake):">
-          <div className="flex items-center flex-wrap gap-2 text-sm text-slate-900">
-            <span className="font-bold">T*</span>
-            <span>=</span>
-            <span className="font-bold text-violet-700">
-              d<sub>0</sub> / (v<sub>A</sub> &minus; v<sub>T</sub>)
-            </span>
-            <span className="text-slate-400">,</span>
-            <span className="font-bold">
-              X* = v<sub>A</sub> &times; T*
-            </span>
-          </div>
-          <p className="text-xs text-slate-500 font-sans">
-            Với d<sub>0</sub> là khoảng cách nhường trước (m), v<sub>A</sub> là vận tốc Achilles, v
-            <sub>T</sub> là vận tốc Rùa. Sau thời điểm T*, Achilles vượt lên dẫn trước hoàn toàn.
-          </p>
-        </SimulationFormulaBox>
-      </div>
-
-      {/* Quote callout */}
-      <div className="flex items-start gap-3 rounded-xl border border-slate-200 bg-slate-50/60 p-4 text-xs italic text-slate-600">
-        <Sparkles className="h-4 w-4 shrink-0 text-amber-500 mt-0.5 not-italic" />
-        <p className="font-sans leading-relaxed">
-          &ldquo;Nghịch lý của Zeno không phải là một sự ngớ ngẩn của người xưa; nó là một nhát búa
-          thúc đẩy toàn bộ nền văn minh phương Tây phải phát minh ra khái niệm Giới hạn (Limit),
-          giải tích vô hạn nhỏ và nền tảng của Cơ học lượng tử hiện đại.&rdquo;
+    <div className="flex flex-col gap-4">
+      <div className="pb-1">
+        <h3 className="font-heading text-base font-bold text-slate-900">
+          Giải Mã Nghịch Lý Zeno: Achilles và Con Rùa (The Infinite Trap)
+        </h3>
+        <p className="mt-0.5 text-xs text-slate-500">
+          Khác biệt căn bản giữa tư duy phân chia vô hạn cổ đại và phép tính vi tích phân hiện đại.
         </p>
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-2">
+        {/* Cột 1: Ngộ nhận cổ đại */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="font-mono text-xs font-bold text-slate-700 uppercase tracking-wide">
+              Ngộ nhận Cổ đại (Bẫy Phân kỳ)
+            </span>
+            <span className="rounded bg-slate-100 px-2 py-0.5 font-mono text-xs font-semibold text-slate-600">
+              Vô số bước chia
+            </span>
+          </div>
+
+          <p className="text-xs leading-relaxed text-slate-600">
+            Zeno lập luận: để bắt kịp Rùa, Achilles trước hết phải chạy đến vị trí cũ của Rùa. Khi
+            tới đó, Rùa đã bò thêm một khoảng mới. Quá trình chia nhỏ này lặp lại vô tận, khiến
+            người xưa lầm tưởng rằng &ldquo;vô số bước&rdquo; bắt buộc phải tốn &ldquo;vô hạn thời
+            gian&rdquo;.
+          </p>
+
+          <SimulationFormulaBox title="Ngộ nhận trực giác về tổng vô hạn bước:">
+            <div className="space-y-1.5 text-xs text-slate-900">
+              <div className="flex items-center flex-wrap gap-2 text-sm font-mono">
+                <span>
+                  &Delta;t<sub className="text-xs">1</sub> + &Delta;t
+                  <sub className="text-xs">2</sub> + &hellip;
+                </span>
+                <span>=</span>
+                <span>
+                  &sum; &Delta;t<sub className="text-xs">k</sub>
+                </span>
+                <span className="text-rose-700 font-bold">&rarr; &infin; (Sai lầm!)</span>
+              </div>
+              <p className="text-xs text-slate-500 font-sans pt-1 border-t border-slate-100">
+                10s + 1s + 0.1s + 0.01s + &hellip; không hề tiến tới vô cực mà bị chặn trên hoàn
+                toàn.
+              </p>
+            </div>
+          </SimulationFormulaBox>
+
+          <p className="text-xs text-slate-500 italic">
+            Sai lầm ở chỗ: Người xưa không nhận ra rằng độ dài của mỗi chặng thời gian co lại theo
+            cấp số nhân với tốc độ cực nhanh.
+          </p>
+        </div>
+
+        {/* Cột 2: Đột phá Giải tích & Giới hạn Vật lý */}
+        <div className="space-y-3 md:border-l md:border-slate-200/90 md:pl-6">
+          <div className="flex items-center justify-between">
+            <span className="font-mono text-xs font-bold text-blue-900 uppercase tracking-wide">
+              Đột phá Giải tích & Vật lý Planck
+            </span>
+            <span className="rounded bg-blue-100/70 px-2 py-0.5 font-mono text-xs font-bold text-blue-800">
+              Chuỗi hội tụ hữu hạn!
+            </span>
+          </div>
+
+          <p className="text-xs leading-relaxed text-slate-700">
+            Vi tích phân (Calculus) chứng minh: Tổng của vô số đại lượng nhỏ dần theo cấp số nhân
+            với công bội |r| &lt; 1 là một số thực hữu hạn. Ở quy mô lượng tử, độ dài Planck (&ell;
+            <sub className="text-xs font-semibold">P</sub> &asymp; 1.6 &times; 10
+            <sup className="text-xs font-semibold">-35</sup>m) khẳng định không gian có tính rời
+            rạc.
+          </p>
+
+          <SimulationFormulaBox title="Tổng chuỗi cấp số nhân & Thời điểm vượt qua chính xác:">
+            <div className="space-y-2 text-xs text-slate-900 font-mono">
+              <div className="flex items-center flex-wrap gap-2 text-sm">
+                <span className="font-bold text-blue-900">S</span>
+                <span>=</span>
+                <span>
+                  &sum; a &middot; r<sup className="text-xs font-semibold">k</sup>
+                </span>
+                <span>=</span>
+                <MathFraction
+                  numerator="a"
+                  denominator="1 &minus; r"
+                  className="text-sm font-bold text-blue-700"
+                />
+                <span className="text-xs text-slate-500 font-sans">(với |r| &lt; 1)</span>
+              </div>
+              <div className="pt-1.5 border-t border-slate-100 flex items-center flex-wrap gap-2 text-xs">
+                <span className="font-bold text-blue-900">T*</span>
+                <span>=</span>
+                <MathFraction
+                  numerator={
+                    <span>
+                      d<sub className="text-xs">0</sub>
+                    </span>
+                  }
+                  denominator={
+                    <span>
+                      v<sub className="text-xs">A</sub> &minus; v<sub className="text-xs">T</sub>
+                    </span>
+                  }
+                  className="text-xs"
+                />
+                <span>=</span>
+                <MathFraction numerator="100" denominator="10 &minus; 1" className="text-xs" />
+                <span>=</span>
+                <MathFraction
+                  numerator="100"
+                  denominator="9"
+                  className="text-xs font-bold text-blue-700"
+                />
+                <span>&asymp;</span>
+                <span className="font-bold text-blue-700 text-sm">11.11 s</span>
+              </div>
+            </div>
+          </SimulationFormulaBox>
+
+          <p className="text-xs text-slate-600">
+            Toàn bộ vô số chặng chạy của Achilles khép lại chính xác tại thời điểm 11.11 giây, tại
+            vị trí 111.11 mét!
+          </p>
+        </div>
       </div>
     </div>
   );

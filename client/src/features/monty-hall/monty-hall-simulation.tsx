@@ -27,6 +27,7 @@ import {
   SimulationFormulaBox,
   SimulationHistoryTable,
   IntuitionChallengeCard,
+  MathFraction,
 } from '@/features/simulations/components';
 import { getSimulationBySlug } from '@/features/simulations/registry';
 import { HypothesisOption } from '@/features/simulations/types';
@@ -357,33 +358,6 @@ export function MontyHallSimulation() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => handleSimulateBatch(50)}
-                className="h-7 text-xs font-semibold border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100"
-              >
-                <Play className="h-3.5 w-3.5 mr-1" />
-                +50 Ván
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleSimulateBatch(500)}
-                className="hidden sm:inline-flex h-7 text-xs font-semibold border-slate-200 text-slate-700 hover:bg-slate-100"
-              >
-                <Flame className="h-3.5 w-3.5 mr-1 text-amber-600" />
-                +500 Ván
-              </Button>
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={startNewRound}
-                className="h-7 text-xs font-semibold"
-              >
-                <RotateCcw className="h-3.5 w-3.5 mr-1" />
-                Vòng mới
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
                 onClick={handleExportCsv}
                 className="h-7 gap-1.5 border-slate-300 bg-white font-mono text-xs text-slate-700 hover:bg-slate-50 hover:text-slate-900"
                 title="Tải tệp bảng tính CSV"
@@ -420,16 +394,6 @@ export function MontyHallSimulation() {
                   </>
                 )}
               </Button>
-              {totalGames > 0 && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={resetStats}
-                  className="h-7 text-xs text-slate-500 hover:text-slate-900 px-2"
-                >
-                  Đặt lại ván
-                </Button>
-              )}
             </>
           }
           telemetry={
@@ -467,8 +431,8 @@ export function MontyHallSimulation() {
               {step === 'pick' && (
                 <span className="text-slate-800 flex items-center gap-2.5">
                   <span className="flex h-2.5 w-2.5 rounded-full bg-blue-600 animate-pulse" />
-                  <strong className="text-blue-700">Bước 1:</strong> Nhấp vào bất kỳ cánh cửa nào
-                  bên dưới để đưa ra lựa chọn đầu tiên.
+                  <strong className="text-blue-700">Bước 1:</strong> Nhấp vào một trong 3 cánh cửa
+                  bên dưới để đưa ra lựa chọn ban đầu.
                 </span>
               )}
               {step === 'revealed' && (
@@ -484,7 +448,7 @@ export function MontyHallSimulation() {
                   {finalDoor === carDoor ? (
                     <span className="text-emerald-800 flex items-center gap-2 font-bold text-base">
                       <Trophy className="h-5 w-5 text-emerald-600" />
-                      Chiến thắng rực rỡ! Bạn đã nhận Ô tô thể thao với{' '}
+                      Chiến thắng! Bạn đã nhận Ô tô thể thao với{' '}
                       <span className="underline decoration-emerald-500">
                         {didSwitch ? 'Chiến lược ĐỔI CỬA' : 'Chiến lược GIỮ NGUYÊN'}
                       </span>
@@ -501,18 +465,29 @@ export function MontyHallSimulation() {
               )}
             </div>
 
-            {step === 'result' && (
+            {step === 'result' ? (
               <Button
                 size="sm"
                 onClick={startNewRound}
                 className="text-xs font-bold shrink-0 ml-4 shadow-xs"
               >
-                Chơi ván mới
+                <RotateCcw className="h-3.5 w-3.5 mr-1" />
+                Vòng mới
+              </Button>
+            ) : (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={startNewRound}
+                className="text-xs font-semibold shrink-0 ml-4 border-slate-300 text-slate-700 hover:bg-slate-50"
+              >
+                <RotateCcw className="h-3.5 w-3.5 mr-1" />
+                Làm mới
               </Button>
             )}
           </div>
 
-          {/* 3 Cánh cửa Vault */}
+          {/* 3 Cánh cửa Vault (Giao diện tinh gọn, không lặp text) */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
             {[0, 1, 2].map(doorIndex => {
               const isSelected = selectedDoor === doorIndex;
@@ -520,8 +495,8 @@ export function MontyHallSimulation() {
               const isFinalChoice = finalDoor === doorIndex;
               const hasCar = carDoor === doorIndex;
 
-              let borderColor = 'border-slate-300/90 hover:border-blue-500';
-              let bgColor = 'bg-slate-100/70';
+              let borderColor = 'border-slate-300/85 hover:border-blue-500';
+              let bgColor = 'bg-slate-50/70';
               let glowEffect = '';
 
               if (step === 'revealed') {
@@ -530,8 +505,8 @@ export function MontyHallSimulation() {
                   bgColor = 'bg-blue-50/70';
                   glowEffect = 'shadow-md shadow-blue-500/10';
                 } else if (isRevealedGoat) {
-                  borderColor = 'border-amber-400';
-                  bgColor = 'bg-amber-50/60';
+                  borderColor = 'border-amber-300';
+                  bgColor = 'bg-amber-50/50';
                 } else {
                   borderColor = 'border-violet-400 ring-2 ring-violet-500/15';
                   bgColor = 'bg-violet-50/50';
@@ -542,8 +517,8 @@ export function MontyHallSimulation() {
                   bgColor = 'bg-emerald-50/80';
                   glowEffect = 'shadow-md shadow-emerald-500/15';
                 } else if (isFinalChoice) {
-                  borderColor = 'border-red-400';
-                  bgColor = 'bg-red-50/50';
+                  borderColor = 'border-red-300';
+                  bgColor = 'bg-red-50/40';
                 }
               }
 
@@ -551,20 +526,20 @@ export function MontyHallSimulation() {
                 <div
                   key={doorIndex}
                   onClick={() => step === 'pick' && handleSelectDoor(doorIndex)}
-                  className={`group relative flex flex-col items-center justify-between p-6 rounded-2xl border transition-all duration-200 min-h-[250px] ${borderColor} ${bgColor} ${glowEffect} ${
+                  className={`group relative flex flex-col items-center justify-between p-5 rounded-2xl border transition-all duration-200 min-h-[200px] sm:min-h-[220px] ${borderColor} ${bgColor} ${glowEffect} ${
                     step === 'pick'
                       ? 'cursor-pointer hover:-translate-y-1 hover:shadow-lg hover:shadow-blue-500/10 hover:bg-white'
                       : ''
                   }`}
                 >
                   <div className="w-full flex items-center justify-between">
-                    <span className="font-mono text-xs font-bold px-2.5 py-0.5 rounded-md bg-slate-200/70 text-slate-700">
+                    <span className="font-mono text-xs font-bold px-2 py-0.5 rounded-md bg-slate-200/70 text-slate-700">
                       CỬA #{doorIndex + 1}
                     </span>
 
                     {isSelected && step !== 'result' && (
                       <Badge variant="cyan" className="text-xs">
-                        LỰA CHỌN CỦA BẠN
+                        BẠN ĐANG CHỌN
                       </Badge>
                     )}
 
@@ -581,41 +556,43 @@ export function MontyHallSimulation() {
                     )}
                   </div>
 
-                  <div className="my-6 flex flex-col items-center text-center">
+                  <div className="my-3 flex flex-col items-center text-center">
                     {step === 'result' ? (
                       hasCar ? (
-                        <div className="space-y-2 animate-in zoom-in-75">
-                          <div className="text-5xl filter drop-shadow-md">🏎️</div>
-                          <div className="font-heading font-extrabold text-sm text-emerald-700 uppercase tracking-wider">
+                        <div className="space-y-1.5 animate-in zoom-in-75">
+                          <div className="text-4xl filter drop-shadow-md">🏎️</div>
+                          <div className="font-heading font-extrabold text-xs text-emerald-700 uppercase tracking-wider">
                             Ô Tô Thể Thao
                           </div>
                         </div>
                       ) : (
-                        <div className="space-y-2 animate-in zoom-in-75">
-                          <div className="text-5xl">🐐</div>
+                        <div className="space-y-1.5 animate-in zoom-in-75">
+                          <div className="text-4xl">🐐</div>
                           <div className="font-heading font-medium text-xs text-slate-500 uppercase tracking-wider">
                             Dê Cỏ
                           </div>
                         </div>
                       )
                     ) : isRevealedGoat ? (
-                      <div className="space-y-2 animate-in fade-in">
-                        <div className="text-5xl">🐐</div>
+                      <div className="space-y-1.5 animate-in fade-in">
+                        <div className="text-4xl">🐐</div>
                         <div className="font-heading font-semibold text-xs text-amber-700 uppercase tracking-wider">
                           Đằng sau là Dê!
                         </div>
                       </div>
                     ) : (
-                      <div className="flex flex-col items-center space-y-2.5">
-                        <div className="w-12 h-12 rounded-full bg-slate-200/70 group-hover:bg-blue-100 flex items-center justify-center text-slate-500 group-hover:text-blue-600 transition-colors">
-                          <Lock className="h-5 w-5" />
+                      <div className="flex flex-col items-center space-y-2">
+                        <div className="w-10 h-10 rounded-full bg-slate-200/70 group-hover:bg-blue-100 flex items-center justify-center text-slate-500 group-hover:text-blue-600 transition-colors">
+                          <Lock className="h-4 w-4" />
                         </div>
-                        <span className="font-mono text-3xl font-black text-slate-800 group-hover:text-blue-700 transition-colors">
+                        <span className="font-mono text-2xl font-black text-slate-800 group-hover:text-blue-700 transition-colors">
                           0{doorIndex + 1}
                         </span>
-                        <span className="text-xs font-mono text-slate-500 group-hover:text-blue-600 transition-colors">
-                          {step === 'pick' ? 'Nhấp để chọn' : 'Cửa đang đóng'}
-                        </span>
+                        {step === 'pick' && (
+                          <span className="text-xs font-mono text-slate-500 group-hover:text-blue-600 transition-colors">
+                            Nhấp để chọn
+                          </span>
+                        )}
                       </div>
                     )}
                   </div>
@@ -647,10 +624,8 @@ export function MontyHallSimulation() {
 
                   {step === 'pick' && (
                     <div className="w-full text-center">
-                      <span className="text-xs font-mono text-slate-500 group-hover:text-blue-700 transition-colors">
-                        {isChallengeResolved
-                          ? 'Xác suất ban đầu: 1/3 (33.3%)'
-                          : 'Nhấp vào cánh cửa để chọn'}
+                      <span className="text-xs font-mono text-slate-400">
+                        {isChallengeResolved ? 'Xác suất ban đầu: 1/3' : 'Cửa đang đóng'}
                       </span>
                     </div>
                   )}
@@ -695,96 +670,135 @@ export function MontyHallSimulation() {
             </div>
           )}
 
-          {/* 2 Card thống kê tiến trình thực nghiệm Đổi vs Giữ */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-3 p-4 rounded-xl border-l-4 border-l-blue-600 bg-blue-50/30">
-              <div className="flex items-center justify-between text-xs font-semibold">
-                <span className="text-blue-700 uppercase tracking-wide flex items-center gap-1.5 font-bold">
-                  <span className="h-2 w-2 rounded-full bg-blue-600" />
-                  Chiến lược ĐỔI CỬA (Switch)
-                </span>
-                <span className="font-mono text-xs font-bold">
-                  {isChallengeResolved ? (
-                    <span className="text-blue-700">Lý thuyết: 66.7%</span>
-                  ) : (
-                    <span className="text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
-                      Lý thuyết: ??.?%
-                    </span>
-                  )}
-                </span>
+          {/* Thước Đo Đối So Sánh Hai Chiến Lược (Thống nhất, tinh gọn, Monte Carlo tích hợp) */}
+          <div className="pt-6 border-t border-slate-200/80 space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <h4 className="font-heading text-sm font-bold text-slate-900">
+                  Đối So Sánh Hiệu Suất Thực Nghiệm: Đổi Cửa vs Giữ Nguyên
+                </h4>
+                <p className="text-xs text-slate-500 font-sans">
+                  Kiểm chứng luật số lớn qua dữ liệu thực nghiệm tích lũy trực tiếp trong trình
+                  duyệt
+                </p>
               </div>
 
-              <div className="flex items-baseline justify-between">
-                <div>
-                  <span className="text-3xl font-mono font-black text-slate-900 tabular-nums">
-                    {switchRate !== null ? `${switchRate}%` : '—'}
-                  </span>
-                  <span className="text-xs text-slate-500 ml-2">tỷ lệ thắng thực nghiệm</span>
-                </div>
-                <span className="text-xs text-slate-500 font-mono tabular-nums">
-                  {stats.switchWins} thắng / {stats.switchPlays} lượt
-                </span>
-              </div>
-
-              <div className="space-y-1">
-                <div className="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
-                  <div
-                    className="bg-blue-600 h-2.5 rounded-full transition-all duration-300"
-                    style={{ width: `${switchRate ?? 0}%` }}
-                  />
-                </div>
-                <div className="flex justify-between text-xs font-mono text-slate-500">
-                  <span>0%</span>
-                  <span className="text-blue-700 font-semibold">
-                    {isChallengeResolved ? 'Kỳ vọng lý thuyết: 66.7%' : 'Kỳ vọng: [Đang khóa]'}
-                  </span>
-                  <span>100%</span>
-                </div>
+              {/* Monte Carlo Quick Batch Controls */}
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleSimulateBatch(50)}
+                  className="h-7 text-xs font-semibold border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 shadow-2xs"
+                >
+                  <Play className="h-3.5 w-3.5 mr-1" />
+                  +50 Ván
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleSimulateBatch(500)}
+                  className="h-7 text-xs font-semibold border-slate-200 text-slate-700 hover:bg-slate-100 shadow-2xs"
+                >
+                  <Flame className="h-3.5 w-3.5 mr-1 text-amber-600" />
+                  +500 Ván
+                </Button>
+                {totalGames > 0 && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={resetStats}
+                    className="h-7 text-xs text-slate-500 hover:text-slate-900 px-2 font-mono"
+                  >
+                    Đặt lại
+                  </Button>
+                )}
               </div>
             </div>
 
-            <div className="space-y-3 p-4 rounded-xl border-l-4 border-l-violet-600 bg-violet-50/30">
-              <div className="flex items-center justify-between text-xs font-semibold">
-                <span className="text-violet-700 uppercase tracking-wide flex items-center gap-1.5 font-bold">
-                  <span className="h-2 w-2 rounded-full bg-violet-600" />
-                  Chiến lược GIỮ NGUYÊN (Stay)
-                </span>
-                <span className="font-mono text-xs font-bold">
-                  {isChallengeResolved ? (
-                    <span className="text-violet-700">Lý thuyết: 33.3%</span>
-                  ) : (
-                    <span className="text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
-                      Lý thuyết: ??.?%
-                    </span>
+            {/* 2 Thanh Gauge đối sánh trực quan */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Row 1: Đổi Cửa */}
+              <div className="space-y-2 p-3.5 rounded-xl bg-blue-50/40 border border-blue-200/70">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-bold text-blue-900 flex items-center gap-1.5">
+                    <span className="h-2 w-2 rounded-full bg-blue-600" />
+                    ĐỔI CỬA (Switch)
+                  </span>
+                  <span className="font-mono text-xs text-blue-700 font-semibold">
+                    {isChallengeResolved ? (
+                      <span className="flex items-center">
+                        Lý thuyết:{' '}
+                        <MathFraction numerator="2" denominator="3" className="text-xs" /> &asymp;
+                        66.7%
+                      </span>
+                    ) : (
+                      'Kỳ vọng: [Đang khóa]'
+                    )}
+                  </span>
+                </div>
+                <div className="flex items-baseline justify-between font-mono">
+                  <span className="text-2xl font-bold text-blue-900 tabular-nums">
+                    {switchRate !== null ? `${switchRate}%` : '—'}
+                  </span>
+                  <span className="text-xs text-slate-500 tabular-nums">
+                    {stats.switchWins} thắng / {stats.switchPlays} lượt
+                  </span>
+                </div>
+                <div className="w-full bg-slate-200/70 rounded-full h-2 overflow-hidden relative">
+                  <div
+                    className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                    style={{ width: `${switchRate ?? 0}%` }}
+                  />
+                  {isChallengeResolved && (
+                    <div
+                      className="absolute top-0 bottom-0 w-0.5 bg-blue-950 z-10"
+                      style={{ left: '66.7%' }}
+                      title="Mục tiêu lý thuyết 66.7%"
+                    />
                   )}
-                </span>
+                </div>
               </div>
 
-              <div className="flex items-baseline justify-between">
-                <div>
-                  <span className="text-3xl font-mono font-black text-slate-900 tabular-nums">
+              {/* Row 2: Giữ Nguyên */}
+              <div className="space-y-2 p-3.5 rounded-xl bg-violet-50/40 border border-violet-200/70">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-bold text-violet-900 flex items-center gap-1.5">
+                    <span className="h-2 w-2 rounded-full bg-violet-600" />
+                    GIỮ NGUYÊN (Stay)
+                  </span>
+                  <span className="font-mono text-xs text-violet-700 font-semibold">
+                    {isChallengeResolved ? (
+                      <span className="flex items-center">
+                        Lý thuyết:{' '}
+                        <MathFraction numerator="1" denominator="3" className="text-xs" /> &asymp;
+                        33.3%
+                      </span>
+                    ) : (
+                      'Kỳ vọng: [Đang khóa]'
+                    )}
+                  </span>
+                </div>
+                <div className="flex items-baseline justify-between font-mono">
+                  <span className="text-2xl font-bold text-violet-900 tabular-nums">
                     {stayRate !== null ? `${stayRate}%` : '—'}
                   </span>
-                  <span className="text-xs text-slate-500 ml-2">tỷ lệ thắng thực nghiệm</span>
+                  <span className="text-xs text-slate-500 tabular-nums">
+                    {stats.stayWins} thắng / {stats.stayPlays} lượt
+                  </span>
                 </div>
-                <span className="text-xs text-slate-500 font-mono tabular-nums">
-                  {stats.stayWins} thắng / {stats.stayPlays} lượt
-                </span>
-              </div>
-
-              <div className="space-y-1">
-                <div className="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
+                <div className="w-full bg-slate-200/70 rounded-full h-2 overflow-hidden relative">
                   <div
-                    className="bg-violet-600 h-2.5 rounded-full transition-all duration-300"
+                    className="bg-violet-600 h-2 rounded-full transition-all duration-300"
                     style={{ width: `${stayRate ?? 0}%` }}
                   />
-                </div>
-                <div className="flex justify-between text-xs font-mono text-slate-500">
-                  <span>0%</span>
-                  <span className="text-violet-700 font-semibold">
-                    {isChallengeResolved ? 'Kỳ vọng lý thuyết: 33.3%' : 'Kỳ vọng: [Đang khóa]'}
-                  </span>
-                  <span>100%</span>
+                  {isChallengeResolved && (
+                    <div
+                      className="absolute top-0 bottom-0 w-0.5 bg-violet-950 z-10"
+                      style={{ left: '33.3%' }}
+                      title="Mục tiêu lý thuyết 33.3%"
+                    />
+                  )}
                 </div>
               </div>
             </div>
@@ -811,7 +825,7 @@ export function MontyHallSimulation() {
           <div className="space-y-6">
             <div className="space-y-1 border-b border-slate-200/80 pb-4">
               <h3 className="font-heading text-base font-bold text-slate-900">
-                Tại sao trực giác thường ngộ nhận cơ hội là 50/50?
+                Tại sao Trực giác thường ngộ nhận cơ hội là 50/50?
               </h3>
               <p className="text-xs text-slate-600 font-sans leading-relaxed">
                 Khi chỉ còn lại 2 cánh cửa đóng kín, não bộ tự động giả định tính đối xứng ngẫu
@@ -828,13 +842,13 @@ export function MontyHallSimulation() {
                     Trực giác Tự nhiên (Ngộ nhận)
                   </span>
                   <span className="rounded bg-slate-100 px-2 py-0.5 font-mono text-xs text-slate-600 font-semibold">
-                    Giả định 2 cửa
+                    Giả định 2 cửa đối xứng
                   </span>
                 </div>
 
                 <p className="text-xs leading-relaxed text-slate-700">
                   Sau khi 1 cửa có dê bị loại bỏ, trực giác cho rằng cánh cửa bạn đang giữ và cánh
-                  cửa còn lại có vai trò ngang nhau, dẫn tới xác suất giả định mỗi bên là 50%.
+                  cửa còn lại có vai trò ngang nhau, dẫn tới ảo tưởng xác suất mỗi bên là 50%.
                 </p>
 
                 <SimulationFormulaBox title="Ngộ nhận trực giác thông thường:">
@@ -843,7 +857,8 @@ export function MontyHallSimulation() {
                     <span>=</span>
                     <span className="font-bold">P(Giữ)</span>
                     <span>=</span>
-                    <span>1/2 = 50.0%</span>
+                    <MathFraction numerator="1" denominator="2" />
+                    <span>= 50.0%</span>
                   </div>
                 </SimulationFormulaBox>
 
@@ -865,28 +880,40 @@ export function MontyHallSimulation() {
                 </div>
 
                 <p className="text-xs leading-relaxed text-slate-700">
-                  Tại thời điểm chọn đầu tiên, xác suất chọn trúng ô tô là{' '}
-                  <span className="font-mono font-bold text-blue-900">1/3</span>, nghĩa là{' '}
-                  <span className="font-mono font-bold text-blue-900">2/3</span> xe nằm ở 2 cánh cửa
-                  còn lại. Vì MC luôn luôn mở cửa có Dê, toàn bộ 2/3 xác suất dồn vào cánh cửa còn
-                  lại chưa mở.
+                  Tại thời điểm chọn đầu tiên, xác suất chọn trúng ô tô chỉ là{' '}
+                  <span className="font-mono font-bold text-blue-900">
+                    <MathFraction numerator="1" denominator="3" className="text-xs" />
+                  </span>
+                  , nghĩa là{' '}
+                  <span className="font-mono font-bold text-blue-900">
+                    <MathFraction numerator="2" denominator="3" className="text-xs" />
+                  </span>{' '}
+                  xe nằm ở 2 cánh cửa còn lại. Vì MC luôn mở cửa có Dê, toàn bộ 2/3 xác suất dồn vào
+                  cánh cửa chưa mở.
                 </p>
 
-                <SimulationFormulaBox title="Xác suất điều kiện & Chiến lược tối ưu:">
-                  <div className="space-y-1.5 text-xs text-slate-900">
-                    <div className="flex items-center flex-wrap gap-2">
+                <SimulationFormulaBox title="Xác suất điều kiện & Định lý Bayes:">
+                  <div className="space-y-2 text-xs text-slate-900">
+                    <div className="flex items-center flex-wrap gap-2 text-sm">
                       <span className="font-bold text-blue-900">P(Thắng | Đổi)</span>
                       <span>=</span>
-                      <span>P(Chọn ban đầu là Dê)</span>
+                      <span>1 &minus;</span>
+                      <MathFraction numerator="1" denominator="3" />
                       <span>=</span>
-                      <span className="font-bold text-blue-700 text-sm">2/3 ≈ 66.7%</span>
+                      <MathFraction
+                        numerator="2"
+                        denominator="3"
+                        className="font-bold text-blue-700 text-sm"
+                      />
+                      <span className="text-slate-400">&asymp;</span>
+                      <span className="font-bold text-blue-700">66.7%</span>
                     </div>
                     <div className="flex items-center flex-wrap gap-2 text-slate-600">
                       <span>P(Thắng | Giữ)</span>
                       <span>=</span>
-                      <span>P(Chọn ban đầu là Xe)</span>
-                      <span>=</span>
-                      <span className="font-bold">1/3 ≈ 33.3%</span>
+                      <MathFraction numerator="1" denominator="3" />
+                      <span className="text-slate-400">&asymp;</span>
+                      <span>33.3%</span>
                     </div>
                   </div>
                 </SimulationFormulaBox>

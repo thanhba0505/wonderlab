@@ -2,34 +2,11 @@
 
 import React from 'react';
 import { Sigma, Sparkles, BookOpen } from 'lucide-react';
+import { MathFraction } from './simulation-math-fraction';
 
 interface SimulationMathCardProps {
   slug: string;
   summary: string;
-}
-
-/**
- * Hiển thị một phân số chuẩn toán học với tử số, gạch phân số và mẫu số
- */
-function MathFraction({
-  numerator,
-  denominator,
-  className = '',
-}: {
-  numerator: React.ReactNode;
-  denominator: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <span
-      className={`inline-flex flex-col items-center align-middle mx-1 font-mono text-xs ${className}`}
-    >
-      <span className="border-b border-current px-1 text-center font-semibold leading-none pb-0.5">
-        {numerator}
-      </span>
-      <span className="px-1 text-center font-semibold leading-none pt-0.5">{denominator}</span>
-    </span>
-  );
 }
 
 export const SimulationMathCard: React.FC<SimulationMathCardProps> = ({ slug, summary }) => {
@@ -202,10 +179,12 @@ export const SimulationMathCard: React.FC<SimulationMathCardProps> = ({ slug, su
               </div>
               <span className="text-slate-300">|</span>
               <div className="flex items-center gap-1.5">
-                <span className="text-slate-500 font-sans">Cân bằng Nash:</span>
-                <span className="font-bold text-slate-900">
-                  (Defect, Defect) &rarr; Payoff (1, 1)
-                </span>
+                <span className="text-slate-500 font-sans">Bóng tương lai Tit-for-Tat:</span>
+                <span className="font-bold text-blue-700">w &ge;</span>
+                <MathFraction numerator="T &minus; R" denominator="T &minus; P" />
+                <span>=</span>
+                <MathFraction numerator="2" denominator="4" />
+                <span className="font-bold text-blue-700">= 0.5 (50%)</span>
               </div>
             </div>
           </div>

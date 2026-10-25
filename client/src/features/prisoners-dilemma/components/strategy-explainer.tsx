@@ -1,124 +1,97 @@
 'use client';
 
 import * as React from 'react';
-import { BookOpen, Heart, Shield, RotateCcw, Lightbulb, Award } from 'lucide-react';
-import { SimulationFormulaBox } from '@/features/simulations/components';
+import { SimulationFormulaBox, MathFraction } from '@/features/simulations/components';
 
 export function StrategyExplainer() {
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-2.5 border-b border-slate-200/80 pb-4">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-600 text-white shadow-xs">
-          <BookOpen className="h-4 w-4" />
-        </div>
-        <div>
-          <h3 className="font-heading text-base font-bold text-slate-900">
-            Bí quyết Tiến hóa: 4 Phẩm chất Khiến Lòng Vị tha Thống trị
-          </h3>
-          <p className="text-xs text-slate-500 font-sans">
-            Khám phá công trình đoạt giải của Robert Axelrod về nguồn gốc sự hợp tác trong tự nhiên
-            và xã hội
-          </p>
-        </div>
+    <div className="flex flex-col gap-4">
+      <div className="pb-1">
+        <h3 className="font-heading text-base font-bold text-slate-900">
+          Tại sao Lòng Vị tha Có Điều kiện Lại Thống trị? (The Evolution of Cooperation)
+        </h3>
+        <p className="mt-0.5 text-xs text-slate-500">
+          Khác biệt căn bản giữa tương tác duy lý một ván đơn lẻ và trò chơi lặp vô hạn.
+        </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Phẩm chất 1: Lương thiện */}
-        <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4 space-y-2">
-          <div className="flex items-center gap-2 text-emerald-700">
-            <Heart className="h-4 w-4" />
-            <h4 className="font-heading text-xs font-bold uppercase tracking-wider">
-              1. Lương thiện (Nice)
-            </h4>
+      <div className="grid gap-6 md:grid-cols-2">
+        {/* Cột 1: Bẫy cận thị 1 ván */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="font-mono text-xs font-bold text-slate-700 uppercase tracking-wide">
+              Bẫy Cận thị 1 Ván (Cân bằng Nash)
+            </span>
+            <span className="rounded bg-slate-100 px-2 py-0.5 font-mono text-xs font-semibold text-slate-600">
+              Thế kẹt song đề
+            </span>
           </div>
-          <p className="text-xs text-slate-700 leading-relaxed font-sans">
-            Không bao giờ là người chủ động phản bội trước. Khởi đầu bằng thiện chí hợp tác giúp mở
-            ra cơ hội đôi bên cùng nhận phần thưởng lớn nhất (R = 3).
+
+          <p className="text-xs leading-relaxed text-slate-600">
+            Trong một ván đơn lẻ, bất kể đối phương chọn gì, phản bội (Defect) luôn đem lại điểm số
+            cao hơn tức thì. Khi cả hai bên cùng duy lý ích kỷ, kết cục tất yếu rơi vào{' '}
+            <span className="font-semibold text-slate-800">Cân bằng Nash (P, P) = (1, 1)</span> —
+            một kết quả tệ hơn rất nhiều so với việc cùng hợp tác (R, R) = (3, 3).
+          </p>
+
+          <SimulationFormulaBox title="Thứ bậc phần thưởng định nghĩa Thế lưỡng nan:">
+            <div className="space-y-1.5 text-xs text-slate-900">
+              <div className="flex items-center flex-wrap gap-2 text-sm">
+                <span className="font-bold text-amber-800">
+                  T (5) &gt; R (3) &gt; P (1) &gt; S (0)
+                </span>
+                <span className="text-slate-300">|</span>
+                <span className="font-bold text-emerald-800">2R &gt; T + S (6 &gt; 5)</span>
+              </div>
+              <p className="text-xs text-slate-500 font-sans pt-1 border-t border-slate-100">
+                Temptation (5 điểm) &gt; Reward (3 điểm) &gt; Punishment (1 điểm) &gt; Sucker (0
+                điểm).
+              </p>
+            </div>
+          </SimulationFormulaBox>
+
+          <p className="text-xs text-slate-500 italic">
+            Mâu thuẫn bi kịch giữa tối ưu cá nhân ngắn hạn và sự thịnh vượng chung dài hạn.
           </p>
         </div>
 
-        {/* Phẩm chất 2: Đáp trả ngay */}
-        <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4 space-y-2">
-          <div className="flex items-center gap-2 text-rose-700">
-            <Shield className="h-4 w-4" />
-            <h4 className="font-heading text-xs font-bold uppercase tracking-wider">
-              2. Sòng phẳng (Retaliatory)
-            </h4>
+        {/* Cột 2: Sự tiến hóa hợp tác trong trò chơi lặp */}
+        <div className="space-y-3 md:border-l md:border-slate-200/90 md:pl-6">
+          <div className="flex items-center justify-between">
+            <span className="font-mono text-xs font-bold text-blue-900 uppercase tracking-wide">
+              Sự Tiến hóa trong Trò chơi Lặp
+            </span>
+            <span className="rounded bg-blue-100/70 px-2 py-0.5 font-mono text-xs font-bold text-blue-800">
+              Bóng tương lai w &ge; 0.5
+            </span>
           </div>
-          <p className="text-xs text-slate-700 leading-relaxed font-sans">
-            Không làm kẻ ngây thơ bị bóc lột. Nếu đối phương phản bội, bạn phải lập tức phản bội đáp
-            trả ngay ở hiệp sau để thiết lập ranh giới răn đe rõ ràng.
-          </p>
-        </div>
 
-        {/* Phẩm chất 3: Tha thứ */}
-        <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4 space-y-2">
-          <div className="flex items-center gap-2 text-blue-700">
-            <RotateCcw className="h-4 w-4" />
-            <h4 className="font-heading text-xs font-bold uppercase tracking-wider">
-              3. Bao dung (Forgiving)
-            </h4>
-          </div>
-          <p className="text-xs text-slate-700 leading-relaxed font-sans">
-            Không thù dai như <em>Grudger</em>. Khi đối phương dừng phản bội và quay lại hợp tác,
-            bạn lập tức tha thứ và hợp tác lại để tránh vòng xoáy hủy diệt lẫn nhau.
+          <p className="text-xs leading-relaxed text-slate-700">
+            Khi tương tác lặp lại nhiều vòng, &ldquo;bóng tối của tương lai&rdquo; mở ra. Chiến
+            thuật{' '}
+            <span className="font-semibold text-blue-900">Tit-for-Tat (Ăn miếng trả miếng)</span>{' '}
+            bất bại nhờ 4 phẩm chất: Lương thiện (không phản bội trước), Sòng phẳng (đáp trả ngay),
+            Bao dung (tha thứ khi đối thủ quay lại), và Minh bạch.
           </p>
-        </div>
 
-        {/* Phẩm chất 4: Minh bạch */}
-        <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4 space-y-2">
-          <div className="flex items-center gap-2 text-amber-700">
-            <Lightbulb className="h-4 w-4" />
-            <h4 className="font-heading text-xs font-bold uppercase tracking-wider">
-              4. Minh bạch (Clear)
-            </h4>
-          </div>
-          <p className="text-xs text-slate-700 leading-relaxed font-sans">
-            Không chơi bài mập mờ, không đố kỵ. Hành vi đơn giản giúp đối thủ nhận ra quy tắc:{' '}
-            <em>hợp tác là con đường duy nhất để cả hai cùng thắng</em>.
+          <SimulationFormulaBox title="Hệ số tương lai để Hợp tác trở thành trạng thái ổn định (ESS):">
+            <div className="flex items-center flex-wrap gap-2 text-sm text-slate-900">
+              <span className="font-bold text-blue-900">w</span>
+              <span>&ge;</span>
+              <MathFraction numerator="T &minus; R" denominator="T &minus; P" />
+              <span>=</span>
+              <MathFraction numerator="5 &minus; 3" denominator="5 &minus; 1" />
+              <span>=</span>
+              <MathFraction numerator="2" denominator="4" />
+              <span>=</span>
+              <span className="font-bold text-blue-700 text-sm">0.5 (50%)</span>
+            </div>
+          </SimulationFormulaBox>
+
+          <p className="text-xs text-slate-600">
+            Với w là xác suất trận đấu còn tiếp tục ở hiệp sau. Khi bóng tương lai đủ dài (w &ge;
+            0.5), lòng vị tha có điều kiện (Win-Win) luôn đánh bại sự ích kỷ thuần túy.
           </p>
-        </div>
-      </div>
-
-      {/* 2 Khối công thức Lý thuyết trò chơi */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <SimulationFormulaBox title="Điều kiện định nghĩa Thế lưỡng nan (Payoff Ranking):">
-          <div className="flex items-center flex-wrap gap-2 text-sm text-slate-900">
-            <span className="font-bold">T (5) &gt; R (3) &gt; P (1) &gt; S (0)</span>
-            <span className="text-slate-400">và</span>
-            <span className="font-bold">2R &gt; T + S (6 &gt; 5)</span>
-          </div>
-          <p className="text-xs text-slate-500 font-sans">
-            Temptation (5), Reward (3), Punishment (1), Sucker (0). Cân bằng Nash đơn lẻ là (P, P),
-            nhưng Pareto tối ưu xã hội là (R, R).
-          </p>
-        </SimulationFormulaBox>
-
-        <SimulationFormulaBox title="Bóng tối của tương lai (Shadow of the Future):">
-          <div className="flex items-center flex-wrap gap-2 text-sm text-slate-900">
-            <span className="font-bold">w &ge; (T &minus; R) / (T &minus; P) = 2/4 = 0.5</span>
-          </div>
-          <p className="text-xs text-slate-500 font-sans">
-            Với w là xác suất trận đấu còn tiếp tục ở hiệp kế tiếp. Khi bóng tương lai đủ dài (w
-            &ge; 0.5), chiến thuật Ăn miếng trả miếng (Tit for Tat) là một trạng thái ổn định tiến
-            hóa (ESS).
-          </p>
-        </SimulationFormulaBox>
-      </div>
-
-      {/* Quote Banner */}
-      <div className="rounded-xl border border-slate-200 bg-slate-100/60 p-4 font-mono text-xs text-slate-700">
-        <div className="flex items-start gap-3">
-          <Award className="h-5 w-5 shrink-0 text-emerald-600 mt-0.5" />
-          <div>
-            <blockquote className="italic leading-relaxed text-slate-800">
-              &ldquo;Trong một thế giới có tính lặp lại, lòng vị tha không phải là một sự yếu đuối
-              ngây thơ, mà là một chiến lược tiến hóa tối ưu và kiên cường nhất của sự sống.&rdquo;
-            </blockquote>
-            <p className="mt-1 text-xs text-slate-500 font-bold">
-              — Robert Axelrod (The Evolution of Cooperation, 1984)
-            </p>
-          </div>
         </div>
       </div>
     </div>

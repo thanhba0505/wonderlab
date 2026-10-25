@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { SimulationHypothesisChallenge, HypothesisOption } from '../types';
 import { calculateIntuitionGap, getIntuitionRating } from '../utils/intuition-math';
+import { MathFraction } from './simulation-math-fraction';
 
 interface IntuitionChallengeCardProps {
   challenge: SimulationHypothesisChallenge;
@@ -303,12 +304,126 @@ export function IntuitionChallengeCard({
                 </div>
 
                 {/* Cognitive Bias Breakdown - Bỏ khung, dùng divider ngăn cách nhẹ */}
-                <div className="border-t border-slate-200/80 pt-4 text-xs text-slate-700 space-y-2">
+                <div className="border-t border-slate-200/80 pt-4 text-xs text-slate-700 space-y-2.5">
                   <div className="font-heading font-bold text-sm text-slate-900 flex items-center gap-2">
                     <CheckCircle2 className="h-4 w-4 text-amber-600" />
                     Giải mã Tâm lý Nhận thức: {challenge.biasName}
                   </div>
                   <p className="font-sans leading-relaxed">{challenge.truthExplanation}</p>
+
+                  {/* Khối công thức giải mã toán học - Phân số trực quan, không dùng 1 line */}
+                  <div className="rounded-lg bg-amber-50/30 border border-amber-200/50 p-2.5 font-mono text-xs text-slate-800">
+                    {simulationSlug === 'birthday-paradox' && (
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <span className="font-bold text-amber-900">P(Trùng)</span>
+                        <span>=</span>
+                        <span>1 &minus;</span>
+                        <span className="inline-flex items-center">
+                          <span className="text-sm font-light text-slate-400 -mt-0.5">(</span>
+                          <MathFraction numerator="364" denominator="365" className="text-xs" />
+                          <span className="text-slate-400">&times;</span>
+                          <MathFraction numerator="363" denominator="365" className="text-xs" />
+                          <span className="text-slate-400">&times; &hellip; &times;</span>
+                          <MathFraction numerator="343" denominator="365" className="text-xs" />
+                          <span className="text-sm font-light text-slate-400 -mt-0.5">)</span>
+                        </span>
+                        <span>&asymp;</span>
+                        <span className="font-bold text-blue-700">50.73%</span>
+                        <span className="text-slate-500 font-sans text-xs ml-1">
+                          (tại n = 23, có 253 cặp đối sánh)
+                        </span>
+                      </div>
+                    )}
+
+                    {simulationSlug === 'monty-hall' && (
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="font-bold text-blue-900">P(Thắng | Đổi)</span>
+                        <span>=</span>
+                        <span>1 &minus;</span>
+                        <MathFraction numerator="1" denominator="3" className="text-xs" />
+                        <span>=</span>
+                        <MathFraction
+                          numerator="2"
+                          denominator="3"
+                          className="text-xs font-bold text-blue-700"
+                        />
+                        <span className="text-slate-400">&asymp;</span>
+                        <span className="font-bold text-blue-700">66.67%</span>
+                        <span className="text-slate-300">|</span>
+                        <span className="text-slate-600">P(Thắng | Giữ) =</span>
+                        <MathFraction numerator="1" denominator="3" className="text-xs" />
+                        <span className="text-slate-400">&asymp; 33.33%</span>
+                      </div>
+                    )}
+
+                    {simulationSlug === 'double-slit' && (
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="font-bold text-blue-900">|&Psi;&rang;</span>
+                        <span>=</span>
+                        <MathFraction numerator="1" denominator="&radic;2" className="text-xs" />
+                        <span>(|Khe 1&rang; + |Khe 2&rang;)</span>
+                        <span className="text-slate-300">|</span>
+                        <span className="font-bold text-blue-900">i = &Delta;y</span>
+                        <span>=</span>
+                        <MathFraction
+                          numerator="&lambda; &middot; D"
+                          denominator="d"
+                          className="text-xs font-bold text-blue-700"
+                        />
+                      </div>
+                    )}
+
+                    {simulationSlug === 'prisoners-dilemma' && (
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="font-bold text-amber-800">
+                          T (5) &gt; R (3) &gt; P (1) &gt; S (0)
+                        </span>
+                        <span className="text-slate-300">|</span>
+                        <span className="font-bold text-blue-900">w</span>
+                        <span>&ge;</span>
+                        <MathFraction
+                          numerator="T &minus; R"
+                          denominator="T &minus; P"
+                          className="text-xs"
+                        />
+                        <span>=</span>
+                        <MathFraction
+                          numerator="2"
+                          denominator="4"
+                          className="text-xs font-bold text-blue-700"
+                        />
+                        <span>=</span>
+                        <span className="font-bold text-blue-700">0.5 (50%)</span>
+                      </div>
+                    )}
+
+                    {simulationSlug === 'zeno-paradox' && (
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="font-bold text-blue-900">T*</span>
+                        <span>=</span>
+                        <MathFraction
+                          numerator="d₀"
+                          denominator="v_A &minus; v_T"
+                          className="text-xs"
+                        />
+                        <span>=</span>
+                        <MathFraction
+                          numerator="100"
+                          denominator="10 &minus; 1"
+                          className="text-xs"
+                        />
+                        <span>=</span>
+                        <MathFraction
+                          numerator="100"
+                          denominator="9"
+                          className="text-xs font-bold text-blue-700"
+                        />
+                        <span>&asymp;</span>
+                        <span className="font-bold text-blue-700">11.11 s</span>
+                      </div>
+                    )}
+                  </div>
+
                   <p className="font-sans text-slate-500 text-xs">
                     <strong>Bản chất cạm bẫy:</strong> {challenge.biasDescription}
                   </p>

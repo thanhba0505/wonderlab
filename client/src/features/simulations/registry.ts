@@ -51,7 +51,7 @@ export const SIMULATIONS_REGISTRY: SimulationMeta[] = [
       ],
       theoreticalTruth: 0.5073,
       truthExplanation:
-        'Số cặp đối sánh trong phòng bùng nổ theo cấp số bậc hai C(23, 2) = 253 cặp. Xác suất để TẤT CẢ 253 cặp này đều không trùng là (364/365) x (363/365) x ... ≈ 49.27%, do đó cơ hội có ít nhất 1 cặp trùng là 50.73%!',
+        'Số cặp đối sánh trong phòng bùng nổ theo hàm bậc hai C(23, 2) = 253 cặp. Khi tích lũy xác suất độc lập của toàn bộ 253 cặp, cơ hội có ít nhất một cặp người trùng ngày sinh vượt qua ngưỡng 50%.',
       biasType: 'linear-scaling-trap',
       biasName: 'Bẫy Tư duy Tuyến tính (Linear Scaling Bias)',
       biasDescription:
@@ -104,7 +104,7 @@ export const SIMULATIONS_REGISTRY: SimulationMeta[] = [
       ],
       theoreticalTruth: 0.6667,
       truthExplanation:
-        'Bạn chỉ thua khi đổi nếu bạn chọn trúng ô tô ngay từ đầu (xác suất 1/3). Bạn thắng khi đổi nếu bạn chọn trúng dê từ đầu (xác suất 2/3). Do đó, đổi cửa cho bạn chính xác 2/3 (66.67%) cơ hội chiến thắng!',
+        'Bạn chỉ thua khi đổi nếu đã chọn trúng ô tô ngay từ đầu (xác suất 1/3). Bạn thắng khi đổi nếu ban đầu đã chọn trúng dê (xác suất 2/3). Do đó, hành động đổi cửa mang lại chính xác 2/3 cơ hội chiến thắng.',
       biasType: 'conditional-probability-fallacy',
       biasName: 'Ảo tưởng Xác suất Đồng đều (Uniformity Fallacy)',
       biasDescription:
@@ -283,7 +283,7 @@ export const SIMULATIONS_REGISTRY: SimulationMeta[] = [
       ],
       theoreticalTruth: 1.0,
       truthExplanation:
-        'Nghịch lý Zeno được giải quyết hoàn toàn nhờ phép tính Giải tích (Calculus): Tổng của một chuỗi vô hạn các số hạng nhỏ dần (cấp số nhân lùi vô hạn với công bội r = 0.1 < 1) là một số thực hữu hạn: T = d0 / (vA - vT) = 100 / (10 - 1) = 11.111... giây. Achilles hoàn thành vô hạn bước đó chỉ trong hơn 11 giây!',
+        'Nghịch lý Zeno được giải quyết hoàn toàn nhờ phép tính vi tích phân: Tổng của một chuỗi vô hạn các khoảng thời gian co lại theo cấp số nhân là một đại lượng hữu hạn xác định. Achilles vượt qua Rùa chỉ sau hơn 11 giây.',
       biasType: 'infinite-sum-fallacy',
       biasName: 'Ảo tưởng Phân kỳ Vô hạn (Infinite Sum Divergence Fallacy)',
       biasDescription:

@@ -1,114 +1,120 @@
 'use client';
 
 import * as React from 'react';
-import { BookOpen, Sparkles, HelpCircle, Eye, GitBranch } from 'lucide-react';
-import { SimulationFormulaBox } from '@/features/simulations/components';
+import { SimulationFormulaBox, MathFraction } from '@/features/simulations/components';
 
 export function QuantumExplainer() {
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-2.5 border-b border-slate-200/80 pb-4">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-white shadow-xs">
-          <BookOpen className="h-4 w-4" />
-        </div>
-        <div>
-          <h3 className="font-heading text-base font-bold text-slate-900">
-            Giải mã Nghịch lý: Tại sao &quot;Chỉ Nhìn&quot; lại Thay đổi Thực tại?
-          </h3>
-          <p className="text-xs text-slate-500 font-sans">
-            Khám phá bí ẩn cốt lõi của vật lý lượng tử qua lăng kính toán học & triết học tự nhiên
-          </p>
-        </div>
+    <div className="flex flex-col gap-4">
+      <div className="pb-1">
+        <h3 className="font-heading text-base font-bold text-slate-900">
+          Giải Mã Lưỡng Tính Sóng - Hạt & Sự Sụp Đổ Hàm Sóng (Wave-Particle Duality)
+        </h3>
+        <p className="mt-0.5 text-xs text-slate-500">
+          Khác biệt căn bản giữa trực giác cơ học cổ điển tiền định và bản chất xác suất lượng tử.
+        </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-        {/* Card 1: Lưỡng tính Sóng - Hạt */}
-        <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4 space-y-2">
-          <div className="flex items-center gap-2 text-blue-700">
-            <Sparkles className="h-4 w-4" />
-            <h4 className="font-heading text-xs font-bold uppercase tracking-wider">
-              1. Lưỡng tính Sóng - Hạt
-            </h4>
+      <div className="grid gap-6 md:grid-cols-2">
+        {/* Cột 1: Trực giác cổ điển (Tiền định) */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="font-mono text-xs font-bold text-slate-700 uppercase tracking-wide">
+              Trực giác Cổ điển (Tiền định)
+            </span>
+            <span className="rounded bg-slate-100 px-2 py-0.5 font-mono text-xs font-semibold text-slate-600">
+              2 vệt hạt rời rạc
+            </span>
           </div>
-          <p className="text-xs text-slate-700 leading-relaxed font-sans">
-            Trong thế giới vĩ mô, một vật hoặc là hạt (viên bi) hoặc là sóng (sóng nước). Nhưng ở
-            quy mô vi mô, photon hay electron đều tồn tại dưới dạng <strong>sóng xác suất</strong>{' '}
-            trước khi chạm vào màn hứng.
+
+          <p className="text-xs leading-relaxed text-slate-600">
+            Trong thế giới vĩ mô quen thuộc, một hạt vật chất (như viên bi) chỉ có thể đi qua một
+            trong hai khe. Khi bật máy quan sát (Detector ON), thông tin đo lường lập tức triệt tiêu
+            trạng thái chồng chập, buộc hạt phải sụp đổ về hành vi cổ điển.
+          </p>
+
+          <SimulationFormulaBox title="Mật độ xác suất cổ điển (Khi có máy quan sát):">
+            <div className="space-y-1.5 text-xs text-slate-900">
+              <div className="flex items-center flex-wrap gap-2 text-sm">
+                <span className="font-bold text-rose-700">
+                  P<sub className="text-xs">cổ điển</sub>(y)
+                </span>
+                <span>=</span>
+                <span>
+                  P<sub className="text-xs">1</sub>(y) + P<sub className="text-xs">2</sub>(y)
+                </span>
+              </div>
+              <div className="text-xs text-slate-500 font-sans pt-1 border-t border-slate-100 flex items-center gap-1.5">
+                <span>Số hạng giao thoa:</span>
+                <span className="font-mono font-bold text-slate-700">
+                  2&radic;(P<sub className="text-xs">1</sub>P<sub className="text-xs">2</sub>)
+                  &times; cos(&Delta;&phi;) = 0
+                </span>
+              </div>
+            </div>
+          </SimulationFormulaBox>
+
+          <p className="text-xs text-slate-500 italic">
+            Hai khe hẹp hoạt động độc lập, trên màn huỳnh quang chỉ còn lại hai dải phân bố song
+            song tương ứng với vị trí hai khe.
           </p>
         </div>
 
-        {/* Card 2: Tự giao thoa với chính mình */}
-        <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4 space-y-2">
-          <div className="flex items-center gap-2 text-violet-700">
-            <GitBranch className="h-4 w-4" />
-            <h4 className="font-heading text-xs font-bold uppercase tracking-wider">
-              2. Tự giao thoa một mình
-            </h4>
+        {/* Cột 2: Bản chất lượng tử thực tế */}
+        <div className="space-y-3 md:border-l md:border-slate-200/90 md:pl-6">
+          <div className="flex items-center justify-between">
+            <span className="font-mono text-xs font-bold text-blue-900 uppercase tracking-wide">
+              Bản chất Lượng tử Thực tế
+            </span>
+            <span className="rounded bg-blue-100/70 px-2 py-0.5 font-mono text-xs font-bold text-blue-800">
+              Hàm sóng tự giao thoa!
+            </span>
           </div>
-          <p className="text-xs text-slate-700 leading-relaxed font-sans">
-            Khi bắn từng hạt đơn lẻ cách nhau cả tiếng đồng hồ, không có hạt nào khác để va chạm.
-            Tuy nhiên, hàm sóng của hạt đi qua <strong>đồng thời cả 2 khe</strong> và tự triệt tiêu
-            hoặc khuếch đại chính mình, tạo nên vân sáng tối!
-          </p>
-        </div>
 
-        {/* Card 3: Sự sụp đổ hàm sóng */}
-        <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4 space-y-2">
-          <div className="flex items-center gap-2 text-rose-700">
-            <Eye className="h-4 w-4" />
-            <h4 className="font-heading text-xs font-bold uppercase tracking-wider">
-              3. Sụp đổ Hàm sóng
-            </h4>
-          </div>
-          <p className="text-xs text-slate-700 leading-relaxed font-sans">
-            Chỉ cần đặt một máy dò tại khe để biết thông tin &quot;Hạt đi qua khe nào&quot;, sự can
-            thiệp đo lường lập tức triệt tiêu trạng thái chồng chập lượng tử. Hàm sóng sụp đổ, và
-            hạt buộc phải hành xử như hạt vật chất cổ điển.
+          <p className="text-xs leading-relaxed text-slate-700">
+            Khi không bị can thiệp đo lường, mỗi photon tồn tại dưới dạng hàm sóng xác suất
+            |&Psi;&rang; đi qua{' '}
+            <span className="font-semibold text-blue-900">đồng thời cả hai khe</span> và tự giao
+            thoa với chính mình, tích tụ dần thành hệ vân sáng tối hoàn hảo.
           </p>
-        </div>
-      </div>
 
-      {/* 2 Khối công thức toán học giao thoa & chồng chập lượng tử */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <SimulationFormulaBox title="Khoảng vân giao thoa (Interference Fringe):">
-          <div className="flex items-center flex-wrap gap-2 text-sm text-slate-900">
-            <span className="font-bold">i = &Delta;y</span>
-            <span>=</span>
-            <span>(&lambda; &times; D) / d</span>
-          </div>
-          <p className="text-xs text-slate-500 font-sans">
-            Vị trí vân sáng thứ m: y<sub>m</sub> = m &times; (&lambda; &times; D / d), với &lambda;
-            là bước sóng, D là khoảng cách tới màn hứng, d là bề rộng 2 khe.
+          <SimulationFormulaBox title="Chồng chập lượng tử & Khoảng vân giao thoa:">
+            <div className="space-y-2 text-xs text-slate-900">
+              {/* Trạng thái chồng chập */}
+              <div className="flex items-center flex-wrap gap-2 text-sm">
+                <span className="font-bold text-blue-900">|&Psi;&rang;</span>
+                <span>=</span>
+                <MathFraction numerator="1" denominator="&radic;2" />
+                <span className="inline-flex items-center">
+                  <span className="text-lg font-light text-slate-400 -mt-0.5">(</span>
+                  <span>|Khe 1&rang; + |Khe 2&rang;</span>
+                  <span className="text-lg font-light text-slate-400 -mt-0.5">)</span>
+                </span>
+              </div>
+
+              {/* Khoảng vân i */}
+              <div className="pt-1.5 border-t border-slate-100 flex items-center flex-wrap gap-2 text-xs">
+                <span className="font-bold text-blue-900">i = &Delta;y</span>
+                <span>=</span>
+                <MathFraction
+                  numerator="&lambda; &middot; D"
+                  denominator="d"
+                  className="text-xs font-bold text-blue-700"
+                />
+                <span className="text-slate-300">|</span>
+                <span>
+                  y<sub className="text-xs font-semibold">m</sub> = m &middot;
+                </span>
+                <MathFraction numerator="&lambda; &middot; D" denominator="d" className="text-xs" />
+                <span className="text-slate-400 font-sans">(m &isin; &Zopf;)</span>
+              </div>
+            </div>
+          </SimulationFormulaBox>
+
+          <p className="text-xs text-slate-600">
+            Khoảng vân i tỷ lệ thuận với bước sóng &lambda;, khoảng cách màn D và tỷ lệ nghịch với
+            khoảng cách giữa hai khe hẹp d.
           </p>
-        </SimulationFormulaBox>
-
-        <SimulationFormulaBox title="Trạng thái chồng chập lượng tử (Superposition):">
-          <div className="flex items-center flex-wrap gap-2 text-sm text-slate-900">
-            <span className="font-bold">|&Psi;&rang;</span>
-            <span>=</span>
-            <span>(1 / &radic;2) &times; (|Khe 1&rang; + |Khe 2&rang;)</span>
-          </div>
-          <p className="text-xs text-slate-500 font-sans">
-            Khi có máy quan sát (Observer ON), hàm sóng sụp đổ về duy nhất một trạng thái:
-            |&Psi;&rang; &rarr; |Khe 1&rang; hoặc |Khe 2&rang;.
-          </p>
-        </SimulationFormulaBox>
-      </div>
-
-      {/* Feynman Quote Banner */}
-      <div className="rounded-xl border border-slate-200 bg-slate-100/60 p-4 font-mono text-xs text-slate-700">
-        <div className="flex items-start gap-3">
-          <HelpCircle className="h-5 w-5 shrink-0 text-blue-600 mt-0.5" />
-          <div>
-            <blockquote className="italic leading-relaxed text-slate-800">
-              &ldquo;Thí nghiệm hai khe chứa đựng trái tim của cơ học lượng tử. Trên thực tế, nó
-              chứa đựng bí ẩn duy nhất. Hãy quan sát cách nó vận hành, bạn sẽ thấy toàn bộ cơ học
-              lượng tử là gì.&rdquo;
-            </blockquote>
-            <p className="mt-1 text-xs text-slate-500 font-bold">
-              — Richard Feynman (Nobel Vật lý 1965)
-            </p>
-          </div>
         </div>
       </div>
     </div>

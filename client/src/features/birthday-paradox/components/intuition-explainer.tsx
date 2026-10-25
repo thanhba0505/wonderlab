@@ -2,34 +2,10 @@
 
 import React from 'react';
 import { calculateComparisonPairs, calculateTheoreticalProbability } from '../birthday-math';
-import { SimulationFormulaBox } from '@/features/simulations/components';
+import { SimulationFormulaBox, MathFraction } from '@/features/simulations/components';
 
 interface IntuitionExplainerProps {
   currentN: number;
-}
-
-/**
- * Hiển thị một phân số chuẩn toán học với tử số, gạch phân số và mẫu số
- */
-function MathFraction({
-  numerator,
-  denominator,
-  className = '',
-}: {
-  numerator: React.ReactNode;
-  denominator: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <span
-      className={`inline-flex flex-col items-center align-middle mx-1 font-mono text-xs ${className}`}
-    >
-      <span className="border-b border-current px-1 text-center font-semibold leading-none pb-0.5">
-        {numerator}
-      </span>
-      <span className="px-1 text-center font-semibold leading-none pt-0.5">{denominator}</span>
-    </span>
-  );
 }
 
 export const IntuitionExplainer: React.FC<IntuitionExplainerProps> = ({ currentN }) => {

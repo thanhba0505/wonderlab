@@ -64,11 +64,6 @@ export default function SimulationsIndexPage() {
                 <p className="mt-1 text-xs text-slate-600 line-clamp-2">{sim.subtitle}</p>
 
                 <p className="mt-3 text-xs text-slate-600 leading-relaxed">{sim.summary}</p>
-
-                {/* Khối công thức */}
-                <div className="mt-4 rounded bg-slate-50 p-2 font-mono text-xs text-blue-800 border border-slate-200">
-                  <code className="block truncate">{sim.formula}</code>
-                </div>
               </div>
 
               <div className="mt-6 flex items-center justify-between border-t border-slate-100 pt-3">

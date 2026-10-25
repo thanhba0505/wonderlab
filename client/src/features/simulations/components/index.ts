@@ -2,6 +2,7 @@ export * from './simulation-section';
 export * from './simulation-workbench-card';
 export * from './simulation-explainer-card';
 export * from './simulation-formula-box';
+export * from './simulation-math-fraction';
 export * from './intuition-challenge-card';
 export * from './simulation-history-table';
 export * from './simulation-math-card';
