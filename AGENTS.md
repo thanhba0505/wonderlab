@@ -127,6 +127,7 @@ pnpm check          # Runs all verification steps in sequence
   - Root `package.json` is the sole, authoritative source of truth for the project version (`version`).
   - Both `client` (`next.config.ts` -> `process.env.NEXT_PUBLIC_APP_VERSION`) and `server` (`server/src/common/version.ts`) dynamically consume this single root version.
   - Never hardcode version strings in health endpoints, Swagger, or application copy.
+  - **Version Update Policy**: Phiên bản mã nguồn (`package.json`) chỉ được cập nhật khi **chính thức phát hành Release** (sự kiện `release: [published]` hoặc tag release `push: tags: ['v*']`), tuyệt đối **KHÔNG** cập nhật phiên bản khi đang ở trạng thái bản nháp (Draft Release) hoặc khi push commit thông thường lên `main`.
 - **Tag-Driven Deployment Only (Publish Tag)**:
   - **NEVER** deploy to Render manually or trigger ad-hoc `workflow_dispatch` runs for regular releases.
   - Deployments to Render must **ONLY** be triggered by publishing a Git tag (`push: tags: ['v*']`) or publishing an official GitHub Release (`release: [published]`).
