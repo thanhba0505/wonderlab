@@ -56,7 +56,6 @@ export const BirthdaySimulation: React.FC = () => {
     option: HypothesisOption;
     gap: number;
   } | null>(null);
-  const [isChallengeResolved, setIsChallengeResolved] = useState<boolean>(false);
 
   const [n, setN] = useState<number>(23);
   const [room, setRoom] = useState<RoomSimulationResult>(() =>
@@ -78,7 +77,7 @@ export const BirthdaySimulation: React.FC = () => {
     room.hasCollision ? 1 : 0,
   );
 
-  // Synchronize initial n from URL query params and check challenge status
+  // Synchronize initial n from URL query params
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const urlParams = new URLSearchParams(window.location.search);
@@ -89,15 +88,6 @@ export const BirthdaySimulation: React.FC = () => {
         setN(parsedN);
         setRoom(simulateRoom(parsedN));
       }
-    }
-
-    try {
-      const saved = localStorage.getItem('wonderlab_guess_birthday-paradox');
-      if (saved) {
-        setIsChallengeResolved(true);
-      }
-    } catch {
-      // Ignore storage errors
     }
   }, []);
 
@@ -286,7 +276,6 @@ export const BirthdaySimulation: React.FC = () => {
             challenge={meta.hypothesis}
             simulationSlug="birthday-paradox"
             onPredictionSelected={(option, gap) => setUserPrediction({ option, gap })}
-            onStatusChange={resolved => setIsChallengeResolved(resolved)}
           />
         )}
       </SimulationSection>
@@ -314,27 +303,14 @@ export const BirthdaySimulation: React.FC = () => {
 
             {/* Metric 2: Theoretical P(n) */}
             <div className="space-y-1 sm:border-l sm:border-slate-200/80 sm:pl-4">
-              <div className="text-xs font-semibold tracking-wider text-slate-500 uppercase flex items-center justify-between">
-                <span>Xác suất Lý thuyết P(n)</span>
-                {!isChallengeResolved && (
-                  <Badge variant="amber" className="text-xs font-mono py-0 px-1.5">
-                    Đang khóa
-                  </Badge>
-                )}
+              <div className="text-xs font-semibold tracking-wider text-slate-500 uppercase">
+                Xác suất Lý thuyết P(n)
               </div>
-              <div
-                className={`font-mono text-2xl sm:text-3xl font-bold tabular-nums ${
-                  !isChallengeResolved ? 'text-amber-700/80 select-none' : 'text-blue-700'
-                }`}
-              >
-                {!isChallengeResolved ? '??.?%' : `${(theoreticalP * 100).toFixed(1)}%`}
+              <div className="font-mono text-2xl sm:text-3xl font-bold text-blue-700 tabular-nums">
+                {(theoreticalP * 100).toFixed(1)}%
               </div>
               <div className="text-xs text-slate-500 font-sans">
-                {!isChallengeResolved
-                  ? 'Dự đoán hoặc Bỏ qua để mở'
-                  : n >= 23
-                    ? 'Vượt ngưỡng 50% ★'
-                    : 'Dưới ngưỡng 50%'}
+                {n >= 23 ? 'Vượt ngưỡng 50% ★' : 'Dưới ngưỡng 50%'}
               </div>
             </div>
 

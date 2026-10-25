@@ -43,7 +43,6 @@ export function DoubleSlitSimulation() {
     option: HypothesisOption;
     gap: number;
   } | null>(null);
-  const [, setIsChallengeResolved] = React.useState<boolean>(false);
 
   // Background Telemetry Hook
   const { history, globalStats, recordRun } = useSimulationTelemetry('double-slit');
@@ -208,9 +207,7 @@ export function DoubleSlitSimulation() {
             simulationSlug="double-slit"
             onPredictionSelected={(option: HypothesisOption, gap: number) => {
               setUserPrediction({ option, gap });
-              setIsChallengeResolved(true);
             }}
-            onStatusChange={setIsChallengeResolved}
           />
         )}
       </SimulationSection>

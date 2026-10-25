@@ -136,7 +136,7 @@ export function IntuitionChallengeCard({
               size="sm"
               onClick={handleSkip}
               className="h-7 px-2.5 text-xs font-mono text-slate-600 hover:text-slate-900 border-slate-300 bg-white hover:bg-slate-50 gap-1"
-              title="Bỏ qua thử thách để xem kết quả lý thuyết ngay"
+              title="Bỏ qua phần khảo sát trực giác"
             >
               <FastForward className="h-3.5 w-3.5 text-slate-400" />
               Bỏ qua thử thách
@@ -171,8 +171,8 @@ export function IntuitionChallengeCard({
             <div className="flex items-center gap-2">
               <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
               <span>
-                Bạn đã bỏ qua thử thách dự đoán. Toàn bộ thông số xác suất lý thuyết và buồng thí
-                nghiệm đã được mở khóa hoàn toàn.
+                Bạn đã bỏ qua phần khảo sát trực giác. Bạn có thể tự do thao tác các thông số và
+                khảo sát dữ liệu trên buồng thí nghiệm.
               </span>
             </div>
             <Button

@@ -2,6 +2,21 @@
 
 Welcome to **Wonderlab**. This document is the primary source of truth and authoritative set of rules for AI coding assistants working in this repository.
 
+> [!CRITICAL]
+>
+> ### 🚨 MANDATORY WORKTREE PRE-FLIGHT PROTOCOL
+>
+> **Before executing ANY git command, editing ANY file, or creating ANY branch**:
+>
+> 1. **MANDATORY**: Run `git worktree list` on the very first turn to inspect active worktree allocations across the repository.
+> 2. If the main workspace (`Wonderlab`) is on any branch other than a clean `main` (meaning another concurrent task or agent is active):
+>    - **NEVER** run `git checkout`, `git checkout -b`, `git stash`, or edit files in `/Users/lethanhba/workspace/app/Wonderlab`!
+>    - **IMMEDIATELY SWITCH** to an available idle persistent worktree:
+>      - `Wonderlab-worktree-1` (`/Users/lethanhba/workspace/app/Wonderlab-worktree-1`)
+>      - or `Wonderlab-worktree-2` (`/Users/lethanhba/workspace/app/Wonderlab-worktree-2`)
+> 3. All file edits (`edit_file`, `write_file`) and command executions (`run_command`) MUST strictly use absolute paths or `cd` targeting the chosen worktree directory.
+> 4. Violating workspace isolation by branch-hopping in `Wonderlab` causes git conflicts, wipes unstaged changes, overwrites stashes, and corrupts concurrent agent workflows!
+
 ---
 
 ## 1. Product Overview
@@ -137,6 +152,16 @@ pnpm check          # Runs all verification steps in sequence
       - `Wonderlab-worktree-1`: Client on `http://localhost:4200`, Server on `http://localhost:4201`.
       - `Wonderlab-worktree-2`: Client on `http://localhost:4300`, Server on `http://localhost:4301`.
       - PostgreSQL: Shared container on `127.0.0.1:5434` (`docker compose up -d`).
+    - **Step-by-Step Worktree Selection (Mandatory for Every Agent Turn)**:
+      ```bash
+      # 1. Inspect active worktrees first
+      git worktree list
+
+      # 2. If the main workspace Wonderlab is busy (not on a clean main), switch to an idle worktree:
+      cd /Users/lethanhba/workspace/app/Wonderlab-worktree-1
+      git fetch origin
+      git checkout main && git pull origin main && git checkout -b feat/<task-name>
+      ```
     - **Persistent Retention Policy**: Do NOT delete the worktrees upon task completion. Keeping them persistent preserves `node_modules`, Prisma artifacts, and build caches, eliminating repetitive installation overhead.
     - **Reusing Worktrees Across Tasks**: When a task PR is merged and the remote branch is auto-deleted, reset the worktree to the latest `main`:
       ```bash
@@ -147,7 +172,7 @@ pnpm check          # Runs all verification steps in sequence
   - Root `package.json` is the sole, authoritative source of truth for the project version (`version`).
   - Both `client` (`next.config.ts` -> `process.env.NEXT_PUBLIC_APP_VERSION`) and `server` (`server/src/common/version.ts`) dynamically consume this single root version.
   - Never hardcode version strings in health endpoints, Swagger, or application copy.
-  - **Version Update Policy**: Phiên bản mã nguồn (`package.json`) chỉ được cập nhật khi **chính thức phát hành Release** (sự kiện `release: [published]` hoặc tag release `push: tags: ['v*']`), tuyệt đối **KHÔNG** cập nhật phiên bản khi đang ở trạng thái bản nháp (Draft Release) hoặc khi push commit thông thường lên `main`.
+  - **Version Update Policy**: The project version in `package.json` must ONLY be bumped upon official release events (`release: [published]` or tag release `push: tags: ['v*']`). NEVER bump version numbers on draft releases or regular commits pushed to `main`.
 - **Tag-Driven Deployment Only (Publish Tag)**:
   - **NEVER** deploy to Render manually or trigger ad-hoc `workflow_dispatch` runs for regular releases.
   - Deployments to Render must **ONLY** be triggered by publishing a Git tag (`push: tags: ['v*']`) or publishing an official GitHub Release (`release: [published]`).
@@ -157,10 +182,10 @@ pnpm check          # Runs all verification steps in sequence
 
 ## 9. Non-Negotiable Agent Rules
 
-1. **Read Before Writing**: Inspect existing files and documentation before editing.
-2. **No Unrequested Scope Creep**: Do not add user management, authentication, payment, or complex databases until explicitly requested.
-3. **No Fake Completions**: Never declare tests or builds have succeeded without actually executing them and inspecting the output.
-4. **Preserve Documentation Integrity**: Update docs in `docs/` whenever architectural decisions or workflows change.
-5. **Publish-Tag Deployments Only**: Never trigger production deployments to Render via manual commands or arbitrary scripts. Always use official tag releases (`git tag vX.Y.Z && git push origin vX.Y.Z` or publishing a GitHub Release).
-6. **No Direct Commits to Main & User Merges Only**: Never commit directly to `main`. Always create a feature/fix branch, open a PR, and let the user review and merge.
-7. **Git Worktree Isolation for Parallel Tasks**: When an existing branch is active with an in-progress task, use Git Worktrees to isolate concurrent work cleanly and safely.
+1. **Mandatory Worktree Pre-Flight Protocol**: Run `git worktree list` on your very first turn. If the main workspace `Wonderlab` has active work or another branch checked out, you MUST execute all work inside `Wonderlab-worktree-1` or `Wonderlab-worktree-2`. NEVER checkout branches or touch files in `Wonderlab` during concurrent tasks.
+2. **Read Before Writing**: Inspect existing files and documentation before editing.
+3. **No Unrequested Scope Creep**: Do not add user management, authentication, payment, or complex databases until explicitly requested.
+4. **No Fake Completions**: Never declare tests or builds have succeeded without actually executing them and inspecting the output.
+5. **Preserve Documentation Integrity**: Update docs in `docs/` whenever architectural decisions or workflows change.
+6. **Publish-Tag Deployments Only**: Never trigger production deployments to Render via manual commands or arbitrary scripts. Always use official tag releases (`git tag vX.Y.Z && git push origin vX.Y.Z` or publishing a GitHub Release).
+7. **No Direct Commits to Main & User Merges Only**: Never commit directly to `main`. Always create a feature/fix branch, open a PR, and let the user review and merge.
