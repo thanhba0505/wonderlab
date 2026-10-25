@@ -23,15 +23,19 @@ export function CommentsView() {
   const [searchQuery, setSearchQuery] = React.useState<string>('');
   const [deletingId, setDeletingId] = React.useState<string | null>(null);
 
-  const loadComments = React.useCallback(async () => {
-    setIsLoading(true);
+  const loadComments = React.useCallback(async (silent = false) => {
+    if (!silent) {
+      setIsLoading(true);
+    }
     try {
       const data = await fetchAdminComments();
       setComments(data);
     } catch {
       // Ignored
     } finally {
-      setIsLoading(false);
+      if (!silent) {
+        setIsLoading(false);
+      }
     }
   }, []);
 
@@ -51,7 +55,8 @@ export function CommentsView() {
     setDeletingId(id);
     const res = await deleteAdminComment(id);
     if (res.success) {
-      await loadComments();
+      setComments(prev => prev.filter(c => c.id !== id && c.parentId !== id));
+      await loadComments(true);
     } else {
       alert(res.error || 'Lỗi khi xóa bình luận');
     }
@@ -96,7 +101,7 @@ export function CommentsView() {
         <Button
           variant="outline"
           size="sm"
-          onClick={loadComments}
+          onClick={() => loadComments()}
           disabled={isLoading}
           className="text-xs font-semibold gap-1.5 border-slate-300 bg-white shadow-2xs shrink-0"
         >
