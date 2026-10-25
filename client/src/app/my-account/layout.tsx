@@ -49,9 +49,7 @@ export default function MyAccountLayout({ children }: { children: React.ReactNod
       <AdminSidebar user={user} onLogout={logout} />
 
       {/* Main Content Area */}
-      <main className="flex-1 w-full h-full overflow-y-auto min-w-0 p-2 lg:p-3 lg:pt-2.5 pb-10">
-        {children}
-      </main>
+      <main className="flex-1 w-full h-full overflow-y-auto min-w-0 pb-4 lg:pb-0">{children}</main>
     </div>
   );
 }
