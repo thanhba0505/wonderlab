@@ -115,7 +115,17 @@ wonderlab/
 
 ## 6. Coding & TypeScript Conventions
 
-- **TypeScript Strict Mode**: No `any`. Explicit function return types and interface contracts.
+- **Strict Zero-`any` Policy (No Exceptions)**:
+  - The use of `any` is strictly forbidden across the entire codebase (`@typescript-eslint/no-explicit-any: error` in both client and server).
+  - Never use explicit `any`, implicit `any`, `Record<string, any>`, or `Array<any>`.
+  - Never bypass compiler type checks using `@ts-ignore` or `@ts-nocheck` to evade proper type declarations.
+  - When dealing with dynamic, uncertain, or incoming external data (e.g., API payloads, URL queries, localStorage, or JSON parsing), use `unknown` combined with runtime type narrowing, type guards, or validation schemas (Zod / class-validator).
+  - For polymorphic functions, utilities, and components, use generic parameters (`<T extends Record<string, unknown>>`) rather than unconstrained or loose types.
+- **Comprehensive Type & Interface Definitions**:
+  - **Explicit Contracts for All Data Structures**: Every domain entity, simulation parameter set, calculation result, telemetry payload, DTO, and database model must have a dedicated, strongly typed `interface` or `type` definition.
+  - **Explicit Function Signatures**: All exported functions, service methods, API route handlers, utility helpers, and custom React hooks must explicitly declare parameter types and return types (e.g. `function calculateMonty(trials: number): MontyResult`, `async findUserById(id: string): Promise<UserResponseDto>`). Do not rely on ambiguous inferred return types on public contracts.
+  - **Component Props & State Contracts**: Every React component must define a dedicated interface for its props (e.g., `interface AppModalProps`, `interface SimulationWorkbenchProps`) and internal state. Never destructure untyped props inline.
+  - **Strict Null & Undefined Safety**: With `strictNullChecks` and `noUncheckedIndexedAccess` enabled in `tsconfig.base.json`, explicitly handle optionality using optional chaining (`?.`), nullish coalescing (`??`), or early guard clauses. Never force non-null assertions (`!`) unless provably impossible to be null.
 - **Clean Code & Guard Clauses**: Validate inputs early; return early. Avoid nested `if/else` past 2 levels.
 - **Naming**: Intent-revealing names (`isDoorRevealed`, `calculateMontyProbabilities`). No abbreviations or single-character variables except standard loop indices.
 - **Imports**: Group imports (standard/external first, internal path aliases `@/...` second, relative third).
@@ -237,3 +247,4 @@ pnpm check          # Runs all verification steps in sequence
 8. **Development Server Execution Standard (`pnpm dev` only)**: Agents must NEVER start the client application using `pnpm start`, `pnpm --filter wonderlab-client start`, or `next start`. Always use `pnpm dev` or `pnpm dev:client`. `next start` is strictly an immutable production server that binds to a static in-memory `BUILD_ID`, resulting in catastrophic `400 Bad Request` asset errors, CSS stylesheet drop (FOUC), and permanent client-side chunk loading failures whenever background builds run.
 9. **Strict English for All Commits and Repository Guidelines**: All commit messages, merge commit messages, and repository guidelines must be authored strictly and exclusively in English.
 10. **Lean & Core-Only Testing Rule**: Write tests ONLY for core, critical business logic, scientific/mathematical simulation calculations, and essential E2E API flows. NEVER write superficial tests for generic UI components, static dictionaries, trivial utilities, or pass-through controller mocks. Eliminate redundant test bloat to keep CI fast and maintainable.
+11. **Strict Zero-`any` & Explicit Type/Interface Definition Rule**: The use of `any` is strictly prohibited across the entire codebase without exception (enforced via `@typescript-eslint/no-explicit-any: error` in both client and server). Every function, method, React component prop, DTO, simulation state model, and API payload MUST have fully declared, explicit types or interfaces. For dynamic or uncertain values, use `unknown` with runtime type narrowing or generic parameters (`<T>`). Never silence type errors using `@ts-ignore` or `@ts-nocheck`.
