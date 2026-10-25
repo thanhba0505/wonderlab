@@ -43,6 +43,8 @@ export interface AdminCommentItem {
   simulationSlug: string;
   parentId: string | null;
   createdAt: string;
+  isDeleted: boolean;
+  deletedAt?: string | null;
   user: {
     id: string;
     username: string;

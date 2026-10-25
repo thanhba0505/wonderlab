@@ -78,6 +78,8 @@ model Comment {
   parentId       String?   @map("parent_id")
   parent         Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
   replies        Comment[] @relation("CommentReplies")
+  isDeleted      Boolean   @default(false) @map("is_deleted")
+  deletedAt      DateTime? @map("deleted_at")
   createdAt      DateTime  @default(now()) @map("created_at")
   updatedAt      DateTime  @updatedAt @map("updated_at")
 

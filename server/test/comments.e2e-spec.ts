@@ -155,6 +155,16 @@ describe('Comments API (e2e)', () => {
 
       const found = checkRes.body.find((c: { id: string }) => c.id === rootCommentId);
       expect(found).toBeUndefined();
+
+      // Verify it is preserved in admin comments list with isDeleted: true
+      const adminRes = await request(app.getHttpServer())
+        .get('/api/v1/admin/comments')
+        .set('Cookie', authCookie)
+        .expect(200);
+
+      const adminFound = adminRes.body.find((c: { id: string }) => c.id === rootCommentId);
+      expect(adminFound).toBeDefined();
+      expect(adminFound.isDeleted).toBe(true);
     });
   });
 });

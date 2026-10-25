@@ -28,6 +28,8 @@ export class CommentsService {
       content: string;
       simulationSlug: string;
       parentId: string | null;
+      isDeleted: boolean;
+      deletedAt: Date | null;
       createdAt: Date;
       user: { id: string; username: string; role: Role };
       parent: { id: string; content: string; user: { username: string } } | null;
@@ -62,12 +64,16 @@ export class CommentsService {
       where: {
         simulationSlug,
         parentId: null, // Chỉ lấy bình luận cấp 1 ở tầng gốc
+        isDeleted: false,
       },
       include: {
         user: {
           select: USER_SELECT,
         },
         replies: {
+          where: {
+            isDeleted: false,
+          },
           include: {
             user: {
               select: USER_SELECT,
@@ -100,7 +106,7 @@ export class CommentsService {
         where: { id: dto.parentId },
       });
 
-      if (!parentComment) {
+      if (!parentComment || parentComment.isDeleted) {
         throw new NotFoundException('Bình luận gốc không tồn tại hoặc đã bị xóa.');
       }
 
@@ -148,7 +154,7 @@ export class CommentsService {
       where: { id: commentId },
     });
 
-    if (!comment) {
+    if (!comment || comment.isDeleted) {
       throw new NotFoundException('Bình luận không tồn tại hoặc đã được xóa trước đó.');
     }
 
@@ -157,9 +163,23 @@ export class CommentsService {
       throw new ForbiddenException('Bạn không có quyền xóa bình luận của người khác.');
     }
 
-    await this.prisma.comment.delete({
-      where: { id: commentId },
-    });
+    const now = new Date();
+    await this.prisma.$transaction([
+      this.prisma.comment.update({
+        where: { id: commentId },
+        data: {
+          isDeleted: true,
+          deletedAt: now,
+        },
+      }),
+      this.prisma.comment.updateMany({
+        where: { parentId: commentId },
+        data: {
+          isDeleted: true,
+          deletedAt: now,
+        },
+      }),
+    ]);
 
     return {
       success: true,

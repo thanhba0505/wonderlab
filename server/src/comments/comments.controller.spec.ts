@@ -11,6 +11,7 @@ describe('CommentsController', () => {
     findBySimulation: jest.Mock;
     create: jest.Mock;
     delete: jest.Mock;
+    findAllForAdmin: jest.Mock;
   };
 
   const mockUser: SafeUser = {
@@ -30,6 +31,7 @@ describe('CommentsController', () => {
       findBySimulation: jest.fn(),
       create: jest.fn(),
       delete: jest.fn(),
+      findAllForAdmin: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -100,6 +102,30 @@ describe('CommentsController', () => {
 
       expect(service.delete).toHaveBeenCalledWith('c1', mockUser.id, mockUser.role);
       expect(result.success).toBe(true);
+    });
+  });
+
+  describe('getAllCommentsForAdmin', () => {
+    it('should delegate to service.findAllForAdmin', async () => {
+      const mockAdminComments = [
+        {
+          id: 'c1',
+          content: 'Test content',
+          simulationSlug: 'monty-hall',
+          parentId: null,
+          isDeleted: false,
+          deletedAt: null,
+          user: { id: 'u1', username: 'bob', role: Role.USER },
+          createdAt: new Date(),
+          parent: null,
+        },
+      ];
+      service.findAllForAdmin.mockResolvedValue(mockAdminComments);
+
+      const result = await controller.getAllCommentsForAdmin();
+
+      expect(service.findAllForAdmin).toHaveBeenCalled();
+      expect(result).toBe(mockAdminComments);
     });
   });
 });

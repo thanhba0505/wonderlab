@@ -55,7 +55,9 @@ export function CommentsView() {
     setDeletingId(id);
     const res = await deleteAdminComment(id);
     if (res.success) {
-      setComments(prev => prev.filter(c => c.id !== id && c.parentId !== id));
+      setComments(prev =>
+        prev.map(c => (c.id === id || c.parentId === id ? { ...c, isDeleted: true } : c)),
+      );
       await loadComments(true);
     } else {
       alert(res.error || 'Lỗi khi xóa bình luận');
@@ -153,13 +155,14 @@ export function CommentsView() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[900px] text-left border-collapse text-xs">
+            <table className="w-full min-w-[960px] text-left border-collapse text-xs">
               <thead>
                 <tr className="border-b border-slate-200 bg-slate-50/70 font-mono text-xs uppercase tracking-wider text-slate-500">
                   <th className="p-4">Phân loại / Thí nghiệm</th>
                   <th className="p-4">Tác giả</th>
                   <th className="p-4">Nội dung bình luận</th>
                   <th className="p-4">Thời gian</th>
+                  <th className="p-4 text-center">Đã xoá</th>
                   <th className="p-4 text-center">Hành động</th>
                 </tr>
               </thead>
@@ -237,22 +240,35 @@ export function CommentsView() {
                         {new Date(item.createdAt).toLocaleString('vi-VN')}
                       </td>
 
+                      {/* Deleted Status */}
+                      <td className="p-4 text-center whitespace-nowrap">
+                        {item.isDeleted ? (
+                          <span className="inline-flex items-center text-xs font-semibold text-rose-600 bg-rose-50 border border-rose-200/80 px-2.5 py-0.5 rounded-md">
+                            Đã xoá
+                          </span>
+                        ) : null}
+                      </td>
+
                       {/* Action */}
                       <td className="p-4 text-center">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          disabled={isDeleting}
-                          onClick={() => handleDelete(item.id)}
-                          className="h-7 w-7 p-0 text-slate-400 hover:text-rose-600 hover:bg-rose-50"
-                          title="Xóa bình luận vi phạm"
-                        >
-                          {isDeleting ? (
-                            <Loader2 className="h-3 w-3 animate-spin" />
-                          ) : (
-                            <Trash2 className="h-3.5 w-3.5" />
-                          )}
-                        </Button>
+                        {item.isDeleted ? (
+                          <span className="text-xs text-slate-400 font-mono select-none">—</span>
+                        ) : (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            disabled={isDeleting}
+                            onClick={() => handleDelete(item.id)}
+                            className="h-7 w-7 p-0 text-slate-400 hover:text-rose-600 hover:bg-rose-50"
+                            title="Xóa bình luận vi phạm"
+                          >
+                            {isDeleting ? (
+                              <Loader2 className="h-3 w-3 animate-spin" />
+                            ) : (
+                              <Trash2 className="h-3.5 w-3.5" />
+                            )}
+                          </Button>
+                        )}
                       </td>
                     </tr>
                   );

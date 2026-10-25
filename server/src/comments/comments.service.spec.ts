@@ -13,7 +13,10 @@ describe('CommentsService', () => {
       findUnique: jest.Mock;
       create: jest.Mock;
       delete: jest.Mock;
+      update: jest.Mock;
+      updateMany: jest.Mock;
     };
+    $transaction: jest.Mock;
   };
 
   const mockUser = {
@@ -35,7 +38,12 @@ describe('CommentsService', () => {
         findUnique: jest.fn(),
         create: jest.fn(),
         delete: jest.fn(),
+        update: jest.fn(),
+        updateMany: jest.fn(),
       },
+      $transaction: jest
+        .fn()
+        .mockImplementation((actions: Promise<unknown>[]) => Promise.all(actions)),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -86,12 +94,16 @@ describe('CommentsService', () => {
         where: {
           simulationSlug: 'monty-hall',
           parentId: null,
+          isDeleted: false,
         },
         include: {
           user: {
             select: { id: true, username: true, role: true },
           },
           replies: {
+            where: {
+              isDeleted: false,
+            },
             include: {
               user: {
                 select: { id: true, username: true, role: true },
@@ -229,17 +241,65 @@ describe('CommentsService', () => {
     });
   });
 
+  describe('findAllForAdmin', () => {
+    it('should query all comments including deleted ones ordered by createdAt desc', async () => {
+      const mockResult = [
+        {
+          id: 'comment-1',
+          content: 'Bình luận quản trị',
+          simulationSlug: 'monty-hall',
+          parentId: null,
+          isDeleted: true,
+          deletedAt: new Date(),
+          createdAt: new Date(),
+          user: mockUser,
+          parent: null,
+        },
+      ];
+      prisma.comment.findMany.mockResolvedValue(mockResult);
+
+      const result = await service.findAllForAdmin();
+
+      expect(prisma.comment.findMany).toHaveBeenCalledWith({
+        include: {
+          user: {
+            select: { id: true, username: true, role: true },
+          },
+          parent: {
+            select: {
+              id: true,
+              content: true,
+              user: {
+                select: { username: true },
+              },
+            },
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+      });
+      expect(result).toEqual(mockResult);
+    });
+  });
+
   describe('delete', () => {
     it('should allow author to delete their own comment', async () => {
       prisma.comment.findUnique.mockResolvedValue({
         id: 'comment-1',
         userId: mockUser.id,
+        isDeleted: false,
       });
-      prisma.comment.delete.mockResolvedValue({ id: 'comment-1' });
+      prisma.comment.update.mockResolvedValue({ id: 'comment-1' });
+      prisma.comment.updateMany.mockResolvedValue({ count: 0 });
 
       const result = await service.delete('comment-1', mockUser.id, Role.USER);
 
-      expect(prisma.comment.delete).toHaveBeenCalledWith({ where: { id: 'comment-1' } });
+      expect(prisma.$transaction).toHaveBeenCalled();
+      expect(prisma.comment.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: 'comment-1' },
+          data: expect.objectContaining({ isDeleted: true }),
+        }),
+      );
       expect(result.success).toBe(true);
     });
 
@@ -247,12 +307,20 @@ describe('CommentsService', () => {
       prisma.comment.findUnique.mockResolvedValue({
         id: 'comment-1',
         userId: 'some-other-user',
+        isDeleted: false,
       });
-      prisma.comment.delete.mockResolvedValue({ id: 'comment-1' });
+      prisma.comment.update.mockResolvedValue({ id: 'comment-1' });
+      prisma.comment.updateMany.mockResolvedValue({ count: 0 });
 
       const result = await service.delete('comment-1', mockAdmin.id, Role.ADMIN);
 
-      expect(prisma.comment.delete).toHaveBeenCalledWith({ where: { id: 'comment-1' } });
+      expect(prisma.$transaction).toHaveBeenCalled();
+      expect(prisma.comment.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: 'comment-1' },
+          data: expect.objectContaining({ isDeleted: true }),
+        }),
+      );
       expect(result.success).toBe(true);
     });
 
@@ -260,6 +328,7 @@ describe('CommentsService', () => {
       prisma.comment.findUnique.mockResolvedValue({
         id: 'comment-1',
         userId: 'original-author-id',
+        isDeleted: false,
       });
 
       await expect(service.delete('comment-1', 'intruder-id', Role.USER)).rejects.toThrow(
@@ -271,6 +340,18 @@ describe('CommentsService', () => {
       prisma.comment.findUnique.mockResolvedValue(null);
 
       await expect(service.delete('non-existent', mockUser.id, Role.USER)).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+
+    it('should throw NotFoundException if comment to delete is already deleted', async () => {
+      prisma.comment.findUnique.mockResolvedValue({
+        id: 'comment-1',
+        userId: mockUser.id,
+        isDeleted: true,
+      });
+
+      await expect(service.delete('comment-1', mockUser.id, Role.USER)).rejects.toThrow(
         NotFoundException,
       );
     });
