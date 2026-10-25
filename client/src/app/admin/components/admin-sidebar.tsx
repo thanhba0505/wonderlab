@@ -10,13 +10,13 @@ import {
   Settings,
   LogOut,
   ArrowLeft,
-  Sparkles,
   Shield,
   Menu,
   X,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { BrandLogo } from '@/components/ui/brand-logo';
 import { AuthUser } from '@/types';
 
 export type AdminViewType = 'dashboard' | 'simulations' | 'users' | 'comments' | 'settings';
@@ -84,9 +84,10 @@ export function AdminSidebar({
       <div>
         <div className="flex items-center justify-between p-5 border-b border-slate-200/80">
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 text-white shadow-sm shadow-blue-500/20">
-              <Sparkles className="h-4 w-4" />
-            </div>
+            <BrandLogo
+              variant="badge"
+              className="h-9 w-9 rounded-xl shadow-sm shadow-blue-500/20"
+            />
             <div>
               <div className="font-heading text-base font-extrabold tracking-tight text-slate-900 leading-none">
                 WONDER<span className="text-blue-600">LAB</span>
@@ -192,9 +193,7 @@ export function AdminSidebar({
       {/* Mobile Bar Toggle */}
       <div className="lg:hidden flex items-center justify-between p-4 bg-white border-b border-slate-200">
         <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-white">
-            <Sparkles className="h-4 w-4" />
-          </div>
+          <BrandLogo variant="badge" className="h-8 w-8 rounded-lg" />
           <span className="font-heading font-extrabold text-sm text-slate-900">
             WONDERLAB ADMIN
           </span>

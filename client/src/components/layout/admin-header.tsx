@@ -2,9 +2,10 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { Sparkles, ArrowLeft, LogOut } from 'lucide-react';
+import { ArrowLeft, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { BrandLogo } from '@/components/ui/brand-logo';
 import { useAuth } from '@/lib/auth-context';
 
 export function AdminHeader() {
@@ -16,9 +17,10 @@ export function AdminHeader() {
         {/* Brand */}
         <div className="flex items-center gap-3">
           <Link href="/admin" className="flex items-center gap-2.5 group">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 text-white shadow-sm shadow-blue-500/20">
-              <Sparkles className="h-4 w-4" />
-            </div>
+            <BrandLogo
+              variant="badge"
+              className="h-9 w-9 rounded-xl shadow-sm shadow-blue-500/20"
+            />
             <div className="flex items-center gap-2">
               <span className="font-heading text-lg font-extrabold tracking-tight text-slate-900">
                 WONDER<span className="text-blue-600">LAB</span>

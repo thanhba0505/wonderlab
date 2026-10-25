@@ -12,11 +12,11 @@ import {
   EyeOff,
   CheckCircle2,
   AlertCircle,
-  Sparkles,
   KeyRound,
   ArrowLeft,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { BrandLogo } from '@/components/ui/brand-logo';
 import { useAuth, AuthModalView } from '@/lib/auth-context';
 
 export function AuthModal() {
@@ -290,9 +290,7 @@ export function AuthModal() {
         {/* Modal Header */}
         <div className="flex items-center justify-between border-b border-slate-200/90 px-6 py-4 bg-slate-50/60">
           <div className="flex items-center gap-2">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-600 text-white shadow-xs">
-              <Sparkles className="h-4 w-4" />
-            </div>
+            <BrandLogo variant="badge" className="h-7 w-7 rounded-lg shadow-2xs" />
             <span className="font-heading text-base font-bold text-slate-900">
               {mode === 'login' && 'Đăng nhập Wonderlab'}
               {mode === 'register' && 'Đăng ký tài khoản'}
