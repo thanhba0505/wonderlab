@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import {
   Atom,
   Dice5,
-  Binary,
   Infinity as InfinityIcon,
   Gamepad2,
   ArrowRight,
@@ -389,52 +388,6 @@ export function CategoryGrid() {
             <ArrowRight className="h-4 w-4 ml-1.5 transition-transform group-hover:translate-x-1" />
           </Link>
         </CardContent>
-      </Card>
-
-      {/* ==================================================================== */}
-      {/* TILE 5: Logic Học (Span 1 col) */}
-      {/* ==================================================================== */}
-      <Card className="group relative overflow-hidden border-slate-300/85 bg-white hover:border-blue-500 hover:shadow-md transition-all duration-300 flex flex-col justify-between">
-        <div>
-          <CardHeader className="space-y-3 pb-3">
-            <div className="flex items-center justify-between">
-              <div className="p-2.5 rounded-xl bg-blue-50 border border-blue-200 text-blue-700">
-                <Binary className="h-6 w-6" />
-              </div>
-              <Badge variant="cyan">3 CÂU ĐỐ</Badge>
-            </div>
-            <div>
-              <CardTitle className="text-lg font-heading font-extrabold text-slate-900 group-hover:text-blue-700 transition-colors">
-                Logic Học & Mệnh đề
-              </CardTitle>
-              <p className="text-xs font-mono text-blue-700 mt-0.5 font-medium">
-                Chân trị, suy luận & mệnh đề
-              </p>
-            </div>
-          </CardHeader>
-
-          <CardContent className="space-y-4">
-            <CardDescription className="text-sm text-slate-600 leading-relaxed font-sans">
-              Khám phá nghịch lý người cạo râu Russell, định lý bất toàn Gödel và giải quyết các câu
-              đố hòn đảo hiệp sĩ & kẻ nói dối.
-            </CardDescription>
-
-            <div className="rounded-xl bg-slate-100/70 border-l-4 border-l-blue-600 p-3.5 text-xs font-mono space-y-1">
-              <span className="text-blue-800 font-bold">Nghịch lý Russell:</span>
-              <p className="text-slate-600 text-xs">R = &#123; x | x ∉ x &#125; ⇒ R ∈ R ⟺ R ∉ R</p>
-            </div>
-          </CardContent>
-        </div>
-
-        <div className="p-6 pt-0">
-          <Link
-            href="/simulations"
-            className="flex items-center text-xs font-bold text-blue-700 group-hover:text-blue-800 transition-colors"
-          >
-            <span>Khám phá toàn bộ phòng lab</span>
-            <ArrowRight className="h-4 w-4 ml-1.5 transition-transform group-hover:translate-x-1" />
-          </Link>
-        </div>
       </Card>
     </div>
   );

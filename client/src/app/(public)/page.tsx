@@ -104,7 +104,7 @@ export default function HomePage() {
             </p>
           </div>
 
-          <MontyHallSimulation />
+          <MontyHallSimulation showHistory={false} />
         </div>
       </section>
 

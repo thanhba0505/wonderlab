@@ -46,7 +46,11 @@ interface Stats {
   stayWins: number;
 }
 
-export function MontyHallSimulation() {
+export interface MontyHallSimulationProps {
+  showHistory?: boolean;
+}
+
+export function MontyHallSimulation({ showHistory = true }: MontyHallSimulationProps = {}) {
   const meta = getSimulationBySlug('monty-hall');
   const [userPrediction, setUserPrediction] = React.useState<{
     option: HypothesisOption;
@@ -792,13 +796,15 @@ export function MontyHallSimulation() {
       </SimulationSection>
 
       {/* 3. TITLE NHẬT KÝ & NHẬT KÝ THỰC NGHIỆM */}
-      <SimulationSection
-        dotColor="emerald"
-        title="Nhật Ký Thực Nghiệm"
-        subtitle="Bảng lưu trữ chi tiết các lượt chơi và kết quả thực nghiệm trong phiên nghiên cứu"
-      >
-        <SimulationHistoryTable runs={history} />
-      </SimulationSection>
+      {showHistory && (
+        <SimulationSection
+          dotColor="emerald"
+          title="Nhật Ký Thực Nghiệm"
+          subtitle="Bảng lưu trữ chi tiết các lượt chơi và kết quả thực nghiệm trong phiên nghiên cứu"
+        >
+          <SimulationHistoryTable runs={history} />
+        </SimulationSection>
+      )}
 
       {/* 4. TITLE GIẢI THÍCH & GIẢI THÍCH KHOA HỌC */}
       <SimulationSection
