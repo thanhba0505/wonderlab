@@ -131,6 +131,17 @@ pnpm build          # Production builds for client and server
 pnpm check          # Runs all verification steps in sequence
 ```
 
+### Development Server Execution Policy:
+
+- **Strictly Use `pnpm dev` or `pnpm dev:client` — NEVER Run `pnpm start` / `next start`**:
+  - Agents must **NEVER** launch development servers using `pnpm start`, `pnpm --filter wonderlab-client start`, or `next start`.
+  - `next start` runs an immutable production server that binds to a static in-memory `BUILD_ID`. Whenever `next build` or `pnpm check` runs, `.next/` assets on disk are overwritten with a new build hash, throwing `next start` into an irrecoverable `400 Bad Request` state for all CSS and JS chunks (rendering broken, unstyled HTML).
+  - Agents must strictly use the development server commands:
+    - Full stack: `pnpm dev`
+    - Client only: `pnpm dev:client` (runs `next dev -p ${PORT:-4100}`)
+    - Server only: `pnpm dev:server` (runs NestJS with `--watch`)
+  - `next dev` provides Hot Module Replacement (HMR) and dynamic on-demand compilation, remaining fully immune to build-ID lockouts.
+
 ---
 
 ## 8. Git & Workflow Conventions
@@ -189,3 +200,5 @@ pnpm check          # Runs all verification steps in sequence
 5. **Preserve Documentation Integrity**: Update docs in `docs/` whenever architectural decisions or workflows change.
 6. **Publish-Tag Deployments Only**: Never trigger production deployments to Render via manual commands or arbitrary scripts. Always use official tag releases (`git tag vX.Y.Z && git push origin vX.Y.Z` or publishing a GitHub Release).
 7. **No Direct Commits to Main & User Merges Only**: Never commit directly to `main`. Always create a feature/fix branch, open a PR, and let the user review and merge.
+8. **Development Server Execution Standard (`pnpm dev` only)**: Agents must NEVER start the client application using `pnpm start`, `pnpm --filter wonderlab-client start`, or `next start`. Always use `pnpm dev` or `pnpm dev:client`. `next start` is strictly an immutable production server that binds to a static in-memory `BUILD_ID`, resulting in catastrophic `400 Bad Request` asset errors, CSS stylesheet drop (FOUC), and permanent client-side chunk loading failures whenever background builds run.
+9. **Strict English for All Pull Requests & Commits**: All PR titles, PR descriptions, commit messages, and repository guidelines must be authored strictly and exclusively in English.
