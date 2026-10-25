@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { FlaskConical, Plus, Search, Sparkles } from 'lucide-react';
+import { FlaskConical, Plus, Search, Sparkles, Loader2, RotateCcw } from 'lucide-react';
 import {
   fetchSimulationRequests,
   toggleSimulationRequestVote,
@@ -12,6 +12,7 @@ import { RequestCard } from './request-card';
 import { RequestModal } from './request-modal';
 import { AppButton, AppInput, AppSelect, AppPagination } from '@/components/ui';
 import { SIMULATION_CATEGORIES } from '../constants';
+import { cn } from '@/lib/utils';
 
 const STATUS_TABS: Array<{ id: string; label: string; status?: SimulationRequestStatus }> = [
   { id: 'all', label: 'Tất cả' },
@@ -40,7 +41,11 @@ export function RequestListView() {
   const [debouncedSearch, setDebouncedSearch] = React.useState<string>('');
   const [sortBy, setSortBy] = React.useState<'votes' | 'newest' | 'oldest'>('votes');
 
-  const [isLoading, setIsLoading] = React.useState<boolean>(true);
+  // Track initial load vs background refetching to eliminate screen flashing
+  const hasLoadedOnceRef = React.useRef<boolean>(false);
+  const [isInitialLoading, setIsInitialLoading] = React.useState<boolean>(true);
+  const [isFetching, setIsFetching] = React.useState<boolean>(false);
+
   const [isModalOpen, setIsModalOpen] = React.useState<boolean>(false);
   const [votingId, setVotingId] = React.useState<string | null>(null);
 
@@ -54,7 +59,12 @@ export function RequestListView() {
   }, [searchQuery]);
 
   const loadRequests = React.useCallback(async () => {
-    setIsLoading(true);
+    if (!hasLoadedOnceRef.current) {
+      setIsInitialLoading(true);
+    } else {
+      setIsFetching(true);
+    }
+
     try {
       const currentTabObj = STATUS_TABS.find(t => t.id === activeTab);
       const res = await fetchSimulationRequests({
@@ -71,7 +81,9 @@ export function RequestListView() {
     } catch (err) {
       console.error('Error loading simulation requests:', err);
     } finally {
-      setIsLoading(false);
+      setIsInitialLoading(false);
+      setIsFetching(false);
+      hasLoadedOnceRef.current = true;
     }
   }, [page, limit, activeTab, selectedCategory, debouncedSearch, sortBy]);
 
@@ -103,6 +115,18 @@ export function RequestListView() {
 
   const handleCreateSuccess = () => {
     loadRequests();
+  };
+
+  const hasActiveFilters =
+    activeTab !== 'all' || selectedCategory !== 'all' || debouncedSearch.trim() !== '';
+
+  const handleResetFilters = () => {
+    setActiveTab('all');
+    setSelectedCategory('all');
+    setSearchQuery('');
+    setDebouncedSearch('');
+    setSortBy('votes');
+    setPage(1);
   };
 
   const categoryOptions = React.useMemo(() => {
@@ -158,8 +182,10 @@ export function RequestListView() {
                 key={tab.id}
                 type="button"
                 onClick={() => {
-                  setActiveTab(tab.id);
-                  setPage(1);
+                  if (activeTab !== tab.id) {
+                    setActiveTab(tab.id);
+                    setPage(1);
+                  }
                 }}
                 className={`px-3.5 py-2 font-medium rounded-t-lg transition-colors whitespace-nowrap border-b-2 text-xs sm:text-sm cursor-pointer select-none ${
                   isActive
@@ -210,62 +236,124 @@ export function RequestListView() {
             />
           </div>
         </div>
+
+        {/* Subtle Progress Line when updating in background */}
+        <div
+          className={cn(
+            'h-0.5 w-full bg-slate-100 overflow-hidden rounded-full transition-opacity duration-200',
+            isFetching ? 'opacity-100' : 'opacity-0',
+          )}
+        >
+          <div className="h-full bg-blue-600 animate-pulse w-full" />
+        </div>
       </div>
 
-      {/* Request Grid / Content Area */}
-      {isLoading ? (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 6 }).map((_, idx) => (
-            <div
-              key={idx}
-              className="h-64 rounded-xl border border-slate-200 bg-white p-6 animate-pulse"
-            >
-              <div className="h-4 w-24 bg-slate-200 rounded mb-4" />
-              <div className="h-6 w-3/4 bg-slate-200 rounded mb-2" />
-              <div className="h-4 w-full bg-slate-200 rounded mb-2" />
-              <div className="h-4 w-2/3 bg-slate-200 rounded" />
+      {/* Content Area with Stable Min-Height Container to Prevent Flickering and Layout Shifts */}
+      <div className="relative min-h-[380px] w-full">
+        {/* Floating Updating Indicator */}
+        {isFetching && (
+          <div
+            className="absolute top-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/95 border border-slate-300/85 shadow-[0_4px_16px_-2px_rgba(15,23,42,0.08)] text-xs font-semibold text-slate-700 animate-in fade-in zoom-in-95 duration-150 pointer-events-none select-none"
+            aria-live="polite"
+          >
+            <Loader2 className="h-3.5 w-3.5 animate-spin text-blue-600 shrink-0" />
+            <span className="font-sans">Đang cập nhật danh sách...</span>
+          </div>
+        )}
+
+        {/* Initial Skeleton Loader: Only shown on the very first mount */}
+        {isInitialLoading ? (
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, idx) => (
+              <div
+                key={idx}
+                className="h-64 rounded-xl border border-slate-200 bg-white p-5 sm:p-6 animate-pulse flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-3">
+                    <div className="h-3 w-24 bg-slate-200 rounded" />
+                    <div className="h-5 w-20 bg-slate-200 rounded-full" />
+                  </div>
+                  <div className="h-5 w-3/4 bg-slate-200 rounded mb-2.5" />
+                  <div className="h-3.5 w-full bg-slate-200 rounded mb-1.5" />
+                  <div className="h-3.5 w-5/6 bg-slate-200 rounded mb-1.5" />
+                  <div className="h-3.5 w-2/3 bg-slate-200 rounded" />
+                </div>
+                <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+                  <div className="h-4 w-28 bg-slate-200 rounded" />
+                  <div className="h-7 w-16 bg-slate-200 rounded-lg" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : requests.length === 0 ? (
+          /* Empty State: Stable, elegant box with action options */
+          <div
+            className={cn(
+              'flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-white p-8 sm:p-12 text-center min-h-[340px] transition-opacity duration-200',
+              isFetching && 'opacity-60',
+            )}
+          >
+            <div className="h-12 w-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 mb-3.5">
+              <Sparkles className="h-6 w-6 text-slate-400" />
             </div>
-          ))}
-        </div>
-      ) : requests.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-white p-12 text-center">
-          <div className="h-12 w-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 mb-3">
-            <Sparkles className="h-6 w-6 text-slate-400" />
+
+            <h3 className="font-heading text-lg font-bold text-slate-900">
+              {hasActiveFilters ? 'Chưa tìm thấy đề xuất phù hợp' : 'Chưa có đề xuất bài toán nào'}
+            </h3>
+
+            <p className="mt-1.5 text-xs sm:text-sm text-slate-600 max-w-md leading-relaxed">
+              {hasActiveFilters
+                ? 'Không có đề xuất nào khớp với bộ lọc hiện tại. Bạn có thể đặt lại bộ lọc để xem toàn bộ danh sách hoặc gửi đề xuất mới.'
+                : 'Hãy là người tiên phong chia sẻ nghịch lý hoặc bài toán khoa học thú vị bạn muốn Wonderlab trực quan hóa!'}
+            </p>
+
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+              {hasActiveFilters && (
+                <AppButton
+                  variant="outline"
+                  size="md"
+                  onClick={handleResetFilters}
+                  disabled={isFetching}
+                  className="text-xs"
+                >
+                  <RotateCcw className="mr-1.5 h-3.5 w-3.5 text-slate-500" />
+                  <span>Đặt lại bộ lọc</span>
+                </AppButton>
+              )}
+              <AppButton
+                variant="primary"
+                size="md"
+                onClick={() => setIsModalOpen(true)}
+                className="bg-blue-600 hover:bg-blue-700 text-white text-xs"
+              >
+                <Plus className="mr-1.5 h-4 w-4" />
+                <span>Gửi đề xuất bài toán</span>
+              </AppButton>
+            </div>
           </div>
-          <h3 className="font-heading text-lg font-bold text-slate-900">
-            Chưa tìm thấy đề xuất phù hợp
-          </h3>
-          <p className="mt-1 text-sm text-slate-600 max-w-md">
-            Chưa có đề xuất nào khớp với bộ lọc hiện tại. Bạn có ý tưởng bài toán thú vị nào muốn
-            gợi ý cho Wonderlab không?
-          </p>
-          <div className="mt-5">
-            <AppButton
-              variant="primary"
-              size="md"
-              onClick={() => setIsModalOpen(true)}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
-            >
-              <Plus className="mr-1.5 h-4 w-4" />
-              <span>Gửi đề xuất đầu tiên</span>
-            </AppButton>
+        ) : (
+          /* Content Grid: Kept mounted during filtering with opacity transition */
+          <div
+            className={cn(
+              'grid gap-6 md:grid-cols-2 lg:grid-cols-3 transition-opacity duration-200',
+              isFetching && 'opacity-60 pointer-events-none',
+            )}
+          >
+            {requests.map(request => (
+              <RequestCard
+                key={request.id}
+                request={request}
+                onToggleVote={handleToggleVote}
+                isVoting={votingId === request.id}
+              />
+            ))}
           </div>
-        </div>
-      ) : (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {requests.map(request => (
-            <RequestCard
-              key={request.id}
-              request={request}
-              onToggleVote={handleToggleVote}
-              isVoting={votingId === request.id}
-            />
-          ))}
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Pagination */}
-      {!isLoading && total > limit && (
+      {!isInitialLoading && total > limit && (
         <div className="mt-6 flex justify-center border-t border-slate-200 pt-6">
           <AppPagination
             page={page}
