@@ -83,7 +83,7 @@ describe('AdminSidebar (Role-based Console Navigation)', () => {
     expect(text).toContain('Cài đặt Nền tảng');
   });
 
-  it('triggers onLogout callback when logout button is clicked', () => {
+  it('triggers onLogout callback when mobile drawer logout button is clicked and omits logout button from desktop sidebar', () => {
     const regularUser: AuthUser = {
       id: 'user-1',
       username: 'bohr',
@@ -96,6 +96,21 @@ describe('AdminSidebar (Role-based Console Navigation)', () => {
 
     act(() => {
       root.render(<AdminSidebar user={regularUser} onLogout={onLogout} />);
+    });
+
+    // Desktop sidebar intentionally omits logout button
+    const desktopAside = container.querySelector('aside');
+    expect(desktopAside?.querySelector('button[title="Đăng xuất"]')).toBeNull();
+    expect(desktopAside?.querySelector('button[aria-label="Đăng xuất"]')).toBeNull();
+
+    // Open mobile drawer
+    const mobileToggle = container.querySelector(
+      'button[aria-label="Toggle navigation"]',
+    ) as HTMLButtonElement;
+    expect(mobileToggle).toBeTruthy();
+
+    act(() => {
+      mobileToggle.click();
     });
 
     const logoutButtons = container.querySelectorAll('button[title="Đăng xuất"]');

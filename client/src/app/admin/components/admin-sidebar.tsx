@@ -491,7 +491,7 @@ export function AdminSidebar({ user, onLogout }: AdminSidebarProps) {
                 className={`ml-2 min-w-0 flex-1 transition-all duration-300 ${
                   isCollapsed
                     ? 'opacity-0 max-w-0 -translate-x-2 pointer-events-none'
-                    : 'opacity-100 max-w-[125px] translate-x-0'
+                    : 'opacity-100 max-w-[170px] translate-x-0'
                 }`}
               >
                 <div className="font-mono text-xs font-bold text-slate-900 truncate group-hover:text-blue-600">
@@ -503,41 +503,7 @@ export function AdminSidebar({ user, onLogout }: AdminSidebarProps) {
                 </div>
               </div>
             </Link>
-
-            <div
-              className={`transition-all duration-300 ${
-                isCollapsed
-                  ? 'opacity-0 max-w-0 -translate-x-2 pointer-events-none'
-                  : 'opacity-100 translate-x-0'
-              }`}
-            >
-              <AppButton
-                variant="ghost"
-                size="sm"
-                onClick={onLogout}
-                className="h-7 w-7 p-0 text-slate-400 hover:text-rose-600 hover:bg-rose-50 shrink-0"
-                title="Đăng xuất"
-              >
-                <LogOut className="h-3.5 w-3.5" />
-              </AppButton>
-            </div>
           </div>
-
-          {/* When collapsed: Dedicated logout icon button */}
-          {isCollapsed && (
-            <button
-              type="button"
-              onClick={onLogout}
-              onMouseEnter={e => handleItemHover(e, 'Đăng xuất')}
-              onMouseLeave={handleItemLeave}
-              className="flex items-center h-10 w-full rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors px-2"
-              aria-label="Đăng xuất"
-            >
-              <div className="w-9 h-9 flex items-center justify-center shrink-0">
-                <LogOut className="h-4 w-4" />
-              </div>
-            </button>
-          )}
 
           {/* Back to site row */}
           <Link href="/" className="block">
