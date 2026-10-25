@@ -18,6 +18,7 @@ import {
   Sliders,
   ShieldCheck,
   Database,
+  KeyRound,
 } from 'lucide-react';
 import { AppButton } from '@/components/ui';
 import { BrandLogo } from '@/components/ui/brand-logo';
@@ -34,8 +35,8 @@ interface AdminSidebarProps {
   userCount?: number;
 }
 
-interface NavItem {
-  id: AdminViewType;
+export interface NavItem {
+  id: string;
   label: string;
   href: string;
   icon: React.ComponentType<{ className?: string }>;
@@ -44,6 +45,12 @@ interface NavItem {
     href: string;
     icon: React.ComponentType<{ className?: string }>;
   }>;
+}
+
+export interface NavGroup {
+  id: string;
+  label?: string;
+  items: NavItem[];
 }
 
 export function AdminSidebar({ user, onLogout }: AdminSidebarProps) {
@@ -82,45 +89,79 @@ export function AdminSidebar({ user, onLogout }: AdminSidebarProps) {
     setHoveredTooltip(null);
   };
 
-  const navItems: NavItem[] = [
-    {
-      id: 'dashboard',
-      label: 'Tổng quan',
-      href: '/admin',
-      icon: LayoutDashboard,
-    },
-    {
-      id: 'simulations',
-      label: 'Cài đặt Thí nghiệm',
-      href: '/admin/simulations',
-      icon: FlaskConical,
-    },
-    {
-      id: 'users',
-      label: 'Quản lý Người dùng',
-      href: '/admin/users',
-      icon: Users,
-    },
-    {
-      id: 'comments',
-      label: 'Kiểm duyệt Bình luận',
-      href: '/admin/comments',
-      icon: MessageSquare,
-    },
-    {
-      id: 'settings',
-      label: 'Cài đặt Nền tảng',
-      href: '/admin/settings',
-      icon: Settings,
-      subItems: [
-        { label: 'Cài đặt Chung', href: '/admin/settings', icon: Sliders },
-        { label: 'Quyền Truy cập', href: '/admin/settings/access', icon: ShieldCheck },
-        { label: 'Sao lưu & Dữ liệu', href: '/admin/settings/backup', icon: Database },
-      ],
-    },
-  ];
+  const navGroups: NavGroup[] = React.useMemo(() => {
+    const groups: NavGroup[] = [
+      {
+        id: 'personal',
+        label: user.role === 'ADMIN' ? 'Không gian Cá nhân' : undefined,
+        items: [
+          {
+            id: 'account-overview',
+            label: 'Tổng quan Cá nhân',
+            href: '/my-account',
+            icon: LayoutDashboard,
+          },
+          {
+            id: 'account-profile',
+            label: 'Hồ sơ & Bảo mật',
+            href: '/my-account/profile',
+            icon: KeyRound,
+          },
+        ],
+      },
+    ];
+
+    if (user.role === 'ADMIN') {
+      groups.push({
+        id: 'admin-system',
+        label: 'Quản trị Toàn sàn',
+        items: [
+          {
+            id: 'dashboard',
+            label: 'Tổng quan Hệ thống',
+            href: '/admin',
+            icon: Shield,
+          },
+          {
+            id: 'simulations',
+            label: 'Cài đặt Thí nghiệm',
+            href: '/admin/simulations',
+            icon: FlaskConical,
+          },
+          {
+            id: 'users',
+            label: 'Quản lý Người dùng',
+            href: '/admin/users',
+            icon: Users,
+          },
+          {
+            id: 'comments',
+            label: 'Kiểm duyệt Bình luận',
+            href: '/admin/comments',
+            icon: MessageSquare,
+          },
+          {
+            id: 'settings',
+            label: 'Cài đặt Nền tảng',
+            href: '/admin/settings',
+            icon: Settings,
+            subItems: [
+              { label: 'Cài đặt Chung', href: '/admin/settings', icon: Sliders },
+              { label: 'Quyền Truy cập', href: '/admin/settings/access', icon: ShieldCheck },
+              { label: 'Sao lưu & Dữ liệu', href: '/admin/settings/backup', icon: Database },
+            ],
+          },
+        ],
+      });
+    }
+
+    return groups;
+  }, [user.role]);
 
   const isRouteActive = (itemHref: string) => {
+    if (itemHref === '/my-account') {
+      return pathname === '/my-account';
+    }
     if (itemHref === '/admin') {
       return pathname === '/admin' || pathname === '/admin/dashboard';
     }
@@ -192,55 +233,68 @@ export function AdminSidebar({ user, onLogout }: AdminSidebarProps) {
             </div>
 
             {/* Mobile Nav */}
-            <nav className="flex-1 min-h-0 overflow-y-auto p-3 space-y-1">
-              {navItems.map(item => {
-                const Icon = item.icon;
-                const isActive = isRouteActive(item.href);
+            <nav className="flex-1 min-h-0 overflow-y-auto p-3 space-y-4">
+              {navGroups.map((group, groupIdx) => (
+                <div key={group.id} className="space-y-1">
+                  {groupIdx > 0 && <div className="my-2 h-px bg-slate-200" />}
+                  {group.label && (
+                    <div className="px-2 pt-1 pb-1 text-xs font-mono font-bold uppercase tracking-wider text-slate-400 select-none">
+                      {group.label}
+                    </div>
+                  )}
 
-                return (
-                  <div key={item.id} className="space-y-1">
-                    <Link
-                      href={item.href}
-                      onClick={() => setIsMobileOpen(false)}
-                      className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
-                        isActive
-                          ? 'bg-blue-50 text-blue-700 font-bold border border-blue-200/70'
-                          : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-                      }`}
-                    >
-                      <Icon
-                        className={`h-4 w-4 shrink-0 ${isActive ? 'text-blue-600' : 'text-slate-400'}`}
-                      />
-                      <span>{item.label}</span>
-                    </Link>
+                  <div className="space-y-1">
+                    {group.items.map(item => {
+                      const Icon = item.icon;
+                      const isActive = isRouteActive(item.href);
 
-                    {/* Mobile Sub-items */}
-                    {item.subItems && isActive && (
-                      <div className="pl-6 pr-1 py-1 space-y-1 border-l-2 border-blue-100 ml-4">
-                        {item.subItems.map(sub => {
-                          const SubIcon = sub.icon;
-                          const isSubActive = isSubRouteActive(sub.href);
-                          return (
-                            <Link
-                              key={sub.href}
-                              href={sub.href}
-                              onClick={() => setIsMobileOpen(false)}
-                              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs transition-colors ${
-                                isSubActive
-                                  ? 'bg-blue-100/60 text-blue-800 font-bold'
-                                  : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100/60'
-                              }`}
-                            >
-                              <SubIcon className="h-3.5 w-3.5" />
-                              <span>{sub.label}</span>
-                            </Link>
-                          );
-                        })}
-                      </div>
-                    )}
+                      return (
+                        <div key={item.id} className="space-y-1">
+                          <Link
+                            href={item.href}
+                            onClick={() => setIsMobileOpen(false)}
+                            className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+                              isActive
+                                ? 'bg-blue-50 text-blue-700 font-bold border border-blue-200/70'
+                                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                            }`}
+                          >
+                            <Icon
+                              className={`h-4 w-4 shrink-0 ${isActive ? 'text-blue-600' : 'text-slate-400'}`}
+                            />
+                            <span>{item.label}</span>
+                          </Link>
+
+                          {/* Mobile Sub-items */}
+                          {item.subItems && isActive && (
+                            <div className="pl-6 pr-1 py-1 space-y-1 border-l-2 border-blue-100 ml-4">
+                              {item.subItems.map(sub => {
+                                const SubIcon = sub.icon;
+                                const isSubActive = isSubRouteActive(sub.href);
+                                return (
+                                  <Link
+                                    key={sub.href}
+                                    href={sub.href}
+                                    onClick={() => setIsMobileOpen(false)}
+                                    className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs transition-colors ${
+                                      isSubActive
+                                        ? 'bg-blue-100/60 text-blue-800 font-bold'
+                                        : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100/60'
+                                    }`}
+                                  >
+                                    <SubIcon className="h-3.5 w-3.5" />
+                                    <span>{sub.label}</span>
+                                  </Link>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
-                );
-              })}
+                </div>
+              ))}
             </nav>
 
             {/* Mobile Footer */}
@@ -328,72 +382,87 @@ export function AdminSidebar({ user, onLogout }: AdminSidebarProps) {
         </div>
 
         {/* Nav Items */}
-        <nav className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-2 space-y-1.5">
-          {navItems.map(item => {
-            const Icon = item.icon;
-            const isActive = isRouteActive(item.href);
+        <nav className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-2 space-y-3">
+          {navGroups.map((group, groupIdx) => (
+            <div key={group.id} className="space-y-1">
+              {groupIdx > 0 && isCollapsed && <div className="my-2 h-px bg-slate-200/90 mx-1" />}
+              {group.label && !isCollapsed && (
+                <div className="px-2 pt-1 pb-1 text-xs font-mono font-bold uppercase tracking-wider text-slate-400 select-none">
+                  {group.label}
+                </div>
+              )}
 
-            return (
-              <div key={item.id} className="space-y-1">
-                <Link
-                  href={item.href}
-                  onMouseEnter={e => handleItemHover(e, item.label)}
-                  onMouseLeave={handleItemLeave}
-                  className={`group relative flex items-center h-11 w-full rounded-xl text-xs font-semibold transition-colors duration-150 px-2 ${
-                    isActive
-                      ? 'bg-blue-50 text-blue-700 shadow-2xs font-bold border border-blue-200/70'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-                  }`}
-                >
-                  {/* Fixed Icon Container */}
-                  <div className="w-9 h-9 flex items-center justify-center shrink-0">
-                    <Icon
-                      className={`h-4 w-4 transition-colors ${
-                        isActive ? 'text-blue-600' : 'text-slate-400 group-hover:text-slate-700'
-                      }`}
-                    />
-                  </div>
+              <div className="space-y-1">
+                {group.items.map(item => {
+                  const Icon = item.icon;
+                  const isActive = isRouteActive(item.href);
 
-                  {/* Tab Title Label */}
-                  <span
-                    className={`ml-2 text-xs truncate whitespace-nowrap transition-all duration-300 ${
-                      isCollapsed
-                        ? 'opacity-0 max-w-0 -translate-x-2 pointer-events-none'
-                        : 'opacity-100 max-w-[160px] translate-x-0'
-                    }`}
-                  >
-                    {item.label}
-                  </span>
-                </Link>
+                  return (
+                    <div key={item.id} className="space-y-1">
+                      <Link
+                        href={item.href}
+                        onMouseEnter={e => handleItemHover(e, item.label)}
+                        onMouseLeave={handleItemLeave}
+                        className={`group relative flex items-center h-11 w-full rounded-xl text-xs font-semibold transition-colors duration-150 px-2 ${
+                          isActive
+                            ? 'bg-blue-50 text-blue-700 shadow-2xs font-bold border border-blue-200/70'
+                            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                        }`}
+                      >
+                        {/* Fixed Icon Container */}
+                        <div className="w-9 h-9 flex items-center justify-center shrink-0">
+                          <Icon
+                            className={`h-4 w-4 transition-colors ${
+                              isActive
+                                ? 'text-blue-600'
+                                : 'text-slate-400 group-hover:text-slate-700'
+                            }`}
+                          />
+                        </div>
 
-                {/* Sub-items in expanded sidebar */}
-                {item.subItems && isActive && !isCollapsed && (
-                  <div className="ml-5 pl-4 py-1 space-y-1 border-l-2 border-blue-100">
-                    {item.subItems.map(sub => {
-                      const SubIcon = sub.icon;
-                      const isSubActive = isSubRouteActive(sub.href);
-                      return (
-                        <Link
-                          key={sub.href}
-                          href={sub.href}
-                          className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs transition-colors ${
-                            isSubActive
-                              ? 'bg-blue-100/70 text-blue-800 font-bold'
-                              : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100/60'
+                        {/* Tab Title Label */}
+                        <span
+                          className={`ml-2 text-xs truncate whitespace-nowrap transition-all duration-300 ${
+                            isCollapsed
+                              ? 'opacity-0 max-w-0 -translate-x-2 pointer-events-none'
+                              : 'opacity-100 max-w-[160px] translate-x-0'
                           }`}
                         >
-                          <SubIcon
-                            className={`h-3.5 w-3.5 ${isSubActive ? 'text-blue-600' : 'text-slate-400'}`}
-                          />
-                          <span className="truncate">{sub.label}</span>
-                        </Link>
-                      );
-                    })}
-                  </div>
-                )}
+                          {item.label}
+                        </span>
+                      </Link>
+
+                      {/* Sub-items in expanded sidebar */}
+                      {item.subItems && isActive && !isCollapsed && (
+                        <div className="ml-5 pl-4 py-1 space-y-1 border-l-2 border-blue-100">
+                          {item.subItems.map(sub => {
+                            const SubIcon = sub.icon;
+                            const isSubActive = isSubRouteActive(sub.href);
+                            return (
+                              <Link
+                                key={sub.href}
+                                href={sub.href}
+                                className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs transition-colors ${
+                                  isSubActive
+                                    ? 'bg-blue-100/70 text-blue-800 font-bold'
+                                    : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100/60'
+                                }`}
+                              >
+                                <SubIcon
+                                  className={`h-3.5 w-3.5 ${isSubActive ? 'text-blue-600' : 'text-slate-400'}`}
+                                />
+                                <span className="truncate">{sub.label}</span>
+                              </Link>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
-            );
-          })}
+            </div>
+          ))}
         </nav>
 
         {/* Footer: User Profile & Actions */}

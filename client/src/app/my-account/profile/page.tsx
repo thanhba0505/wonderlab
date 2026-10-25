@@ -17,7 +17,7 @@ import { useAuth } from '@/lib/auth-context';
 import { AppButton, AppInput, AppTag } from '@/components/ui';
 
 export default function MyAccountProfilePage() {
-  const { user, changePassword, setPassword, openAuthModal } = useAuth();
+  const { user, changePassword, setPassword } = useAuth();
 
   const [currentPassword, setCurrentPassword] = React.useState<string>('');
   const [newPassword, setNewPassword] = React.useState<string>('');
@@ -27,25 +27,7 @@ export default function MyAccountProfilePage() {
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
   const [successMessage, setSuccessMessage] = React.useState<string | null>(null);
 
-  if (!user) {
-    return (
-      <div className="container mx-auto max-w-4xl px-4 py-16 sm:px-6">
-        <div className="rounded-2xl border border-slate-300/85 bg-white p-8 text-center shadow-[0_2px_8px_-2px_rgba(15,23,42,0.06)]">
-          <h1 className="font-heading text-xl font-bold text-slate-900">
-            Yêu cầu Đăng nhập Tài khoản
-          </h1>
-          <p className="mt-2 text-xs text-slate-600">
-            Vui lòng đăng nhập để quản lý cài đặt tài khoản và thông tin bảo mật.
-          </p>
-          <div className="mt-6 flex justify-center gap-3">
-            <AppButton variant="primary" size="sm" onClick={() => openAuthModal('login')}>
-              Đăng nhập
-            </AppButton>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  if (!user) return null;
 
   const handleChangePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -107,24 +89,24 @@ export default function MyAccountProfilePage() {
   const hasExistingPassword = user.hasPassword !== false;
 
   return (
-    <div className="container mx-auto max-w-4xl px-4 py-8 sm:px-6 space-y-6">
+    <div className="space-y-6 max-w-4xl">
       {/* Breadcrumb & Navigation */}
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2 border-b border-slate-200/80 pb-4">
         <div className="flex items-center gap-2 text-xs font-mono text-slate-500 uppercase tracking-wider">
           <Link href="/" className="hover:text-blue-600 transition-colors">
             Wonderlab
           </Link>
           <span>/</span>
           <Link href="/my-account" className="hover:text-blue-600 transition-colors">
-            Không gian Cá nhân
+            Console
           </Link>
           <span>/</span>
-          <span className="text-slate-800 font-semibold">Cài đặt Tài khoản</span>
+          <span className="text-slate-800 font-semibold">Hồ sơ & Bảo mật</span>
         </div>
 
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="font-heading text-2xl font-bold text-slate-900 tracking-tight">
+            <h1 className="font-heading text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
               Quản lý Hồ sơ & Bảo mật
             </h1>
             <p className="text-xs text-slate-600 mt-1">

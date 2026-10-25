@@ -3,7 +3,6 @@
 import * as React from 'react';
 import Link from 'next/link';
 import {
-  User,
   FlaskConical,
   BookOpen,
   ShieldCheck,
@@ -21,57 +20,32 @@ import { SIMULATIONS_REGISTRY } from '@/features/simulations/registry';
 import { ESSAYS } from '@/features/editorial/essays-data';
 
 export default function MyAccountPage() {
-  const { user, openAuthModal } = useAuth();
+  const { user } = useAuth();
 
-  if (!user) {
-    return (
-      <div className="container mx-auto max-w-4xl px-4 py-16 sm:px-6">
-        <div className="rounded-2xl border border-slate-300/85 bg-white p-8 sm:p-12 text-center shadow-[0_2px_8px_-2px_rgba(15,23,42,0.06)]">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 border border-blue-200 shadow-2xs mb-4">
-            <User className="h-7 w-7" />
-          </div>
-          <h1 className="font-heading text-2xl font-bold text-slate-900 tracking-tight">
-            Yêu cầu Đăng nhập Tài khoản
-          </h1>
-          <p className="mt-2 text-sm text-slate-600 max-w-md mx-auto leading-relaxed">
-            Vui lòng đăng nhập để truy cập không gian nghiên cứu cá nhân, xem lịch sử thí nghiệm và
-            các bài viết tư duy của bạn.
-          </p>
-          <div className="mt-6 flex justify-center gap-3">
-            <AppButton variant="primary" size="md" onClick={() => openAuthModal('login')}>
-              Đăng nhập ngay
-            </AppButton>
-            <Link href="/">
-              <AppButton variant="outline" size="md">
-                Về Trang chủ
-              </AppButton>
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  if (!user) return null;
 
   const recentSimulations = SIMULATIONS_REGISTRY.slice(0, 3);
   const recentEssays = ESSAYS.slice(0, 2);
 
   return (
-    <div className="container mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-8">
+    <div className="space-y-6 max-w-6xl">
       {/* Breadcrumb & Title */}
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2 border-b border-slate-200/80 pb-4">
         <div className="flex items-center gap-2 text-xs font-mono text-slate-500 uppercase tracking-wider">
           <Link href="/" className="hover:text-blue-600 transition-colors">
             Wonderlab
           </Link>
           <span>/</span>
-          <span className="text-slate-800 font-semibold">Không gian Cá nhân</span>
+          <span className="text-slate-800 font-semibold">Console</span>
+          <span>/</span>
+          <span className="text-slate-800 font-semibold">Tổng quan Cá nhân</span>
         </div>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="font-heading text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-              Tổng quan Tài khoản
+            <h1 className="font-heading text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
+              Tổng quan Cá nhân
             </h1>
-            <p className="text-sm text-slate-600 mt-1">
+            <p className="text-xs text-slate-600 mt-1">
               Trung tâm lưu trữ thực nghiệm, ghi chép tư duy và theo dõi tiến trình khám phá của
               bạn.
             </p>
@@ -85,7 +59,7 @@ export default function MyAccountPage() {
                 leftIcon={<Settings className="h-3.5 w-3.5" />}
                 className="text-xs"
               >
-                Cài đặt & Mật khẩu
+                Hồ sơ & Mật khẩu
               </AppButton>
             </Link>
 

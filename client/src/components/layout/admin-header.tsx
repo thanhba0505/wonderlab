@@ -2,7 +2,8 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { ArrowLeft, LogOut, User, LayoutDashboard, ChevronDown } from 'lucide-react';
+import { usePathname } from 'next/navigation';
+import { ArrowLeft, LogOut, User, LayoutDashboard, ChevronDown, KeyRound } from 'lucide-react';
 import {
   AppButton,
   AppTag,
@@ -17,14 +18,19 @@ import { useAuth } from '@/lib/auth-context';
 import { cn } from '@/lib/utils';
 
 export function AdminHeader() {
+  const pathname = usePathname();
   const { user, logout } = useAuth();
+  const isAdminView = pathname?.startsWith('/admin');
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-slate-300/80 bg-white shadow-2xs">
       <div className="w-full max-w-[1680px] mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Brand */}
         <div className="flex items-center gap-3">
-          <Link href="/admin" className="flex items-center gap-2.5 group">
+          <Link
+            href={user?.role === 'ADMIN' ? '/admin' : '/my-account'}
+            className="flex items-center gap-2.5 group"
+          >
             <BrandLogo
               variant="badge"
               className="h-9 w-9 rounded-xl shadow-sm shadow-blue-500/20"
@@ -34,8 +40,12 @@ export function AdminHeader() {
                 WONDER<span className="text-blue-600">LAB</span>
               </span>
               <span className="text-slate-300">/</span>
-              <AppTag variant="blue" size="sm" className="font-bold uppercase tracking-wider">
-                Admin Console
+              <AppTag
+                variant={isAdminView ? 'amber' : 'blue'}
+                size="sm"
+                className="font-bold uppercase tracking-wider font-mono text-xs"
+              >
+                {isAdminView ? 'Admin Console' : 'Console'}
               </AppTag>
             </div>
           </Link>
@@ -113,12 +123,23 @@ export function AdminHeader() {
                 </AppDropdownHeader>
 
                 <AppDropdownGroup>
-                  <AppDropdownItem href="/admin" icon={<LayoutDashboard className="h-4 w-4" />}>
-                    Tổng quan Quản trị
+                  <AppDropdownItem href="/my-account" icon={<User className="h-4 w-4" />}>
+                    Tổng quan Cá nhân
                   </AppDropdownItem>
-                  <AppDropdownItem href="/admin/my-account" icon={<User className="h-4 w-4" />}>
-                    Thông tin tài khoản
+                  <AppDropdownItem
+                    href="/my-account/profile"
+                    icon={<KeyRound className="h-4 w-4" />}
+                  >
+                    Hồ sơ & Bảo mật
                   </AppDropdownItem>
+                  {user.role === 'ADMIN' && (
+                    <AppDropdownItem
+                      href="/admin"
+                      icon={<LayoutDashboard className="h-4 w-4 text-amber-600" />}
+                    >
+                      Tổng quan Quản trị
+                    </AppDropdownItem>
+                  )}
                   <AppDropdownItem href="/" icon={<ArrowLeft className="h-4 w-4" />}>
                     Về Trang chủ Lab
                   </AppDropdownItem>
