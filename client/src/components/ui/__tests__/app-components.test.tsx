@@ -190,6 +190,86 @@ describe('Wonderlab Design System Core Components', () => {
       const options = container.querySelectorAll('option');
       expect(options[0].textContent).toBe('Chọn trạng thái...');
     });
+
+    it('opens custom styled options dropdown when clicking trigger button and selects an item', () => {
+      const handleValueChange = vi.fn();
+      const options = [
+        { value: 'light', label: 'Lưỡng tính sóng hạt' },
+        { value: 'schrodinger', label: 'Con mèo của Schrödinger' },
+      ];
+
+      act(() => {
+        root.render(
+          <AppSelect
+            placeholder="Chọn mô phỏng..."
+            options={options}
+            onValueChange={handleValueChange}
+          />,
+        );
+      });
+
+      // Initially, listbox is closed
+      expect(container.querySelector('[role="listbox"]')).toBeNull();
+
+      const triggerBtn = container.querySelector('button[role="combobox"]');
+      expect(triggerBtn).not.toBeNull();
+      expect(triggerBtn?.getAttribute('aria-expanded')).toBe('false');
+
+      // Click to open custom dropdown
+      act(() => {
+        (triggerBtn as HTMLButtonElement).click();
+      });
+
+      expect(triggerBtn?.getAttribute('aria-expanded')).toBe('true');
+      const listbox = container.querySelector('[role="listbox"]');
+      expect(listbox).not.toBeNull();
+
+      // Custom option items
+      const optionItems = container.querySelectorAll('[role="option"]');
+      expect(optionItems.length).toBe(2);
+      expect(optionItems[0].textContent).toContain('Lưỡng tính sóng hạt');
+      expect(optionItems[1].textContent).toContain('Con mèo của Schrödinger');
+
+      // Click the second custom option
+      act(() => {
+        (optionItems[1] as HTMLElement).click();
+      });
+
+      expect(handleValueChange).toHaveBeenCalledWith('schrodinger');
+      // Dropdown closes after selection
+      expect(container.querySelector('[role="listbox"]')).toBeNull();
+      expect(triggerBtn?.textContent).toContain('Con mèo của Schrödinger');
+    });
+
+    it('supports keyboard navigation with ArrowDown, Enter, and Escape', () => {
+      const options = [
+        { value: 'a', label: 'Lựa chọn A' },
+        { value: 'b', label: 'Lựa chọn B' },
+      ];
+
+      act(() => {
+        root.render(<AppSelect options={options} />);
+      });
+
+      const triggerBtn = container.querySelector('button[role="combobox"]');
+      expect(triggerBtn).not.toBeNull();
+
+      // Press ArrowDown on trigger to open
+      act(() => {
+        triggerBtn?.dispatchEvent(
+          new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }),
+        );
+      });
+
+      expect(container.querySelector('[role="listbox"]')).not.toBeNull();
+
+      // Press Escape to close
+      act(() => {
+        triggerBtn?.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+      });
+
+      expect(container.querySelector('[role="listbox"]')).toBeNull();
+    });
   });
 
   // ----------------------------------------------------
