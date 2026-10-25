@@ -49,9 +49,9 @@ Wonderlab defines three managed infrastructure resources in `render.yaml`:
 
 ---
 
-## 3. Automated CD Pipeline (Deploy on Release)
+## 3. Automated CD Pipeline & Real-Time Deployment Tracking
 
-Thay vì kích hoạt rebuild trên từng commit nhỏ lẻ, Render được tích hợp với GitHub Actions thông qua **Deploy Hooks**:
+Thay vì kích hoạt rebuild trên từng commit nhỏ lẻ, Render được tích hợp với GitHub Actions thông qua **Deploy Hooks** kết hợp cơ chế **giám sát rollout thời gian thực (Health Polling Loop)**:
 
 1. **Lấy Deploy Hooks trên Render**:
    - `wonderlab-server` -> Settings -> Deploy Hook (`https://api.render.com/deploy/srv-...`).
@@ -60,22 +60,23 @@ Thay vì kích hoạt rebuild trên từng commit nhỏ lẻ, Render được t�
    - `RENDER_SERVER_DEPLOY_HOOK`
    - `RENDER_CLIENT_DEPLOY_HOOK`
 3. **Quy trình xuất bản & triển khai tự động**:
-   - Khi tạo hoặc cập nhật mã nguồn, GitHub Action `📝 Release Drafter` duy trì bản nháp Draft Release với đầy đủ commits.
    - Khi lập trình viên đẩy tag phát hành (`git tag vX.Y.Z && git push origin vX.Y.Z`) hoặc bấm **Publish release** trên GitHub:
      - Workflow `🚀 Deploy to Render` (`.github/workflows/deploy.yml`) được kích hoạt.
-     - Gọi đồng thời 2 webhook Deploy Hook của Render (xác thực mã `HTTP 202 Accepted`).
-     - Ghi nhận trạng thái triển khai vào các GitHub Environments:
-       - 🛡️ **`Wonderlab Server`**
-       - 🗄️ **`Wonderlab DB`**
-       - 💻 **`Wonderlab Client`**
-     - Render kéo code mới nhất, chạy Prisma migration, seed dữ liệu và khởi động production build.
+     - GitHub Actions tạo một deployment duy nhất thuộc môi trường **`Production`** và đặt trạng thái ban đầu là `In Progress` (đang xử lý).
+     - Gửi yêu cầu kích hoạt đồng thời 2 webhook Deploy Hook của Render.
+     - Khởi chạy script giám sát [`scripts/verify-deployment.sh`](file:///Users/lethanhba/workspace/app/Wonderlab/scripts/verify-deployment.sh) liên tục thăm dò các endpoint sức khỏe thực tế (`https://wonderlab-server.onrender.com/health` và `https://wonderlab-client.onrender.com/health`).
+     - **Chỉ khi cả Server và Client đều phản hồi `HTTP 200`, `status: "ok"`, `database: "connected"` và phiên bản khớp với `vX.Y.Z`**, deployment mới được GitHub Actions cập nhật sang trạng thái **Success / Active** (xanh lá).
+     - Nếu quá trình build hoặc rollout trên Render bị lỗi hay timeout quá 10 phút, deployment sẽ được đánh dấu **Failed** (đỏ) kèm bảng chẩn đoán lỗi chi tiết trong GitHub Actions Step Summary.
 
 ---
 
-## 4. Render GitHub App vs GitHub Actions Deployments
+## 4. GitHub Environments Consolidation
 
-- Khi Render kết nối với GitHub repo, **Render GitHub App** mặc định báo cáo tiến trình build với định dạng `${branch} - ${serviceName}` (`main - wonderlab-server`, `main - wonderlab-client`) kèm liên kết log trực tiếp.
-- Song song đó, **GitHub Actions CD** ghi nhận các environment chính thức với tên hiển thị trực quan (`Wonderlab Server`, `Wonderlab Client`, `Wonderlab DB`).
+Trước đây hệ thống hiển thị 5 môi trường phân mảnh trên trang chủ GitHub (`main - wonderlab-client`, `main - wonderlab-server`, `Wonderlab Client`, `Wonderlab Server`, `Wonderlab DB`). Hiện tại toàn bộ đã được chuẩn hóa và tinh gọn:
+
+- **Môi trường duy nhất**: **`Production`**
+- **Live URL**: `https://wonderlab-client.onrender.com`
+- **Render Dashboard**: Tắt "Auto-Deploy" trên 2 service tại Render để Render không tự động tạo các môi trường nhánh `main - ...`, đảm bảo toàn bộ tiến trình triển khai được điều phối và giám sát tập trung tại GitHub Actions.
 
 ---
 

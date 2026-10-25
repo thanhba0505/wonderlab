@@ -17,78 +17,81 @@ on:
           - all
           - client
           - server
-          - db
 
 permissions:
   contents: read
   deployments: write
 
 jobs:
-  deploy-db:
-    name: 🗄️ Wonderlab DB
+  deploy:
+    name: 🚀 Production
     runs-on: ubuntu-latest
-    if: ${{ inputs.service == 'all' || inputs.service == 'db' || github.event_name == 'release' || startsWith(github.ref, 'refs/tags/v') }}
     environment:
-      name: Wonderlab DB
-      url: https://dashboard.render.com
+      name: Production
+      url: https://wonderlab-client.onrender.com
     steps:
-      - name: Report Database Infrastructure
-        run: |
-          echo "============================================="
-          echo "Database: Wonderlab DB (PostgreSQL 16 Alpine)"
-          echo "Managed on Render Cloud Infrastructure"
-          echo "Event: ${{ github.event_name }}"
-          echo "Release: ${{ github.event.release.tag_name || github.ref_name || 'Manual Dispatch' }}"
-          echo "============================================="
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-  deploy-server:
-    name: 🛡️ Wonderlab Server
-    runs-on: ubuntu-latest
-    if: ${{ inputs.service == 'all' || inputs.service == 'server' || github.event_name == 'release' || startsWith(github.ref, 'refs/tags/v') }}
-    environment:
-      name: Wonderlab Server
-      url: https://wonderlab-server.onrender.com
-    steps:
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Determine Target Deployment Parameters
+        id: targets
+        run: |
+          SERVICE="${{ inputs.service || 'all' }}"
+          if [[ "${{ github.ref }}" =~ ^refs/tags/v([0-9]+\.[0-9]+\.[0-9]+.*) ]]; then
+            TARGET_VERSION="${BASH_REMATCH[1]}"
+          else
+            TARGET_VERSION=$(node -p "require('./package.json').version")
+          fi
+          echo "service=$SERVICE" >> "$GITHUB_OUTPUT"
+          echo "version=$TARGET_VERSION" >> "$GITHUB_OUTPUT"
+          echo "commit=${{ github.sha }}" >> "$GITHUB_OUTPUT"
+
       - name: Trigger Server Deploy Hook
+        if: ${{ steps.targets.outputs.service == 'all' || steps.targets.outputs.service == 'server' }}
         env:
           RENDER_SERVER_DEPLOY_HOOK: ${{ secrets.RENDER_SERVER_DEPLOY_HOOK }}
         run: |
           if [ -z "$RENDER_SERVER_DEPLOY_HOOK" ]; then
-            echo "::warning::RENDER_SERVER_DEPLOY_HOOK is not set in GitHub Repository Secrets."
-            echo "To enable automated deployment, add RENDER_SERVER_DEPLOY_HOOK at Settings -> Secrets and variables -> Actions"
+            echo "::warning::RENDER_SERVER_DEPLOY_HOOK is not configured in Repository Secrets."
             exit 0
           fi
-          echo "Deploying wonderlab-server to Render..."
+          echo "Triggering wonderlab-server deploy hook on Render..."
           HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST "$RENDER_SERVER_DEPLOY_HOOK")
-          echo "Server deploy hook response HTTP status: $HTTP_STATUS"
+          echo "Server deploy hook response: HTTP $HTTP_STATUS"
           if [ "$HTTP_STATUS" -lt 200 ] || [ "$HTTP_STATUS" -ge 300 ]; then
             echo "::error::Failed to trigger wonderlab-server deploy hook (HTTP $HTTP_STATUS)"
             exit 1
           fi
-          echo "wonderlab-server deployment successfully initiated."
 
-  deploy-client:
-    name: 💻 Wonderlab Client
-    runs-on: ubuntu-latest
-    if: ${{ inputs.service == 'all' || inputs.service == 'client' || github.event_name == 'release' || startsWith(github.ref, 'refs/tags/v') }}
-    environment:
-      name: Wonderlab Client
-      url: https://wonderlab-client.onrender.com
-    steps:
       - name: Trigger Client Deploy Hook
+        if: ${{ steps.targets.outputs.service == 'all' || steps.targets.outputs.service == 'client' }}
         env:
           RENDER_CLIENT_DEPLOY_HOOK: ${{ secrets.RENDER_CLIENT_DEPLOY_HOOK }}
         run: |
           if [ -z "$RENDER_CLIENT_DEPLOY_HOOK" ]; then
-            echo "::warning::RENDER_CLIENT_DEPLOY_HOOK is not set in GitHub Repository Secrets."
-            echo "To enable automated deployment, add RENDER_CLIENT_DEPLOY_HOOK at Settings -> Secrets and variables -> Actions"
+            echo "::warning::RENDER_CLIENT_DEPLOY_HOOK is not configured in Repository Secrets."
             exit 0
           fi
-          echo "Deploying wonderlab-client to Render..."
+          echo "Triggering wonderlab-client deploy hook on Render..."
           HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST "$RENDER_CLIENT_DEPLOY_HOOK")
-          echo "Client deploy hook response HTTP status: $HTTP_STATUS"
+          echo "Client deploy hook response: HTTP $HTTP_STATUS"
           if [ "$HTTP_STATUS" -lt 200 ] || [ "$HTTP_STATUS" -ge 300 ]; then
             echo "::error::Failed to trigger wonderlab-client deploy hook (HTTP $HTTP_STATUS)"
             exit 1
           fi
-          echo "wonderlab-client deployment successfully initiated."
+
+      - name: Monitor & Verify Live Deployment Rollout
+        run: |
+          chmod +x scripts/verify-deployment.sh
+          ./scripts/verify-deployment.sh \
+            --service "${{ steps.targets.outputs.service }}" \
+            --version "${{ steps.targets.outputs.version }}" \
+            --commit "${{ steps.targets.outputs.commit }}" \
+            --timeout 600 \
+            --interval 10 \
+            --initial-delay 20

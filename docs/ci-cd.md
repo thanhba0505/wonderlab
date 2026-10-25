@@ -8,7 +8,7 @@ Workflows reside in `.github/workflows/`:
 
 - **`ci.yml`** (`🧪 CI`): Kiểm thử, lint, typecheck và build tự động trên mỗi Pull Request và commit push lên nhánh `main` với containerized PostgreSQL 16.
 - **`release-drafter.yml`** (`📝 Release Drafter`): Tự động phân tích git commit log theo chuẩn Conventional Commits, tính toán phiên bản SemVer tiếp theo, đồng bộ `package.json` và duy trì bản Draft Release đầy đủ danh sách commits.
-- **`deploy.yml`** (`🚀 Deploy to Render`): Tự động trigger triển khai lên Render khi một Release được xuất bản (`release: [published]`) hoặc kích hoạt thủ công (`workflow_dispatch`), ghi nhận trạng thái vào GitHub Deployments theo từng môi trường (`Wonderlab Server`, `Wonderlab Client`, `Wonderlab DB`).
+- **`deploy.yml`** (`🚀 Deploy to Render`): Tự động trigger triển khai lên Render khi một Release được xuất bản (`release: [published]`) hoặc tag `v*` được đẩy lên (`push: tags: ['v*']`), ghi nhận tiến trình thời gian thực vào một môi trường GitHub Deployment duy nhất (**`Production`**) và giám sát sức khỏe live endpoints trước khi xác nhận thành công.
 
 ---
 
@@ -61,20 +61,19 @@ Workflow sử dụng script Python tự động [`.github/scripts/update_draft_r
 
 ## 4. CD Deployment Workflow (`.github/workflows/deploy.yml`)
 
-Kích hoạt triển khai tự động lên Render khi một Release chính thức được xuất bản:
+Kích hoạt triển khai tự động lên Render khi một Release chính thức được xuất bản hoặc tag phiên bản được gắn:
 
 - **Sự kiện kích hoạt**:
+  - `push: tags: ['v*']`: Tự động kích hoạt khi lập trình viên đẩy tag phiên bản (ví dụ `v0.4.0`).
   - `release: [published]`: Tự động trigger deploy lên Render khi nhấn **Publish release** từ bản draft của Release Drafter.
-  - `workflow_dispatch`: Hỗ trợ kích hoạt deploy thủ công từng dịch vụ (`client`, `server`, `db` hoặc `all`).
+  - `workflow_dispatch`: Hỗ trợ kích hoạt deploy thủ công khẩn cấp cho từng dịch vụ (`client`, `server` hoặc `all`).
 - **Render Configuration & Deploy Hooks**:
   - Trong `render.yaml`, cả 2 dịch vụ `wonderlab-server` và `wonderlab-client` đều cấu hình `autoDeploy: false` để Render không deploy tùy tiện trên từng commit nhỏ lẻ, mà chỉ deploy khi release được xuất bản.
   - Thiết lập GitHub Secrets:
     - `RENDER_SERVER_DEPLOY_HOOK`: Webhook URL của `wonderlab-server` trên Render.
     - `RENDER_CLIENT_DEPLOY_HOOK`: Webhook URL của `wonderlab-client` trên Render.
-- **HTTP 2xx & Asynchronous 202 Handling**:
-  - Render Deploy Hooks trả về mã `HTTP 202 Accepted` khi tiếp nhận job build ngầm. Script xác thực dải mã thành công `HTTP 200..299` để đảm bảo pipeline thông suốt.
-- **GitHub Environments & Deployments Dashboard**:
-  - Tự động ghi nhận deployment vào 3 GitHub Environments chuẩn:
-    - 🛡️ **`Wonderlab Server`** (`https://wonderlab-server.onrender.com`)
-    - 🗄️ **`Wonderlab DB`** (`https://dashboard.render.com`)
-    - 💻 **`Wonderlab Client`** (`https://wonderlab-client.onrender.com`)
+- **Unified Environment & Real-time Health Monitoring**:
+  - Toàn bộ pipeline ghi nhận vào một môi trường GitHub Deployment duy nhất: **`Production`** (`https://wonderlab-client.onrender.com`).
+  - GitHub Actions giữ trạng thái `In progress` trong suốt thời gian Render xây dựng và triển khai container.
+  - Script [`scripts/verify-deployment.sh`](file:///Users/lethanhba/workspace/app/Wonderlab/scripts/verify-deployment.sh) liên tục thăm dò các health endpoints (`/health`) với chu kỳ 10 giây (tối đa 10 phút) để xác nhận dịch vụ đạt trạng thái hoạt động bình thường, database kết nối thông suốt, và phiên bản trùng khớp với bản phát hành trước khi hoàn tất thành công.
+  - Xuất báo cáo trực quan dạng bảng tổng kết vào `$GITHUB_STEP_SUMMARY`.

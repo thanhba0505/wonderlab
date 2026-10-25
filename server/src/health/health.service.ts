@@ -19,12 +19,15 @@ export class HealthService {
       database = 'disconnected';
     }
 
+    const commit = process.env.RENDER_GIT_COMMIT || process.env.GITHUB_SHA || undefined;
+
     return {
       status: database === 'connected' ? 'ok' : 'degraded',
       service: 'wonderlab-server',
       database,
       timestamp: new Date().toISOString(),
       version: APP_VERSION,
+      ...(commit ? { commit } : {}),
     };
   }
 }

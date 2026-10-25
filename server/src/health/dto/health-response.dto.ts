@@ -21,4 +21,11 @@ export class HealthResponseDto {
 
   @ApiProperty({ example: '1.0.0', description: 'API contract version' })
   version!: string;
+
+  @ApiProperty({
+    example: 'a42f0ee',
+    description: 'Deployed Git commit SHA',
+    required: false,
+  })
+  commit?: string;
 }
