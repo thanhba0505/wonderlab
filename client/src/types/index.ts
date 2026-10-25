@@ -19,6 +19,7 @@ export interface CuratedExperience {
   estimatedMinutes: number;
   highlightTag: string;
   concept: string;
+  href?: string;
 }
 
 export interface EditorialArticle {

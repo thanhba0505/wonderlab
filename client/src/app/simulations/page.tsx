@@ -58,9 +58,11 @@ export default function SimulationsIndexPage() {
                   )}
                 </div>
 
-                <h3 className="font-heading mt-3 text-lg font-bold text-slate-900 group-hover:text-blue-600">
-                  {sim.title}
-                </h3>
+                <Link href={`/simulations/${sim.slug}`} className="block">
+                  <h3 className="font-heading mt-3 text-lg font-bold text-slate-900 hover:text-blue-600 transition-colors">
+                    {sim.title}
+                  </h3>
+                </Link>
                 <p className="mt-1 text-xs text-slate-600 line-clamp-2">{sim.subtitle}</p>
 
                 <p className="mt-3 text-xs text-slate-600 leading-relaxed">{sim.summary}</p>
