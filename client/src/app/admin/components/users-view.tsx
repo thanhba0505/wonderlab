@@ -6,6 +6,7 @@ import {
   AppTableFilter,
   AppTag,
   AppButton,
+  AppConfirmModal,
   type AppTableColumn,
   type AppFilterField,
   type AppActiveFilter,
@@ -30,6 +31,18 @@ export function UsersView({ currentAdminUsername }: UsersViewProps) {
   const [sortDirection, setSortDirection] = React.useState<'asc' | 'desc'>('desc');
   const [updatingUserId, setUpdatingUserId] = React.useState<string | null>(null);
   const [deletingUserId, setDeletingUserId] = React.useState<string | null>(null);
+  const [confirmModal, setConfirmModal] = React.useState<
+    | {
+        type: 'role';
+        user: AdminUserItem;
+        nextRole: 'ADMIN' | 'USER';
+      }
+    | {
+        type: 'delete';
+        user: AdminUserItem;
+      }
+    | null
+  >(null);
 
   const loadUsers = React.useCallback(async () => {
     setIsLoading(true);
@@ -47,44 +60,52 @@ export function UsersView({ currentAdminUsername }: UsersViewProps) {
     loadUsers();
   }, [loadUsers]);
 
-  const handleToggleRole = async (user: AdminUserItem) => {
+  const handleToggleRole = (user: AdminUserItem) => {
     if (user.username === currentAdminUsername) {
       alert('Không thể tự hạ cấp tài khoản quản trị viên của chính bạn.');
       return;
     }
 
     const nextRole = user.role === 'ADMIN' ? 'USER' : 'ADMIN';
-    const confirmMsg = `Bạn có chắc muốn chuyển vai trò của "${user.username}" sang "${nextRole}"?`;
-    if (!confirm(confirmMsg)) return;
-
-    setUpdatingUserId(user.id);
-    const res = await updateAdminUserRole(user.id, nextRole);
-    if (res.success) {
-      await loadUsers();
-    } else {
-      alert(res.error || 'Lỗi khi cập nhật vai trò');
-    }
-    setUpdatingUserId(null);
+    setConfirmModal({ type: 'role', user, nextRole });
   };
 
-  const handleDeleteUser = async (user: AdminUserItem) => {
+  const handleDeleteUser = (user: AdminUserItem) => {
     if (user.username === currentAdminUsername) {
       alert('Không thể tự xóa tài khoản quản trị viên của chính bạn.');
       return;
     }
 
-    const confirmMsg = `Bạn có chắc chắn muốn xóa tài khoản "${user.username}"?`;
-    if (!confirm(confirmMsg)) return;
+    setConfirmModal({ type: 'delete', user });
+  };
 
-    setDeletingUserId(user.id);
-    const res = await deleteAdminUser(user.id);
-    if (res.success) {
-      setUsers(prev => prev.map(u => (u.id === user.id ? { ...u, isDeleted: true } : u)));
-      await loadUsers();
-    } else {
-      alert(res.error || 'Lỗi khi xóa người dùng');
+  const handleConfirmAction = async () => {
+    if (!confirmModal) return;
+
+    if (confirmModal.type === 'role') {
+      const { user, nextRole } = confirmModal;
+      setUpdatingUserId(user.id);
+      const res = await updateAdminUserRole(user.id, nextRole);
+      if (res.success) {
+        await loadUsers();
+      } else {
+        alert(res.error || 'Lỗi khi cập nhật vai trò');
+      }
+      setUpdatingUserId(null);
+    } else if (confirmModal.type === 'delete') {
+      const { user } = confirmModal;
+      setDeletingUserId(user.id);
+      const res = await deleteAdminUser(user.id);
+      if (res.success) {
+        setUsers(prev => prev.map(u => (u.id === user.id ? { ...u, isDeleted: true } : u)));
+        await loadUsers();
+      } else {
+        alert(res.error || 'Lỗi khi xóa người dùng');
+      }
+      setDeletingUserId(null);
     }
-    setDeletingUserId(null);
+
+    setConfirmModal(null);
   };
 
   const handleSort = (columnKey: string) => {
@@ -295,51 +316,70 @@ export function UsersView({ currentAdminUsername }: UsersViewProps) {
   ];
 
   return (
-    <AppTableFilter
-      header={{
-        badge: (
-          <div className="flex items-center gap-2">
-            <AppTag variant="blue" size="sm">
-              QUẢN TRỊ NGƯỜI DÙNG
-            </AppTag>
-            <span className="text-xs font-mono text-slate-400">
-              {users.length} tài khoản trong hệ thống
-            </span>
-          </div>
-        ),
-        title: 'Danh Sách Thành Viên & Phân Quyền',
-        description:
-          'Quản trị tài khoản, kiểm tra chỉ số tham gia thí nghiệm và phân quyền quản trị viên.',
-        actions: (
-          <AppButton
-            variant="outline"
-            size="sm"
-            onClick={loadUsers}
-            disabled={isLoading}
-            className="text-xs font-semibold gap-1.5 border-slate-300 bg-white shadow-2xs shrink-0"
-            leftIcon={<RefreshCw className={`h-3.5 w-3.5 ${isLoading ? 'animate-spin' : ''}`} />}
-          >
-            Làm mới danh sách
-          </AppButton>
-        ),
-      }}
-      searchValue={searchQuery}
-      onSearchChange={setSearchQuery}
-      searchPlaceholder="Tìm theo tên đăng nhập hoặc email..."
-      filters={filters}
-      activeFilters={activeFilters}
-      onReset={handleResetFilters}
-      columns={columns}
-      data={processedUsers}
-      isLoading={isLoading}
-      loadingMessage="Đang tải danh sách người dùng..."
-      emptyMessage="Không tìm thấy người dùng phù hợp."
-      sortColumn={sortColumn}
-      sortDirection={sortDirection}
-      onSort={handleSort}
-      clientSidePagination
-      pageSize={10}
-      pageSizeOptions={[10, 25, 50]}
-    />
+    <>
+      <AppTableFilter
+        header={{
+          badge: (
+            <div className="flex items-center gap-2">
+              <AppTag variant="blue" size="sm">
+                QUẢN TRỊ NGƯỜI DÙNG
+              </AppTag>
+              <span className="text-xs font-mono text-slate-400">
+                {users.length} tài khoản trong hệ thống
+              </span>
+            </div>
+          ),
+          title: 'Danh Sách Thành Viên & Phân Quyền',
+          description:
+            'Quản trị tài khoản, kiểm tra chỉ số tham gia thí nghiệm và phân quyền quản trị viên.',
+          actions: (
+            <AppButton
+              variant="outline"
+              size="sm"
+              onClick={loadUsers}
+              disabled={isLoading}
+              className="text-xs font-semibold gap-1.5 border-slate-300 bg-white shadow-2xs shrink-0"
+              leftIcon={<RefreshCw className={`h-3.5 w-3.5 ${isLoading ? 'animate-spin' : ''}`} />}
+            >
+              Làm mới danh sách
+            </AppButton>
+          ),
+        }}
+        searchValue={searchQuery}
+        onSearchChange={setSearchQuery}
+        searchPlaceholder="Tìm theo tên đăng nhập hoặc email..."
+        filters={filters}
+        activeFilters={activeFilters}
+        onReset={handleResetFilters}
+        columns={columns}
+        data={processedUsers}
+        isLoading={isLoading}
+        loadingMessage="Đang tải danh sách người dùng..."
+        emptyMessage="Không tìm thấy người dùng phù hợp."
+        sortColumn={sortColumn}
+        sortDirection={sortDirection}
+        onSort={handleSort}
+        clientSidePagination
+        pageSize={10}
+        pageSizeOptions={[10, 25, 50]}
+      />
+
+      <AppConfirmModal
+        isOpen={Boolean(confirmModal)}
+        onClose={() => setConfirmModal(null)}
+        onConfirm={handleConfirmAction}
+        title={
+          confirmModal?.type === 'delete' ? 'Xác nhận xóa tài khoản' : 'Xác nhận thay đổi vai trò'
+        }
+        message={
+          confirmModal?.type === 'delete'
+            ? `Bạn có chắc chắn muốn xóa tài khoản "${confirmModal.user.username}"?`
+            : `Bạn có chắc muốn chuyển vai trò của "${confirmModal?.user.username}" sang "${confirmModal?.nextRole}"?`
+        }
+        confirmText={confirmModal?.type === 'delete' ? 'Xóa người dùng' : 'Cập nhật vai trò'}
+        variant={confirmModal?.type === 'delete' ? 'danger' : 'primary'}
+        isLoading={Boolean(updatingUserId || deletingUserId)}
+      />
+    </>
   );
 }

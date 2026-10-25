@@ -7,6 +7,7 @@ export * from './app-filter';
 export * from './app-table';
 export * from './app-pagination';
 export * from './app-table-filter';
+export * from './app-modal';
 
 // Legacy / Existing UI Components
 export * from './button';

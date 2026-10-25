@@ -113,6 +113,16 @@ describe('UsersView', () => {
       (deleteBtn as HTMLButtonElement).click();
     });
 
+    // Modal opens: click confirm button inside modal
+    const confirmBtn = Array.from(document.body.querySelectorAll('button')).find(btn =>
+      btn.textContent?.includes('Xóa người dùng'),
+    );
+    expect(confirmBtn).toBeDefined();
+
+    await act(async () => {
+      confirmBtn?.click();
+    });
+
     expect(adminApi.deleteAdminUser).toHaveBeenCalledWith('user-active');
   });
 });

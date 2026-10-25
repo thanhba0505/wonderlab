@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { AppConfirmModal } from '@/components/ui';
 import {
   MessageSquare,
   Reply,
@@ -59,6 +60,7 @@ export function CommentSection({
   const [isSubmittingRoot, setIsSubmittingRoot] = React.useState<boolean>(false);
   const [submittingReplyId, setSubmittingReplyId] = React.useState<string | null>(null);
   const [deletingCommentId, setDeletingCommentId] = React.useState<string | null>(null);
+  const [deleteConfirmCommentId, setDeleteConfirmCommentId] = React.useState<string | null>(null);
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
 
   // Form states
@@ -161,9 +163,14 @@ export function CommentSection({
   };
 
   // Handle Delete Comment
-  const handleDelete = async (commentId: string) => {
-    if (!confirm('Bạn có chắc chắn muốn xóa bình luận này?')) return;
+  const handleDelete = (commentId: string) => {
+    setDeleteConfirmCommentId(commentId);
+  };
 
+  const handleConfirmDelete = async () => {
+    if (!deleteConfirmCommentId) return;
+
+    const commentId = deleteConfirmCommentId;
     setDeletingCommentId(commentId);
     const res = await deleteSimulationComment(commentId);
     if (res.success) {
@@ -180,6 +187,7 @@ export function CommentSection({
       alert(res.error || 'Không thể xóa bình luận');
     }
     setDeletingCommentId(null);
+    setDeleteConfirmCommentId(null);
   };
 
   // Handle Quick Login
@@ -586,6 +594,17 @@ export function CommentSection({
           )}
         </div>
       </CardContent>
+
+      <AppConfirmModal
+        isOpen={Boolean(deleteConfirmCommentId)}
+        onClose={() => setDeleteConfirmCommentId(null)}
+        onConfirm={handleConfirmDelete}
+        title="Xóa thảo luận"
+        message="Bạn có chắc chắn muốn xóa bình luận này khỏi phiên nghiên cứu mô phỏng?"
+        confirmText="Xóa thảo luận"
+        variant="danger"
+        isLoading={Boolean(deletingCommentId)}
+      />
     </Card>
   );
 }

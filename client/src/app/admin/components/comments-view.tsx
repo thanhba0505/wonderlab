@@ -7,6 +7,7 @@ import {
   AppTableFilter,
   AppTag,
   AppButton,
+  AppConfirmModal,
   type AppTableColumn,
   type AppFilterField,
   type AppActiveFilter,
@@ -19,6 +20,7 @@ export function CommentsView() {
   const [selectedSlug, setSelectedSlug] = React.useState<string>('all');
   const [searchQuery, setSearchQuery] = React.useState<string>('');
   const [deletingId, setDeletingId] = React.useState<string | null>(null);
+  const [deleteConfirmCommentId, setDeleteConfirmCommentId] = React.useState<string | null>(null);
 
   const loadComments = React.useCallback(async (silent = false) => {
     if (!silent) {
@@ -40,15 +42,10 @@ export function CommentsView() {
     loadComments();
   }, [loadComments]);
 
-  const handleDelete = async (id: string) => {
-    if (
-      !confirm(
-        'Bạn có chắc chắn muốn xóa bình luận này? Nếu đây là bình luận gốc, toàn bộ các phản hồi liên quan sẽ bị xóa tự động.',
-      )
-    ) {
-      return;
-    }
+  const handleConfirmDelete = async () => {
+    if (!deleteConfirmCommentId) return;
 
+    const id = deleteConfirmCommentId;
     setDeletingId(id);
     const res = await deleteAdminComment(id);
     if (res.success) {
@@ -60,6 +57,7 @@ export function CommentsView() {
       alert(res.error || 'Lỗi khi xóa bình luận');
     }
     setDeletingId(null);
+    setDeleteConfirmCommentId(null);
   };
 
   const simulationSlugs = React.useMemo(() => {
@@ -221,7 +219,7 @@ export function CommentsView() {
             size="icon-sm"
             disabled={isDeleting}
             isLoading={isDeleting}
-            onClick={() => handleDelete(item.id)}
+            onClick={() => setDeleteConfirmCommentId(item.id)}
             className="text-slate-400 hover:text-rose-600 hover:bg-rose-50"
             title="Xóa bình luận vi phạm"
           >
@@ -233,48 +231,61 @@ export function CommentsView() {
   ];
 
   return (
-    <AppTableFilter
-      header={{
-        badge: (
-          <div className="flex items-center gap-2">
-            <AppTag variant="blue" size="sm">
-              TRUNG TÂM KIỂM DUYỆT
-            </AppTag>
-            <span className="text-xs font-mono text-slate-400">
-              {comments.length} bình luận trên toàn sàn
-            </span>
-          </div>
-        ),
-        title: 'Kiểm Duyệt Thảo Luận & Phản Hồi',
-        description:
-          'Quản trị nội dung học thuật, loại bỏ bình luận vi phạm và giám sát các phản biện khoa học.',
-        actions: (
-          <AppButton
-            variant="outline"
-            size="sm"
-            onClick={() => loadComments()}
-            disabled={isLoading}
-            className="text-xs font-semibold gap-1.5 border-slate-300 bg-white shadow-2xs shrink-0"
-            leftIcon={<RefreshCw className={`h-3.5 w-3.5 ${isLoading ? 'animate-spin' : ''}`} />}
-          >
-            Làm mới
-          </AppButton>
-        ),
-      }}
-      searchValue={searchQuery}
-      onSearchChange={setSearchQuery}
-      searchPlaceholder="Tìm theo nội dung hoặc tác giả..."
-      filters={filters}
-      activeFilters={activeFilters}
-      onReset={handleResetFilters}
-      columns={columns}
-      data={filteredComments}
-      isLoading={isLoading}
-      loadingMessage="Đang tải dữ liệu kiểm duyệt..."
-      emptyMessage="Không có bình luận nào phù hợp bộ lọc hiện tại."
-      clientSidePagination
-      pageSize={10}
-      pageSizeOptions={[10, 25, 50]}
-    />
+    <>
+      <AppTableFilter
+        header={{
+          badge: (
+            <div className="flex items-center gap-2">
+              <AppTag variant="blue" size="sm">
+                TRUNG TÂM KIỂM DUYỆT
+              </AppTag>
+              <span className="text-xs font-mono text-slate-400">
+                {comments.length} bình luận trên toàn sàn
+              </span>
+            </div>
+          ),
+          title: 'Kiểm Duyệt Thảo Luận & Phản Hồi',
+          description:
+            'Quản trị nội dung học thuật, loại bỏ bình luận vi phạm và giám sát các phản biện khoa học.',
+          actions: (
+            <AppButton
+              variant="outline"
+              size="sm"
+              onClick={() => loadComments()}
+              disabled={isLoading}
+              className="text-xs font-semibold gap-1.5 border-slate-300 bg-white shadow-2xs shrink-0"
+              leftIcon={<RefreshCw className={`h-3.5 w-3.5 ${isLoading ? 'animate-spin' : ''}`} />}
+            >
+              Làm mới
+            </AppButton>
+          ),
+        }}
+        searchValue={searchQuery}
+        onSearchChange={setSearchQuery}
+        searchPlaceholder="Tìm theo nội dung hoặc tác giả..."
+        filters={filters}
+        activeFilters={activeFilters}
+        onReset={handleResetFilters}
+        columns={columns}
+        data={filteredComments}
+        isLoading={isLoading}
+        loadingMessage="Đang tải dữ liệu kiểm duyệt..."
+        emptyMessage="Không có bình luận nào phù hợp bộ lọc hiện tại."
+        clientSidePagination
+        pageSize={10}
+        pageSizeOptions={[10, 25, 50]}
+      />
+
+      <AppConfirmModal
+        isOpen={Boolean(deleteConfirmCommentId)}
+        onClose={() => setDeleteConfirmCommentId(null)}
+        onConfirm={handleConfirmDelete}
+        title="Xác nhận xóa bình luận"
+        message="Bạn có chắc chắn muốn xóa bình luận này? Nếu đây là bình luận gốc, toàn bộ các phản hồi liên quan sẽ bị xóa tự động."
+        confirmText="Xóa bình luận"
+        variant="danger"
+        isLoading={Boolean(deletingId)}
+      />
+    </>
   );
 }

@@ -120,6 +120,16 @@ describe('CommentsView', () => {
       deleteButton?.click();
     });
 
+    // Modal opens: click confirm button inside modal
+    const confirmBtn = Array.from(document.body.querySelectorAll('button')).find(btn =>
+      btn.textContent?.includes('Xóa bình luận'),
+    );
+    expect(confirmBtn).toBeDefined();
+
+    await act(async () => {
+      confirmBtn?.click();
+    });
+
     expect(adminApi.deleteAdminComment).toHaveBeenCalledWith('comment-active');
 
     // After deletion, the cell should now display "Đã xoá"

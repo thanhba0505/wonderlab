@@ -200,6 +200,16 @@ describe('CommentSection', () => {
       (deleteBtn as HTMLButtonElement).click();
     });
 
+    // Modal opens: click confirm button inside modal
+    const confirmBtn = Array.from(document.body.querySelectorAll('button')).find(btn =>
+      btn.textContent?.includes('Xóa thảo luận'),
+    );
+    expect(confirmBtn).toBeDefined();
+
+    await act(async () => {
+      confirmBtn?.click();
+    });
+
     expect(commentsApi.deleteSimulationComment).toHaveBeenCalledWith('comment-1');
     expect(container.textContent).not.toContain('Bình luận giả thuyết khoa học ban đầu');
     expect(container.textContent).not.toContain('Đang tải danh sách thảo luận...');

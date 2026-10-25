@@ -10,6 +10,8 @@ import {
   AppTable,
   AppTableFilter,
   AppPagination,
+  AppModal,
+  AppConfirmModal,
 } from '../index';
 
 // @ts-expect-error global flag for react act
@@ -527,6 +529,154 @@ describe('Wonderlab Design System Core Components', () => {
       // Because pageSize is 2, item 3 is on page 2!
       expect(container.textContent).not.toContain('Bài viết 3');
       expect(container.textContent).toContain('Hiển thị 1 - 2 trong số 3 kết quả');
+    });
+  });
+
+  // ----------------------------------------------------
+  // AppModal Tests
+  // ----------------------------------------------------
+  describe('AppModal', () => {
+    it('does not render when isOpen is false', () => {
+      act(() => {
+        root.render(
+          <AppModal isOpen={false} onClose={vi.fn()} portal={false}>
+            <div>Nội dung kiểm tra</div>
+          </AppModal>,
+        );
+      });
+
+      expect(container.textContent).toBe('');
+      expect(container.querySelector('[role="dialog"]')).toBeNull();
+    });
+
+    it('renders with default top position ("giữa, trên top") and title/footer', () => {
+      const handleClose = vi.fn();
+      act(() => {
+        root.render(
+          <AppModal
+            isOpen={true}
+            onClose={handleClose}
+            title="Tiêu đề Modal"
+            description="Mô tả bổ sung của modal"
+            portal={false}
+            footer={<button type="button">Nút chân trang</button>}
+          >
+            <div>Nội dung thân modal</div>
+          </AppModal>,
+        );
+      });
+
+      const dialog = container.querySelector('[role="dialog"]');
+      expect(dialog).not.toBeNull();
+      // Verifies default top placement: items-start pt-14 (giữa, trên top)
+      expect(dialog?.className).toContain('items-start');
+      expect(dialog?.className).toContain('pt-14');
+      expect(dialog?.className).toContain('justify-center');
+
+      expect(container.textContent).toContain('Tiêu đề Modal');
+      expect(container.textContent).toContain('Mô tả bổ sung của modal');
+      expect(container.textContent).toContain('Nội dung thân modal');
+      expect(container.textContent).toContain('Nút chân trang');
+
+      // Test close button
+      const closeBtn = container.querySelector('button[aria-label="Đóng cửa sổ"]');
+      expect(closeBtn).not.toBeNull();
+      act(() => {
+        (closeBtn as HTMLButtonElement).click();
+      });
+      expect(handleClose).toHaveBeenCalledTimes(1);
+    });
+
+    it('supports position="center"', () => {
+      act(() => {
+        root.render(
+          <AppModal isOpen={true} onClose={vi.fn()} position="center" portal={false}>
+            <div>Modal giữa màn hình</div>
+          </AppModal>,
+        );
+      });
+
+      const dialog = container.querySelector('[role="dialog"]');
+      expect(dialog?.className).toContain('items-center');
+      expect(dialog?.className).not.toContain('items-start');
+    });
+
+    it('handles backdrop click when closeOnBackdropClick is true', () => {
+      const handleClose = vi.fn();
+      act(() => {
+        root.render(
+          <AppModal isOpen={true} onClose={handleClose} portal={false}>
+            <div>Modal content</div>
+          </AppModal>,
+        );
+      });
+
+      const dialog = container.querySelector('[role="dialog"]');
+      act(() => {
+        (dialog as HTMLElement).click();
+      });
+      expect(handleClose).toHaveBeenCalledTimes(1);
+    });
+
+    it('handles escape key press', () => {
+      const handleClose = vi.fn();
+      act(() => {
+        root.render(
+          <AppModal isOpen={true} onClose={handleClose} portal={false}>
+            <div>Modal content</div>
+          </AppModal>,
+        );
+      });
+
+      act(() => {
+        window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+      });
+      expect(handleClose).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  // ----------------------------------------------------
+  // AppConfirmModal Tests
+  // ----------------------------------------------------
+  describe('AppConfirmModal', () => {
+    it('renders confirmation dialog with message and default danger styling', () => {
+      const handleClose = vi.fn();
+      const handleConfirm = vi.fn();
+
+      act(() => {
+        root.render(
+          <AppConfirmModal
+            isOpen={true}
+            onClose={handleClose}
+            onConfirm={handleConfirm}
+            title="Xác nhận xóa bình luận"
+            message="Bạn có chắc chắn muốn xóa vĩnh viễn mục này?"
+            confirmText="Xóa mục"
+            cancelText="Không xóa"
+            portal={false}
+          />,
+        );
+      });
+
+      expect(container.textContent).toContain('Xác nhận xóa bình luận');
+      expect(container.textContent).toContain('Bạn có chắc chắn muốn xóa vĩnh viễn mục này?');
+
+      const buttons = container.querySelectorAll('button');
+      const cancelBtn = Array.from(buttons).find(b => b.textContent?.includes('Không xóa'));
+      const confirmBtn = Array.from(buttons).find(b => b.textContent?.includes('Xóa mục'));
+
+      expect(cancelBtn).toBeDefined();
+      expect(confirmBtn).toBeDefined();
+
+      act(() => {
+        confirmBtn?.click();
+      });
+      expect(handleConfirm).toHaveBeenCalledTimes(1);
+
+      act(() => {
+        cancelBtn?.click();
+      });
+      expect(handleClose).toHaveBeenCalledTimes(1);
     });
   });
 });
