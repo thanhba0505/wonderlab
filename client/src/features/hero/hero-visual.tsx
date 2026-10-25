@@ -1,7 +1,8 @@
 'use client';
 
 import * as React from 'react';
-import { Binary, Sparkles, Orbit } from 'lucide-react';
+import Link from 'next/link';
+import { Binary, Sparkles, Orbit, ArrowRight } from 'lucide-react';
 
 interface NodeData {
   id: number;
@@ -13,6 +14,7 @@ interface NodeData {
   formula: string;
   insight: string;
   tag: string;
+  href?: string;
 }
 
 export function HeroVisual() {
@@ -29,6 +31,7 @@ export function HeroVisual() {
       formula: 'P(Thắng | Đổi) = 2/3 ≈ 66.7%',
       insight: 'Xác suất tăng gấp đôi khi chuyển đổi quyết định ban đầu.',
       tag: 'XÁC SUẤT ĐIỀU KIỆN',
+      href: '/simulations/monty-hall',
     },
     {
       id: 2,
@@ -40,6 +43,7 @@ export function HeroVisual() {
       formula: 'd · sin(θ) = m · λ',
       insight: 'Hạt ánh sáng tự giao thoa với chính nó trong không gian.',
       tag: 'LƯỢNG TỬ',
+      href: '/simulations/double-slit',
     },
     {
       id: 3,
@@ -62,6 +66,7 @@ export function HeroVisual() {
       formula: 'ui(si*, s-i*) ≥ ui(si, s-i*)',
       insight: 'Trạng thái không bên nào có động lực đơn phương thay đổi.',
       tag: 'LÝ THUYẾT TRÒ CHƠI',
+      href: '/simulations/prisoners-dilemma',
     },
     {
       id: 5,
@@ -242,38 +247,66 @@ export function HeroVisual() {
         </svg>
       </div>
 
-      {/* Dynamic Inspector / HUD Card - Clean Left Accent without full 4-sided box */}
-      <div className="relative z-10 rounded-xl bg-slate-50/90 border-l-4 border-blue-600 p-3.5 shadow-2xs transition-all duration-200">
-        <div className="flex items-center justify-between gap-2 mb-1.5">
-          <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-blue-700">
-            <Sparkles className="h-3 w-3" />
+      {/* Dynamic Inspector / HUD Card */}
+      <div
+        className="relative z-10 rounded-xl bg-slate-50/95 border-l-4 p-4 shadow-2xs transition-all duration-200"
+        style={{ borderLeftColor: currentNode.color }}
+      >
+        <div className="flex items-center justify-between gap-2 mb-2">
+          <div
+            className="flex items-center gap-1.5 text-xs font-mono font-bold tracking-wider uppercase transition-colors duration-200"
+            style={{ color: currentNode.color }}
+          >
+            <Sparkles className="h-3.5 w-3.5" />
             <span>{currentNode.tag}</span>
           </div>
           <span className="text-xs font-mono text-slate-500 font-semibold">
-            ID: #0{currentNode.id}
+            ID: #{String(currentNode.id).padStart(2, '0')}
           </span>
         </div>
 
-        <div className="text-sm font-bold text-slate-900 tracking-tight flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span>{currentNode.label}</span>
-            {(currentNode.id === 1 || currentNode.id === 2) && (
-              <a
-                href={currentNode.id === 1 ? '/simulations/monty-hall' : '/simulations/double-slit'}
-                className="text-xs font-mono px-2 py-0.5 rounded bg-blue-100 text-blue-800 hover:bg-blue-200 font-bold transition-colors"
-              >
-                Vào phòng lab →
-              </a>
-            )}
-          </div>
-          <span className="text-xs font-mono font-semibold text-blue-700 tabular-nums">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-2.5 gap-y-1.5 mb-2">
+          <span className="text-sm font-bold text-slate-900 tracking-tight font-heading">
+            {currentNode.label}
+          </span>
+          <span className="inline-block text-xs font-mono font-semibold text-slate-700 bg-white px-2 py-0.5 rounded border border-slate-200 shadow-2xs tabular-nums">
             {currentNode.formula}
           </span>
         </div>
 
-        <p className="mt-1 text-xs text-slate-600 leading-relaxed font-sans">
-          {currentNode.insight}
-        </p>
+        <p className="text-xs text-slate-600 leading-relaxed font-sans">{currentNode.insight}</p>
+
+        {/* HUD Instrument Status & Action Bar */}
+        <div className="mt-3 pt-2.5 border-t border-slate-200/80 flex items-center justify-between text-xs font-mono">
+          <span className="flex items-center gap-1.5 text-slate-500">
+            {currentNode.href ? (
+              <>
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-600"></span>
+                </span>
+                <span>Phòng lab sẵn sàng</span>
+              </>
+            ) : (
+              <>
+                <span className="h-2 w-2 rounded-full bg-slate-300"></span>
+                <span>Mô hình lý thuyết</span>
+              </>
+            )}
+          </span>
+
+          {currentNode.href ? (
+            <Link
+              href={currentNode.href}
+              className="inline-flex items-center gap-1 font-semibold text-blue-700 hover:text-blue-900 transition-colors group"
+            >
+              <span>Vào phòng lab</span>
+              <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+            </Link>
+          ) : (
+            <span className="text-slate-600">Dữ liệu tham chiếu</span>
+          )}
+        </div>
       </div>
 
       {/* Bottom prompt */}
