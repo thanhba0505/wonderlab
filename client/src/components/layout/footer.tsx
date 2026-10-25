@@ -86,7 +86,7 @@ export function Footer() {
               </li>
               <li>
                 <Link
-                  href="/#editorial"
+                  href="/essays"
                   className="text-slate-600 hover:text-slate-900 transition-colors"
                 >
                   Tiểu luận & Tư duy

@@ -25,6 +25,8 @@ import {
 
 interface CommentSectionProps {
   simulationSlug: string;
+  placeholderText?: string;
+  title?: string;
 }
 
 function formatRelativeTime(dateString: string): string {
@@ -46,7 +48,11 @@ function formatRelativeTime(dateString: string): string {
   }
 }
 
-export function CommentSection({ simulationSlug }: CommentSectionProps) {
+export function CommentSection({
+  simulationSlug,
+  placeholderText = 'Viết nhận định, câu hỏi hoặc góc nhìn khoa học của bạn về thí nghiệm này...',
+  title,
+}: CommentSectionProps) {
   const { user, login } = useAuth();
   const [comments, setComments] = React.useState<SimulationComment[]>([]);
   const [isLoading, setIsLoading] = React.useState<boolean>(true);
@@ -157,7 +163,7 @@ export function CommentSection({ simulationSlug }: CommentSectionProps) {
           <div className="flex items-center gap-2.5">
             <MessageSquare className="h-4 w-4 text-indigo-600" />
             <span className="font-mono text-xs font-bold text-slate-800 uppercase tracking-wide">
-              {totalCommentsCount} bình luận
+              {title ? `${title} (${totalCommentsCount})` : `${totalCommentsCount} bình luận`}
             </span>
           </div>
 
@@ -189,7 +195,7 @@ export function CommentSection({ simulationSlug }: CommentSectionProps) {
               <textarea
                 value={rootContent}
                 onChange={e => setRootContent(e.target.value)}
-                placeholder="Viết nhận định, câu hỏi hoặc góc nhìn khoa học của bạn về thí nghiệm này..."
+                placeholder={placeholderText}
                 rows={3}
                 maxLength={2000}
                 className="w-full rounded-xl border border-slate-300 p-3.5 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-y min-h-[90px]"
