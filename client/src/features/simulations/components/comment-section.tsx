@@ -56,7 +56,9 @@ export function CommentSection({
   const { user, login } = useAuth();
   const [comments, setComments] = React.useState<SimulationComment[]>([]);
   const [isLoading, setIsLoading] = React.useState<boolean>(true);
-  const [isSubmitting, setIsSubmitting] = React.useState<boolean>(false);
+  const [isSubmittingRoot, setIsSubmittingRoot] = React.useState<boolean>(false);
+  const [submittingReplyId, setSubmittingReplyId] = React.useState<string | null>(null);
+  const [deletingCommentId, setDeletingCommentId] = React.useState<string | null>(null);
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
 
   // Form states
@@ -71,18 +73,25 @@ export function CommentSection({
   const [loginError, setLoginError] = React.useState<string | null>(null);
   const [isLoggingIn, setIsLoggingIn] = React.useState<boolean>(false);
 
-  // Load comments
-  const loadComments = React.useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const data = await fetchSimulationComments(simulationSlug);
-      setComments(data);
-    } catch {
-      // Ignored
-    } finally {
-      setIsLoading(false);
-    }
-  }, [simulationSlug]);
+  // Load comments (silent=true retains existing UI to eliminate screen flashes)
+  const loadComments = React.useCallback(
+    async (silent = false) => {
+      if (!silent) {
+        setIsLoading(true);
+      }
+      try {
+        const data = await fetchSimulationComments(simulationSlug);
+        setComments(data);
+      } catch {
+        // Ignored
+      } finally {
+        if (!silent) {
+          setIsLoading(false);
+        }
+      }
+    },
+    [simulationSlug],
+  );
 
   React.useEffect(() => {
     loadComments();
@@ -96,49 +105,81 @@ export function CommentSection({
   // Handle Root Comment Submit
   const handleRootSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!rootContent.trim()) return;
+    const content = rootContent.trim();
+    if (!content || isSubmittingRoot) return;
 
-    setIsSubmitting(true);
+    setIsSubmittingRoot(true);
     setErrorMessage(null);
 
-    const res = await postSimulationComment(simulationSlug, rootContent.trim());
+    const res = await postSimulationComment(simulationSlug, content);
     if (res.success) {
       setRootContent('');
-      await loadComments();
+      if (res.comment) {
+        const newComment = res.comment;
+        setComments(prev => [newComment, ...prev]);
+      } else {
+        await loadComments(true);
+      }
     } else {
       setErrorMessage(res.error || 'Không thể đăng bình luận');
     }
-    setIsSubmitting(false);
+    setIsSubmittingRoot(false);
   };
 
   // Handle Reply Submit (Level 2)
   const handleReplySubmit = async (parentId: string) => {
-    if (!replyContent.trim()) return;
+    const content = replyContent.trim();
+    if (!content || submittingReplyId) return;
 
-    setIsSubmitting(true);
+    setSubmittingReplyId(parentId);
     setErrorMessage(null);
 
-    const res = await postSimulationComment(simulationSlug, replyContent.trim(), parentId);
+    const res = await postSimulationComment(simulationSlug, content, parentId);
     if (res.success) {
       setReplyContent('');
       setReplyingToId(null);
-      await loadComments();
+      if (res.comment) {
+        const newReply = res.comment;
+        setComments(prev =>
+          prev.map(c => {
+            if (c.id === parentId) {
+              return {
+                ...c,
+                replies: [...(c.replies || []), newReply],
+              };
+            }
+            return c;
+          }),
+        );
+      } else {
+        await loadComments(true);
+      }
     } else {
       setErrorMessage(res.error || 'Không thể gửi phản hồi');
     }
-    setIsSubmitting(false);
+    setSubmittingReplyId(null);
   };
 
   // Handle Delete Comment
   const handleDelete = async (commentId: string) => {
     if (!confirm('Bạn có chắc chắn muốn xóa bình luận này?')) return;
 
+    setDeletingCommentId(commentId);
     const res = await deleteSimulationComment(commentId);
     if (res.success) {
-      await loadComments();
+      // Immediate state update
+      setComments(prev =>
+        prev
+          .filter(c => c.id !== commentId)
+          .map(c => ({
+            ...c,
+            replies: c.replies ? c.replies.filter(r => r.id !== commentId) : [],
+          })),
+      );
     } else {
       alert(res.error || 'Không thể xóa bình luận');
     }
+    setDeletingCommentId(null);
   };
 
   // Handle Quick Login
@@ -150,6 +191,7 @@ export function CommentSection({
     const result = await login(loginUsername, loginPassword);
     if (result.success) {
       setShowQuickLogin(false);
+      await loadComments(true);
     } else {
       setLoginError(result.error || 'Đăng nhập không thành công');
     }
@@ -209,10 +251,10 @@ export function CommentSection({
               <Button
                 type="submit"
                 size="sm"
-                disabled={isSubmitting || !rootContent.trim()}
+                disabled={isSubmittingRoot || !rootContent.trim()}
                 className="text-xs font-semibold shadow-sm"
               >
-                {isSubmitting ? (
+                {isSubmittingRoot ? (
                   <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
                 ) : (
                   <Send className="h-3.5 w-3.5 mr-1.5" />
@@ -370,10 +412,15 @@ export function CommentSection({
                           variant="ghost"
                           size="sm"
                           onClick={() => handleDelete(rootComment.id)}
+                          disabled={deletingCommentId === rootComment.id}
                           className="h-7 w-7 p-0 text-slate-400 hover:text-rose-600 hover:bg-rose-50"
                           title="Xóa bình luận này"
                         >
-                          <Trash2 className="h-3.5 w-3.5" />
+                          {deletingCommentId === rootComment.id ? (
+                            <Loader2 className="h-3.5 w-3.5 animate-spin text-slate-500" />
+                          ) : (
+                            <Trash2 className="h-3.5 w-3.5" />
+                          )}
                         </Button>
                       )}
                     </div>
@@ -456,11 +503,11 @@ export function CommentSection({
                         <Button
                           type="button"
                           size="sm"
-                          disabled={isSubmitting || !replyContent.trim()}
+                          disabled={submittingReplyId === rootComment.id || !replyContent.trim()}
                           onClick={() => handleReplySubmit(rootComment.id)}
                           className="text-xs font-semibold h-7 px-3 shadow-2xs bg-blue-600 hover:bg-blue-700 text-white"
                         >
-                          {isSubmitting ? (
+                          {submittingReplyId === rootComment.id ? (
                             <Loader2 className="h-3 w-3 mr-1 animate-spin" />
                           ) : (
                             <Send className="h-3 w-3 mr-1" />
@@ -511,10 +558,15 @@ export function CommentSection({
                                   variant="ghost"
                                   size="sm"
                                   onClick={() => handleDelete(reply.id)}
+                                  disabled={deletingCommentId === reply.id}
                                   className="h-6 w-6 p-0 text-slate-400 hover:text-rose-600 hover:bg-rose-50"
                                   title="Xóa phản hồi này"
                                 >
-                                  <Trash2 className="h-3 w-3" />
+                                  {deletingCommentId === reply.id ? (
+                                    <Loader2 className="h-3 w-3 animate-spin text-slate-500" />
+                                  ) : (
+                                    <Trash2 className="h-3 w-3" />
+                                  )}
                                 </Button>
                               )}
                             </div>
