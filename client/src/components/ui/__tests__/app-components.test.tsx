@@ -223,6 +223,9 @@ describe('Wonderlab Design System Core Components', () => {
       expect(triggerBtn?.getAttribute('aria-expanded')).toBe('true');
       const listbox = container.querySelector('[role="listbox"]');
       expect(listbox).not.toBeNull();
+      expect(listbox?.className).toContain('w-full');
+      expect(listbox?.className).toContain('min-w-0');
+      expect(listbox?.className).not.toContain('min-w-[200px]');
 
       // Custom option items
       const optionItems = container.querySelectorAll('[role="option"]');

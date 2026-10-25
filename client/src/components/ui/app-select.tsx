@@ -277,7 +277,7 @@ export const AppSelect = React.forwardRef<HTMLSelectElement, AppSelectProps>(
             ) : null}
 
             {/* Display Text or Custom Selected Icon */}
-            <span className="flex items-center gap-2 truncate">
+            <span className="flex items-center gap-2 truncate min-w-0 flex-1">
               {selectedOption?.icon ? (
                 <span className="shrink-0">{selectedOption.icon}</span>
               ) : null}
@@ -303,13 +303,13 @@ export const AppSelect = React.forwardRef<HTMLSelectElement, AppSelectProps>(
               id={`${selectId}-listbox`}
               role="listbox"
               className={cn(
-                'absolute left-0 right-0 top-[calc(100%+4px)] z-50 min-w-[200px] w-full rounded-xl border border-slate-300/85 bg-white p-1.5 shadow-lg shadow-slate-900/10 animate-in fade-in-0 zoom-in-95 duration-150',
+                'absolute left-0 right-0 top-[calc(100%+4px)] z-50 w-full min-w-0 max-w-full rounded-xl border border-slate-300/85 bg-white p-1.5 shadow-lg shadow-slate-900/10 animate-in fade-in-0 zoom-in-95 duration-150',
                 dropdownClassName,
               )}
             >
               <ul
                 ref={listboxRef}
-                className="max-h-60 overflow-y-auto space-y-0.5 focus:outline-none"
+                className="max-h-60 overflow-y-auto overflow-x-hidden space-y-0.5 focus:outline-none"
                 tabIndex={-1}
               >
                 {parsedOptions.length === 0 ? (
@@ -339,9 +339,9 @@ export const AppSelect = React.forwardRef<HTMLSelectElement, AppSelectProps>(
                           opt.disabled && 'opacity-40 cursor-not-allowed pointer-events-none',
                         )}
                       >
-                        <div className="flex items-center gap-2 truncate pr-2">
+                        <div className="flex items-center gap-2 truncate pr-2 min-w-0 flex-1">
                           {opt.icon ? <span className="shrink-0">{opt.icon}</span> : null}
-                          <div className="truncate">
+                          <div className="truncate min-w-0 flex-1">
                             <span className="block truncate">{opt.label}</span>
                             {opt.description ? (
                               <span className="block text-xs font-normal text-slate-400 truncate">
