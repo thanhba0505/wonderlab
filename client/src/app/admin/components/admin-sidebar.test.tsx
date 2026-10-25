@@ -75,12 +75,15 @@ describe('AdminSidebar (Role-based Console Navigation)', () => {
     // Both personal and admin tabs must be present
     expect(text).toContain('Tổng quan Cá nhân');
     expect(text).toContain('Hồ sơ & Bảo mật');
-    expect(text).toContain('Quản trị Toàn sàn');
     expect(text).toContain('Tổng quan Hệ thống');
     expect(text).toContain('Cài đặt Thí nghiệm');
     expect(text).toContain('Quản lý Người dùng');
     expect(text).toContain('Kiểm duyệt Bình luận');
     expect(text).toContain('Cài đặt Nền tảng');
+
+    // Group labels are omitted in favor of dividers
+    expect(text).not.toContain('Không gian Cá nhân');
+    expect(text).not.toContain('Quản trị Toàn sàn');
   });
 
   it('triggers onLogout callback when mobile drawer logout button is clicked and omits logout button from desktop sidebar', () => {

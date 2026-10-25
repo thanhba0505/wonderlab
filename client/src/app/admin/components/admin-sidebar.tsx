@@ -93,7 +93,6 @@ export function AdminSidebar({ user, onLogout }: AdminSidebarProps) {
     const groups: NavGroup[] = [
       {
         id: 'personal',
-        label: user.role === 'ADMIN' ? 'Không gian Cá nhân' : undefined,
         items: [
           {
             id: 'account-overview',
@@ -114,7 +113,6 @@ export function AdminSidebar({ user, onLogout }: AdminSidebarProps) {
     if (user.role === 'ADMIN') {
       groups.push({
         id: 'admin-system',
-        label: 'Quản trị Toàn sàn',
         items: [
           {
             id: 'dashboard',
@@ -237,11 +235,6 @@ export function AdminSidebar({ user, onLogout }: AdminSidebarProps) {
               {navGroups.map((group, groupIdx) => (
                 <div key={group.id} className="space-y-1">
                   {groupIdx > 0 && <div className="my-2 h-px bg-slate-200" />}
-                  {group.label && (
-                    <div className="px-2 pt-1 pb-1 text-xs font-mono font-bold uppercase tracking-wider text-slate-400 select-none">
-                      {group.label}
-                    </div>
-                  )}
 
                   <div className="space-y-1">
                     {group.items.map(item => {
@@ -389,12 +382,7 @@ export function AdminSidebar({ user, onLogout }: AdminSidebarProps) {
         >
           {navGroups.map((group, groupIdx) => (
             <div key={group.id} className="space-y-1">
-              {groupIdx > 0 && isCollapsed && <div className="my-2 h-px bg-slate-200/90 mx-1" />}
-              {group.label && !isCollapsed && (
-                <div className="px-2 pt-1 pb-1 text-xs font-mono font-bold uppercase tracking-wider text-slate-400 select-none">
-                  {group.label}
-                </div>
-              )}
+              {groupIdx > 0 && <div className="my-2 h-px bg-slate-200/90 mx-1" />}
 
               <div className="space-y-1">
                 {group.items.map(item => {
