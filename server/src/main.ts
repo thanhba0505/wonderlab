@@ -9,8 +9,19 @@ async function bootstrap() {
   const logger = new Logger('WonderlabServer');
   const app = await NestFactory.create(AppModule);
 
-  // Security HTTP Headers
-  app.use(helmet());
+  // Security HTTP Headers with CSP adjusted for Swagger UI
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: [`'self'`],
+          styleSrc: [`'self'`, `'unsafe-inline'`],
+          imgSrc: [`'self'`, 'data:', 'validator.swagger.io'],
+          scriptSrc: [`'self'`, `https: 'unsafe-inline'`],
+        },
+      },
+    }),
+  );
 
   // Parse Cookie for HttpOnly Session Tokens
   app.use(cookieParser());
@@ -38,8 +49,8 @@ async function bootstrap() {
     credentials: true,
   });
 
-  // Swagger OpenAPI Documentation
-  if (process.env.NODE_ENV !== 'production') {
+  // Swagger OpenAPI Documentation (enabled by default unless DISABLE_SWAGGER=true)
+  if (process.env.DISABLE_SWAGGER !== 'true') {
     const config = new DocumentBuilder()
       .setTitle('Wonderlab Server API')
       .setDescription(
@@ -48,6 +59,8 @@ async function bootstrap() {
       .setVersion('1.0.0')
       .addTag('Health', 'System health checks')
       .addTag('Auth', 'Authentication, session management and user authorization')
+      .addTag('Simulations', 'Simulation telemetry, runs history and aggregated stats')
+      .addTag('Comments', 'Interactive nested discussion comments')
       .addCookieAuth('access_token', {
         type: 'apiKey',
         in: 'cookie',
@@ -63,7 +76,10 @@ async function bootstrap() {
       .build();
 
     const document = SwaggerModule.createDocument(app, config);
-    SwaggerModule.setup('api/docs', app, document);
+    SwaggerModule.setup('api/docs', app, document, {
+      customSiteTitle: 'Wonderlab API Documentation',
+      customCss: '.swagger-ui .topbar { display: none }',
+    });
     logger.log('Swagger API documentation enabled at /api/docs');
   }
 
