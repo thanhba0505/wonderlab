@@ -338,7 +338,7 @@ export function AppTable<T>({
   return (
     <div
       className={cn(
-        'w-full rounded-xl border border-slate-300/85 bg-white shadow-2xs flex flex-col font-sans',
+        'relative w-full rounded-xl border border-slate-300/85 bg-white shadow-2xs flex flex-col font-sans',
         className,
       )}
       {...props}
@@ -460,25 +460,18 @@ export function AppTable<T>({
 
           {/* Body */}
           <tbody className="divide-y divide-slate-100 font-sans text-slate-700">
-            {effectiveLoading ? (
+            {displayedData.length === 0 ? (
               <tr>
                 <td
                   colSpan={columns.length + (selectable ? 1 : 0)}
                   className="py-16 text-center text-xs text-slate-500 font-sans px-4"
                 >
-                  <div className="flex flex-col items-center justify-center gap-2.5">
-                    <Loader2 className="h-5 w-5 animate-spin text-blue-600" />
-                    <span className="font-medium text-slate-600">{loadingMessage}</span>
-                  </div>
-                </td>
-              </tr>
-            ) : displayedData.length === 0 ? (
-              <tr>
-                <td
-                  colSpan={columns.length + (selectable ? 1 : 0)}
-                  className="py-16 text-center text-xs text-slate-500 font-sans px-4"
-                >
-                  {typeof emptyMessage === 'string' ? (
+                  {effectiveLoading ? (
+                    <div className="flex flex-col items-center justify-center gap-2.5">
+                      <Loader2 className="h-5 w-5 animate-spin text-blue-600" />
+                      <span className="font-medium text-slate-600">{loadingMessage}</span>
+                    </div>
+                  ) : typeof emptyMessage === 'string' ? (
                     <div className="flex flex-col items-center justify-center gap-2 text-slate-400">
                       <Database className="h-8 w-8 stroke-[1.5]" />
                       <p className="text-slate-500 text-xs font-medium">{emptyMessage}</p>
@@ -565,6 +558,22 @@ export function AppTable<T>({
       {paginationFooter ? (
         <div className="border-t border-slate-200 bg-slate-50/60 px-6 py-3 sm:px-7 rounded-b-xl relative z-10">
           {paginationFooter}
+        </div>
+      ) : null}
+
+      {/* Loading Overlay when table already has data */}
+      {effectiveLoading && displayedData.length > 0 ? (
+        <div
+          className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-white/60 backdrop-blur-[1.5px] rounded-xl transition-all duration-200 cursor-wait select-none"
+          aria-live="polite"
+          aria-busy="true"
+        >
+          <div className="flex items-center gap-2.5 rounded-xl border border-slate-300/85 bg-white/95 px-4 py-2.5 shadow-[0_4px_16px_-2px_rgba(15,23,42,0.08),0_2px_6px_-1px_rgba(15,23,42,0.04)]">
+            <Loader2 className="h-4 w-4 animate-spin text-blue-600 shrink-0" />
+            <span className="text-xs font-semibold text-slate-700 font-sans tracking-tight">
+              {loadingMessage}
+            </span>
+          </div>
         </div>
       ) : null}
     </div>
