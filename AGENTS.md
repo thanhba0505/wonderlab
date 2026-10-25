@@ -123,6 +123,26 @@ pnpm check          # Runs all verification steps in sequence
 - Commit format: Conventional Commits (`feat:`, `fix:`, `chore:`, `docs:`, `test:`, `refactor:`, `ci:`).
 - Always verify working tree and secrets with `git status` before committing.
 - Never force push (`--force`) to `main`.
+- **Branching & PR Workflow**:
+  - **Never commit directly to `main`**: All development must take place on dedicated branches (`feat/*`, `fix/*`, `chore/*`, `docs/*`, `refactor/*`).
+  - **PR Creation & User-Only Merge**:
+    - Upon completing code and passing `pnpm check`, push the branch and open a Pull Request (PR) targeted at `main`.
+    - **Agents must NEVER merge PRs into `main`**. Only the repository owner/user merges PRs.
+  - **Auto-Delete Branches & Post-Merge Handling**:
+    - GitHub repository is configured with _Automatically delete head branches_ on merge.
+    - When a branch is merged and deleted by the user, pull latest `main` (`git checkout main && git pull origin main`) and branch off `main` for subsequent tasks. Never attempt to resurrect or continue committing onto a merged/deleted branch.
+  - **Concurrent Tasks & Persistent Worktree Pool**:
+    - The repository maintains two persistent Git Worktrees alongside the main workspace:
+      - `Wonderlab` (Main workspace): Client on `http://localhost:4100`, Server on `http://localhost:4101`.
+      - `Wonderlab-worktree-1`: Client on `http://localhost:4200`, Server on `http://localhost:4201`.
+      - `Wonderlab-worktree-2`: Client on `http://localhost:4300`, Server on `http://localhost:4301`.
+      - PostgreSQL: Shared container on `127.0.0.1:5434` (`docker compose up -d`).
+    - **Persistent Retention Policy**: Do NOT delete the worktrees upon task completion. Keeping them persistent preserves `node_modules`, Prisma artifacts, and build caches, eliminating repetitive installation overhead.
+    - **Reusing Worktrees Across Tasks**: When a task PR is merged and the remote branch is auto-deleted, reset the worktree to the latest `main`:
+      ```bash
+      git checkout main && git pull origin main && git checkout -b feat/<next-task>
+      ```
+    - Worktrees guarantee zero port collision, zero dirty stash risk, and total process isolation for parallel development.
 - **Single Source of Truth for Versioning**:
   - Root `package.json` is the sole, authoritative source of truth for the project version (`version`).
   - Both `client` (`next.config.ts` -> `process.env.NEXT_PUBLIC_APP_VERSION`) and `server` (`server/src/common/version.ts`) dynamically consume this single root version.
@@ -142,3 +162,5 @@ pnpm check          # Runs all verification steps in sequence
 3. **No Fake Completions**: Never declare tests or builds have succeeded without actually executing them and inspecting the output.
 4. **Preserve Documentation Integrity**: Update docs in `docs/` whenever architectural decisions or workflows change.
 5. **Publish-Tag Deployments Only**: Never trigger production deployments to Render via manual commands or arbitrary scripts. Always use official tag releases (`git tag vX.Y.Z && git push origin vX.Y.Z` or publishing a GitHub Release).
+6. **No Direct Commits to Main & User Merges Only**: Never commit directly to `main`. Always create a feature/fix branch, open a PR, and let the user review and merge.
+7. **Git Worktree Isolation for Parallel Tasks**: When an existing branch is active with an in-progress task, use Git Worktrees to isolate concurrent work cleanly and safely.
