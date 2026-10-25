@@ -22,8 +22,10 @@ _Ví dụ_: `feat: add Monty Hall simulation interactive component`
 
 ## 2. Quy trình làm việc (Workflow)
 
-1. **Tạo nhánh mới**:
+1. **Tạo nhánh mới từ `develop`**:
    ```bash
+   git checkout develop
+   git pull origin develop
    git checkout -b feat/your-feature-name
    # hoặc
    git checkout -b fix/issue-description
@@ -36,22 +38,22 @@ _Ví dụ_: `feat: add Monty Hall simulation interactive component`
    pnpm check
    ```
    Tất cả các lệnh con (`format:check`, `lint`, `typecheck`, `test`, `test:e2e`, `build`) phải kết thúc với mã thoát 0.
-4. **Sáp nhập trực tiếp vào `main` (Direct Merge)**:
-   - Sau khi `pnpm check` vượt qua toàn bộ, chuyển về `main`, kéo mã nguồn mới nhất và sáp nhập:
+4. **Sáp nhập trực tiếp vào `develop` (Direct Merge)**:
+   - Sau khi `pnpm check` vượt qua toàn bộ, chuyển về `develop`, kéo mã nguồn mới nhất và sáp nhập:
      ```bash
-     git checkout main
-     git pull origin main
+     git checkout develop
+     git pull origin develop
      git merge --no-ff feat/your-feature-name -m "feat: your feature summary"
-     git push origin main
+     git push origin develop
      git branch -d feat/your-feature-name
      ```
-   - Đối với AI agents hoặc tự động hóa, PR không còn là bước bắt buộc; mã nguồn sau khi kiểm tra đạt chuẩn sẽ được sáp nhập trực tiếp vào `main`.
+   - Nhánh `main` được bảo lưu thuần túy cho Production và sẽ được sáp nhập tự động khi thực hiện xuất bản Release chính thức trên GitHub.
 
 ---
 
 ## 3. Tiêu chí hoàn thành (Definition of Done)
 
-Một nhánh mã nguồn chỉ được sáp nhập vào `main` khi:
+Một nhánh mã nguồn chỉ được sáp nhập vào `develop` khi:
 
 - [ ] Không có cảnh báo hoặc lỗi linter (`pnpm lint`).
 - [ ] Không có lỗi kiểu dữ liệu TypeScript (`pnpm typecheck`).

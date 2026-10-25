@@ -22,13 +22,6 @@ echo "Target Tag     : $TARGET_TAG"
 echo "Target Version : $TARGET_VERSION"
 echo "=================================================================="
 
-CURRENT_VERSION=$(node -p "require('./package.json').version" 2>/dev/null || echo "")
-
-if [ "$CURRENT_VERSION" = "$TARGET_VERSION" ]; then
-  echo "✅ Monorepo version is already $TARGET_VERSION. No file modifications needed."
-  exit 0
-fi
-
 if [ "${GITHUB_ACTIONS:-}" = "true" ]; then
   echo "• Configuring Git author..."
   git config user.name "github-actions[bot]"
@@ -36,28 +29,43 @@ if [ "${GITHUB_ACTIONS:-}" = "true" ]; then
 
   # Switch to branch main to avoid detached HEAD
   git checkout -B main origin/main
+
+  # Merge develop into main if origin/develop exists
+  git fetch origin develop || true
+  if git rev-parse --verify origin/develop >/dev/null 2>&1; then
+    echo "• Merging origin/develop into main..."
+    git merge origin/develop --no-ff -m "chore(release): merge develop into main for $TARGET_TAG" || {
+      echo "::warning::Merge conflict or develop already up to date with main. Continuing..."
+    }
+  fi
 fi
 
-echo "• Updating package.json in monorepo root, client, and server..."
+CURRENT_VERSION=$(node -p "require('./package.json').version" 2>/dev/null || echo "")
 
-node -e '
-  const fs = require("fs");
-  const targetVer = process.argv[1];
-  const files = ["package.json", "client/package.json", "server/package.json"];
-  for (const f of files) {
-    if (fs.existsSync(f)) {
-      const data = JSON.parse(fs.readFileSync(f, "utf-8"));
-      data.version = targetVer;
-      fs.writeFileSync(f, JSON.stringify(data, null, 2) + "\n");
-      console.log(`  ✓ ${f} -> ${targetVer}`);
+if [ "$CURRENT_VERSION" = "$TARGET_VERSION" ]; then
+  echo "✅ Monorepo version is already $TARGET_VERSION."
+else
+  echo "• Updating package.json in monorepo root, client, and server..."
+
+  node -e '
+    const fs = require("fs");
+    const targetVer = process.argv[1];
+    const files = ["package.json", "client/package.json", "server/package.json"];
+    for (const f of files) {
+      if (fs.existsSync(f)) {
+        const data = JSON.parse(fs.readFileSync(f, "utf-8"));
+        data.version = targetVer;
+        fs.writeFileSync(f, JSON.stringify(data, null, 2) + "\n");
+        console.log(`  ✓ ${f} -> ${targetVer}`);
+      }
     }
-  }
-' "$TARGET_VERSION"
+  ' "$TARGET_VERSION"
+fi
 
 if [ "${GITHUB_ACTIONS:-}" = "true" ]; then
   echo "• Committing official release version bump to main..."
   git add package.json client/package.json server/package.json
-  git commit -m "chore(release): v${TARGET_VERSION} [skip ci]"
+  git commit -m "chore(release): v${TARGET_VERSION} [skip ci]" || echo "No version changes to commit"
   
   echo "• Pushing release commit to main..."
   git push origin main
@@ -66,7 +74,14 @@ if [ "${GITHUB_ACTIONS:-}" = "true" ]; then
   git tag -fa "$TARGET_TAG" -m "Release $TARGET_TAG"
   git push origin "$TARGET_TAG" --force || echo "::warning::Tag update on remote skipped or already pinned"
 
-  echo "✅ Official release $TARGET_TAG successfully synced and committed to main."
+  echo "• Syncing release commit back to develop..."
+  if git rev-parse --verify origin/develop >/dev/null 2>&1; then
+    git checkout -B develop origin/develop
+    git merge main --no-ff -m "chore(release): sync release $TARGET_TAG back to develop [skip ci]" || echo "::warning::Could not merge main into develop"
+    git push origin develop || echo "::warning::Could not push release sync to develop"
+  fi
+
+  echo "✅ Official release $TARGET_TAG successfully synced and committed to main and develop."
 else
   echo "ℹ️ Local environment detected. Files updated without auto-commit."
 fi
