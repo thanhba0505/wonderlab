@@ -41,7 +41,6 @@ export function ZenoSimulation() {
     option: HypothesisOption;
     gap: number;
   } | null>(null);
-  const [, setIsChallengeResolved] = React.useState<boolean>(false);
 
   // Background Telemetry Hook
   const { history, globalStats, recordRun } = useSimulationTelemetry('zeno-paradox');
@@ -181,9 +180,7 @@ export function ZenoSimulation() {
             simulationSlug="zeno-paradox"
             onPredictionSelected={(option: HypothesisOption, gap: number) => {
               setUserPrediction({ option, gap });
-              setIsChallengeResolved(true);
             }}
-            onStatusChange={setIsChallengeResolved}
           />
         )}
       </SimulationSection>

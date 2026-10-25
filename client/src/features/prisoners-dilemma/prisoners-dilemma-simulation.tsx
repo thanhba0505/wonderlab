@@ -55,7 +55,6 @@ export function PrisonersDilemmaSimulation() {
     option: HypothesisOption;
     gap: number;
   } | null>(null);
-  const [, setIsChallengeResolved] = React.useState<boolean>(false);
 
   // Background Telemetry Hook
   const { history, globalStats, recordRun } = useSimulationTelemetry('prisoners-dilemma');
@@ -201,9 +200,7 @@ export function PrisonersDilemmaSimulation() {
             simulationSlug="prisoners-dilemma"
             onPredictionSelected={(option: HypothesisOption, gap: number) => {
               setUserPrediction({ option, gap });
-              setIsChallengeResolved(true);
             }}
-            onStatusChange={setIsChallengeResolved}
           />
         )}
       </SimulationSection>

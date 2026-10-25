@@ -52,7 +52,6 @@ export function MontyHallSimulation() {
     option: HypothesisOption;
     gap: number;
   } | null>(null);
-  const [isChallengeResolved, setIsChallengeResolved] = React.useState<boolean>(false);
   const [copiedType, setCopiedType] = React.useState<'report' | null>(null);
 
   const { history, globalStats, recordRun } = useSimulationTelemetry('monty-hall');
@@ -82,13 +81,6 @@ export function MontyHallSimulation() {
 
   React.useEffect(() => {
     startNewRound();
-    if (typeof window === 'undefined') return;
-    try {
-      const saved = localStorage.getItem('wonderlab_guess_monty-hall');
-      if (saved) setIsChallengeResolved(true);
-    } catch {
-      // Ignore storage errors
-    }
   }, [startNewRound]);
 
   // Bước 1: Người chơi chọn 1 cánh cửa
@@ -282,7 +274,6 @@ export function MontyHallSimulation() {
             challenge={meta.hypothesis}
             simulationSlug="monty-hall"
             onPredictionSelected={(option, gap) => setUserPrediction({ option, gap })}
-            onStatusChange={resolved => setIsChallengeResolved(resolved)}
           />
         )}
       </SimulationSection>
@@ -443,10 +434,9 @@ export function MontyHallSimulation() {
                   <span className="flex items-center gap-2.5">
                     <span className="flex h-2.5 w-2.5 rounded-full bg-amber-500 animate-pulse shrink-0" />
                     <span>
-                      MC đã mở Cửa #{Number(revealedGoatDoor ?? 0) + 1} (chứa Dê).{' '}
-                      {isChallengeResolved
-                        ? 'Toán học chứng minh: Đổi cửa giúp tăng xác suất thắng từ 1/3 lên 2/3! Bạn chọn Giữ hay Đổi?'
-                        : `Bạn muốn Giữ Cửa #${Number(selectedDoor ?? 0) + 1} hay Đổi sang Cửa #${Number(remainingSwitchDoor ?? 0) + 1}?`}
+                      MC đã mở Cửa #{Number(revealedGoatDoor ?? 0) + 1} (chứa Dê). Bạn muốn Giữ Cửa
+                      #{Number(selectedDoor ?? 0) + 1} hay Đổi sang Cửa #
+                      {Number(remainingSwitchDoor ?? 0) + 1}?
                     </span>
                   </span>
                 )}
