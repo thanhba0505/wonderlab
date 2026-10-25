@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { HealthResponseDto } from './dto/health-response.dto';
-import pkg from '../../package.json';
+import { APP_VERSION } from '../common/version';
 
 @Injectable()
 export class HealthService {
@@ -24,7 +24,7 @@ export class HealthService {
       service: 'wonderlab-server',
       database,
       timestamp: new Date().toISOString(),
-      version: pkg.version,
+      version: APP_VERSION,
     };
   }
 }

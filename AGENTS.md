@@ -123,6 +123,14 @@ pnpm check          # Runs all verification steps in sequence
 - Commit format: Conventional Commits (`feat:`, `fix:`, `chore:`, `docs:`, `test:`, `refactor:`, `ci:`).
 - Always verify working tree and secrets with `git status` before committing.
 - Never force push (`--force`) to `main`.
+- **Single Source of Truth for Versioning**:
+  - Root `package.json` is the sole, authoritative source of truth for the project version (`version`).
+  - Both `client` (`next.config.ts` -> `process.env.NEXT_PUBLIC_APP_VERSION`) and `server` (`server/src/common/version.ts`) dynamically consume this single root version.
+  - Never hardcode version strings in health endpoints, Swagger, or application copy.
+- **Tag-Driven Deployment Only (Publish Tag)**:
+  - **NEVER** deploy to Render manually or trigger ad-hoc `workflow_dispatch` runs for regular releases.
+  - Deployments to Render must **ONLY** be triggered by publishing a Git tag (`push: tags: ['v*']`) or publishing an official GitHub Release (`release: [published]`).
+  - This ensures every deployment is deterministic, traceable, and tied to an immutable release tag with automated release notes.
 
 ---
 
@@ -132,3 +140,4 @@ pnpm check          # Runs all verification steps in sequence
 2. **No Unrequested Scope Creep**: Do not add user management, authentication, payment, or complex databases until explicitly requested.
 3. **No Fake Completions**: Never declare tests or builds have succeeded without actually executing them and inspecting the output.
 4. **Preserve Documentation Integrity**: Update docs in `docs/` whenever architectural decisions or workflows change.
+5. **Publish-Tag Deployments Only**: Never trigger production deployments to Render via manual commands or arbitrary scripts. Always use official tag releases (`git tag vX.Y.Z && git push origin vX.Y.Z` or publishing a GitHub Release).

@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { HealthController } from './health.controller';
 import { HealthService } from './health.service';
 import { PrismaService } from '../prisma/prisma.service';
-import pkg from '../../package.json';
+import { APP_VERSION } from '../common/version';
 
 describe('HealthController', () => {
   let healthController: HealthController;
@@ -41,7 +41,7 @@ describe('HealthController', () => {
       expect(response.status).toBe('ok');
       expect(response.service).toBe('wonderlab-server');
       expect(response.database).toBe('connected');
-      expect(response.version).toBe(pkg.version);
+      expect(response.version).toBe(APP_VERSION);
       expect(typeof response.timestamp).toBe('string');
       expect(new Date(response.timestamp).toISOString()).toBe(response.timestamp);
     });

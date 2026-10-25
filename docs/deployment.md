@@ -61,7 +61,7 @@ Thay vì kích hoạt rebuild trên từng commit nhỏ lẻ, Render được t�
    - `RENDER_CLIENT_DEPLOY_HOOK`
 3. **Quy trình xuất bản & triển khai tự động**:
    - Khi tạo hoặc cập nhật mã nguồn, GitHub Action `📝 Release Drafter` duy trì bản nháp Draft Release với đầy đủ commits.
-   - Khi lập trình viên bấm **Publish release** trên GitHub:
+   - Khi lập trình viên đẩy tag phát hành (`git tag vX.Y.Z && git push origin vX.Y.Z`) hoặc bấm **Publish release** trên GitHub:
      - Workflow `🚀 Deploy to Render` (`.github/workflows/deploy.yml`) được kích hoạt.
      - Gọi đồng thời 2 webhook Deploy Hook của Render (xác thực mã `HTTP 202 Accepted`).
      - Ghi nhận trạng thái triển khai vào các GitHub Environments:
