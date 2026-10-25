@@ -164,6 +164,13 @@ export const AppSelect = React.forwardRef<HTMLSelectElement, AppSelectProps>(
       return '';
     });
 
+    // Sync external value prop
+    React.useEffect(() => {
+      if (value !== undefined) {
+        setInternalValue(Array.isArray(value) ? (value[0] ?? '') : value);
+      }
+    }, [value]);
+
     const activeValue = value !== undefined ? value : internalValue;
 
     // Find currently selected option
@@ -195,17 +202,46 @@ export const AppSelect = React.forwardRef<HTMLSelectElement, AppSelectProps>(
     const handleSelectOption = (opt: AppSelectOption) => {
       if (opt.disabled || disabled) return;
 
-      setInternalValue(opt.value);
+      const nextValue = opt.value;
+      setInternalValue(nextValue);
       setIsOpen(false);
       setHighlightedIndex(-1);
 
       if (onValueChange) {
-        onValueChange(String(opt.value));
+        onValueChange(String(nextValue));
+      }
+
+      if (onChange) {
+        const syntheticEvent = {
+          target: {
+            value: String(nextValue),
+            name: name || selectId,
+          },
+          currentTarget: {
+            value: String(nextValue),
+            name: name || selectId,
+          },
+          bubbles: true,
+          cancelable: true,
+          defaultPrevented: false,
+          eventPhase: 3,
+          isTrusted: true,
+          preventDefault: () => {},
+          isDefaultPrevented: () => false,
+          stopPropagation: () => {},
+          isPropagationStopped: () => false,
+          persist: () => {},
+          timeStamp: Date.now(),
+          type: 'change',
+          nativeEvent: new Event('change'),
+        } as unknown as React.ChangeEvent<HTMLSelectElement>;
+
+        onChange(syntheticEvent);
       }
 
       // Dispatch native change event on hidden select so standard React onChange works
       if (internalSelectRef.current) {
-        internalSelectRef.current.value = String(opt.value);
+        internalSelectRef.current.value = String(nextValue);
         const event = new Event('change', { bubbles: true });
         internalSelectRef.current.dispatchEvent(event);
       }

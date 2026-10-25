@@ -77,13 +77,14 @@ export const AppPagination: React.FC<AppPaginationProps> = ({
         ) : null}
 
         {pageSizeOptions && onPageSizeChange ? (
-          <div className="flex items-center gap-1.5 ml-2">
-            <span className="text-slate-500">Mỗi trang:</span>
-            <div className="w-20">
+          <div className="flex items-center gap-2 ml-2">
+            <span className="text-slate-500 shrink-0">Mỗi trang:</span>
+            <div className="w-24 min-w-[96px]">
               <AppSelect
                 size="sm"
                 placement={pageSizeSelectPlacement}
                 value={pageSize}
+                onValueChange={val => onPageSizeChange(Number(val))}
                 onChange={e => onPageSizeChange(Number(e.target.value))}
                 options={pageSizeOptions.map(size => ({
                   value: size,

@@ -155,15 +155,19 @@ export function AppTable<T>({
   }, [fetchData, internalPage, internalLimit, sortColumn, sortDirection]);
 
   // Sync external page and pageSize props to internal state
+  const prevPageProp = React.useRef(page);
   React.useEffect(() => {
-    if (page !== undefined) {
+    if (page !== undefined && page !== prevPageProp.current) {
+      prevPageProp.current = page;
       setInternalPage(page);
     }
   }, [page]);
 
+  const prevPageSizeProp = React.useRef(limit ?? pageSize);
   React.useEffect(() => {
     const size = limit ?? pageSize;
-    if (size !== undefined) {
+    if (size !== undefined && size !== prevPageSizeProp.current) {
+      prevPageSizeProp.current = size;
       setInternalLimit(size);
     }
   }, [limit, pageSize]);
@@ -174,8 +178,8 @@ export function AppTable<T>({
   );
   const effectiveLoading = fetchData ? internalLoading : isLoading;
   const effectiveTotal = fetchData ? internalTotal : (total ?? effectiveData.length);
-  const effectivePage = fetchData ? internalPage : (page ?? 1);
-  const effectiveLimit = fetchData ? internalLimit : (limit ?? pageSize ?? 20);
+  const effectivePage = internalPage;
+  const effectiveLimit = internalLimit;
 
   // Compute table data based on pagination (slicing if external data has more items than limit)
   const displayedData = React.useMemo(() => {
@@ -199,17 +203,16 @@ export function AppTable<T>({
 
   const handlePageSizeChange = React.useCallback(
     (nextSize: number) => {
-      if (fetchData) {
-        setInternalLimit(nextSize);
-        setInternalPage(1);
-      }
+      prevPageSizeProp.current = nextSize;
+      setInternalLimit(nextSize);
+      setInternalPage(1);
       if (onPageSizeChange) {
         onPageSizeChange(nextSize);
       } else if (onLimitChange) {
         onLimitChange(nextSize);
       }
     },
-    [fetchData, onPageSizeChange, onLimitChange],
+    [onPageSizeChange, onLimitChange],
   );
 
   const paginationFooter = React.useMemo(() => {

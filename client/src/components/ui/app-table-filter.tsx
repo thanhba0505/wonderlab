@@ -178,15 +178,19 @@ export function AppTableFilter<T>({
   }, [fetchData, internalPage, internalPageSize, runFetch]);
 
   // Sync external page & pageSize props to internal state
+  const prevPageProp = React.useRef(page);
   React.useEffect(() => {
-    if (page !== undefined) {
+    if (page !== undefined && page !== prevPageProp.current) {
+      prevPageProp.current = page;
       setInternalPage(page);
     }
   }, [page]);
 
+  const prevPageSizeProp = React.useRef(limit ?? pageSize);
   React.useEffect(() => {
     const size = limit ?? pageSize;
-    if (size !== undefined) {
+    if (size !== undefined && size !== prevPageSizeProp.current) {
+      prevPageSizeProp.current = size;
       setInternalPageSize(size);
     }
   }, [limit, pageSize]);
@@ -204,8 +208,8 @@ export function AppTableFilter<T>({
   );
   const effectiveLoading = fetchData ? internalLoading : isLoading;
   const effectiveTotal = fetchData ? internalTotal : (total ?? effectiveData.length);
-  const effectivePage = fetchData ? internalPage : (page ?? internalPage);
-  const effectivePageSize = fetchData ? internalPageSize : (limit ?? pageSize ?? internalPageSize);
+  const effectivePage = internalPage;
+  const effectivePageSize = internalPageSize;
 
   // Compute table data based on pagination (client-side or overflow fallback)
   const displayedData = React.useMemo(() => {
@@ -238,20 +242,16 @@ export function AppTableFilter<T>({
 
   const handlePageSizeChange = React.useCallback(
     (nextSize: number) => {
-      if (fetchData) {
-        setInternalPageSize(nextSize);
-        setInternalPage(1);
-      } else if (clientSidePagination) {
-        setInternalPageSize(nextSize);
-        setInternalPage(1);
-      }
+      prevPageSizeProp.current = nextSize;
+      setInternalPageSize(nextSize);
+      setInternalPage(1);
       if (onPageSizeChange) {
         onPageSizeChange(nextSize);
       } else if (onLimitChange) {
         onLimitChange(nextSize);
       }
     },
-    [fetchData, clientSidePagination, onPageSizeChange, onLimitChange],
+    [onPageSizeChange, onLimitChange],
   );
 
   const hasFilterSection =
