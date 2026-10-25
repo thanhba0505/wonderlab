@@ -3,6 +3,7 @@ import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
+import type { Request, Response, NextFunction } from 'express';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -25,6 +26,14 @@ async function bootstrap() {
 
   // Parse Cookie for HttpOnly Session Tokens
   app.use(cookieParser());
+
+  // Alias root (/) and (/health) requests to /api/v1/health for versatile health checking
+  app.use((req: Request, res: Response, next: NextFunction) => {
+    if (req.method === 'GET' && (req.url === '/' || req.url === '/health')) {
+      req.url = '/api/v1/health';
+    }
+    next();
+  });
 
   // Global API Prefix
   app.setGlobalPrefix('api/v1');

@@ -1,11 +1,17 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 export class HealthResponseDto {
-  @ApiProperty({ example: 'ok', description: 'Overall system health status' })
+  @ApiProperty({ example: 'ok', description: 'Overall system health status (ok | degraded)' })
   status!: string;
 
   @ApiProperty({ example: 'wonderlab-server', description: 'Name of the microservice' })
   service!: string;
+
+  @ApiProperty({
+    example: 'connected',
+    description: 'Database connection status (connected | disconnected)',
+  })
+  database!: string;
 
   @ApiProperty({
     example: '2026-10-23T04:20:00.000Z',

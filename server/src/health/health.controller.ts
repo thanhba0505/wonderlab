@@ -1,23 +1,21 @@
 import { Controller, Get, HttpCode, HttpStatus } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { HealthService } from './health.service';
 import { HealthResponseDto } from './dto/health-response.dto';
 
 @ApiTags('Health')
 @Controller('health')
 export class HealthController {
+  constructor(private readonly healthService: HealthService) {}
+
   @Get()
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Health check endpoint' })
+  @ApiOperation({ summary: 'System health check endpoint with database connectivity check' })
   @ApiOkResponse({
-    description: 'System is healthy and ready to serve requests',
+    description: 'System is healthy and database is connected',
     type: HealthResponseDto,
   })
-  check(): HealthResponseDto {
-    return {
-      status: 'ok',
-      service: 'wonderlab-server',
-      timestamp: new Date().toISOString(),
-      version: '1.0.0',
-    };
+  async check(): Promise<HealthResponseDto> {
+    return this.healthService.check();
   }
 }
