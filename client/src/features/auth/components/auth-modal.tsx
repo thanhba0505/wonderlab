@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { BrandLogo } from '@/components/ui/brand-logo';
+import { AppForm, AppFormField } from '@/components/ui';
 import { useAuth, AuthModalView } from '@/lib/auth-context';
 
 export function AuthModal() {
@@ -139,27 +140,30 @@ export function AuthModal() {
   };
 
   // 2. Submit Register
-  const handleRegisterSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleRegisterSubmit = async (values: Record<string, unknown>) => {
     setErrorMessage(null);
+    const regUsername = String(values.username || '').trim();
+    const regEmail = String(values.email || '').trim();
+    const regPassword = String(values.password || '');
+    const regConfirm = String(values.confirmPassword || '');
 
-    if (!isDev && password !== confirmPassword) {
+    if (!isDev && regPassword !== regConfirm) {
       setErrorMessage('Mật khẩu xác nhận không khớp.');
       return;
     }
 
-    if (isDev && confirmPassword && password !== confirmPassword) {
+    if (isDev && regConfirm && regPassword !== regConfirm) {
       setErrorMessage('Mật khẩu xác nhận không khớp.');
       return;
     }
 
-    if (!isDev && password.length < 8) {
+    if (!isDev && regPassword.length < 8) {
       setErrorMessage('Mật khẩu phải có độ dài tối thiểu 8 ký tự.');
       return;
     }
 
     setIsSubmitting(true);
-    const result = await register(username, email, password);
+    const result = await register(regUsername, regEmail, regPassword);
     setIsSubmitting(false);
 
     if (!result.success) {
@@ -459,79 +463,89 @@ export function AuthModal() {
 
           {/* VIEW: REGISTER */}
           {mode === 'register' && (
-            <form onSubmit={handleRegisterSubmit} noValidate={isDev} className="space-y-3.5">
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Tên đăng nhập (Username)
-                </label>
-                <div className="relative">
-                  <User className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
-                  <input
-                    type="text"
-                    required
-                    value={username}
-                    onChange={e => setUsername(e.target.value)}
-                    placeholder="VD: galileo_2026"
-                    className="w-full rounded-lg border border-slate-300 bg-white py-2 pl-9 pr-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  />
-                </div>
-              </div>
+            <AppForm
+              initialValues={{
+                username: username || '',
+                email: email || '',
+                password: password || '',
+                confirmPassword: confirmPassword || '',
+              }}
+              onSubmit={async values => {
+                setUsername(String(values.username || ''));
+                setEmail(String(values.email || ''));
+                setPassword(String(values.password || ''));
+                setConfirmPassword(String(values.confirmPassword || ''));
+                await handleRegisterSubmit(values);
+              }}
+              className="space-y-3.5"
+            >
+              <AppFormField
+                name="username"
+                label="Tên đăng nhập (Username)"
+                required="Vui lòng nhập tên đăng nhập"
+                placeholder="VD: galileo_2026"
+                leftIcon={<User className="h-4 w-4" />}
+                rules={
+                  !isDev
+                    ? [
+                        { minLength: 3, message: 'Tên đăng nhập phải có ít nhất 3 ký tự' },
+                        { maxLength: 30, message: 'Tên đăng nhập không được quá 30 ký tự' },
+                      ]
+                    : undefined
+                }
+              />
 
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Địa chỉ Email
-                </label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
-                  <input
-                    type={isDev ? 'text' : 'email'}
-                    required
-                    value={email}
-                    onChange={e => setEmail(e.target.value)}
-                    placeholder="VD: researcher@gmail.com"
-                    className="w-full rounded-lg border border-slate-300 bg-white py-2 pl-9 pr-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  />
-                </div>
-              </div>
+              <AppFormField
+                name="email"
+                label="Địa chỉ Email"
+                type={isDev ? 'text' : 'email'}
+                required="Vui lòng nhập địa chỉ email"
+                placeholder="VD: researcher@gmail.com"
+                leftIcon={<Mail className="h-4 w-4" />}
+                rules={
+                  !isDev
+                    ? [{ email: true, message: 'Địa chỉ email không đúng định dạng' }]
+                    : undefined
+                }
+              />
 
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Mật khẩu</label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    required
-                    value={password}
-                    onChange={e => setPassword(e.target.value)}
-                    placeholder="Nhập mật khẩu..."
-                    className="w-full rounded-lg border border-slate-300 bg-white py-2 pl-9 pr-10 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600"
-                  >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </button>
-                </div>
-              </div>
+              <AppFormField
+                name="password"
+                label={isDev ? 'Mật khẩu' : 'Mật khẩu (Tối thiểu 8 ký tự)'}
+                type="password"
+                showPasswordToggle
+                required="Vui lòng nhập mật khẩu"
+                placeholder={isDev ? 'Nhập mật khẩu...' : 'Nhập mật khẩu an toàn...'}
+                leftIcon={<Lock className="h-4 w-4" />}
+                rules={
+                  !isDev
+                    ? [{ minLength: 8, message: 'Mật khẩu phải có độ dài tối thiểu 8 ký tự' }]
+                    : undefined
+                }
+              />
 
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Xác nhận lại mật khẩu
-                </label>
-                <div className="relative">
-                  <KeyRound className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    required={!isDev}
-                    value={confirmPassword}
-                    onChange={e => setConfirmPassword(e.target.value)}
-                    placeholder="Gõ lại mật khẩu..."
-                    className="w-full rounded-lg border border-slate-300 bg-white py-2 pl-9 pr-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  />
-                </div>
-              </div>
+              <AppFormField
+                name="confirmPassword"
+                label="Xác nhận lại mật khẩu"
+                type="password"
+                showPasswordToggle
+                required={!isDev ? 'Vui lòng xác nhận lại mật khẩu' : false}
+                placeholder={isDev ? 'Gõ lại mật khẩu...' : 'Gõ lại mật khẩu vừa nhập...'}
+                leftIcon={<KeyRound className="h-4 w-4" />}
+                rules={[
+                  {
+                    validate: (val, formValues) => {
+                      if (!isDev && val !== formValues.password) {
+                        return 'Mật khẩu xác nhận không khớp.';
+                      }
+                      if (isDev && val && val !== formValues.password) {
+                        return 'Mật khẩu xác nhận không khớp.';
+                      }
+                      return null;
+                    },
+                  },
+                ]}
+              />
 
               <Button
                 type="submit"
@@ -596,7 +610,7 @@ export function AuthModal() {
                   Đăng nhập ngay
                 </button>
               </div>
-            </form>
+            </AppForm>
           )}
 
           {/* VIEW: OTP 6 DIGITS */}
