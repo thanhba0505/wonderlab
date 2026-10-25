@@ -27,7 +27,7 @@ export function SimulationWorkbenchCard({
       {metricsBar && <div>{metricsBar}</div>}
 
       {/* Vùng thực nghiệm tương tác chính */}
-      <div>{children}</div>
+      <div className="space-y-6">{children}</div>
 
       {/* Thanh công cụ và telemetry góc dưới */}
       {hasBottomBar && (

@@ -267,9 +267,9 @@ export function MontyHallSimulation() {
   };
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-10 sm:gap-12">
       {/* Line phân cách sau intro/formula */}
-      <hr className="border-slate-200/80 -mt-2" />
+      <hr className="border-slate-200/80 my-1" />
 
       {/* 1. TITLE CÂU HỎI & CÂU HỎI TRỰC GIÁC */}
       <SimulationSection
@@ -295,8 +295,8 @@ export function MontyHallSimulation() {
       >
         <SimulationWorkbenchCard
           metricsBar={
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 pb-5 border-b border-slate-200/80">
-              <div className="space-y-1">
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 sm:gap-6 pb-6 border-b border-slate-200/80">
+              <div className="space-y-1.5">
                 <div className="text-xs font-semibold tracking-wider text-slate-500 uppercase">
                   Tổng ván đã chơi
                 </div>
@@ -308,10 +308,12 @@ export function MontyHallSimulation() {
                 </div>
               </div>
 
-              <div className="space-y-1 sm:border-l sm:border-slate-200/80 sm:pl-4">
-                <div className="text-xs font-semibold tracking-wider text-slate-500 uppercase flex items-center justify-between">
+              <div className="space-y-1.5 sm:border-l sm:border-slate-200/80 sm:pl-6">
+                <div className="text-xs font-semibold tracking-wider text-slate-500 uppercase flex flex-wrap items-center justify-between gap-1">
                   <span>Chiến lược Đổi Cửa</span>
-                  <span className="font-mono text-xs text-blue-700 font-bold">Lý thuyết 66.7%</span>
+                  <span className="font-mono text-xs text-blue-700 font-bold bg-blue-50 px-2 py-0.5 rounded">
+                    Lý thuyết 66.7%
+                  </span>
                 </div>
                 <div className="font-mono text-2xl sm:text-3xl font-bold text-blue-700 tabular-nums">
                   {switchRate !== null ? `${switchRate}%` : '—'}
@@ -321,10 +323,10 @@ export function MontyHallSimulation() {
                 </div>
               </div>
 
-              <div className="space-y-1 border-t sm:border-t-0 pt-3 sm:pt-0 sm:border-l sm:border-slate-200/80 sm:pl-4">
-                <div className="text-xs font-semibold tracking-wider text-slate-500 uppercase flex items-center justify-between">
+              <div className="space-y-1.5 border-t sm:border-t-0 pt-3 sm:pt-0 sm:border-l sm:border-slate-200/80 sm:pl-6">
+                <div className="text-xs font-semibold tracking-wider text-slate-500 uppercase flex flex-wrap items-center justify-between gap-1">
                   <span>Chiến lược Giữ Cửa</span>
-                  <span className="font-mono text-xs text-violet-700 font-bold">
+                  <span className="font-mono text-xs text-violet-700 font-bold bg-violet-50 px-2 py-0.5 rounded">
                     Lý thuyết 33.3%
                   </span>
                 </div>
@@ -336,7 +338,7 @@ export function MontyHallSimulation() {
                 </div>
               </div>
 
-              <div className="space-y-1 border-t sm:border-t-0 pt-3 sm:pt-0 sm:border-l sm:border-slate-200/80 sm:pl-4">
+              <div className="space-y-1.5 border-t sm:border-t-0 pt-3 sm:pt-0 sm:border-l sm:border-slate-200/80 sm:pl-6">
                 <div className="text-xs font-semibold tracking-wider text-slate-500 uppercase">
                   Tiến trình lượt chơi
                 </div>
@@ -427,358 +429,362 @@ export function MontyHallSimulation() {
             )
           }
         >
-          {/* Hướng dẫn tương tác */}
-          <div className="rounded-xl bg-slate-100/80 px-4 py-3 border-l-4 border-blue-600 flex items-center justify-between gap-3">
-            <div className="text-sm font-medium text-slate-800">
-              {step === 'pick' && (
-                <span className="flex items-center gap-2">
-                  <span className="flex h-2.5 w-2.5 rounded-full bg-blue-600 animate-pulse shrink-0" />
-                  <span>Hãy chọn một trong 3 cánh cửa bên dưới để đưa ra lựa chọn ban đầu.</span>
-                </span>
-              )}
-              {step === 'revealed' && (
-                <span className="flex items-center gap-2">
-                  <span className="flex h-2.5 w-2.5 rounded-full bg-amber-500 animate-pulse shrink-0" />
-                  <span>
-                    MC đã mở Cửa #{Number(revealedGoatDoor ?? 0) + 1} (chứa Dê).{' '}
-                    {isChallengeResolved
-                      ? 'Toán học chứng minh: Đổi cửa giúp tăng xác suất thắng từ 1/3 lên 2/3! Bạn chọn Giữ hay Đổi?'
-                      : `Bạn muốn Giữ Cửa #${Number(selectedDoor ?? 0) + 1} hay Đổi sang Cửa #${Number(remainingSwitchDoor ?? 0) + 1}?`}
+          <div className="space-y-6 sm:space-y-7">
+            {/* Hướng dẫn tương tác */}
+            <div className="rounded-xl bg-slate-100/80 px-5 py-4 border-l-4 border-blue-600 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
+              <div className="text-sm font-medium text-slate-800">
+                {step === 'pick' && (
+                  <span className="flex items-center gap-2.5">
+                    <span className="flex h-2.5 w-2.5 rounded-full bg-blue-600 animate-pulse shrink-0" />
+                    <span>Hãy chọn một trong 3 cánh cửa bên dưới để đưa ra lựa chọn ban đầu.</span>
                   </span>
-                </span>
-              )}
-              {step === 'result' && (
-                <span className="flex items-center gap-2">
-                  {finalDoor === carDoor ? (
-                    <span className="text-emerald-800 flex items-center gap-2 font-bold text-sm">
-                      <Trophy className="h-4 w-4 text-emerald-600 shrink-0" />
-                      Chiến thắng! Bạn đã nhận Ô tô thể thao với{' '}
-                      <span className="underline decoration-emerald-500">
-                        {didSwitch ? 'Chiến lược Đổi Cửa' : 'Chiến lược Giữ Nguyên'}
+                )}
+                {step === 'revealed' && (
+                  <span className="flex items-center gap-2.5">
+                    <span className="flex h-2.5 w-2.5 rounded-full bg-amber-500 animate-pulse shrink-0" />
+                    <span>
+                      MC đã mở Cửa #{Number(revealedGoatDoor ?? 0) + 1} (chứa Dê).{' '}
+                      {isChallengeResolved
+                        ? 'Toán học chứng minh: Đổi cửa giúp tăng xác suất thắng từ 1/3 lên 2/3! Bạn chọn Giữ hay Đổi?'
+                        : `Bạn muốn Giữ Cửa #${Number(selectedDoor ?? 0) + 1} hay Đổi sang Cửa #${Number(remainingSwitchDoor ?? 0) + 1}?`}
+                    </span>
+                  </span>
+                )}
+                {step === 'result' && (
+                  <span className="flex items-center gap-2">
+                    {finalDoor === carDoor ? (
+                      <span className="text-emerald-800 flex items-center gap-2 font-bold text-sm">
+                        <Trophy className="h-4 w-4 text-emerald-600 shrink-0" />
+                        Chiến thắng! Bạn đã nhận Ô tô thể thao với{' '}
+                        <span className="underline decoration-emerald-500">
+                          {didSwitch ? 'Chiến lược Đổi Cửa' : 'Chiến lược Giữ Nguyên'}
+                        </span>
+                        !
                       </span>
-                      !
-                    </span>
-                  ) : (
-                    <span className="text-slate-700 flex items-center gap-2 text-sm">
-                      <XCircle className="h-4 w-4 text-red-500 shrink-0" />
-                      Rất tiếc! Đằng sau là Dê cỏ (
-                      {didSwitch ? 'Chiến lược Đổi Cửa' : 'Chiến lược Giữ Nguyên'}).
-                    </span>
-                  )}
-                </span>
-              )}
-            </div>
-
-            {step === 'result' ? (
-              <Button
-                size="sm"
-                onClick={startNewRound}
-                className="text-xs font-bold shrink-0 shadow-xs"
-              >
-                <RotateCcw className="h-3.5 w-3.5 mr-1" />
-                Vòng mới
-              </Button>
-            ) : (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={startNewRound}
-                className="text-xs font-semibold shrink-0 border-slate-300 text-slate-700 hover:bg-slate-50"
-              >
-                <RotateCcw className="h-3.5 w-3.5 mr-1" />
-                Làm mới
-              </Button>
-            )}
-          </div>
-
-          {/* 3 Cánh cửa Vault (Giao diện tinh gọn, xúc giác, không lặp nhãn) */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-            {[0, 1, 2].map(doorIndex => {
-              const isSelected = selectedDoor === doorIndex;
-              const isRevealedGoat = revealedGoatDoor === doorIndex;
-              const isFinalChoice = finalDoor === doorIndex;
-              const hasCar = carDoor === doorIndex;
-
-              let borderColor = 'border-slate-300/85 hover:border-blue-500';
-              let bgColor = 'bg-slate-50/70';
-              let glowEffect = '';
-
-              if (step === 'revealed') {
-                if (isSelected) {
-                  borderColor = 'border-blue-600 ring-2 ring-blue-500/20';
-                  bgColor = 'bg-blue-50/70';
-                  glowEffect = 'shadow-md shadow-blue-500/10';
-                } else if (isRevealedGoat) {
-                  borderColor = 'border-amber-300';
-                  bgColor = 'bg-amber-50/50';
-                } else {
-                  borderColor = 'border-violet-400 ring-2 ring-violet-500/15';
-                  bgColor = 'bg-violet-50/50';
-                }
-              } else if (step === 'result') {
-                if (hasCar) {
-                  borderColor = 'border-emerald-600 ring-2 ring-emerald-500/25';
-                  bgColor = 'bg-emerald-50/80';
-                  glowEffect = 'shadow-md shadow-emerald-500/15';
-                } else if (isFinalChoice) {
-                  borderColor = 'border-red-300';
-                  bgColor = 'bg-red-50/40';
-                }
-              }
-
-              const handleDoorClick = () => {
-                if (step === 'pick') {
-                  handleSelectDoor(doorIndex);
-                } else if (step === 'revealed') {
-                  if (isSelected) {
-                    handleFinalDecision(false);
-                  } else if (!isRevealedGoat) {
-                    handleFinalDecision(true);
-                  }
-                }
-              };
-
-              return (
-                <div
-                  key={doorIndex}
-                  onClick={handleDoorClick}
-                  className={`group relative flex flex-col items-center justify-between p-5 rounded-2xl border transition-all duration-200 min-h-[220px] ${borderColor} ${bgColor} ${glowEffect} ${
-                    step === 'pick' || (step === 'revealed' && !isRevealedGoat)
-                      ? 'cursor-pointer hover:-translate-y-1 hover:shadow-lg hover:shadow-blue-500/10 hover:bg-white'
-                      : ''
-                  }`}
-                >
-                  <div className="w-full flex items-center justify-between">
-                    <span className="font-mono text-xs font-bold px-2 py-0.5 rounded-md bg-slate-200/70 text-slate-700">
-                      CỬA #{doorIndex + 1}
-                    </span>
-
-                    {isSelected && step !== 'result' && (
-                      <Badge variant="cyan" className="text-xs">
-                        LỰA CHỌN BAN ĐẦU
-                      </Badge>
-                    )}
-
-                    {isRevealedGoat && (
-                      <Badge variant="amber" className="text-xs">
-                        MC ĐÃ MỞ (DÊ)
-                      </Badge>
-                    )}
-
-                    {step === 'revealed' && !isSelected && !isRevealedGoat && (
-                      <Badge variant="violet" className="text-xs font-bold">
-                        CỬA CÓ THỂ ĐỔI
-                      </Badge>
-                    )}
-
-                    {step === 'result' && hasCar && (
-                      <Badge variant="emerald" className="text-xs font-bold">
-                        TRÚNG Ô TÔ 🏎️
-                      </Badge>
-                    )}
-
-                    {step === 'result' && !hasCar && isFinalChoice && (
-                      <Badge variant="destructive" className="text-xs">
-                        VÀO DÊ 🐐
-                      </Badge>
-                    )}
-                  </div>
-
-                  <div className="my-auto flex flex-col items-center text-center py-2">
-                    {step === 'result' ? (
-                      hasCar ? (
-                        <div className="space-y-1.5 animate-in zoom-in-75">
-                          <div className="text-4xl filter drop-shadow-md">🏎️</div>
-                          <div className="font-heading font-extrabold text-xs text-emerald-700 uppercase tracking-wider">
-                            Ô Tô Thể Thao
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="space-y-1.5 animate-in zoom-in-75">
-                          <div className="text-4xl">🐐</div>
-                          <div className="font-heading font-medium text-xs text-slate-500 uppercase tracking-wider">
-                            Dê Cỏ
-                          </div>
-                        </div>
-                      )
-                    ) : isRevealedGoat ? (
-                      <div className="space-y-1.5 animate-in fade-in">
-                        <div className="text-4xl">🐐</div>
-                        <div className="font-heading font-semibold text-xs text-amber-700 uppercase tracking-wider">
-                          Đằng sau là Dê!
-                        </div>
-                      </div>
                     ) : (
-                      <div className="flex flex-col items-center space-y-2">
-                        <div className="w-11 h-11 rounded-full bg-slate-200/70 group-hover:bg-blue-100 flex items-center justify-center text-slate-500 group-hover:text-blue-600 transition-colors">
-                          <Lock className="h-5 w-5" />
-                        </div>
-                        <span className="font-mono text-3xl font-black text-slate-800 group-hover:text-blue-700 transition-colors">
-                          0{doorIndex + 1}
-                        </span>
-                      </div>
+                      <span className="text-slate-700 flex items-center gap-2 text-sm">
+                        <XCircle className="h-4 w-4 text-red-500 shrink-0" />
+                        Rất tiếc! Đằng sau là Dê cỏ (
+                        {didSwitch ? 'Chiến lược Đổi Cửa' : 'Chiến lược Giữ Nguyên'}).
+                      </span>
                     )}
-                  </div>
-
-                  {/* Hành động duy nhất ở đáy cửa */}
-                  <div className="w-full">
-                    {step === 'pick' && (
-                      <div className="w-full text-center py-1">
-                        <span className="text-xs font-semibold text-slate-500 group-hover:text-blue-700 transition-colors">
-                          Nhấp để chọn cửa
-                        </span>
-                      </div>
-                    )}
-
-                    {step === 'revealed' &&
-                      !isRevealedGoat &&
-                      (isSelected ? (
-                        <Button
-                          size="sm"
-                          variant="secondary"
-                          onClick={e => {
-                            e.stopPropagation();
-                            handleFinalDecision(false);
-                          }}
-                          className="w-full text-xs font-bold border border-blue-200 hover:bg-blue-100 text-blue-900"
-                        >
-                          Giữ cửa #{doorIndex + 1} (33.3%)
-                        </Button>
-                      ) : (
-                        <Button
-                          size="sm"
-                          variant="default"
-                          onClick={e => {
-                            e.stopPropagation();
-                            handleFinalDecision(true);
-                          }}
-                          className="w-full text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm bg-violet-600 hover:bg-violet-700 text-white"
-                        >
-                          <ArrowRightLeft className="h-3.5 w-3.5" />
-                          Đổi sang cửa #{doorIndex + 1} (66.7%)
-                        </Button>
-                      ))}
-
-                    {step === 'result' && (
-                      <div className="w-full text-center py-1">
-                        <span className="text-xs font-mono text-slate-500">
-                          {hasCar ? 'Phần thưởng lớn nhất' : 'Không có phần thưởng'}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Mô Phỏng Monte Carlo & So Sánh Phân Bổ (Không lồng khung, không lặp số liệu) */}
-          <div className="pt-6 border-t border-slate-200/80 space-y-4">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <h4 className="font-heading text-sm font-bold text-slate-900">
-                  Mô Phỏng Hàng Loạt Monte Carlo & Kiểm Chứng Định Lý Xác Suất
-                </h4>
-                <p className="text-xs text-slate-500 font-sans">
-                  Chạy ngẫu nhiên số lượng lớn ván chơi để kiểm chứng quy luật xác suất hội tụ về
-                  66.7% và 33.3%
-                </p>
-              </div>
-
-              {/* Nút chạy mô phỏng hàng loạt */}
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleSimulateBatch(50)}
-                  className="h-7 text-xs font-semibold border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 shadow-2xs"
-                >
-                  <Play className="h-3.5 w-3.5 mr-1" />
-                  +50 Ván
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleSimulateBatch(500)}
-                  className="h-7 text-xs font-semibold border-amber-200 bg-amber-50 text-amber-800 hover:bg-amber-100 shadow-2xs"
-                >
-                  <Flame className="h-3.5 w-3.5 mr-1 text-amber-600" />
-                  +500 Ván
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleSimulateBatch(2000)}
-                  className="h-7 text-xs font-semibold border-slate-300 bg-white text-slate-700 hover:bg-slate-50 shadow-2xs"
-                >
-                  <Sparkles className="h-3.5 w-3.5 mr-1 text-violet-600" />
-                  +2,000 Ván
-                </Button>
-                {totalGames > 0 && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={resetStats}
-                    className="h-7 text-xs text-slate-500 hover:text-slate-900 px-2 font-mono"
-                  >
-                    Đặt lại
-                  </Button>
+                  </span>
                 )}
               </div>
+
+              {step === 'result' ? (
+                <Button
+                  size="sm"
+                  onClick={startNewRound}
+                  className="text-xs font-bold shrink-0 shadow-xs h-8"
+                >
+                  <RotateCcw className="h-3.5 w-3.5 mr-1" />
+                  Vòng mới
+                </Button>
+              ) : (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={startNewRound}
+                  className="text-xs font-semibold shrink-0 border-slate-300 text-slate-700 hover:bg-slate-50 h-8"
+                >
+                  <RotateCcw className="h-3.5 w-3.5 mr-1" />
+                  Làm mới
+                </Button>
+              )}
             </div>
 
-            {/* Thanh Phổ Đối Sánh Phân Bổ (Phẳng, không lồng card) */}
-            <div className="rounded-xl bg-slate-100/70 p-4 space-y-3">
-              <div className="flex flex-wrap items-center justify-between text-xs gap-2">
-                <div className="flex items-center gap-2 font-medium">
-                  <span className="h-2.5 w-2.5 rounded-full bg-blue-600 shrink-0" />
-                  <span className="font-bold text-blue-900">Chiến lược Đổi Cửa:</span>
-                  <span className="font-mono font-bold text-blue-700 tabular-nums">
-                    {switchRate !== null ? `${switchRate}%` : 'Chưa có dữ liệu'}
-                  </span>
-                  <span className="text-slate-500 font-mono">(Mục tiêu lý thuyết: 66.7%)</span>
+            {/* 3 Cánh cửa Vault (Giao diện tinh gọn, xúc giác, thoáng đãng) */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+              {[0, 1, 2].map(doorIndex => {
+                const isSelected = selectedDoor === doorIndex;
+                const isRevealedGoat = revealedGoatDoor === doorIndex;
+                const isFinalChoice = finalDoor === doorIndex;
+                const hasCar = carDoor === doorIndex;
+
+                let borderColor = 'border-slate-300/85 hover:border-blue-500';
+                let bgColor = 'bg-slate-50/70';
+                let glowEffect = '';
+
+                if (step === 'revealed') {
+                  if (isSelected) {
+                    borderColor = 'border-blue-600 ring-2 ring-blue-500/20';
+                    bgColor = 'bg-blue-50/70';
+                    glowEffect = 'shadow-md shadow-blue-500/10';
+                  } else if (isRevealedGoat) {
+                    borderColor = 'border-amber-300';
+                    bgColor = 'bg-amber-50/50';
+                  } else {
+                    borderColor = 'border-violet-400 ring-2 ring-violet-500/15';
+                    bgColor = 'bg-violet-50/50';
+                  }
+                } else if (step === 'result') {
+                  if (hasCar) {
+                    borderColor = 'border-emerald-600 ring-2 ring-emerald-500/25';
+                    bgColor = 'bg-emerald-50/80';
+                    glowEffect = 'shadow-md shadow-emerald-500/15';
+                  } else if (isFinalChoice) {
+                    borderColor = 'border-red-300';
+                    bgColor = 'bg-red-50/40';
+                  }
+                }
+
+                const handleDoorClick = () => {
+                  if (step === 'pick') {
+                    handleSelectDoor(doorIndex);
+                  } else if (step === 'revealed') {
+                    if (isSelected) {
+                      handleFinalDecision(false);
+                    } else if (!isRevealedGoat) {
+                      handleFinalDecision(true);
+                    }
+                  }
+                };
+
+                return (
+                  <div
+                    key={doorIndex}
+                    onClick={handleDoorClick}
+                    className={`group relative flex flex-col items-center justify-between p-6 rounded-2xl border transition-all duration-200 min-h-[240px] sm:min-h-[250px] ${borderColor} ${bgColor} ${glowEffect} ${
+                      step === 'pick' || (step === 'revealed' && !isRevealedGoat)
+                        ? 'cursor-pointer hover:-translate-y-1 hover:shadow-lg hover:shadow-blue-500/10 hover:bg-white'
+                        : ''
+                    }`}
+                  >
+                    <div className="w-full flex items-center justify-between gap-2 pb-3 border-b border-slate-200/50">
+                      <span className="font-mono text-xs font-bold px-2.5 py-1 rounded-md bg-slate-200/70 text-slate-700">
+                        CỬA #{doorIndex + 1}
+                      </span>
+
+                      {isSelected && step !== 'result' && (
+                        <Badge variant="cyan" className="text-xs">
+                          LỰA CHỌN BAN ĐẦU
+                        </Badge>
+                      )}
+
+                      {isRevealedGoat && (
+                        <Badge variant="amber" className="text-xs">
+                          MC ĐÃ MỞ (DÊ)
+                        </Badge>
+                      )}
+
+                      {step === 'revealed' && !isSelected && !isRevealedGoat && (
+                        <Badge variant="violet" className="text-xs font-bold">
+                          CỬA CÓ THỂ ĐỔI
+                        </Badge>
+                      )}
+
+                      {step === 'result' && hasCar && (
+                        <Badge variant="emerald" className="text-xs font-bold">
+                          TRÚNG Ô TÔ 🏎️
+                        </Badge>
+                      )}
+
+                      {step === 'result' && !hasCar && isFinalChoice && (
+                        <Badge variant="destructive" className="text-xs">
+                          VÀO DÊ 🐐
+                        </Badge>
+                      )}
+                    </div>
+
+                    <div className="my-auto flex flex-col items-center text-center py-4 space-y-3">
+                      {step === 'result' ? (
+                        hasCar ? (
+                          <div className="space-y-1.5 animate-in zoom-in-75">
+                            <div className="text-5xl filter drop-shadow-md">🏎️</div>
+                            <div className="font-heading font-extrabold text-xs text-emerald-700 uppercase tracking-wider">
+                              Ô Tô Thể Thao
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="space-y-1.5 animate-in zoom-in-75">
+                            <div className="text-5xl">🐐</div>
+                            <div className="font-heading font-medium text-xs text-slate-500 uppercase tracking-wider">
+                              Dê Cỏ
+                            </div>
+                          </div>
+                        )
+                      ) : isRevealedGoat ? (
+                        <div className="space-y-1.5 animate-in fade-in">
+                          <div className="text-5xl">🐐</div>
+                          <div className="font-heading font-semibold text-xs text-amber-700 uppercase tracking-wider">
+                            Đằng sau là Dê!
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col items-center space-y-2.5">
+                          <div className="w-12 h-12 rounded-full bg-slate-200/70 group-hover:bg-blue-100 flex items-center justify-center text-slate-500 group-hover:text-blue-600 transition-colors">
+                            <Lock className="h-5 w-5" />
+                          </div>
+                          <span className="font-mono text-3xl font-black text-slate-800 group-hover:text-blue-700 transition-colors">
+                            0{doorIndex + 1}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Hành động duy nhất ở đáy cửa */}
+                    <div className="w-full pt-3">
+                      {step === 'pick' && (
+                        <div className="w-full text-center py-1">
+                          <span className="text-xs font-semibold text-slate-500 group-hover:text-blue-700 transition-colors">
+                            Nhấp để chọn cửa
+                          </span>
+                        </div>
+                      )}
+
+                      {step === 'revealed' &&
+                        !isRevealedGoat &&
+                        (isSelected ? (
+                          <Button
+                            size="sm"
+                            variant="secondary"
+                            onClick={e => {
+                              e.stopPropagation();
+                              handleFinalDecision(false);
+                            }}
+                            className="w-full text-xs font-bold border border-blue-200 hover:bg-blue-100 text-blue-900 h-9"
+                          >
+                            Giữ cửa #{doorIndex + 1} (33.3%)
+                          </Button>
+                        ) : (
+                          <Button
+                            size="sm"
+                            variant="default"
+                            onClick={e => {
+                              e.stopPropagation();
+                              handleFinalDecision(true);
+                            }}
+                            className="w-full text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm bg-violet-600 hover:bg-violet-700 text-white h-9"
+                          >
+                            <ArrowRightLeft className="h-3.5 w-3.5" />
+                            Đổi sang cửa #{doorIndex + 1} (66.7%)
+                          </Button>
+                        ))}
+
+                      {step === 'result' && (
+                        <div className="w-full text-center py-1">
+                          <span className="text-xs font-mono text-slate-500">
+                            {hasCar ? 'Phần thưởng lớn nhất' : 'Không có phần thưởng'}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Mô Phỏng Monte Carlo & So Sánh Phân Bổ (Không lồng khung, không lặp số liệu) */}
+            <div className="pt-7 border-t border-slate-200/80 space-y-5">
+              <div className="flex flex-wrap items-center justify-between gap-4">
+                <div className="space-y-1">
+                  <h4 className="font-heading text-sm font-bold text-slate-900">
+                    Mô Phỏng Hàng Loạt Monte Carlo & Kiểm Chứng Định Lý Xác Suất
+                  </h4>
+                  <p className="text-xs text-slate-500 font-sans">
+                    Chạy ngẫu nhiên số lượng lớn ván chơi để kiểm chứng quy luật xác suất hội tụ về
+                    66.7% và 33.3%
+                  </p>
                 </div>
 
-                <div className="flex items-center gap-2 font-medium">
-                  <span className="h-2.5 w-2.5 rounded-full bg-violet-600 shrink-0" />
-                  <span className="font-bold text-violet-900">Chiến lược Giữ Nguyên:</span>
-                  <span className="font-mono font-bold text-violet-700 tabular-nums">
-                    {stayRate !== null ? `${stayRate}%` : 'Chưa có dữ liệu'}
-                  </span>
-                  <span className="text-slate-500 font-mono">(Mục tiêu lý thuyết: 33.3%)</span>
+                {/* Nút chạy mô phỏng hàng loạt */}
+                <div className="flex flex-wrap items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleSimulateBatch(50)}
+                    className="h-7 text-xs font-semibold border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 shadow-2xs"
+                  >
+                    <Play className="h-3.5 w-3.5 mr-1" />
+                    +50 Ván
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleSimulateBatch(500)}
+                    className="h-7 text-xs font-semibold border-amber-200 bg-amber-50 text-amber-800 hover:bg-amber-100 shadow-2xs"
+                  >
+                    <Flame className="h-3.5 w-3.5 mr-1 text-amber-600" />
+                    +500 Ván
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleSimulateBatch(2000)}
+                    className="h-7 text-xs font-semibold border-slate-300 bg-white text-slate-700 hover:bg-slate-50 shadow-2xs"
+                  >
+                    <Sparkles className="h-3.5 w-3.5 mr-1 text-violet-600" />
+                    +2,000 Ván
+                  </Button>
+                  {totalGames > 0 && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={resetStats}
+                      className="h-7 text-xs text-slate-500 hover:text-slate-900 px-2 font-mono"
+                    >
+                      Đặt lại
+                    </Button>
+                  )}
                 </div>
               </div>
 
-              {/* Progress bar so sánh trực quan */}
-              <div className="w-full bg-slate-200 rounded-full h-3 overflow-hidden relative flex">
-                <div
-                  className="bg-blue-600 h-full transition-all duration-300"
-                  style={{ width: `${switchRate ?? 0}%` }}
-                  title={`Đổi cửa: ${switchRate ?? 0}%`}
-                />
-                <div
-                  className="bg-violet-600 h-full transition-all duration-300 ml-auto"
-                  style={{ width: `${stayRate ?? 0}%` }}
-                  title={`Giữ cửa: ${stayRate ?? 0}%`}
-                />
-                {/* Vạch mốc lý thuyết 66.7% cho Đổi */}
-                <div
-                  className="absolute top-0 bottom-0 w-0.5 bg-blue-950 z-10"
-                  style={{ left: '66.7%' }}
-                  title="Mốc lý thuyết Đổi Cửa: 66.7%"
-                />
-                {/* Vạch mốc lý thuyết 33.3% */}
-                <div
-                  className="absolute top-0 bottom-0 w-0.5 bg-violet-950 z-10"
-                  style={{ left: '33.3%' }}
-                  title="Mốc lý thuyết Giữ Nguyên: 33.3%"
-                />
-              </div>
+              {/* Thanh Phổ Đối Sánh Phân Bổ (Phẳng, không lồng card) */}
+              <div className="rounded-xl bg-slate-100/70 p-5 space-y-4">
+                <div className="flex flex-wrap items-center justify-between text-xs gap-3">
+                  <div className="flex items-center gap-2 font-medium">
+                    <span className="h-2.5 w-2.5 rounded-full bg-blue-600 shrink-0" />
+                    <span className="font-bold text-blue-900">Chiến lược Đổi Cửa:</span>
+                    <span className="font-mono font-bold text-blue-700 tabular-nums">
+                      {switchRate !== null ? `${switchRate}%` : 'Chưa có dữ liệu'}
+                    </span>
+                    <span className="text-slate-500 font-mono">(Mục tiêu lý thuyết: 66.7%)</span>
+                  </div>
 
-              <div className="flex items-center justify-between text-xs text-slate-500 font-sans">
-                <span>0%</span>
-                <span className="italic">Đường mốc lý thuyết: 33.3% (Giữ) và 66.7% (Đổi)</span>
-                <span>100%</span>
+                  <div className="flex items-center gap-2 font-medium">
+                    <span className="h-2.5 w-2.5 rounded-full bg-violet-600 shrink-0" />
+                    <span className="font-bold text-violet-900">Chiến lược Giữ Nguyên:</span>
+                    <span className="font-mono font-bold text-violet-700 tabular-nums">
+                      {stayRate !== null ? `${stayRate}%` : 'Chưa có dữ liệu'}
+                    </span>
+                    <span className="text-slate-500 font-mono">(Mục tiêu lý thuyết: 33.3%)</span>
+                  </div>
+                </div>
+
+                {/* Progress bar so sánh trực quan */}
+                <div className="w-full bg-slate-200 rounded-full h-3.5 overflow-hidden relative flex">
+                  <div
+                    className="bg-blue-600 h-full transition-all duration-300"
+                    style={{ width: `${switchRate ?? 0}%` }}
+                    title={`Đổi cửa: ${switchRate ?? 0}%`}
+                  />
+                  <div
+                    className="bg-violet-600 h-full transition-all duration-300 ml-auto"
+                    style={{ width: `${stayRate ?? 0}%` }}
+                    title={`Giữ cửa: ${stayRate ?? 0}%`}
+                  />
+                  {/* Vạch mốc lý thuyết 66.7% cho Đổi */}
+                  <div
+                    className="absolute top-0 bottom-0 w-0.5 bg-blue-950 z-10"
+                    style={{ left: '66.7%' }}
+                    title="Mốc lý thuyết Đổi Cửa: 66.7%"
+                  />
+                  {/* Vạch mốc lý thuyết 33.3% */}
+                  <div
+                    className="absolute top-0 bottom-0 w-0.5 bg-violet-950 z-10"
+                    style={{ left: '33.3%' }}
+                    title="Mốc lý thuyết Giữ Nguyên: 33.3%"
+                  />
+                </div>
+
+                <div className="flex items-center justify-between text-xs text-slate-500 font-sans pt-1">
+                  <span>0%</span>
+                  <span className="italic">
+                    Đường mốc lý thuyết: 33.3% (Giữ nguyên) và 66.7% (Đổi cửa)
+                  </span>
+                  <span>100%</span>
+                </div>
               </div>
             </div>
           </div>
