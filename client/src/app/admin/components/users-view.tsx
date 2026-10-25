@@ -322,7 +322,7 @@ export function UsersView({ currentAdminUsername }: UsersViewProps) {
     {
       key: 'actions',
       header: 'Hành động',
-      width: 180,
+      width: 220,
       align: 'center',
       render: item => {
         const isCurrent = item.username === currentAdminUsername;

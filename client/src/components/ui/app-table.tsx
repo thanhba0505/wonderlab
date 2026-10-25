@@ -390,7 +390,7 @@ export function AppTable<T>({
                     style={Object.keys(cellStyle).length > 0 ? cellStyle : undefined}
                     className={cn(
                       'px-4 py-3.5 font-semibold select-none align-middle',
-                      'first:pl-5 sm:first:pl-6 last:pr-5 sm:last:pr-6',
+                      'first:pl-6 sm:first:pl-7 last:pr-6 sm:last:pr-7',
                       'border-r border-slate-200/80 last:border-r-0',
                       alignClass,
                       col.sortable && 'cursor-pointer hover:bg-slate-100/70 transition-colors',
@@ -513,7 +513,7 @@ export function AppTable<T>({
                           style={Object.keys(cellStyle).length > 0 ? cellStyle : undefined}
                           className={cn(
                             'px-4 py-3.5 align-middle',
-                            'first:pl-5 sm:first:pl-6 last:pr-5 sm:last:pr-6',
+                            'first:pl-6 sm:first:pl-7 last:pr-6 sm:last:pr-7',
                             alignClass,
                             col.className,
                           )}
@@ -537,7 +537,7 @@ export function AppTable<T>({
 
       {/* Optional Table / Pagination Footer */}
       {paginationFooter ? (
-        <div className="border-t border-slate-200 bg-slate-50/60 px-5 py-3 sm:px-6">
+        <div className="border-t border-slate-200 bg-slate-50/60 px-6 py-3 sm:px-7">
           {paginationFooter}
         </div>
       ) : null}

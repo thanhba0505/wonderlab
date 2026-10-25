@@ -254,7 +254,7 @@ export function CommentsView() {
     {
       key: 'actions',
       header: 'Hành động',
-      width: 90,
+      width: 110,
       align: 'center',
       render: item => {
         if (item.isDeleted) {

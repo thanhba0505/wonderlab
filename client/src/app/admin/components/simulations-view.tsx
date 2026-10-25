@@ -241,7 +241,7 @@ export function SimulationsView({ simulationStats = {} }: SimulationsViewProps) 
     {
       key: 'actions',
       header: 'Thao tác',
-      width: 130,
+      width: 170,
       align: 'center',
       render: sim => (
         <Link href={`/simulations/${sim.slug}`} target="_blank">
