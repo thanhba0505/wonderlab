@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { NotFoundException } from '@nestjs/common';
+import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { Role } from '@prisma/client';
 import { UsersService } from './users.service';
 import { PrismaService } from '../prisma/prisma.service';
@@ -90,6 +90,37 @@ describe('UsersService', () => {
       await expect(service.updateRole('non-existent', Role.ADMIN)).rejects.toThrow(
         NotFoundException,
       );
+    });
+  });
+
+  describe('delete', () => {
+    it('should soft-delete user when user exists and is not self', async () => {
+      prisma.user.findUnique.mockResolvedValue({ id: 'u2', isDeleted: false });
+      prisma.user.update.mockResolvedValue({ id: 'u2', isDeleted: true });
+
+      const result = await service.delete('u2', 'admin-id');
+      expect(result.success).toBe(true);
+      expect(prisma.user.update).toHaveBeenCalledWith({
+        where: { id: 'u2' },
+        data: {
+          isDeleted: true,
+          deletedAt: expect.any(Date),
+        },
+      });
+    });
+
+    it('should throw BadRequestException when trying to delete self account', async () => {
+      await expect(service.delete('admin-id', 'admin-id')).rejects.toThrow(BadRequestException);
+    });
+
+    it('should throw NotFoundException if user does not exist', async () => {
+      prisma.user.findUnique.mockResolvedValue(null);
+      await expect(service.delete('non-existent', 'admin-id')).rejects.toThrow(NotFoundException);
+    });
+
+    it('should throw NotFoundException if user is already deleted', async () => {
+      prisma.user.findUnique.mockResolvedValue({ id: 'u2', isDeleted: true });
+      await expect(service.delete('u2', 'admin-id')).rejects.toThrow(NotFoundException);
     });
   });
 });

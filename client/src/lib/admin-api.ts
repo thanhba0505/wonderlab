@@ -29,6 +29,8 @@ export interface AdminUserItem {
   username: string;
   email: string | null;
   role: 'ADMIN' | 'USER';
+  isDeleted: boolean;
+  deletedAt?: string | null;
   createdAt: string;
   updatedAt: string;
   _count: {
@@ -49,6 +51,7 @@ export interface AdminCommentItem {
     id: string;
     username: string;
     role: 'ADMIN' | 'USER';
+    isDeleted?: boolean;
   };
   parent: {
     id: string;
@@ -110,6 +113,25 @@ export async function updateAdminUserRole(
     if (!res.ok) {
       const data = await res.json();
       return { success: false, error: data.message || 'Lỗi khi cập nhật vai trò' };
+    }
+    return { success: true };
+  } catch (err) {
+    return { success: false, error: err instanceof Error ? err.message : 'Lỗi kết nối' };
+  }
+}
+
+export async function deleteAdminUser(
+  userId: string,
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/users/${userId}`, {
+      method: 'DELETE',
+      credentials: 'include',
+      headers: { Accept: 'application/json' },
+    });
+    if (!res.ok) {
+      const data = await res.json();
+      return { success: false, error: data.message || 'Lỗi khi xóa người dùng' };
     }
     return { success: true };
   } catch (err) {

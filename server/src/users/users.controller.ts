@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Patch,
+  Delete,
   Param,
   Body,
   UseGuards,
@@ -15,6 +16,7 @@ import { UpdateUserRoleDto } from './dto/update-user-role.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
 
 @ApiTags('Admin - Users')
 @Controller('users')
@@ -49,5 +51,22 @@ export class UsersController {
   })
   async updateUserRole(@Param('id') id: string, @Body() dto: UpdateUserRoleDto): Promise<SafeUser> {
     return this.usersService.updateRole(id, dto.role);
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Xóa tài khoản người dùng (Admin only)',
+    description: 'Chuyển trạng thái người dùng thành đã xóa (Soft Delete).',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Xóa người dùng thành công',
+  })
+  async deleteUser(
+    @Param('id') id: string,
+    @CurrentUser() currentUser: SafeUser,
+  ): Promise<{ success: boolean; message: string }> {
+    return this.usersService.delete(id, currentUser.id);
   }
 }

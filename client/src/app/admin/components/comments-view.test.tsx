@@ -43,6 +43,7 @@ describe('CommentsView', () => {
         id: 'user-2',
         username: 'newton',
         role: 'USER',
+        isDeleted: true,
       },
       parent: null,
     },

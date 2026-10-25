@@ -212,8 +212,13 @@ export function CommentsView() {
                             {item.user.username.charAt(0).toUpperCase()}
                           </div>
                           <div>
-                            <span className="font-mono font-bold text-slate-900 block">
-                              {item.user.username}
+                            <span className="font-mono font-bold text-slate-900 flex items-center gap-1.5">
+                              <span>{item.user.username}</span>
+                              {item.user.isDeleted && (
+                                <span className="text-xs font-semibold text-rose-600 bg-rose-50 border border-rose-200/80 px-1.5 py-0.5 rounded">
+                                  Đã xoá
+                                </span>
+                              )}
                             </span>
                             <span className="text-xs font-mono text-slate-500">
                               {item.user.role}

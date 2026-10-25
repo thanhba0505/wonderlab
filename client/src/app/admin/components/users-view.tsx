@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Shield, RefreshCw } from 'lucide-react';
+import { Shield, RefreshCw, Trash2 } from 'lucide-react';
 import {
   AppTableFilter,
   AppTag,
@@ -10,7 +10,12 @@ import {
   type AppFilterField,
   type AppActiveFilter,
 } from '@/components/ui';
-import { AdminUserItem, fetchAdminUsers, updateAdminUserRole } from '@/lib/admin-api';
+import {
+  AdminUserItem,
+  fetchAdminUsers,
+  updateAdminUserRole,
+  deleteAdminUser,
+} from '@/lib/admin-api';
 
 interface UsersViewProps {
   currentAdminUsername: string;
@@ -24,6 +29,7 @@ export function UsersView({ currentAdminUsername }: UsersViewProps) {
   const [sortColumn, setSortColumn] = React.useState<string>('createdAt');
   const [sortDirection, setSortDirection] = React.useState<'asc' | 'desc'>('desc');
   const [updatingUserId, setUpdatingUserId] = React.useState<string | null>(null);
+  const [deletingUserId, setDeletingUserId] = React.useState<string | null>(null);
 
   const loadUsers = React.useCallback(async () => {
     setIsLoading(true);
@@ -59,6 +65,26 @@ export function UsersView({ currentAdminUsername }: UsersViewProps) {
       alert(res.error || 'Lỗi khi cập nhật vai trò');
     }
     setUpdatingUserId(null);
+  };
+
+  const handleDeleteUser = async (user: AdminUserItem) => {
+    if (user.username === currentAdminUsername) {
+      alert('Không thể tự xóa tài khoản quản trị viên của chính bạn.');
+      return;
+    }
+
+    const confirmMsg = `Bạn có chắc chắn muốn xóa tài khoản "${user.username}"?`;
+    if (!confirm(confirmMsg)) return;
+
+    setDeletingUserId(user.id);
+    const res = await deleteAdminUser(user.id);
+    if (res.success) {
+      setUsers(prev => prev.map(u => (u.id === user.id ? { ...u, isDeleted: true } : u)));
+      await loadUsers();
+    } else {
+      alert(res.error || 'Lỗi khi xóa người dùng');
+    }
+    setDeletingUserId(null);
   };
 
   const handleSort = (columnKey: string) => {
@@ -219,23 +245,50 @@ export function UsersView({ currentAdminUsername }: UsersViewProps) {
       ),
     },
     {
+      key: 'isDeleted',
+      header: 'Đã xoá',
+      align: 'center',
+      render: item =>
+        item.isDeleted ? (
+          <span className="inline-flex items-center text-xs font-semibold text-rose-600 bg-rose-50 border border-rose-200/80 px-2.5 py-0.5 rounded-md">
+            Đã xoá
+          </span>
+        ) : null,
+    },
+    {
       key: 'actions',
       header: 'Hành động',
       align: 'center',
       render: item => {
         const isCurrent = item.username === currentAdminUsername;
         const isUpdating = updatingUserId === item.id;
+        const isDeleting = deletingUserId === item.id;
+        if (item.isDeleted) {
+          return <span className="text-xs text-slate-300 font-mono select-none">—</span>;
+        }
         return (
-          <AppButton
-            variant="outline"
-            size="sm"
-            disabled={isCurrent || isUpdating}
-            onClick={() => handleToggleRole(item)}
-            className="text-xs h-7 px-2.5 border-slate-300 text-slate-700 hover:bg-slate-50"
-            isLoading={isUpdating}
-          >
-            {item.role === 'ADMIN' ? 'Hạ xuống USER' : 'Nâng lên ADMIN'}
-          </AppButton>
+          <div className="flex items-center justify-center gap-1.5">
+            <AppButton
+              variant="outline"
+              size="sm"
+              disabled={isCurrent || isUpdating || isDeleting}
+              onClick={() => handleToggleRole(item)}
+              className="text-xs h-7 px-2.5 border-slate-300 text-slate-700 hover:bg-slate-50"
+              isLoading={isUpdating}
+            >
+              {item.role === 'ADMIN' ? 'Hạ xuống USER' : 'Nâng lên ADMIN'}
+            </AppButton>
+            <AppButton
+              variant="ghost"
+              size="sm"
+              disabled={isCurrent || isUpdating || isDeleting}
+              onClick={() => handleDeleteUser(item)}
+              className="text-xs h-7 px-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50"
+              title="Xóa người dùng"
+              leftIcon={<Trash2 className="h-3.5 w-3.5" />}
+              isLoading={isDeleting}
+            />
+          </div>
         );
       },
     },

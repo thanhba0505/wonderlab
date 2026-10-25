@@ -10,6 +10,9 @@ export class CommentAuthorDto {
 
   @ApiProperty({ enum: Role, example: Role.ADMIN })
   role!: Role;
+
+  @ApiPropertyOptional({ example: false })
+  isDeleted?: boolean;
 }
 
 export class CommentItemDto {

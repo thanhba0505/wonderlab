@@ -13,6 +13,7 @@ const USER_SELECT = {
   id: true,
   username: true,
   role: true,
+  isDeleted: true,
 };
 
 @Injectable()
@@ -31,7 +32,7 @@ export class CommentsService {
       isDeleted: boolean;
       deletedAt: Date | null;
       createdAt: Date;
-      user: { id: string; username: string; role: Role };
+      user: { id: string; username: string; role: Role; isDeleted: boolean };
       parent: { id: string; content: string; user: { username: string } } | null;
     }>
   > {

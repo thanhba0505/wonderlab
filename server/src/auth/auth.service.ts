@@ -56,6 +56,10 @@ export class AuthService {
       throw new UnauthorizedException('Tên đăng nhập hoặc mật khẩu không chính xác');
     }
 
+    if (user.isDeleted) {
+      throw new UnauthorizedException('Tài khoản này đã bị vô hiệu hóa hoặc đã xóa.');
+    }
+
     if (!user.isEmailVerified && user.role !== Role.ADMIN) {
       throw new UnauthorizedException(
         'Email của bạn chưa được xác thực. Vui lòng nhập mã OTP 6 số để kích hoạt tài khoản.',

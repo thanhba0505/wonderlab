@@ -1,10 +1,12 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { User, Role } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 
 export type SafeUser = Omit<User, 'passwordHash'>;
 
 export interface UserWithStats extends SafeUser {
+  isDeleted: boolean;
+  deletedAt: Date | null;
   _count: {
     simulationRuns: number;
     comments: number;
@@ -142,6 +144,8 @@ export class UsersService {
         isEmailVerified: true,
         avatarUrl: true,
         googleId: true,
+        isDeleted: true,
+        deletedAt: true,
         createdAt: true,
         updatedAt: true,
         _count: {
@@ -182,5 +186,32 @@ export class UsersService {
     });
 
     return updated as SafeUser;
+  }
+
+  /**
+   * Delete user (Soft Delete, Admin only)
+   */
+  async delete(id: string, currentAdminId: string): Promise<{ success: boolean; message: string }> {
+    if (id === currentAdminId) {
+      throw new BadRequestException('Không thể tự xóa tài khoản của chính bạn.');
+    }
+
+    const user = await this.prisma.user.findUnique({ where: { id } });
+    if (!user || user.isDeleted) {
+      throw new NotFoundException('Người dùng không tồn tại hoặc đã được xóa trước đó.');
+    }
+
+    await this.prisma.user.update({
+      where: { id },
+      data: {
+        isDeleted: true,
+        deletedAt: new Date(),
+      },
+    });
+
+    return {
+      success: true,
+      message: 'Người dùng đã được xóa thành công.',
+    };
   }
 }

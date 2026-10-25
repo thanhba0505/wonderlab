@@ -98,7 +98,7 @@ describe('CommentsService', () => {
         },
         include: {
           user: {
-            select: { id: true, username: true, role: true },
+            select: { id: true, username: true, role: true, isDeleted: true },
           },
           replies: {
             where: {
@@ -106,7 +106,7 @@ describe('CommentsService', () => {
             },
             include: {
               user: {
-                select: { id: true, username: true, role: true },
+                select: { id: true, username: true, role: true, isDeleted: true },
               },
             },
             orderBy: { createdAt: 'asc' },
@@ -148,7 +148,7 @@ describe('CommentsService', () => {
         },
         include: {
           user: {
-            select: { id: true, username: true, role: true },
+            select: { id: true, username: true, role: true, isDeleted: true },
           },
         },
       });
@@ -263,7 +263,7 @@ describe('CommentsService', () => {
       expect(prisma.comment.findMany).toHaveBeenCalledWith({
         include: {
           user: {
-            select: { id: true, username: true, role: true },
+            select: { id: true, username: true, role: true, isDeleted: true },
           },
           parent: {
             select: {

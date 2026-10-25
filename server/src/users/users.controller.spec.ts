@@ -8,12 +8,14 @@ describe('UsersController', () => {
   let service: {
     findAll: jest.Mock;
     updateRole: jest.Mock;
+    delete: jest.Mock;
   };
 
   beforeEach(async () => {
     service = {
       findAll: jest.fn(),
       updateRole: jest.fn(),
+      delete: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -52,6 +54,29 @@ describe('UsersController', () => {
       const result = await controller.updateUserRole('u1', { role: Role.USER });
       expect(result).toBe(mockUser);
       expect(service.updateRole).toHaveBeenCalledWith('u1', Role.USER);
+    });
+  });
+
+  describe('deleteUser', () => {
+    it('should delegate to service.delete with user id and current admin id', async () => {
+      service.delete.mockResolvedValue({ success: true, message: 'Deleted' });
+      const currentAdmin = {
+        id: 'admin-1',
+        username: 'admin',
+        email: null,
+        googleId: null,
+        isEmailVerified: true,
+        avatarUrl: null,
+        role: Role.ADMIN,
+        isDeleted: false,
+        deletedAt: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      const result = await controller.deleteUser('u2', currentAdmin);
+      expect(result.success).toBe(true);
+      expect(service.delete).toHaveBeenCalledWith('u2', 'admin-1');
     });
   });
 });
