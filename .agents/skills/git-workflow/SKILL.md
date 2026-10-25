@@ -25,3 +25,15 @@ Before staging or committing:
 2. Ensure `pnpm check` passes cleanly.
 3. Keep commit messages descriptive and concise.
 4. Never force-push (`git push --force`) to shared branches.
+
+## 3. Branching, Pull Request & Worktree Protocol
+
+1. **Dedicated Branch for Each Task**: Never commit directly to `main`. Always create a task branch (`feat/*`, `fix/*`, `chore/*`, `docs/*`, `refactor/*`).
+2. **User-Only PR Merging**: Once the task is complete and verified, push the branch and open a Pull Request targeting `main`. Agents must never merge PRs; merging is reserved solely for the user.
+3. **Branch Deletion & Post-Merge Sync**: When a branch is merged and auto-deleted, sync `main` locally (`git checkout main && git pull origin main`) and branch off the updated `main` for subsequent tasks. Do not continue work on deleted branches.
+4. **Persistent Git Worktrees & Port Allocation**: Keep two pre-warmed worktrees (`Wonderlab-worktree-1` and `Wonderlab-worktree-2`) to avoid deleting and reinstalling dependencies. Ports are partitioned to prevent collision:
+   - `Wonderlab` (Main): Client `4100`, Server `4101`.
+   - `Wonderlab-worktree-1`: Client `4200`, Server `4201`.
+   - `Wonderlab-worktree-2`: Client `4300`, Server `4301`.
+   - Database: Shared PostgreSQL on port `5434`.
+   - Post-merge reuse: `git checkout main && git pull origin main && git checkout -b feat/<new-task>`.
