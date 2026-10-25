@@ -136,6 +136,21 @@ pnpm build          # Production builds for client and server
 pnpm check          # Runs all verification steps in sequence
 ```
 
+### Lean & Core-Only Testing Standard (Avoid CI Slowdown & Test Bloat):
+
+- **Strict Core-Only Scope**: Tests must **ONLY** be written for **core, critical functionality**. Never write tests indiscriminately for every file, component, or utility. Bloated, superficial test suites increase maintenance overhead and needlessly slow down CI and local verification cycles.
+- **What MUST Be Tested (Core Functionality Only)**:
+  1. **Scientific & Mathematical Simulation Engines**: Mathematical correctness, probabilistic convergence, quantum wave formulas, game-theory payoffs, and paradox simulation logic (e.g., Monty Hall, Birthday Paradox, Zeno's Paradox, Double-Slit).
+  2. **Critical Backend Business Logic & Security**: Core service logic in NestJS (`*.service.spec.ts`) dealing with authentication, hashing (Argon2id), token issuance/validation, permissions, data soft-deletion, and transactional mutations.
+  3. **High-Value HTTP Integration (E2E Tests)**: Complete request/response lifecycle verification via Supertest (`server/test/*.e2e-spec.ts`) for primary API routes (`/health`, `/auth`, `/comments`, `/simulations`).
+- **What MUST NOT Be Tested (Strictly Forbidden Test Bloat)**:
+  1. **Generic UI Components & Styling**: Do **NOT** write unit tests for React presentational components, buttons, inputs, dropdowns, badges, tags, modals, or page layouts just to assert that DOM nodes render or CSS classes exist.
+  2. **Static Data & Dictionaries**: Do **NOT** write tests verifying hardcoded array lengths, essay content strings, category lists, or static configuration objects.
+  3. **Boilerplate Controller Pass-Throughs**: Do **NOT** write unit tests for simple controller methods that merely pass arguments directly to a service (`controller.spec.ts` mocking services). These are redundant and already covered by E2E tests and service specs.
+  4. **Trivial Utilities & Third-Party Wrappers**: Do **NOT** write tests for simple library wrappers (e.g., `cn()` wrapping `clsx` and `tailwind-merge`) or basic environment variable getters.
+  5. **Mock-Heavy Component Lifecycle Tests**: Do **NOT** create fragile client component tests that mock every React hook, router, or API call just to verify form submissions or button clicks.
+- **Fast CI Execution Target**: The unit test suite must remain lean, highly targeted, and fast (< 5s). Every test must provide clear, high-value regression prevention for critical logic.
+
 ### Development Server Execution Policy:
 
 - **Strictly Use `pnpm dev` or `pnpm dev:client` — NEVER Run `pnpm start` / `next start`**:
@@ -221,3 +236,4 @@ pnpm check          # Runs all verification steps in sequence
 7. **Branch-First Development & Direct Merge into Develop**: Never commit directly onto `develop` or `main` without a dedicated branch. Always create a task branch (`feat/*`, `fix/*`, `chore/*`, `docs/*`, `refactor/*`), verify with `pnpm check`, merge directly into `develop` (or push `HEAD:develop` from worktrees), and push to `origin develop`. `main` is updated strictly via the automated Release workflow.
 8. **Development Server Execution Standard (`pnpm dev` only)**: Agents must NEVER start the client application using `pnpm start`, `pnpm --filter wonderlab-client start`, or `next start`. Always use `pnpm dev` or `pnpm dev:client`. `next start` is strictly an immutable production server that binds to a static in-memory `BUILD_ID`, resulting in catastrophic `400 Bad Request` asset errors, CSS stylesheet drop (FOUC), and permanent client-side chunk loading failures whenever background builds run.
 9. **Strict English for All Commits and Repository Guidelines**: All commit messages, merge commit messages, and repository guidelines must be authored strictly and exclusively in English.
+10. **Lean & Core-Only Testing Rule**: Write tests ONLY for core, critical business logic, scientific/mathematical simulation calculations, and essential E2E API flows. NEVER write superficial tests for generic UI components, static dictionaries, trivial utilities, or pass-through controller mocks. Eliminate redundant test bloat to keep CI fast and maintainable.
