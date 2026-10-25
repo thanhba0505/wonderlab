@@ -1,24 +1,11 @@
 'use client';
 
 import * as React from 'react';
-import {
-  X,
-  Mail,
-  Lock,
-  User,
-  ArrowRight,
-  RefreshCw,
-  Eye,
-  EyeOff,
-  CheckCircle2,
-  AlertCircle,
-  KeyRound,
-  ArrowLeft,
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { X, Mail, Lock, User, ArrowRight, CheckCircle2, KeyRound, ArrowLeft } from 'lucide-react';
 import { BrandLogo } from '@/components/ui/brand-logo';
-import { AppForm, AppFormField } from '@/components/ui';
+import { AppForm, AppFormField, AppFormSubmit, type AppFormHelpers } from '@/components/ui';
 import { useAuth, AuthModalView } from '@/lib/auth-context';
+import { cn } from '@/lib/utils';
 
 export function AuthModal() {
   const {
@@ -37,12 +24,7 @@ export function AuthModal() {
 
   const [mode, setMode] = React.useState<AuthModalView>(authModalMode);
   const [email, setEmail] = React.useState<string>('');
-  const [username, setUsername] = React.useState<string>('');
-  const [password, setPassword] = React.useState<string>('');
-  const [confirmPassword, setConfirmPassword] = React.useState<string>('');
   const [otpCode, setOtpCode] = React.useState<string[]>(['', '', '', '', '', '']);
-  const [showPassword, setShowPassword] = React.useState<boolean>(false);
-  const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
   const [successMessage, setSuccessMessage] = React.useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = React.useState<boolean>(false);
   const [cooldown, setCooldown] = React.useState<number>(0);
@@ -52,7 +34,6 @@ export function AuthModal() {
   React.useEffect(() => {
     setMode(authModalMode);
     if (pendingEmail) setEmail(pendingEmail);
-    setErrorMessage(null);
     setSuccessMessage(null);
   }, [authModalMode, pendingEmail, isAuthModalOpen]);
 
@@ -119,12 +100,16 @@ export function AuthModal() {
   };
 
   // 1. Submit Login
-  const handleLoginSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setErrorMessage(null);
+  const handleLoginSubmit = async (
+    values: Record<string, unknown>,
+    helpers: AppFormHelpers<Record<string, unknown>>,
+  ) => {
+    setSuccessMessage(null);
+    const loginUser = String(values.username || '').trim();
+    const loginPass = String(values.password || '');
     setIsSubmitting(true);
 
-    const result = await login(username, password);
+    const result = await login(loginUser, loginPass);
     setIsSubmitting(false);
 
     if (!result.success) {
@@ -132,33 +117,40 @@ export function AuthModal() {
         setEmail(result.email);
         setMode('otp');
         setCooldown(60);
-        setErrorMessage('Tài khoản chưa kích hoạt. Mã OTP đã được gửi đến email.');
+      } else if (result.errors) {
+        helpers.setErrors(result.errors);
       } else {
-        setErrorMessage(result.error || 'Đăng nhập không thành công.');
+        helpers.setFieldError(
+          'password',
+          result.error || 'Tên đăng nhập hoặc mật khẩu không chính xác.',
+        );
       }
     }
   };
 
   // 2. Submit Register
-  const handleRegisterSubmit = async (values: Record<string, unknown>) => {
-    setErrorMessage(null);
+  const handleRegisterSubmit = async (
+    values: Record<string, unknown>,
+    helpers: AppFormHelpers<Record<string, unknown>>,
+  ) => {
+    setSuccessMessage(null);
     const regUsername = String(values.username || '').trim();
     const regEmail = String(values.email || '').trim();
     const regPassword = String(values.password || '');
     const regConfirm = String(values.confirmPassword || '');
 
     if (!isDev && regPassword !== regConfirm) {
-      setErrorMessage('Mật khẩu xác nhận không khớp.');
+      helpers.setFieldError('confirmPassword', 'Mật khẩu xác nhận không khớp.');
       return;
     }
 
     if (isDev && regConfirm && regPassword !== regConfirm) {
-      setErrorMessage('Mật khẩu xác nhận không khớp.');
+      helpers.setFieldError('confirmPassword', 'Mật khẩu xác nhận không khớp.');
       return;
     }
 
     if (!isDev && regPassword.length < 8) {
-      setErrorMessage('Mật khẩu phải có độ dài tối thiểu 8 ký tự.');
+      helpers.setFieldError('password', 'Mật khẩu phải có độ dài tối thiểu 8 ký tự.');
       return;
     }
 
@@ -167,7 +159,11 @@ export function AuthModal() {
     setIsSubmitting(false);
 
     if (!result.success) {
-      setErrorMessage(result.error || 'Đăng ký tài khoản thất bại.');
+      if (result.errors) {
+        helpers.setErrors(result.errors);
+      } else {
+        helpers.setFieldError('username', result.error || 'Đăng ký tài khoản thất bại.');
+      }
     } else {
       setMode('otp');
       setCooldown(60);
@@ -179,13 +175,15 @@ export function AuthModal() {
   };
 
   // 3. Submit OTP Verify
-  const handleVerifyOtpSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setErrorMessage(null);
+  const handleVerifyOtpSubmit = async (
+    _values: Record<string, unknown>,
+    helpers: AppFormHelpers<Record<string, unknown>>,
+  ) => {
+    setSuccessMessage(null);
     const fullCode = otpCode.join('');
 
     if (fullCode.length !== 6) {
-      setErrorMessage('Vui lòng nhập đủ 6 chữ số mã xác thực.');
+      helpers.setFieldError('code', 'Vui lòng nhập đủ 6 chữ số mã xác thực.');
       return;
     }
 
@@ -194,7 +192,11 @@ export function AuthModal() {
     setIsSubmitting(false);
 
     if (!result.success) {
-      setErrorMessage(result.error || 'Mã xác thực không hợp lệ hoặc đã hết hạn.');
+      if (result.errors) {
+        helpers.setErrors(result.errors);
+      } else {
+        helpers.setFieldError('code', result.error || 'Mã xác thực không hợp lệ hoặc đã hết hạn.');
+      }
     }
   };
 
@@ -203,27 +205,27 @@ export function AuthModal() {
     type: 'REGISTER_VERIFY' | 'RESET_PASSWORD' = 'REGISTER_VERIFY',
   ) => {
     if (cooldown > 0) return;
-    setErrorMessage(null);
     const result = await resendOtp(email, type);
     if (result.success) {
       setCooldown(60);
       setSuccessMessage('Mã xác thực mới đã được gửi đến hộp thư của bạn.');
-    } else {
-      setErrorMessage(result.error || 'Không thể gửi lại mã OTP lúc này.');
     }
   };
 
   // 5. Submit Forgot Password
-  const handleForgotSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setErrorMessage(null);
-    if (!email) {
-      setErrorMessage('Vui lòng nhập địa chỉ email.');
+  const handleForgotSubmit = async (
+    values: Record<string, unknown>,
+    helpers: AppFormHelpers<Record<string, unknown>>,
+  ) => {
+    setSuccessMessage(null);
+    const targetEmail = String(values.email || '').trim();
+    if (!targetEmail) {
+      helpers.setFieldError('email', 'Vui lòng nhập địa chỉ email.');
       return;
     }
 
     setIsSubmitting(true);
-    const result = await forgotPassword(email);
+    const result = await forgotPassword(targetEmail);
     setIsSubmitting(false);
 
     if (result.success) {
@@ -231,47 +233,59 @@ export function AuthModal() {
       setCooldown(60);
       setSuccessMessage('Nếu email tồn tại, mã xác thực 6 số đã được gửi đến hộp thư.');
     } else {
-      setErrorMessage(result.error || 'Có lỗi xảy ra khi xử lý yêu cầu.');
+      if (result.errors) {
+        helpers.setErrors(result.errors);
+      } else {
+        helpers.setFieldError('email', result.error || 'Có lỗi xảy ra khi xử lý yêu cầu.');
+      }
     }
   };
 
   // 6. Submit Reset Password
-  const handleResetSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setErrorMessage(null);
+  const handleResetSubmit = async (
+    values: Record<string, unknown>,
+    helpers: AppFormHelpers<Record<string, unknown>>,
+  ) => {
+    setSuccessMessage(null);
     const fullCode = otpCode.join('');
 
     if (fullCode.length !== 6) {
-      setErrorMessage('Vui lòng nhập đủ 6 chữ số mã OTP.');
+      helpers.setFieldError('code', 'Vui lòng nhập đủ 6 chữ số mã OTP.');
       return;
     }
 
-    if (password !== confirmPassword) {
-      setErrorMessage('Mật khẩu xác nhận không khớp.');
+    const newPass = String(values.password || '');
+    const confPass = String(values.confirmPassword || '');
+
+    if (newPass !== confPass) {
+      helpers.setFieldError('confirmPassword', 'Mật khẩu xác nhận không khớp.');
       return;
     }
 
     setIsSubmitting(true);
-    const result = await resetPassword(email, fullCode, password);
+    const result = await resetPassword(email, fullCode, newPass);
     setIsSubmitting(false);
 
     if (result.success) {
       setMode('login');
       setSuccessMessage('Đặt lại mật khẩu thành công! Bạn có thể đăng nhập ngay.');
     } else {
-      setErrorMessage(result.error || 'Đặt lại mật khẩu thất bại.');
+      if (result.errors) {
+        helpers.setErrors(result.errors);
+      } else {
+        helpers.setFieldError('password', result.error || 'Đặt lại mật khẩu thất bại.');
+      }
     }
   };
 
   // 7. Google OAuth Login Trigger
   const handleGoogleLogin = async () => {
-    setErrorMessage(null);
     setIsSubmitting(true);
 
     // Prompt user for local dev simulation or real email
     const simulatedEmail = window.prompt(
       'Mô phỏng Đăng nhập Google: Nhập email Google của bạn (hoặc giữ nguyên để dùng tài khoản nghiên cứu):',
-      email || 'researcher@gmail.com',
+      'researcher@wonderlab.vn',
     );
 
     if (!simulatedEmail) {
@@ -279,23 +293,20 @@ export function AuthModal() {
       return;
     }
 
-    const name = simulatedEmail.split('@')[0];
-    const googleId = `google_${Math.abs(simulatedEmail.split('').reduce((a, b) => (a << 5) - a + b.charCodeAt(0), 0))}`;
-
-    const result = await loginWithGoogle({
+    await loginWithGoogle({
       email: simulatedEmail,
-      name,
-      googleId,
+      name: simulatedEmail.split('@')[0],
+      googleId: `google_${Date.now()}`,
     });
 
     setIsSubmitting(false);
-    if (!result.success) {
-      setErrorMessage(result.error || 'Đăng nhập Google không thành công.');
-    }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs animate-in fade-in duration-150">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200"
+      onClick={closeAuthModal}
+    >
       <div
         className="relative w-full max-w-md overflow-hidden rounded-2xl bg-white border border-slate-300/85 shadow-[0_20px_60px_-15px_rgba(15,23,42,0.18)]"
         onClick={e => e.stopPropagation()}
@@ -315,7 +326,7 @@ export function AuthModal() {
 
           <button
             onClick={closeAuthModal}
-            className="rounded-lg p-1 text-slate-400 hover:bg-slate-200 hover:text-slate-700 transition"
+            className="rounded-lg p-1 text-slate-400 hover:bg-slate-200 hover:text-slate-700 transition cursor-pointer"
             aria-label="Đóng cửa sổ"
           >
             <X className="h-4 w-4" />
@@ -324,14 +335,7 @@ export function AuthModal() {
 
         {/* Modal Body */}
         <div className="p-6">
-          {/* Notification Messages */}
-          {errorMessage && (
-            <div className="mb-4 flex items-start gap-2.5 rounded-lg border border-rose-200 bg-rose-50/90 p-3 text-xs text-rose-800">
-              <AlertCircle className="h-4 w-4 shrink-0 text-rose-600 mt-0.5" />
-              <div className="font-medium leading-relaxed">{errorMessage}</div>
-            </div>
-          )}
-
+          {/* Success Notification Message */}
           {successMessage && (
             <div className="mb-4 flex items-start gap-2.5 rounded-lg border border-emerald-200 bg-emerald-50/90 p-3 text-xs text-emerald-800">
               <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600 mt-0.5" />
@@ -341,71 +345,50 @@ export function AuthModal() {
 
           {/* VIEW: LOGIN */}
           {mode === 'login' && (
-            <form onSubmit={handleLoginSubmit} className="space-y-4">
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                  Tên đăng nhập hoặc Email
-                </label>
-                <div className="relative">
-                  <User className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
-                  <input
-                    type="text"
-                    required
-                    value={username}
-                    onChange={e => setUsername(e.target.value)}
-                    placeholder="VD: admin hoặc user@domain.com"
-                    className="w-full rounded-lg border border-slate-300 bg-white py-2 pl-9 pr-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  />
-                </div>
-              </div>
+            <AppForm
+              initialValues={{
+                username: '',
+                password: '',
+              }}
+              onSubmit={handleLoginSubmit}
+              className="space-y-4"
+            >
+              <AppFormField
+                name="username"
+                label="Tên đăng nhập hoặc Email"
+                required="Vui lòng nhập tên đăng nhập hoặc email"
+                placeholder="VD: admin hoặc user@domain.com"
+                leftIcon={<User className="h-4 w-4" />}
+              />
 
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <label className="block text-xs font-semibold text-slate-700">Mật khẩu</label>
+                  <span className="text-xs font-semibold text-slate-700">Mật khẩu *</span>
                   <button
                     type="button"
                     onClick={() => {
                       setMode('forgot');
-                      setErrorMessage(null);
                       setSuccessMessage(null);
                     }}
-                    className="text-xs text-blue-600 hover:text-blue-700 font-medium hover:underline"
+                    className="text-xs text-blue-600 hover:text-blue-700 font-medium hover:underline cursor-pointer"
                   >
                     Quên mật khẩu?
                   </button>
                 </div>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    required
-                    value={password}
-                    onChange={e => setPassword(e.target.value)}
-                    placeholder="Nhập mật khẩu..."
-                    className="w-full rounded-lg border border-slate-300 bg-white py-2 pl-9 pr-10 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600"
-                  >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </button>
-                </div>
+                <AppFormField
+                  name="password"
+                  type="password"
+                  showPasswordToggle
+                  required="Vui lòng nhập mật khẩu"
+                  placeholder="Nhập mật khẩu..."
+                  leftIcon={<Lock className="h-4 w-4" />}
+                />
               </div>
 
-              <Button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full font-semibold shadow-xs"
-              >
-                {isSubmitting ? (
-                  <RefreshCw className="h-4 w-4 animate-spin mr-2" />
-                ) : (
-                  <ArrowRight className="h-4 w-4 mr-2" />
-                )}
+              <AppFormSubmit className="w-full font-semibold shadow-xs">
+                <ArrowRight className="h-4 w-4 mr-2" />
                 Đăng nhập
-              </Button>
+              </AppFormSubmit>
 
               <div className="relative my-4 flex items-center justify-center">
                 <div className="absolute inset-0 flex items-center">
@@ -421,7 +404,7 @@ export function AuthModal() {
                 type="button"
                 onClick={handleGoogleLogin}
                 disabled={isSubmitting}
-                className="w-full flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:border-slate-400 transition shadow-2xs"
+                className="w-full flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:border-slate-400 transition shadow-2xs cursor-pointer"
               >
                 <svg className="h-4 w-4" viewBox="0 0 24 24">
                   <path
@@ -450,33 +433,26 @@ export function AuthModal() {
                   type="button"
                   onClick={() => {
                     setMode('register');
-                    setErrorMessage(null);
                     setSuccessMessage(null);
                   }}
-                  className="font-semibold text-blue-600 hover:text-blue-700 hover:underline"
+                  className="font-semibold text-blue-600 hover:text-blue-700 hover:underline cursor-pointer"
                 >
                   Đăng ký ngay
                 </button>
               </div>
-            </form>
+            </AppForm>
           )}
 
           {/* VIEW: REGISTER */}
           {mode === 'register' && (
             <AppForm
               initialValues={{
-                username: username || '',
+                username: '',
                 email: email || '',
-                password: password || '',
-                confirmPassword: confirmPassword || '',
+                password: '',
+                confirmPassword: '',
               }}
-              onSubmit={async values => {
-                setUsername(String(values.username || ''));
-                setEmail(String(values.email || ''));
-                setPassword(String(values.password || ''));
-                setConfirmPassword(String(values.confirmPassword || ''));
-                await handleRegisterSubmit(values);
-              }}
+              onSubmit={handleRegisterSubmit}
               className="space-y-3.5"
             >
               <AppFormField
@@ -547,18 +523,10 @@ export function AuthModal() {
                 ]}
               />
 
-              <Button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full font-semibold shadow-xs mt-2"
-              >
-                {isSubmitting ? (
-                  <RefreshCw className="h-4 w-4 animate-spin mr-2" />
-                ) : (
-                  <ArrowRight className="h-4 w-4 mr-2" />
-                )}
+              <AppFormSubmit className="w-full font-semibold shadow-xs mt-2">
+                <ArrowRight className="h-4 w-4 mr-2" />
                 Tạo tài khoản & Nhận mã OTP
-              </Button>
+              </AppFormSubmit>
 
               <div className="relative my-3 flex items-center justify-center">
                 <div className="absolute inset-0 flex items-center">
@@ -569,11 +537,12 @@ export function AuthModal() {
                 </span>
               </div>
 
+              {/* Google Button */}
               <button
                 type="button"
                 onClick={handleGoogleLogin}
                 disabled={isSubmitting}
-                className="w-full flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition shadow-2xs"
+                className="w-full flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition shadow-2xs cursor-pointer"
               >
                 <svg className="h-4 w-4" viewBox="0 0 24 24">
                   <path
@@ -602,10 +571,9 @@ export function AuthModal() {
                   type="button"
                   onClick={() => {
                     setMode('login');
-                    setErrorMessage(null);
                     setSuccessMessage(null);
                   }}
-                  className="font-semibold text-blue-600 hover:text-blue-700 hover:underline"
+                  className="font-semibold text-blue-600 hover:text-blue-700 hover:underline cursor-pointer"
                 >
                   Đăng nhập ngay
                 </button>
@@ -615,7 +583,11 @@ export function AuthModal() {
 
           {/* VIEW: OTP 6 DIGITS */}
           {mode === 'otp' && (
-            <form onSubmit={handleVerifyOtpSubmit} className="space-y-4">
+            <AppForm
+              initialValues={{ code: otpCode.join('') }}
+              onSubmit={handleVerifyOtpSubmit}
+              className="space-y-4"
+            >
               <div className="text-center">
                 <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-blue-50 text-blue-600 mb-2">
                   <Mail className="h-6 w-6" />
@@ -626,46 +598,50 @@ export function AuthModal() {
                 <div className="mt-1 font-mono font-bold text-slate-800 text-sm">{email}</div>
               </div>
 
-              {/* 6 Digit Inputs */}
-              <div className="flex justify-center gap-2 pt-2">
-                {otpCode.map((digit, idx) => (
-                  <input
-                    key={idx}
-                    ref={el => {
-                      otpInputRefs.current[idx] = el;
-                    }}
-                    type="text"
-                    inputMode="numeric"
-                    maxLength={1}
-                    value={digit}
-                    onChange={e => handleOtpChange(idx, e.target.value)}
-                    onKeyDown={e => handleOtpKeyDown(idx, e)}
-                    className="h-12 w-11 rounded-lg border-2 border-slate-300 text-center font-mono text-xl font-bold text-slate-900 focus:border-blue-600 focus:bg-blue-50/20 focus:outline-none transition-colors"
-                  />
-                ))}
-              </div>
+              {/* 6 Digit Inputs wrapped in AppFormField for error list display */}
+              <AppFormField name="code">
+                {({ hasError }) => (
+                  <div className="flex justify-center gap-2 pt-2">
+                    {otpCode.map((digit, idx) => (
+                      <input
+                        key={idx}
+                        ref={el => {
+                          otpInputRefs.current[idx] = el;
+                        }}
+                        type="text"
+                        inputMode="numeric"
+                        maxLength={1}
+                        value={digit}
+                        onChange={e => handleOtpChange(idx, e.target.value)}
+                        onKeyDown={e => handleOtpKeyDown(idx, e)}
+                        className={cn(
+                          'h-12 w-11 rounded-lg border-2 text-center font-mono text-xl font-bold text-slate-900 focus:outline-none transition-colors',
+                          hasError
+                            ? 'border-red-500 focus:border-red-600'
+                            : 'border-slate-300 focus:border-blue-600 focus:bg-blue-50/20',
+                        )}
+                      />
+                    ))}
+                  </div>
+                )}
+              </AppFormField>
 
-              <Button
-                type="submit"
-                disabled={isSubmitting || otpCode.join('').length !== 6}
+              <AppFormSubmit
+                disabled={otpCode.join('').length !== 6}
                 className="w-full font-semibold shadow-xs mt-2"
               >
-                {isSubmitting ? (
-                  <RefreshCw className="h-4 w-4 animate-spin mr-2" />
-                ) : (
-                  <CheckCircle2 className="h-4 w-4 mr-2" />
-                )}
+                <CheckCircle2 className="h-4 w-4 mr-2" />
                 Xác thực & Vào phòng Lab
-              </Button>
+              </AppFormSubmit>
 
               <div className="flex items-center justify-between pt-2 text-xs">
                 <button
                   type="button"
                   onClick={() => {
                     setMode('login');
-                    setErrorMessage(null);
+                    setSuccessMessage(null);
                   }}
-                  className="flex items-center gap-1 text-slate-500 hover:text-slate-800 font-medium"
+                  className="flex items-center gap-1 text-slate-500 hover:text-slate-800 font-medium cursor-pointer"
                 >
                   <ArrowLeft className="h-3 w-3" /> Quay lại
                 </button>
@@ -674,7 +650,7 @@ export function AuthModal() {
                   type="button"
                   disabled={cooldown > 0}
                   onClick={() => handleResendOtp('REGISTER_VERIFY')}
-                  className={`font-semibold ${
+                  className={`font-semibold cursor-pointer ${
                     cooldown > 0
                       ? 'text-slate-400 cursor-not-allowed font-mono'
                       : 'text-blue-600 hover:text-blue-700 hover:underline'
@@ -683,150 +659,127 @@ export function AuthModal() {
                   {cooldown > 0 ? `Gửi lại mã (${cooldown}s)` : 'Gửi lại mã OTP'}
                 </button>
               </div>
-            </form>
+            </AppForm>
           )}
 
           {/* VIEW: FORGOT PASSWORD */}
           {mode === 'forgot' && (
-            <form onSubmit={handleForgotSubmit} className="space-y-4">
+            <AppForm
+              initialValues={{ email: email || '' }}
+              onSubmit={handleForgotSubmit}
+              className="space-y-4"
+            >
               <p className="text-xs text-slate-600 leading-relaxed">
                 Nhập địa chỉ email đăng ký của bạn. Wonderlab sẽ gửi mã OTP 6 số để bạn tiến hành
                 khôi phục mật khẩu một cách an toàn.
               </p>
 
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Địa chỉ Email tài khoản
-                </label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
-                  <input
-                    type="email"
-                    required
-                    value={email}
-                    onChange={e => setEmail(e.target.value)}
-                    placeholder="VD: researcher@gmail.com"
-                    className="w-full rounded-lg border border-slate-300 bg-white py-2 pl-9 pr-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  />
-                </div>
-              </div>
+              <AppFormField
+                name="email"
+                label="Địa chỉ Email tài khoản"
+                type="email"
+                required="Vui lòng nhập địa chỉ email"
+                placeholder="VD: researcher@gmail.com"
+                leftIcon={<Mail className="h-4 w-4" />}
+              />
 
-              <Button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full font-semibold shadow-xs"
-              >
-                {isSubmitting ? (
-                  <RefreshCw className="h-4 w-4 animate-spin mr-2" />
-                ) : (
-                  <ArrowRight className="h-4 w-4 mr-2" />
-                )}
+              <AppFormSubmit className="w-full font-semibold shadow-xs">
+                <ArrowRight className="h-4 w-4 mr-2" />
                 Gửi mã xác thực 6 số
-              </Button>
+              </AppFormSubmit>
 
               <div className="pt-2 text-center">
                 <button
                   type="button"
                   onClick={() => {
                     setMode('login');
-                    setErrorMessage(null);
+                    setSuccessMessage(null);
                   }}
-                  className="inline-flex items-center gap-1 text-xs text-slate-500 hover:text-slate-800 font-medium"
+                  className="inline-flex items-center gap-1 text-xs text-slate-500 hover:text-slate-800 font-medium cursor-pointer"
                 >
                   <ArrowLeft className="h-3 w-3" /> Quay lại Đăng nhập
                 </button>
               </div>
-            </form>
+            </AppForm>
           )}
 
           {/* VIEW: RESET PASSWORD */}
           {mode === 'reset' && (
-            <form onSubmit={handleResetSubmit} className="space-y-3.5">
+            <AppForm
+              initialValues={{
+                code: otpCode.join(''),
+                password: '',
+                confirmPassword: '',
+              }}
+              onSubmit={handleResetSubmit}
+              className="space-y-3.5"
+            >
               <div className="text-center">
                 <p className="text-xs text-slate-600">Nhập mã OTP 6 số đã gửi tới:</p>
                 <div className="font-mono font-bold text-slate-800 text-xs mt-0.5">{email}</div>
               </div>
 
-              <div className="flex justify-center gap-2 pt-1">
-                {otpCode.map((digit, idx) => (
-                  <input
-                    key={idx}
-                    ref={el => {
-                      otpInputRefs.current[idx] = el;
-                    }}
-                    type="text"
-                    inputMode="numeric"
-                    maxLength={1}
-                    value={digit}
-                    onChange={e => handleOtpChange(idx, e.target.value)}
-                    onKeyDown={e => handleOtpKeyDown(idx, e)}
-                    className="h-10 w-10 rounded-lg border-2 border-slate-300 text-center font-mono text-lg font-bold text-slate-900 focus:border-blue-600 focus:outline-none"
-                  />
-                ))}
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Mật khẩu mới (Tối thiểu 8 ký tự)
-                </label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    required
-                    value={password}
-                    onChange={e => setPassword(e.target.value)}
-                    placeholder="Mật khẩu mới..."
-                    className="w-full rounded-lg border border-slate-300 bg-white py-2 pl-9 pr-10 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600"
-                  >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </button>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Xác nhận lại mật khẩu mới
-                </label>
-                <div className="relative">
-                  <KeyRound className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    required
-                    value={confirmPassword}
-                    onChange={e => setConfirmPassword(e.target.value)}
-                    placeholder="Gõ lại mật khẩu mới..."
-                    className="w-full rounded-lg border border-slate-300 bg-white py-2 pl-9 pr-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  />
-                </div>
-              </div>
-
-              <Button
-                type="submit"
-                disabled={isSubmitting || otpCode.join('').length !== 6}
-                className="w-full font-semibold shadow-xs"
-              >
-                {isSubmitting ? (
-                  <RefreshCw className="h-4 w-4 animate-spin mr-2" />
-                ) : (
-                  <CheckCircle2 className="h-4 w-4 mr-2" />
+              <AppFormField name="code">
+                {({ hasError }) => (
+                  <div className="flex justify-center gap-2 pt-1">
+                    {otpCode.map((digit, idx) => (
+                      <input
+                        key={idx}
+                        ref={el => {
+                          otpInputRefs.current[idx] = el;
+                        }}
+                        type="text"
+                        inputMode="numeric"
+                        maxLength={1}
+                        value={digit}
+                        onChange={e => handleOtpChange(idx, e.target.value)}
+                        onKeyDown={e => handleOtpKeyDown(idx, e)}
+                        className={cn(
+                          'h-10 w-10 rounded-lg border-2 text-center font-mono text-lg font-bold text-slate-900 focus:outline-none transition-colors',
+                          hasError
+                            ? 'border-red-500 focus:border-red-600'
+                            : 'border-slate-300 focus:border-blue-600',
+                        )}
+                      />
+                    ))}
+                  </div>
                 )}
+              </AppFormField>
+
+              <AppFormField
+                name="password"
+                label="Mật khẩu mới (Tối thiểu 8 ký tự)"
+                type="password"
+                showPasswordToggle
+                required="Vui lòng nhập mật khẩu mới"
+                placeholder="Mật khẩu mới..."
+                leftIcon={<Lock className="h-4 w-4" />}
+                rules={[{ minLength: 8, message: 'Mật khẩu phải có độ dài tối thiểu 8 ký tự' }]}
+              />
+
+              <AppFormField
+                name="confirmPassword"
+                label="Xác nhận lại mật khẩu mới"
+                type="password"
+                showPasswordToggle
+                required="Vui lòng xác nhận lại mật khẩu"
+                placeholder="Gõ lại mật khẩu mới..."
+                leftIcon={<KeyRound className="h-4 w-4" />}
+              />
+
+              <AppFormSubmit className="w-full font-semibold shadow-xs">
+                <CheckCircle2 className="h-4 w-4 mr-2" />
                 Cập nhật mật khẩu & Đăng nhập
-              </Button>
+              </AppFormSubmit>
 
               <div className="flex items-center justify-between pt-1 text-xs">
                 <button
                   type="button"
                   onClick={() => {
                     setMode('login');
-                    setErrorMessage(null);
+                    setSuccessMessage(null);
                   }}
-                  className="flex items-center gap-1 text-slate-500 hover:text-slate-800 font-medium"
+                  className="flex items-center gap-1 text-slate-500 hover:text-slate-800 font-medium cursor-pointer"
                 >
                   <ArrowLeft className="h-3 w-3" /> Quay lại
                 </button>
@@ -835,7 +788,7 @@ export function AuthModal() {
                   type="button"
                   disabled={cooldown > 0}
                   onClick={() => handleResendOtp('RESET_PASSWORD')}
-                  className={`font-semibold ${
+                  className={`font-semibold cursor-pointer ${
                     cooldown > 0
                       ? 'text-slate-400 cursor-not-allowed font-mono'
                       : 'text-blue-600 hover:text-blue-700 hover:underline'
@@ -844,7 +797,7 @@ export function AuthModal() {
                   {cooldown > 0 ? `Gửi lại mã (${cooldown}s)` : 'Gửi lại mã OTP'}
                 </button>
               </div>
-            </form>
+            </AppForm>
           )}
         </div>
       </div>

@@ -1,4 +1,4 @@
-import { Logger, ValidationPipe } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
@@ -6,6 +6,8 @@ import cookieParser from 'cookie-parser';
 import type { Request, Response, NextFunction } from 'express';
 import { AppModule } from './app.module';
 import { APP_VERSION } from './common/version';
+import { HttpExceptionFilter } from './common/filters/http-exception.filter';
+import { createValidationPipe } from './common/pipes/validation.pipe';
 
 async function bootstrap() {
   const logger = new Logger('WonderlabServer');
@@ -39,14 +41,11 @@ async function bootstrap() {
   // Global API Prefix
   app.setGlobalPrefix('api/v1');
 
-  // Global Validation Pipe
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      transform: true,
-    }),
-  );
+  // Global Uniform Exception Filter
+  app.useGlobalFilters(new HttpExceptionFilter());
+
+  // Global Validation Pipe with structured field error extraction
+  app.useGlobalPipes(createValidationPipe());
 
   // CORS Configuration
   const corsOrigins = process.env.CORS_ORIGINS

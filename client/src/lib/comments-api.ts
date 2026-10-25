@@ -40,6 +40,13 @@ export async function fetchSimulationComments(slug: string): Promise<SimulationC
   }
 }
 
+export interface PostCommentResult {
+  success: boolean;
+  comment?: SimulationComment;
+  error?: string;
+  errors?: Record<string, string[]>;
+}
+
 /**
  * Đăng bình luận gốc (Level 1) hoặc phản hồi (Level 2)
  */
@@ -47,7 +54,7 @@ export async function postSimulationComment(
   slug: string,
   content: string,
   parentId?: string,
-): Promise<{ success: boolean; comment?: SimulationComment; error?: string }> {
+): Promise<PostCommentResult> {
   try {
     const res = await fetch(`${API_BASE_URL}/simulations/${slug}/comments`, {
       method: 'POST',
@@ -62,14 +69,22 @@ export async function postSimulationComment(
       }),
     });
 
-    const data = await res.json();
+    const data = await res.json().catch(() => ({}));
 
     if (!res.ok) {
+      let errorMessage = 'Lỗi khi gửi bình luận';
+      if (typeof data.message === 'string') {
+        errorMessage = data.message;
+      } else if (Array.isArray(data.message) && data.message.length > 0) {
+        errorMessage = String(data.message[0]);
+      } else if (typeof data.error === 'string') {
+        errorMessage = data.error;
+      }
+
       return {
         success: false,
-        error: Array.isArray(data.message)
-          ? data.message.join(', ')
-          : data.message || 'Lỗi khi gửi bình luận',
+        error: errorMessage,
+        errors: data.errors,
       };
     }
 

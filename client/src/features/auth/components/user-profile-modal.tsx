@@ -1,21 +1,11 @@
 'use client';
 
 import * as React from 'react';
-import {
-  X,
-  User,
-  Mail,
-  KeyRound,
-  LogOut,
-  CheckCircle2,
-  AlertCircle,
-  RefreshCw,
-  Lock,
-} from 'lucide-react';
+import { X, User, Mail, KeyRound, LogOut, CheckCircle2, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { BrandLogo } from '@/components/ui/brand-logo';
-import { AppInput } from '@/components/ui/app-input';
+import { AppForm, AppFormField, AppFormSubmit, type AppFormHelpers } from '@/components/ui';
 import { useAuth } from '@/lib/auth-context';
 
 export function UserProfileModal() {
@@ -23,77 +13,76 @@ export function UserProfileModal() {
     useAuth();
 
   const [activeTab, setActiveTab] = React.useState<'overview' | 'security'>('overview');
-  const [currentPassword, setCurrentPassword] = React.useState<string>('');
-  const [newPassword, setNewPassword] = React.useState<string>('');
-  const [confirmPassword, setConfirmPassword] = React.useState<string>('');
-  const [isSubmitting, setIsSubmitting] = React.useState<boolean>(false);
-  const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
   const [successMessage, setSuccessMessage] = React.useState<string | null>(null);
 
   React.useEffect(() => {
-    setErrorMessage(null);
     setSuccessMessage(null);
-    setCurrentPassword('');
-    setNewPassword('');
-    setConfirmPassword('');
   }, [isProfileModalOpen, activeTab]);
 
   if (!isProfileModalOpen || !user) return null;
 
-  const handleChangePasswordSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setErrorMessage(null);
+  const handleChangePasswordSubmit = async (
+    values: Record<string, unknown>,
+    helpers: AppFormHelpers<Record<string, unknown>>,
+  ) => {
     setSuccessMessage(null);
+    const currPass = String(values.currentPassword || '');
+    const newPass = String(values.newPassword || '');
+    const confPass = String(values.confirmPassword || '');
 
-    if (newPassword !== confirmPassword) {
-      setErrorMessage('Mật khẩu xác nhận không khớp.');
+    if (newPass !== confPass) {
+      helpers.setFieldError('confirmPassword', 'Mật khẩu xác nhận không khớp.');
       return;
     }
 
-    if (newPassword.length < 8) {
-      setErrorMessage('Mật khẩu mới phải có tối thiểu 8 ký tự.');
+    if (newPass.length < 8) {
+      helpers.setFieldError('newPassword', 'Mật khẩu mới phải có tối thiểu 8 ký tự.');
       return;
     }
 
-    setIsSubmitting(true);
-    const result = await changePassword(currentPassword, newPassword);
-    setIsSubmitting(false);
+    const result = await changePassword(currPass, newPass);
 
     if (result.success) {
       setSuccessMessage('Đổi mật khẩu thành công!');
-      setCurrentPassword('');
-      setNewPassword('');
-      setConfirmPassword('');
+      helpers.resetForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
     } else {
-      setErrorMessage(result.error || 'Đổi mật khẩu thất bại.');
+      if (result.errors) {
+        helpers.setErrors(result.errors);
+      } else {
+        helpers.setFieldError('currentPassword', result.error || 'Đổi mật khẩu thất bại.');
+      }
     }
   };
 
-  const handleSetPasswordSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setErrorMessage(null);
+  const handleSetPasswordSubmit = async (
+    values: Record<string, unknown>,
+    helpers: AppFormHelpers<Record<string, unknown>>,
+  ) => {
     setSuccessMessage(null);
+    const newPass = String(values.newPassword || '');
+    const confPass = String(values.confirmPassword || '');
 
-    if (newPassword !== confirmPassword) {
-      setErrorMessage('Mật khẩu xác nhận không khớp.');
+    if (newPass !== confPass) {
+      helpers.setFieldError('confirmPassword', 'Mật khẩu xác nhận không khớp.');
       return;
     }
 
-    if (newPassword.length < 8) {
-      setErrorMessage('Mật khẩu phải có tối thiểu 8 ký tự.');
+    if (newPass.length < 8) {
+      helpers.setFieldError('newPassword', 'Mật khẩu phải có tối thiểu 8 ký tự.');
       return;
     }
 
-    setIsSubmitting(true);
-    const result = await setPassword(newPassword);
-    setIsSubmitting(false);
+    const result = await setPassword(newPass);
 
     if (result.success) {
       setSuccessMessage('Thiết lập mật khẩu thành công! Giờ bạn có thể đăng nhập bằng email.');
-      setNewPassword('');
-      setConfirmPassword('');
+      helpers.resetForm({ newPassword: '', confirmPassword: '' });
     } else {
-      setErrorMessage(result.error || 'Thiết lập mật khẩu thất bại.');
+      if (result.errors) {
+        helpers.setErrors(result.errors);
+      } else {
+        helpers.setFieldError('newPassword', result.error || 'Thiết lập mật khẩu thất bại.');
+      }
     }
   };
 
@@ -114,7 +103,7 @@ export function UserProfileModal() {
 
           <button
             onClick={closeProfileModal}
-            className="rounded-lg p-1 text-slate-400 hover:bg-slate-200 hover:text-slate-700 transition"
+            className="rounded-lg p-1 text-slate-400 hover:bg-slate-200 hover:text-slate-700 transition cursor-pointer"
             aria-label="Đóng cửa sổ"
           >
             <X className="h-4 w-4" />
@@ -125,7 +114,7 @@ export function UserProfileModal() {
         <div className="flex border-b border-slate-200 px-6 bg-slate-50/30">
           <button
             onClick={() => setActiveTab('overview')}
-            className={`py-2.5 px-3 text-xs font-semibold border-b-2 transition -mb-px flex items-center gap-1.5 ${
+            className={`py-2.5 px-3 text-xs font-semibold border-b-2 transition -mb-px flex items-center gap-1.5 cursor-pointer ${
               activeTab === 'overview'
                 ? 'border-blue-600 text-blue-700'
                 : 'border-transparent text-slate-500 hover:text-slate-800'
@@ -136,7 +125,7 @@ export function UserProfileModal() {
           </button>
           <button
             onClick={() => setActiveTab('security')}
-            className={`py-2.5 px-3 text-xs font-semibold border-b-2 transition -mb-px flex items-center gap-1.5 ${
+            className={`py-2.5 px-3 text-xs font-semibold border-b-2 transition -mb-px flex items-center gap-1.5 cursor-pointer ${
               activeTab === 'security'
                 ? 'border-blue-600 text-blue-700'
                 : 'border-transparent text-slate-500 hover:text-slate-800'
@@ -149,13 +138,6 @@ export function UserProfileModal() {
 
         {/* Modal Body */}
         <div className="p-6">
-          {errorMessage && (
-            <div className="mb-4 flex items-start gap-2.5 rounded-lg border border-rose-200 bg-rose-50/90 p-3 text-xs text-rose-800">
-              <AlertCircle className="h-4 w-4 shrink-0 text-rose-600 mt-0.5" />
-              <div className="font-medium leading-relaxed">{errorMessage}</div>
-            </div>
-          )}
-
           {successMessage && (
             <div className="mb-4 flex items-start gap-2.5 rounded-lg border border-emerald-200 bg-emerald-50/90 p-3 text-xs text-emerald-800">
               <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600 mt-0.5" />
@@ -218,35 +200,26 @@ export function UserProfileModal() {
 
                 <div className="flex items-center justify-between p-3">
                   <span className="text-slate-600 font-medium">Mật khẩu cá nhân</span>
-                  <div className="flex items-center gap-1.5 font-mono">
-                    {user.hasPassword !== false ? (
-                      <span className="text-slate-700 font-semibold flex items-center gap-1">
-                        <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" /> Đã thiết lập
-                      </span>
+                  <div className="font-mono">
+                    {user.hasPassword ? (
+                      <span className="text-emerald-700 font-semibold">Đã thiết lập</span>
                     ) : (
-                      <span className="text-amber-700 font-semibold">Chưa có (Dùng Google)</span>
+                      <span className="text-amber-700 font-semibold">Chưa thiết lập</span>
                     )}
                   </div>
                 </div>
               </div>
 
-              {/* Logout & Action row */}
-              <div className="pt-2 flex items-center justify-between">
+              {/* Logout Button */}
+              <div className="pt-2">
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setActiveTab('security')}
-                  className="text-xs text-slate-700 font-medium"
-                >
-                  <Lock className="h-3.5 w-3.5 mr-1.5 text-slate-500" />
-                  {user.hasPassword === false ? 'Thiết lập mật khẩu' : 'Đổi mật khẩu'}
-                </Button>
-
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => logout()}
-                  className="text-xs text-rose-600 hover:text-rose-700 hover:bg-rose-50 font-medium"
+                  onClick={async () => {
+                    await logout();
+                    closeProfileModal();
+                  }}
+                  className="w-full text-slate-600 border-slate-300 hover:bg-slate-100 hover:text-rose-600 cursor-pointer"
                 >
                   <LogOut className="h-3.5 w-3.5 mr-1.5" />
                   Đăng xuất tài khoản
@@ -259,96 +232,85 @@ export function UserProfileModal() {
             <div>
               {user.hasPassword === false ? (
                 /* Google account without password: SET PASSWORD */
-                <form onSubmit={handleSetPasswordSubmit} className="space-y-4">
+                <AppForm
+                  initialValues={{ newPassword: '', confirmPassword: '' }}
+                  onSubmit={handleSetPasswordSubmit}
+                  className="space-y-4"
+                >
                   <div className="rounded-lg bg-blue-50/80 border border-blue-200 p-3 text-xs text-blue-900 leading-relaxed">
                     Tài khoản của bạn hiện đang đăng nhập qua Google. Bạn có thể thiết lập mật khẩu
                     để đăng nhập trực tiếp bằng email mà không cần thông qua Google.
                   </div>
 
-                  <AppInput
+                  <AppFormField
+                    name="newPassword"
                     label="Mật khẩu mới (Tối thiểu 8 ký tự)"
                     type="password"
                     showPasswordToggle
                     leftIcon={<Lock className="h-4 w-4" />}
-                    required
-                    value={newPassword}
-                    onChange={e => setNewPassword(e.target.value)}
+                    required="Vui lòng nhập mật khẩu mới"
                     placeholder="Mật khẩu mới..."
+                    rules={[{ minLength: 8, message: 'Mật khẩu phải có tối thiểu 8 ký tự' }]}
                   />
 
-                  <AppInput
+                  <AppFormField
+                    name="confirmPassword"
                     label="Xác nhận lại mật khẩu mới"
                     type="password"
                     showPasswordToggle
                     leftIcon={<KeyRound className="h-4 w-4" />}
-                    required
-                    value={confirmPassword}
-                    onChange={e => setConfirmPassword(e.target.value)}
+                    required="Vui lòng xác nhận mật khẩu mới"
                     placeholder="Gõ lại mật khẩu mới..."
                   />
 
-                  <Button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="w-full font-semibold shadow-xs"
-                  >
-                    {isSubmitting ? (
-                      <RefreshCw className="h-4 w-4 animate-spin mr-2" />
-                    ) : (
-                      <CheckCircle2 className="h-4 w-4 mr-2" />
-                    )}
+                  <AppFormSubmit className="w-full font-semibold shadow-xs">
+                    <CheckCircle2 className="h-4 w-4 mr-2" />
                     Thiết lập mật khẩu cá nhân
-                  </Button>
-                </form>
+                  </AppFormSubmit>
+                </AppForm>
               ) : (
                 /* Regular account: CHANGE PASSWORD */
-                <form onSubmit={handleChangePasswordSubmit} className="space-y-4">
-                  <AppInput
+                <AppForm
+                  initialValues={{ currentPassword: '', newPassword: '', confirmPassword: '' }}
+                  onSubmit={handleChangePasswordSubmit}
+                  className="space-y-4"
+                >
+                  <AppFormField
+                    name="currentPassword"
                     label="Mật khẩu hiện tại"
                     type="password"
                     showPasswordToggle
                     leftIcon={<Lock className="h-4 w-4" />}
-                    required
-                    value={currentPassword}
-                    onChange={e => setCurrentPassword(e.target.value)}
+                    required="Vui lòng nhập mật khẩu hiện tại"
                     placeholder="Nhập mật khẩu hiện tại..."
                   />
 
-                  <AppInput
+                  <AppFormField
+                    name="newPassword"
                     label="Mật khẩu mới (Tối thiểu 8 ký tự)"
                     type="password"
                     showPasswordToggle
                     leftIcon={<KeyRound className="h-4 w-4" />}
-                    required
-                    value={newPassword}
-                    onChange={e => setNewPassword(e.target.value)}
+                    required="Vui lòng nhập mật khẩu mới"
                     placeholder="Nhập mật khẩu mới..."
+                    rules={[{ minLength: 8, message: 'Mật khẩu mới phải có tối thiểu 8 ký tự' }]}
                   />
 
-                  <AppInput
+                  <AppFormField
+                    name="confirmPassword"
                     label="Xác nhận mật khẩu mới"
                     type="password"
                     showPasswordToggle
                     leftIcon={<KeyRound className="h-4 w-4" />}
-                    required
-                    value={confirmPassword}
-                    onChange={e => setConfirmPassword(e.target.value)}
+                    required="Vui lòng xác nhận mật khẩu mới"
                     placeholder="Gõ lại mật khẩu mới..."
                   />
 
-                  <Button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="w-full font-semibold shadow-xs"
-                  >
-                    {isSubmitting ? (
-                      <RefreshCw className="h-4 w-4 animate-spin mr-2" />
-                    ) : (
-                      <CheckCircle2 className="h-4 w-4 mr-2" />
-                    )}
+                  <AppFormSubmit className="w-full font-semibold shadow-xs">
+                    <CheckCircle2 className="h-4 w-4 mr-2" />
                     Cập nhật mật khẩu mới
-                  </Button>
-                </form>
+                  </AppFormSubmit>
+                </AppForm>
               )}
             </div>
           )}

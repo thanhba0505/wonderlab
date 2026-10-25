@@ -3,19 +3,19 @@
 import * as React from 'react';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { AppConfirmModal } from '@/components/ui';
+import { AppConfirmModal, AppForm, AppFormField, AppFormSubmit } from '@/components/ui';
 import {
   MessageSquare,
   Reply,
   Trash2,
   Send,
   LogIn,
-  AlertCircle,
   Shield,
   User as UserIcon,
   CornerDownRight,
   Loader2,
 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { useAuth } from '@/lib/auth-context';
 import {
   SimulationComment,
@@ -57,23 +57,16 @@ export function CommentSection({
   const { user, login } = useAuth();
   const [comments, setComments] = React.useState<SimulationComment[]>([]);
   const [isLoading, setIsLoading] = React.useState<boolean>(true);
-  const [isSubmittingRoot, setIsSubmittingRoot] = React.useState<boolean>(false);
   const [submittingReplyId, setSubmittingReplyId] = React.useState<string | null>(null);
   const [deletingCommentId, setDeletingCommentId] = React.useState<string | null>(null);
   const [deleteConfirmCommentId, setDeleteConfirmCommentId] = React.useState<string | null>(null);
-  const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
 
   // Form states
-  const [rootContent, setRootContent] = React.useState<string>('');
   const [replyingToId, setReplyingToId] = React.useState<string | null>(null);
   const [replyContent, setReplyContent] = React.useState<string>('');
 
   // Quick inline login modal state for guests
   const [showQuickLogin, setShowQuickLogin] = React.useState<boolean>(false);
-  const [loginUsername, setLoginUsername] = React.useState<string>('admin');
-  const [loginPassword, setLoginPassword] = React.useState<string>('Admin@Wonderlab2026!');
-  const [loginError, setLoginError] = React.useState<string | null>(null);
-  const [isLoggingIn, setIsLoggingIn] = React.useState<boolean>(false);
 
   // Load comments (silent=true retains existing UI to eliminate screen flashes)
   const loadComments = React.useCallback(
@@ -104,37 +97,12 @@ export function CommentSection({
     return comments.reduce((acc, c) => acc + 1 + (c.replies ? c.replies.length : 0), 0);
   }, [comments]);
 
-  // Handle Root Comment Submit
-  const handleRootSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const content = rootContent.trim();
-    if (!content || isSubmittingRoot) return;
-
-    setIsSubmittingRoot(true);
-    setErrorMessage(null);
-
-    const res = await postSimulationComment(simulationSlug, content);
-    if (res.success) {
-      setRootContent('');
-      if (res.comment) {
-        const newComment = res.comment;
-        setComments(prev => [newComment, ...prev]);
-      } else {
-        await loadComments(true);
-      }
-    } else {
-      setErrorMessage(res.error || 'Không thể đăng bình luận');
-    }
-    setIsSubmittingRoot(false);
-  };
-
   // Handle Reply Submit (Level 2)
   const handleReplySubmit = async (parentId: string) => {
     const content = replyContent.trim();
     if (!content || submittingReplyId) return;
 
     setSubmittingReplyId(parentId);
-    setErrorMessage(null);
 
     const res = await postSimulationComment(simulationSlug, content, parentId);
     if (res.success) {
@@ -157,7 +125,7 @@ export function CommentSection({
         await loadComments(true);
       }
     } else {
-      setErrorMessage(res.error || 'Không thể gửi phản hồi');
+      alert(res.error || 'Không thể gửi phản hồi');
     }
     setSubmittingReplyId(null);
   };
@@ -190,22 +158,6 @@ export function CommentSection({
     setDeleteConfirmCommentId(null);
   };
 
-  // Handle Quick Login
-  const handleQuickLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoggingIn(true);
-    setLoginError(null);
-
-    const result = await login(loginUsername, loginPassword);
-    if (result.success) {
-      setShowQuickLogin(false);
-      await loadComments(true);
-    } else {
-      setLoginError(result.error || 'Đăng nhập không thành công');
-    }
-    setIsLoggingIn(false);
-  };
-
   return (
     <Card className="border-slate-300/85 bg-white shadow-xs">
       <CardHeader className="border-b border-slate-200/80 py-4 px-5">
@@ -231,46 +183,67 @@ export function CommentSection({
       </CardHeader>
 
       <CardContent className="pt-6 space-y-6">
-        {errorMessage && (
-          <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2">
-            <AlertCircle className="h-4 w-4 shrink-0 text-rose-600" />
-            <span>{errorMessage}</span>
-          </div>
-        )}
-
         {/* Form đăng bình luận gốc (Level 1) */}
         {user ? (
-          <form onSubmit={handleRootSubmit} className="space-y-3">
-            <div className="relative">
-              <textarea
-                value={rootContent}
-                onChange={e => setRootContent(e.target.value)}
-                placeholder={placeholderText}
-                rows={3}
-                maxLength={2000}
-                className="w-full rounded-xl border border-slate-300 p-3.5 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-y min-h-[90px]"
-              />
-              <span className="absolute bottom-2.5 right-3 text-xs font-mono text-slate-400">
-                {rootContent.length}/2000
-              </span>
-            </div>
+          <AppForm
+            initialValues={{ content: '' }}
+            onSubmit={async (values, helpers) => {
+              const content = String(values.content || '').trim();
+              if (!content) {
+                helpers.setFieldError('content', 'Vui lòng nhập nội dung bình luận');
+                return;
+              }
+              const res = await postSimulationComment(simulationSlug, content);
+              if (res.success) {
+                helpers.resetForm({ content: '' });
+                if (res.comment) {
+                  setComments(prev => [res.comment!, ...prev]);
+                } else {
+                  await loadComments(true);
+                }
+              } else {
+                if (res.errors) {
+                  helpers.setErrors(res.errors);
+                } else {
+                  helpers.setFieldError('content', res.error || 'Không thể đăng bình luận');
+                }
+              }
+            }}
+            className="space-y-3"
+          >
+            <AppFormField name="content">
+              {({ value, onChange, hasError }) => (
+                <div className="relative">
+                  <textarea
+                    value={String(value || '')}
+                    onChange={onChange}
+                    placeholder={placeholderText}
+                    rows={3}
+                    maxLength={2000}
+                    className={cn(
+                      'w-full rounded-xl border p-3.5 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:border-transparent transition-all resize-y min-h-[90px]',
+                      hasError
+                        ? 'border-red-500 focus:ring-red-500'
+                        : 'border-slate-300 focus:ring-blue-500',
+                    )}
+                  />
+                  <span className="absolute bottom-2.5 right-3 text-xs font-mono text-slate-400">
+                    {String(value || '').length}/2000
+                  </span>
+                </div>
+              )}
+            </AppFormField>
 
             <div className="flex justify-end items-center">
-              <Button
-                type="submit"
+              <AppFormSubmit
                 size="sm"
-                disabled={isSubmittingRoot || !rootContent.trim()}
+                leftIcon={<Send className="h-3.5 w-3.5 mr-1.5" />}
                 className="text-xs font-semibold shadow-sm"
               >
-                {isSubmittingRoot ? (
-                  <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
-                ) : (
-                  <Send className="h-3.5 w-3.5 mr-1.5" />
-                )}
                 Gửi bình luận
-              </Button>
+              </AppFormSubmit>
             </div>
-          </form>
+          </AppForm>
         ) : (
           /* Khách chưa đăng nhập: Callout mời đăng nhập */
           <div className="rounded-xl border border-slate-300/80 bg-slate-50/70 p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -299,44 +272,50 @@ export function CommentSection({
 
         {/* Quick inline login form */}
         {showQuickLogin && !user && (
-          <form
-            onSubmit={handleQuickLogin}
+          <AppForm
+            initialValues={{ username: '', password: '' }}
+            onSubmit={async (values, helpers) => {
+              const u = String(values.username || '').trim();
+              const p = String(values.password || '');
+              const result = await login(u, p);
+              if (result.success) {
+                setShowQuickLogin(false);
+                await loadComments(true);
+              } else {
+                if (result.errors) {
+                  helpers.setErrors(result.errors);
+                } else {
+                  helpers.setFieldError(
+                    'password',
+                    result.error || 'Tên đăng nhập hoặc mật khẩu không chính xác',
+                  );
+                }
+              }
+            }}
             className="p-4 rounded-xl border border-blue-200 bg-blue-50/40 space-y-3"
           >
             <div className="text-xs font-bold text-blue-900 uppercase tracking-wide">
               Đăng nhập tài khoản Wonderlab
             </div>
 
-            {loginError && (
-              <div className="text-xs text-rose-700 bg-rose-50 p-2 rounded border border-rose-200">
-                {loginError}
-              </div>
-            )}
-
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label className="text-xs font-semibold text-slate-700 block mb-1">
-                  Tên đăng nhập
-                </label>
-                <input
-                  type="text"
-                  value={loginUsername}
-                  onChange={e => setLoginUsername(e.target.value)}
-                  className="w-full rounded-md border border-slate-300 px-3 py-1.5 text-xs bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
+              <AppFormField
+                name="username"
+                label="Tên đăng nhập"
+                required="Vui lòng nhập tên đăng nhập"
+                size="sm"
+                placeholder="Nhập username hoặc email"
+              />
 
-              <div>
-                <label className="text-xs font-semibold text-slate-700 block mb-1">Mật khẩu</label>
-                <input
-                  type="password"
-                  value={loginPassword}
-                  onChange={e => setLoginPassword(e.target.value)}
-                  className="w-full rounded-md border border-slate-300 px-3 py-1.5 text-xs bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
+              <AppFormField
+                name="password"
+                type="password"
+                showPasswordToggle
+                label="Mật khẩu"
+                required="Vui lòng nhập mật khẩu"
+                size="sm"
+                placeholder="Nhập mật khẩu..."
+              />
             </div>
 
             <div className="flex justify-end gap-2 pt-1">
@@ -345,21 +324,15 @@ export function CommentSection({
                 variant="ghost"
                 size="sm"
                 onClick={() => setShowQuickLogin(false)}
-                className="text-xs text-slate-600"
+                className="text-xs text-slate-600 cursor-pointer"
               >
                 Hủy
               </Button>
-              <Button
-                type="submit"
-                size="sm"
-                disabled={isLoggingIn}
-                className="text-xs font-semibold shadow-sm"
-              >
-                {isLoggingIn && <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" />}
+              <AppFormSubmit size="sm" className="text-xs font-semibold shadow-xs">
                 Xác thực & Bình luận
-              </Button>
+              </AppFormSubmit>
             </div>
-          </form>
+          </AppForm>
         )}
 
         {/* Danh sách bình luận */}

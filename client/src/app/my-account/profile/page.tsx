@@ -2,76 +2,85 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { User, Mail, KeyRound, ArrowLeft, CheckCircle2, AlertCircle, Lock } from 'lucide-react';
+import { User, Mail, KeyRound, ArrowLeft, CheckCircle2, Lock } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
-import { AppButton, AppInput, AppTag } from '@/components/ui';
+import {
+  AppButton,
+  AppForm,
+  AppFormField,
+  AppFormSubmit,
+  AppTag,
+  type AppFormHelpers,
+} from '@/components/ui';
 
 export default function MyAccountProfilePage() {
   const { user, changePassword, setPassword } = useAuth();
-
-  const [currentPassword, setCurrentPassword] = React.useState<string>('');
-  const [newPassword, setNewPassword] = React.useState<string>('');
-  const [confirmPassword, setConfirmPassword] = React.useState<string>('');
-  const [isSubmitting, setIsSubmitting] = React.useState<boolean>(false);
-  const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
   const [successMessage, setSuccessMessage] = React.useState<string | null>(null);
 
   if (!user) return null;
 
-  const handleChangePasswordSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setErrorMessage(null);
+  const handleChangePasswordSubmit = async (
+    values: Record<string, unknown>,
+    helpers: AppFormHelpers<Record<string, unknown>>,
+  ) => {
     setSuccessMessage(null);
+    const currPass = String(values.currentPassword || '');
+    const newPass = String(values.newPassword || '');
+    const confPass = String(values.confirmPassword || '');
 
-    if (newPassword !== confirmPassword) {
-      setErrorMessage('Mật khẩu xác nhận không khớp.');
+    if (newPass !== confPass) {
+      helpers.setFieldError('confirmPassword', 'Mật khẩu xác nhận không khớp.');
       return;
     }
 
-    if (newPassword.length < 8) {
-      setErrorMessage('Mật khẩu mới phải có tối thiểu 8 ký tự.');
+    if (newPass.length < 8) {
+      helpers.setFieldError('newPassword', 'Mật khẩu mới phải có tối thiểu 8 ký tự.');
       return;
     }
 
-    setIsSubmitting(true);
-    const result = await changePassword(currentPassword, newPassword);
-    setIsSubmitting(false);
+    const result = await changePassword(currPass, newPass);
 
     if (result.success) {
       setSuccessMessage('Đổi mật khẩu thành công!');
-      setCurrentPassword('');
-      setNewPassword('');
-      setConfirmPassword('');
+      helpers.resetForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
     } else {
-      setErrorMessage(result.error || 'Đổi mật khẩu thất bại.');
+      if (result.errors) {
+        helpers.setErrors(result.errors);
+      } else {
+        helpers.setFieldError('currentPassword', result.error || 'Đổi mật khẩu thất bại.');
+      }
     }
   };
 
-  const handleSetPasswordSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setErrorMessage(null);
+  const handleSetPasswordSubmit = async (
+    values: Record<string, unknown>,
+    helpers: AppFormHelpers<Record<string, unknown>>,
+  ) => {
     setSuccessMessage(null);
+    const newPass = String(values.newPassword || '');
+    const confPass = String(values.confirmPassword || '');
 
-    if (newPassword !== confirmPassword) {
-      setErrorMessage('Mật khẩu xác nhận không khớp.');
+    if (newPass !== confPass) {
+      helpers.setFieldError('confirmPassword', 'Mật khẩu xác nhận không khớp.');
       return;
     }
 
-    if (newPassword.length < 8) {
-      setErrorMessage('Mật khẩu phải có tối thiểu 8 ký tự.');
+    if (newPass.length < 8) {
+      helpers.setFieldError('newPassword', 'Mật khẩu mới phải có tối thiểu 8 ký tự.');
       return;
     }
 
-    setIsSubmitting(true);
-    const result = await setPassword(newPassword);
-    setIsSubmitting(false);
+    const result = await setPassword(newPass);
 
     if (result.success) {
       setSuccessMessage('Thiết lập mật khẩu thành công!');
-      setNewPassword('');
-      setConfirmPassword('');
+      helpers.resetForm({ newPassword: '', confirmPassword: '' });
     } else {
-      setErrorMessage(result.error || 'Thiết lập mật khẩu thất bại.');
+      if (result.errors) {
+        helpers.setErrors(result.errors);
+      } else {
+        helpers.setFieldError('newPassword', result.error || 'Thiết lập mật khẩu thất bại.');
+      }
     }
   };
 
@@ -83,26 +92,22 @@ export default function MyAccountProfilePage() {
       <div className="flex flex-col gap-2 border-b border-slate-200/80 pb-4">
         <div className="flex items-center gap-2 text-xs font-mono text-slate-500 uppercase tracking-wider">
           <Link href="/" className="hover:text-blue-600 transition-colors">
-            Wonderlab
+            Trang chủ
           </Link>
           <span>/</span>
           <Link href="/my-account" className="hover:text-blue-600 transition-colors">
-            Console
+            Cá nhân
           </Link>
           <span>/</span>
-          <span className="text-slate-800 font-semibold">Hồ sơ & Bảo mật</span>
+          <span className="text-slate-900 font-semibold">Hồ sơ & Mật khẩu</span>
         </div>
-
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="font-heading text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
-              Quản lý Hồ sơ & Bảo mật
-            </h1>
-            <p className="text-xs text-slate-600 mt-1">
-              Kiểm tra thông tin định danh và cập nhật phương thức xác thực của bạn.
+            <h1 className="font-heading text-xl font-bold text-slate-900">Hồ sơ Cá nhân</h1>
+            <p className="text-xs text-slate-500 font-sans mt-0.5">
+              Quản lý thông tin định danh và bảo mật tài khoản cá nhân.
             </p>
           </div>
-
           <Link href="/my-account">
             <AppButton
               variant="outline"
@@ -182,13 +187,6 @@ export default function MyAccountProfilePage() {
           </h2>
         </div>
 
-        {errorMessage && (
-          <div className="flex items-start gap-2.5 rounded-lg border border-rose-200 bg-rose-50/90 p-3 text-xs text-rose-800">
-            <AlertCircle className="h-4 w-4 shrink-0 text-rose-600 mt-0.5" />
-            <div className="font-medium leading-relaxed">{errorMessage}</div>
-          </div>
-        )}
-
         {successMessage && (
           <div className="flex items-start gap-2.5 rounded-lg border border-emerald-200 bg-emerald-50/90 p-3 text-xs text-emerald-800">
             <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600 mt-0.5" />
@@ -196,55 +194,52 @@ export default function MyAccountProfilePage() {
           </div>
         )}
 
-        <form
+        <AppForm
+          initialValues={{ currentPassword: '', newPassword: '', confirmPassword: '' }}
           onSubmit={hasExistingPassword ? handleChangePasswordSubmit : handleSetPasswordSubmit}
           className="space-y-4 max-w-md"
         >
           {hasExistingPassword && (
-            <AppInput
+            <AppFormField
+              name="currentPassword"
               label="Mật khẩu hiện tại"
               type="password"
               showPasswordToggle
-              value={currentPassword}
-              onChange={e => setCurrentPassword(e.target.value)}
               placeholder="Nhập mật khẩu hiện tại"
-              required
+              required="Vui lòng nhập mật khẩu hiện tại"
             />
           )}
 
-          <AppInput
+          <AppFormField
+            name="newPassword"
             label={hasExistingPassword ? 'Mật khẩu mới' : 'Mật khẩu muốn đặt'}
             type="password"
             showPasswordToggle
-            value={newPassword}
-            onChange={e => setNewPassword(e.target.value)}
             placeholder="Tối thiểu 8 ký tự"
-            required
+            required="Vui lòng nhập mật khẩu mới"
+            rules={[{ minLength: 8, message: 'Mật khẩu phải có tối thiểu 8 ký tự' }]}
           />
 
-          <AppInput
+          <AppFormField
+            name="confirmPassword"
             label="Xác nhận mật khẩu mới"
             type="password"
             showPasswordToggle
-            value={confirmPassword}
-            onChange={e => setConfirmPassword(e.target.value)}
             placeholder="Nhập lại mật khẩu mới"
-            required
+            required="Vui lòng xác nhận mật khẩu mới"
           />
 
           <div className="pt-2">
-            <AppButton
-              type="submit"
+            <AppFormSubmit
               variant="primary"
               size="sm"
-              isLoading={isSubmitting}
               leftIcon={<Lock className="h-3.5 w-3.5" />}
               className="text-xs"
             >
               {hasExistingPassword ? 'Lưu mật khẩu mới' : 'Thiết lập mật khẩu'}
-            </AppButton>
+            </AppFormSubmit>
           </div>
-        </form>
+        </AppForm>
       </div>
     </div>
   );

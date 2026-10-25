@@ -1,10 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { INestApplication } from '@nestjs/common';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import request from 'supertest';
 import cookieParser from 'cookie-parser';
 import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/prisma/prisma.service';
+import { HttpExceptionFilter } from '../src/common/filters/http-exception.filter';
+import { createValidationPipe } from '../src/common/pipes/validation.pipe';
 
 describe('Auth & Session Security (e2e)', () => {
   let app: INestApplication;
@@ -22,13 +24,8 @@ describe('Auth & Session Security (e2e)', () => {
     app = moduleFixture.createNestApplication();
     app.use(cookieParser());
     app.setGlobalPrefix('api/v1');
-    app.useGlobalPipes(
-      new ValidationPipe({
-        whitelist: true,
-        forbidNonWhitelisted: true,
-        transform: true,
-      }),
-    );
+    app.useGlobalFilters(new HttpExceptionFilter());
+    app.useGlobalPipes(createValidationPipe());
     await app.init();
     prisma = app.get<PrismaService>(PrismaService);
   });
@@ -89,14 +86,18 @@ describe('Auth & Session Security (e2e)', () => {
       expect(response.body.message).toBe('Tên đăng nhập hoặc mật khẩu không chính xác');
     });
 
-    it('should reject invalid payload structure with 400 Bad Request', async () => {
-      await request(app.getHttpServer())
+    it('should reject invalid payload structure with 400 Bad Request and structured errors', async () => {
+      const response = await request(app.getHttpServer())
         .post('/api/v1/auth/login')
         .send({
           username: '',
           password: '123', // less than min length 8
         })
         .expect(400);
+
+      expect(response.body.errors).toBeDefined();
+      expect(response.body.errors.username).toBeDefined();
+      expect(Array.isArray(response.body.errors.username)).toBe(true);
     });
   });
 

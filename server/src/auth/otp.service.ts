@@ -86,7 +86,10 @@ export class OtpService {
     });
 
     if (!token) {
-      throw new BadRequestException('Mã xác thực 6 số không chính xác hoặc đã hết hạn.');
+      throw new BadRequestException({
+        message: 'Mã xác thực 6 số không chính xác hoặc đã hết hạn.',
+        errors: { code: ['Mã xác thực 6 số không chính xác hoặc đã hết hạn.'] },
+      });
     }
 
     // Đánh dấu đã sử dụng

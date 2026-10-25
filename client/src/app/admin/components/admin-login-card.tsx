@@ -2,29 +2,37 @@
 
 import * as React from 'react';
 import Link from 'next/link';
+import { Lock, ArrowLeft, ShieldAlert } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
-import { AppButton, AppInput, AppTag, Card } from '@/components/ui';
-import { ArrowLeft, Lock, AlertCircle, ShieldAlert } from 'lucide-react';
+import { Card } from '@/components/ui/card';
+import {
+  AppButton,
+  AppForm,
+  AppFormField,
+  AppFormSubmit,
+  AppTag,
+  type AppFormHelpers,
+} from '@/components/ui';
 
 export function AdminLoginCard() {
   const { user, login, logout } = useAuth();
-  const [username, setUsername] = React.useState('');
-  const [password, setPassword] = React.useState('');
-  const [loginError, setLoginError] = React.useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!username.trim() || !password) {
-      setLoginError('Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu');
-      return;
-    }
-    setLoginError(null);
-    setIsSubmitting(true);
-    const result = await login(username.trim(), password);
-    setIsSubmitting(false);
+  const handleLogin = async (
+    values: Record<string, unknown>,
+    helpers: AppFormHelpers<Record<string, unknown>>,
+  ) => {
+    const valUser = String(values.username || '').trim();
+    const valPass = String(values.password || '');
+    const result = await login(valUser, valPass);
     if (!result.success) {
-      setLoginError(result.error || 'Tên đăng nhập hoặc mật khẩu không chính xác');
+      if (result.errors) {
+        helpers.setErrors(result.errors);
+      } else {
+        helpers.setFieldError(
+          'password',
+          result.error || 'Tên đăng nhập hoặc mật khẩu không chính xác',
+        );
+      }
     }
   };
 
@@ -38,7 +46,7 @@ export function AdminLoginCard() {
               <AppButton
                 variant="outline"
                 size="sm"
-                className="gap-2 border-slate-300 text-slate-700 bg-white"
+                className="gap-2 border-slate-300 text-slate-700 bg-white cursor-pointer"
                 leftIcon={<ArrowLeft className="h-4 w-4" />}
               >
                 Về Trang chủ
@@ -86,7 +94,7 @@ export function AdminLoginCard() {
                   size="sm"
                   fullWidth
                   onClick={() => logout()}
-                  className="font-semibold"
+                  className="font-semibold cursor-pointer"
                 >
                   Đăng xuất tài khoản này
                 </AppButton>
@@ -95,7 +103,7 @@ export function AdminLoginCard() {
                     variant="ghost"
                     size="sm"
                     fullWidth
-                    className="text-xs text-slate-600 hover:text-slate-900"
+                    className="text-xs text-slate-600 hover:text-slate-900 cursor-pointer"
                   >
                     Quay lại Trang chủ Lab
                   </AppButton>
@@ -108,7 +116,7 @@ export function AdminLoginCard() {
     );
   }
 
-  // Case 2: Not authenticated
+  // Case 2: Guest / Unauthenticated -> Show Admin Login Form
   return (
     <div className="h-full overflow-y-auto px-4 py-12 flex items-center justify-center font-sans">
       <div className="w-full max-w-md space-y-6 my-auto">
@@ -117,7 +125,7 @@ export function AdminLoginCard() {
             <AppButton
               variant="outline"
               size="sm"
-              className="gap-2 border-slate-300 text-slate-700 bg-white"
+              className="gap-2 border-slate-300 text-slate-700 bg-white cursor-pointer"
               leftIcon={<ArrowLeft className="h-4 w-4" />}
             >
               Về Trang chủ
@@ -141,49 +149,40 @@ export function AdminLoginCard() {
             </p>
           </div>
 
-          <form onSubmit={handleLogin} className="p-6 space-y-4">
-            {loginError && (
-              <div className="flex items-start gap-2.5 p-3 rounded-lg bg-amber-50 border border-amber-200 text-amber-900 text-xs">
-                <AlertCircle className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
-                <span>{loginError}</span>
-              </div>
-            )}
-
-            <AppInput
-              id="admin-username"
-              type="text"
+          <AppForm
+            initialValues={{ username: '', password: '' }}
+            onSubmit={handleLogin}
+            className="p-6 space-y-4"
+          >
+            <AppFormField
+              name="username"
               label="TÊN ĐĂNG NHẬP"
-              value={username}
-              onChange={e => setUsername(e.target.value)}
+              required="Vui lòng nhập tên đăng nhập"
               placeholder="Nhập tên đăng nhập"
               autoComplete="username"
-              disabled={isSubmitting}
             />
 
-            <AppInput
-              id="admin-password"
+            <AppFormField
+              name="password"
               type="password"
+              showPasswordToggle
               label="MẬT KHẨU"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
+              required="Vui lòng nhập mật khẩu"
               placeholder="••••••••••••"
               autoComplete="current-password"
-              disabled={isSubmitting}
             />
 
             <div className="pt-2">
-              <AppButton
-                type="submit"
+              <AppFormSubmit
                 variant="primary"
                 fullWidth
-                isLoading={isSubmitting}
                 loadingText="Đang xác thực..."
                 className="py-2.5"
               >
                 Đăng nhập vào Hệ thống
-              </AppButton>
+              </AppFormSubmit>
             </div>
-          </form>
+          </AppForm>
         </Card>
       </div>
     </div>

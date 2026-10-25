@@ -151,18 +151,26 @@ export class CommentsService {
       });
 
       if (!parentComment || parentComment.isDeleted) {
-        throw new NotFoundException('Bình luận gốc không tồn tại hoặc đã bị xóa.');
+        throw new NotFoundException({
+          message: 'Bình luận gốc không tồn tại hoặc đã bị xóa.',
+          errors: { parentId: ['Bình luận gốc không tồn tại hoặc đã bị xóa.'] },
+        });
       }
 
       // RÀNG BUỘC CỐT LÕI: Chặn lồng quá 2 cấp
       if (parentComment.parentId !== null) {
-        throw new BadRequestException(
-          'Hệ thống chỉ hỗ trợ thảo luận tối đa 2 cấp. Không thể trả lời một phản hồi con.',
-        );
+        throw new BadRequestException({
+          message:
+            'Hệ thống chỉ hỗ trợ thảo luận tối đa 2 cấp. Không thể trả lời một phản hồi con.',
+          errors: { parentId: ['Không thể trả lời một phản hồi con.'] },
+        });
       }
 
       if (parentComment.simulationSlug !== simulationSlug) {
-        throw new BadRequestException('Bình luận gốc không thuộc về thí nghiệm mô phỏng này.');
+        throw new BadRequestException({
+          message: 'Bình luận gốc không thuộc về thí nghiệm mô phỏng này.',
+          errors: { parentId: ['Bình luận gốc không thuộc về thí nghiệm mô phỏng này.'] },
+        });
       }
     }
 

@@ -42,28 +42,49 @@ export class AuthService {
     // If user doesn't exist, verify against dummy hash to equalize processing time
     if (!user) {
       await argon2.verify(DUMMY_HASH, dto.password).catch(() => false);
-      throw new UnauthorizedException('Tên đăng nhập hoặc mật khẩu không chính xác');
+      throw new UnauthorizedException({
+        message: 'Tên đăng nhập hoặc mật khẩu không chính xác',
+        errors: { password: ['Tên đăng nhập hoặc mật khẩu không chính xác'] },
+      });
     }
 
     if (!user.passwordHash) {
-      throw new UnauthorizedException(
-        'Tài khoản này được đăng ký qua Google. Vui lòng đăng nhập bằng Google hoặc thiết lập mật khẩu.',
-      );
+      throw new UnauthorizedException({
+        message:
+          'Tài khoản này được đăng ký qua Google. Vui lòng đăng nhập bằng Google hoặc thiết lập mật khẩu.',
+        errors: {
+          username: [
+            'Tài khoản này được đăng ký qua Google. Vui lòng đăng nhập bằng Google hoặc thiết lập mật khẩu.',
+          ],
+        },
+      });
     }
 
     const isPasswordValid = await argon2.verify(user.passwordHash, dto.password);
     if (!isPasswordValid) {
-      throw new UnauthorizedException('Tên đăng nhập hoặc mật khẩu không chính xác');
+      throw new UnauthorizedException({
+        message: 'Tên đăng nhập hoặc mật khẩu không chính xác',
+        errors: { password: ['Tên đăng nhập hoặc mật khẩu không chính xác'] },
+      });
     }
 
     if (user.isDeleted) {
-      throw new UnauthorizedException('Tài khoản này đã bị vô hiệu hóa hoặc đã xóa.');
+      throw new UnauthorizedException({
+        message: 'Tài khoản này đã bị vô hiệu hóa hoặc đã xóa.',
+        errors: { username: ['Tài khoản này đã bị vô hiệu hóa hoặc đã xóa.'] },
+      });
     }
 
     if (!user.isEmailVerified && user.role !== Role.ADMIN) {
-      throw new UnauthorizedException(
-        'Email của bạn chưa được xác thực. Vui lòng nhập mã OTP 6 số để kích hoạt tài khoản.',
-      );
+      throw new UnauthorizedException({
+        message:
+          'Email của bạn chưa được xác thực. Vui lòng nhập mã OTP 6 số để kích hoạt tài khoản.',
+        errors: {
+          username: [
+            'Email của bạn chưa được xác thực. Vui lòng nhập mã OTP 6 số để kích hoạt tài khoản.',
+          ],
+        },
+      });
     }
 
     const { passwordHash: _, ...safeUser } = user;
@@ -114,13 +135,19 @@ export class AuthService {
     // Kiểm tra email đã đăng ký chưa
     const existingByEmail = await this.usersService.findByEmail(normalizedEmail);
     if (existingByEmail) {
-      throw new BadRequestException('Địa chỉ email này đã được sử dụng.');
+      throw new BadRequestException({
+        message: 'Địa chỉ email này đã được sử dụng.',
+        errors: { email: ['Địa chỉ email này đã được sử dụng.'] },
+      });
     }
 
     // Kiểm tra username đã đăng ký chưa
     const existingByUsername = await this.usersService.findByUsername(dto.username);
     if (existingByUsername) {
-      throw new BadRequestException('Tên đăng nhập này đã được sử dụng.');
+      throw new BadRequestException({
+        message: 'Tên đăng nhập này đã được sử dụng.',
+        errors: { username: ['Tên đăng nhập này đã được sử dụng.'] },
+      });
     }
 
     // Hash mật khẩu qua Argon2id
@@ -319,11 +346,17 @@ export class AuthService {
     // Nếu tài khoản đã có mật khẩu thì bắt buộc kiểm tra currentPassword
     if (user.passwordHash) {
       if (!dto.currentPassword) {
-        throw new BadRequestException('Vui lòng cung cấp mật khẩu hiện tại.');
+        throw new BadRequestException({
+          message: 'Vui lòng cung cấp mật khẩu hiện tại.',
+          errors: { currentPassword: ['Vui lòng cung cấp mật khẩu hiện tại.'] },
+        });
       }
       const isMatch = await argon2.verify(user.passwordHash, dto.currentPassword);
       if (!isMatch) {
-        throw new BadRequestException('Mật khẩu hiện tại không chính xác.');
+        throw new BadRequestException({
+          message: 'Mật khẩu hiện tại không chính xác.',
+          errors: { currentPassword: ['Mật khẩu hiện tại không chính xác.'] },
+        });
       }
     }
 
