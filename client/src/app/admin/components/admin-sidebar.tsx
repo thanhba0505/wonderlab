@@ -382,7 +382,11 @@ export function AdminSidebar({ user, onLogout }: AdminSidebarProps) {
         </div>
 
         {/* Nav Items */}
-        <nav className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-2 space-y-3">
+        <nav
+          className={`flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-2 space-y-3 ${
+            isCollapsed ? 'no-scrollbar' : ''
+          }`}
+        >
           {navGroups.map((group, groupIdx) => (
             <div key={group.id} className="space-y-1">
               {groupIdx > 0 && isCollapsed && <div className="my-2 h-px bg-slate-200/90 mx-1" />}
