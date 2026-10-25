@@ -73,7 +73,7 @@ export default async function EssayPage({ params }: EssayPageProps) {
     <>
       <ReadingProgressBar />
 
-      <div className="flex flex-col gap-8 pb-16 pt-2">
+      <div className="flex flex-col gap-8 xl:gap-10 pb-16">
         {/* Breadcrumb Navigation */}
         <div className="flex items-center gap-2 text-xs font-mono text-slate-500 border-b border-slate-200 pb-4">
           <Link href="/" className="flex items-center gap-1 hover:text-slate-800 transition-colors">
@@ -91,7 +91,7 @@ export default async function EssayPage({ params }: EssayPageProps) {
         </div>
 
         {/* Hero Header */}
-        <header className="space-y-4 max-w-4xl">
+        <header className="space-y-4 max-w-4xl xl:max-w-5xl">
           <div className="flex flex-wrap items-center gap-3">
             <Badge variant="cyan" className="font-mono text-xs font-bold">
               <Atom className="mr-1 h-3.5 w-3.5" />
@@ -114,27 +114,27 @@ export default async function EssayPage({ params }: EssayPageProps) {
             )}
           </div>
 
-          <h1 className="font-heading text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
+          <h1 className="font-heading text-2xl sm:text-3xl lg:text-4xl xl:text-[40px] font-extrabold text-slate-900 tracking-tight leading-[1.2]">
             {essay.title}
           </h1>
 
-          <p className="text-sm sm:text-base font-mono text-blue-700 font-medium">
+          <p className="text-sm sm:text-base xl:text-lg font-mono text-blue-700 font-medium">
             {essay.subtitle}
           </p>
 
           {/* Lead paragraph teaser */}
-          <div className="rounded-xl border border-slate-300/85 bg-white p-5 sm:p-6 shadow-xs space-y-4">
-            <p className="text-sm sm:text-base text-slate-700 leading-relaxed font-sans">
+          <div className="rounded-xl border border-slate-300/85 bg-white p-5 sm:p-6 xl:p-8 shadow-xs space-y-4">
+            <p className="text-sm sm:text-base xl:text-lg text-slate-700 leading-relaxed font-sans">
               {essay.teaser}
             </p>
 
             {/* Key Quote box */}
-            <div className="rounded-lg bg-blue-50/80 p-4 border-l-3 border-blue-600 text-xs sm:text-sm italic text-slate-800 flex items-start gap-3">
-              <Quote className="h-4 w-4 shrink-0 text-blue-600 opacity-80 mt-0.5" />
+            <div className="rounded-lg bg-blue-50/80 p-4 sm:p-5 border-l-3 border-blue-600 text-xs sm:text-sm xl:text-base italic text-slate-800 flex items-start gap-3.5">
+              <Quote className="h-4 w-4 xl:h-5 xl:w-5 shrink-0 text-blue-600 opacity-80 mt-0.5" />
               <div className="space-y-1">
                 <span className="leading-relaxed font-sans">&ldquo;{essay.quote}&rdquo;</span>
                 {essay.quoteAuthor && (
-                  <div className="not-italic font-mono text-xs text-slate-500 font-medium">
+                  <div className="not-italic font-mono text-xs xl:text-sm text-slate-500 font-medium">
                     — {essay.quoteAuthor}
                   </div>
                 )}
@@ -144,9 +144,9 @@ export default async function EssayPage({ params }: EssayPageProps) {
         </header>
 
         {/* Main Content Layout with 2 Columns on Desktop */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 xl:gap-12 items-start">
           {/* Main Reading Column */}
-          <main className="lg:col-span-8 space-y-10">
+          <main className="lg:col-span-8 xl:col-span-8 space-y-10 xl:space-y-12">
             {/* Inline Table of Contents for Mobile */}
             <div className="lg:hidden">
               {essay.sections && <TableOfContents sections={essay.sections} />}
@@ -296,7 +296,7 @@ export default async function EssayPage({ params }: EssayPageProps) {
           </main>
 
           {/* Sticky Sidebar on Desktop */}
-          <aside className="hidden lg:block lg:col-span-4 sticky top-24 space-y-6">
+          <aside className="hidden lg:block lg:col-span-4 xl:col-span-4 sticky top-24 space-y-6">
             {essay.sections && <TableOfContents sections={essay.sections} />}
 
             {/* Editorial Metadata Card */}

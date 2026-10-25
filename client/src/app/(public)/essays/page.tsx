@@ -14,7 +14,7 @@ export default function EssaysArchivePage() {
   const essays = getAllEssays();
 
   return (
-    <div className="flex flex-col gap-8 pb-20 pt-4">
+    <div className="flex flex-col gap-8 xl:gap-10 pb-16">
       {/* Breadcrumb Navigation */}
       <div className="flex items-center gap-2 text-xs font-mono text-slate-500 border-b border-slate-200 pb-4">
         <Link href="/" className="flex items-center gap-1 hover:text-slate-800 transition-colors">
@@ -26,17 +26,17 @@ export default function EssaysArchivePage() {
       </div>
 
       {/* Header Section matching Homepage & Screenshot */}
-      <div className="space-y-3 max-w-3xl">
+      <div className="space-y-3 max-w-3xl xl:max-w-4xl">
         <div className="flex items-center gap-2">
           <BookOpen className="h-5 w-5 text-emerald-600" />
           <h1 className="text-xs font-mono font-bold tracking-widest text-emerald-700 uppercase">
             Góc tiểu luận & suy ngẫm
           </h1>
         </div>
-        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-heading font-extrabold text-slate-900 tracking-tight">
+        <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-[40px] font-heading font-extrabold text-slate-900 tracking-tight leading-tight">
           Những câu hỏi mở về tự nhiên và nhận thức
         </h2>
-        <p className="text-sm sm:text-base text-slate-600 font-sans leading-relaxed">
+        <p className="text-sm sm:text-base xl:text-lg text-slate-600 font-sans leading-relaxed">
           Góc nhìn chuyên sâu kết nối triết học, toán học và các ranh giới nhận thức của con người.
           Mỗi bài viết mở ra một hành trình tư duy và kết nối trực tiếp với các mô hình thực nghiệm
           tại Wonderlab.
@@ -44,7 +44,7 @@ export default function EssaysArchivePage() {
       </div>
 
       {/* Grid of Essay Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 xl:gap-8 pt-2">
         {essays.map((article, idx) => {
           const href = `/essays/${article.slug || article.id}`;
 
@@ -54,7 +54,7 @@ export default function EssaysArchivePage() {
               href={href}
               className="block group rounded-xl focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-600 active:scale-[0.99] transition-transform"
             >
-              <Card className="h-full relative border-slate-300/85 bg-white flex flex-col justify-between hover:border-blue-500 hover:shadow-md transition-all duration-300 p-6 overflow-hidden shadow-xs cursor-pointer">
+              <Card className="h-full relative border-slate-300/85 bg-white flex flex-col justify-between hover:border-blue-500 hover:shadow-md transition-all duration-300 p-6 xl:p-7 overflow-hidden shadow-xs cursor-pointer">
                 {/* Subtle watermark background number */}
                 <div className="absolute top-2 right-4 text-7xl font-mono font-black text-slate-100 select-none pointer-events-none group-hover:text-blue-50 transition-colors">
                   0{idx + 1}

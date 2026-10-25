@@ -8,7 +8,7 @@ import { ESSAYS } from './essays-data';
 
 export function EditorialSection() {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 xl:gap-8">
       {ESSAYS.map((article, idx) => {
         const href = `/essays/${article.slug || article.id}`;
 
@@ -18,7 +18,7 @@ export function EditorialSection() {
             href={href}
             className="block group rounded-xl focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-600 active:scale-[0.99] transition-transform"
           >
-            <Card className="h-full relative border-slate-300/85 bg-white flex flex-col justify-between hover:border-blue-500 hover:shadow-md transition-all duration-300 p-6 overflow-hidden shadow-xs cursor-pointer">
+            <Card className="h-full relative border-slate-300/85 bg-white flex flex-col justify-between hover:border-blue-500 hover:shadow-md transition-all duration-300 p-6 xl:p-7 overflow-hidden shadow-xs cursor-pointer">
               {/* Subtle watermark background number */}
               <div className="absolute top-2 right-4 text-7xl font-mono font-black text-slate-100 select-none pointer-events-none group-hover:text-blue-50 transition-colors">
                 0{idx + 1}
