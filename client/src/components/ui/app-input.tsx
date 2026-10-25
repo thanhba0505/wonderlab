@@ -8,9 +8,9 @@ export const appInputVariants = cva(
   {
     variants: {
       size: {
-        sm: 'h-8 px-2.5 text-xs rounded-md',
-        md: 'h-9.5 px-3 text-xs rounded-lg',
-        lg: 'h-11 px-3.5 text-sm rounded-lg',
+        sm: 'h-8 px-2.5 py-1.5 text-xs rounded-md',
+        md: 'h-9.5 px-3 py-2 text-xs rounded-lg',
+        lg: 'h-11 px-3.5 py-2.5 text-sm rounded-lg',
       },
       hasError: {
         true: 'border-red-500 focus:border-red-500 focus:ring-red-500/80 text-red-900 placeholder:text-red-300',
@@ -68,7 +68,7 @@ export const AppInput = React.forwardRef<HTMLInputElement, AppInputProps>(
   ) => {
     const generatedId = React.useId();
     const inputId = id || generatedId;
-    const [showPassword, setShowPassword] = React.useState(false);
+    const [showPassword, setShowPassword] = React.useState<boolean>(false);
 
     const isPassword = type === 'password';
     const effectiveType =
@@ -110,7 +110,7 @@ export const AppInput = React.forwardRef<HTMLInputElement, AppInputProps>(
           >
             {label}
             {required && (
-              <span className="text-red-500 font-bold ml-1" aria-hidden="true">
+              <span className="text-rose-500 font-bold ml-1" aria-hidden="true">
                 *
               </span>
             )}
@@ -168,7 +168,7 @@ export const AppInput = React.forwardRef<HTMLInputElement, AppInputProps>(
               onClick={() => setShowPassword(prev => !prev)}
               aria-label={showPassword ? 'Ẩn mật khẩu' : 'Hiển thị mật khẩu'}
               className={cn(
-                'absolute flex items-center justify-center text-slate-400 hover:text-slate-600 active:text-slate-800 transition-colors rounded p-0.5 focus:outline-none',
+                'absolute flex items-center justify-center text-slate-400 hover:text-slate-600 active:text-slate-800 transition-colors rounded p-1 focus:outline-none',
                 size === 'sm' ? 'right-2' : size === 'lg' ? 'right-3' : 'right-2.5',
               )}
             >

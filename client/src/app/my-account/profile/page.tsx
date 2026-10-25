@@ -2,17 +2,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import {
-  User,
-  Mail,
-  KeyRound,
-  ArrowLeft,
-  CheckCircle2,
-  AlertCircle,
-  Eye,
-  EyeOff,
-  Lock,
-} from 'lucide-react';
+import { User, Mail, KeyRound, ArrowLeft, CheckCircle2, AlertCircle, Lock } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
 import { AppButton, AppInput, AppTag } from '@/components/ui';
 
@@ -22,7 +12,6 @@ export default function MyAccountProfilePage() {
   const [currentPassword, setCurrentPassword] = React.useState<string>('');
   const [newPassword, setNewPassword] = React.useState<string>('');
   const [confirmPassword, setConfirmPassword] = React.useState<string>('');
-  const [showPassword, setShowPassword] = React.useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = React.useState<boolean>(false);
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
   const [successMessage, setSuccessMessage] = React.useState<string | null>(null);
@@ -212,65 +201,36 @@ export default function MyAccountProfilePage() {
           className="space-y-4 max-w-md"
         >
           {hasExistingPassword && (
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-slate-700 block">
-                Mật khẩu hiện tại
-              </label>
-              <div className="relative">
-                <AppInput
-                  type={showPassword ? 'text' : 'password'}
-                  value={currentPassword}
-                  onChange={e => setCurrentPassword(e.target.value)}
-                  placeholder="Nhập mật khẩu hiện tại"
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
-              </div>
-            </div>
-          )}
-
-          <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-700 block">
-              {hasExistingPassword ? 'Mật khẩu mới' : 'Mật khẩu muốn đặt'}
-            </label>
-            <div className="relative">
-              <AppInput
-                type={showPassword ? 'text' : 'password'}
-                value={newPassword}
-                onChange={e => setNewPassword(e.target.value)}
-                placeholder="Tối thiểu 8 ký tự"
-                required
-              />
-              {!hasExistingPassword && (
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
-              )}
-            </div>
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-700 block">
-              Xác nhận mật khẩu mới
-            </label>
             <AppInput
-              type={showPassword ? 'text' : 'password'}
-              value={confirmPassword}
-              onChange={e => setConfirmPassword(e.target.value)}
-              placeholder="Nhập lại mật khẩu mới"
+              label="Mật khẩu hiện tại"
+              type="password"
+              showPasswordToggle
+              value={currentPassword}
+              onChange={e => setCurrentPassword(e.target.value)}
+              placeholder="Nhập mật khẩu hiện tại"
               required
             />
-          </div>
+          )}
+
+          <AppInput
+            label={hasExistingPassword ? 'Mật khẩu mới' : 'Mật khẩu muốn đặt'}
+            type="password"
+            showPasswordToggle
+            value={newPassword}
+            onChange={e => setNewPassword(e.target.value)}
+            placeholder="Tối thiểu 8 ký tự"
+            required
+          />
+
+          <AppInput
+            label="Xác nhận mật khẩu mới"
+            type="password"
+            showPasswordToggle
+            value={confirmPassword}
+            onChange={e => setConfirmPassword(e.target.value)}
+            placeholder="Nhập lại mật khẩu mới"
+            required
+          />
 
           <div className="pt-2">
             <AppButton
