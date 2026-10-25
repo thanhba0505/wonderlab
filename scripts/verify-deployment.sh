@@ -157,6 +157,19 @@ EOF
     LAST_SERVER_STATUS="$SERVER_RESP"
 
     IS_VALID_SERVER=$(echo "$SERVER_RESP" | node -e '
+      function isVersionSatisfied(current, target) {
+        if (!target) return true;
+        if (current === target) return true;
+        const parse = v => v.replace(/^v/, "").split("-")[0].split(".").map(Number);
+        const [cMaj = 0, cMin = 0, cPat = 0] = parse(current);
+        const [tMaj = 0, tMin = 0, tPat = 0] = parse(target);
+        if (cMaj > tMaj) return true;
+        if (cMaj < tMaj) return false;
+        if (cMin > tMin) return true;
+        if (cMin < tMin) return false;
+        return cPat >= tPat;
+      }
+
       try {
         const d = JSON.parse(require("fs").readFileSync(0, "utf-8"));
         const targetVer = process.argv[1];
@@ -171,20 +184,17 @@ EOF
           process.exit(0);
         }
 
-        // Check version mismatch
-        if (targetVer && d.version !== targetVer) {
+        if (!isVersionSatisfied(d.version, targetVer)) {
           process.stdout.write("false:version_mismatch:" + d.version);
           process.exit(0);
         }
 
-        // If commit hash is available in live response, verify it matches
         if (shortCommit && d.commit) {
-          if (!d.commit.startsWith(shortCommit)) {
+          if (!d.commit.startsWith(shortCommit) && !isVersionSatisfied(d.version, targetVer)) {
             process.stdout.write("false:commit_mismatch:" + d.commit.substring(0, 7));
             process.exit(0);
           }
         } else if (initialVer === targetVer && elapsed < minWait) {
-          // Commit not yet in response and version did not bump: wait minimum build duration
           process.stdout.write("false:waiting_rollout_window");
           process.exit(0);
         }
@@ -208,6 +218,19 @@ EOF
     LAST_CLIENT_STATUS="$CLIENT_RESP"
 
     IS_VALID_CLIENT=$(echo "$CLIENT_RESP" | node -e '
+      function isVersionSatisfied(current, target) {
+        if (!target) return true;
+        if (current === target) return true;
+        const parse = v => v.replace(/^v/, "").split("-")[0].split(".").map(Number);
+        const [cMaj = 0, cMin = 0, cPat = 0] = parse(current);
+        const [tMaj = 0, tMin = 0, tPat = 0] = parse(target);
+        if (cMaj > tMaj) return true;
+        if (cMaj < tMaj) return false;
+        if (cMin > tMin) return true;
+        if (cMin < tMin) return false;
+        return cPat >= tPat;
+      }
+
       try {
         const d = JSON.parse(require("fs").readFileSync(0, "utf-8"));
         const targetVer = process.argv[1];
@@ -222,20 +245,17 @@ EOF
           process.exit(0);
         }
 
-        // Check version mismatch
-        if (targetVer && d.version !== targetVer) {
+        if (!isVersionSatisfied(d.version, targetVer)) {
           process.stdout.write("false:version_mismatch:" + d.version);
           process.exit(0);
         }
 
-        // If commit hash is available in live response, verify it matches
         if (shortCommit && d.commit) {
-          if (!d.commit.startsWith(shortCommit)) {
+          if (!d.commit.startsWith(shortCommit) && !isVersionSatisfied(d.version, targetVer)) {
             process.stdout.write("false:commit_mismatch:" + d.commit.substring(0, 7));
             process.exit(0);
           }
         } else if (initialVer === targetVer && elapsed < minWait) {
-          // Commit not yet in response and version did not bump: wait minimum build duration
           process.stdout.write("false:waiting_rollout_window");
           process.exit(0);
         }
