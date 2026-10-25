@@ -62,7 +62,7 @@ export default function RootLayout({
   return (
     <html
       lang="vi"
-      className={`${beVietnamPro.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable}`}
+      className={`${beVietnamPro.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} scroll-smooth`}
       suppressHydrationWarning
     >
       <body
