@@ -1,7 +1,7 @@
-import rootPkg from '../../../package.json';
+import serverPkg from '../../package.json';
 
 /**
  * Single source of truth for application version across Wonderlab.
- * Sourced directly from root package.json.
+ * Sourced directly from package.json within the server package.
  */
-export const APP_VERSION: string = rootPkg.version || '0.3.0';
+export const APP_VERSION: string = serverPkg.version || '0.4.0';
