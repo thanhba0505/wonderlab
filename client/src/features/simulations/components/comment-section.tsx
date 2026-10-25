@@ -307,7 +307,7 @@ export function CommentSection({ simulationSlug }: CommentSectionProps) {
         )}
 
         {/* Danh sách bình luận */}
-        <div className="space-y-4 pt-2">
+        <div className="space-y-6 pt-2">
           {isLoading ? (
             <div className="py-8 text-center text-xs text-slate-500 flex items-center justify-center gap-2">
               <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
@@ -323,97 +323,108 @@ export function CommentSection({ simulationSlug }: CommentSectionProps) {
               const isRootAuthor = user?.id === rootComment.user.id;
               const canDeleteRoot = isRootAuthor || user?.role === 'ADMIN';
               const isReplying = replyingToId === rootComment.id;
+              const hasReplies = rootComment.replies && rootComment.replies.length > 0;
 
               return (
-                <div
-                  key={rootComment.id}
-                  className="rounded-xl border border-slate-200/80 bg-white p-4 space-y-3 shadow-2xs hover:border-slate-300 transition-colors"
-                >
-                  {/* CẤP 1 (Root Comment Header) */}
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2.5">
-                      <div className="h-7 w-7 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold font-mono">
-                        {rootComment.user.username.charAt(0).toUpperCase()}
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-1.5">
-                          <span className="font-mono text-xs font-bold text-slate-900">
-                            {rootComment.user.username}
-                          </span>
-                          {rootComment.user.role === 'ADMIN' ? (
-                            <span className="inline-flex items-center gap-0.5 text-xs font-mono font-bold bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded">
-                              <Shield className="h-2.5 w-2.5" />
-                              ADMIN
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center gap-0.5 text-xs font-mono bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded">
-                              <UserIcon className="h-2.5 w-2.5" />
-                              USER
-                            </span>
-                          )}
+                <div key={rootComment.id} className="space-y-2.5">
+                  {/* Khung bình luận gốc: mỗi bình luận 1 khung, màu nền nhẹ */}
+                  <div className="rounded-xl border border-slate-200/90 bg-slate-50/80 p-4 sm:p-5 space-y-3 shadow-2xs hover:bg-slate-100/50 hover:border-slate-300 transition-all">
+                    {/* Header bình luận gốc */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2.5">
+                        <div className="h-7 w-7 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold font-mono border border-blue-200/60 shadow-2xs">
+                          {rootComment.user.username.charAt(0).toUpperCase()}
                         </div>
-                        <div className="text-xs font-mono text-slate-400">
-                          {formatRelativeTime(rootComment.createdAt)}
+                        <div>
+                          <div className="flex items-center gap-1.5">
+                            <span className="font-mono text-xs font-bold text-slate-900">
+                              {rootComment.user.username}
+                            </span>
+                            {rootComment.user.role === 'ADMIN' ? (
+                              <span className="inline-flex items-center gap-0.5 text-xs font-mono font-bold bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded border border-blue-200/60">
+                                <Shield className="h-2.5 w-2.5" />
+                                ADMIN
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-0.5 text-xs font-mono bg-slate-200/70 text-slate-700 px-1.5 py-0.5 rounded">
+                                <UserIcon className="h-2.5 w-2.5" />
+                                USER
+                              </span>
+                            )}
+                          </div>
+                          <div className="text-xs font-mono text-slate-400">
+                            {formatRelativeTime(rootComment.createdAt)}
+                          </div>
                         </div>
                       </div>
+
+                      {/* Root Action: Delete (author or admin) */}
+                      {canDeleteRoot && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDelete(rootComment.id)}
+                          className="h-7 w-7 p-0 text-slate-400 hover:text-rose-600 hover:bg-rose-50"
+                          title="Xóa bình luận này"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      )}
                     </div>
 
-                    {/* Root Action: Delete (author or admin) */}
-                    {canDeleteRoot && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDelete(rootComment.id)}
-                        className="h-7 w-7 p-0 text-slate-400 hover:text-rose-600 hover:bg-rose-50"
-                        title="Xóa bình luận này"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
-                    )}
+                    {/* Root Comment Content */}
+                    <p className="text-xs sm:text-sm text-slate-800 font-sans leading-relaxed whitespace-pre-line pl-9 sm:pl-10">
+                      {rootComment.content}
+                    </p>
+
+                    {/* Root Actions: Trả lời button */}
+                    <div className="pl-9 sm:pl-10 pt-0.5 flex items-center gap-3">
+                      {user ? (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            if (isReplying) {
+                              setReplyingToId(null);
+                              setReplyContent('');
+                            } else {
+                              setReplyingToId(rootComment.id);
+                              setReplyContent('');
+                            }
+                          }}
+                          className={`text-xs h-7 px-2.5 transition-colors ${
+                            isReplying
+                              ? 'text-slate-700 bg-slate-200/80 hover:bg-slate-200'
+                              : 'text-blue-700 hover:text-blue-800 hover:bg-blue-100/70'
+                          }`}
+                        >
+                          <Reply className="h-3.5 w-3.5 mr-1" />
+                          {isReplying ? 'Hủy trả lời' : 'Trả lời'}
+                        </Button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => setShowQuickLogin(true)}
+                          className="text-xs text-slate-500 hover:text-blue-700 font-sans"
+                        >
+                          Đăng nhập để trả lời
+                        </button>
+                      )}
+                    </div>
                   </div>
 
-                  {/* Root Comment Content */}
-                  <p className="text-xs sm:text-sm text-slate-800 font-sans leading-relaxed whitespace-pre-line pl-9">
-                    {rootComment.content}
-                  </p>
-
-                  {/* Root Actions: Trả lời (Reply button) - Only available if user logged in */}
-                  <div className="pl-9 pt-1 flex items-center gap-3">
-                    {user ? (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          if (isReplying) {
-                            setReplyingToId(null);
-                            setReplyContent('');
-                          } else {
-                            setReplyingToId(rootComment.id);
-                            setReplyContent('');
-                          }
-                        }}
-                        className="text-xs text-blue-700 hover:text-blue-800 hover:bg-blue-50 h-7 px-2.5"
-                      >
-                        <Reply className="h-3.5 w-3.5 mr-1" />
-                        {isReplying ? 'Hủy trả lời' : 'Trả lời'}
-                      </Button>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() => setShowQuickLogin(true)}
-                        className="text-xs text-slate-500 hover:text-blue-700 font-sans"
-                      >
-                        Đăng nhập để trả lời
-                      </button>
-                    )}
-                  </div>
-
-                  {/* Form gửi câu trả lời Cấp 2 */}
+                  {/* Form gửi câu trả lời Cấp 2: Khung riêng, thụt lề trái, width ngắn hơn, màu nhẹ */}
                   {isReplying && user && (
-                    <div className="ml-6 sm:ml-10 pl-3 border-l-2 border-blue-400 pt-2 space-y-2">
-                      <div className="text-xs font-semibold text-blue-900 flex items-center gap-1">
-                        <CornerDownRight className="h-3 w-3 text-blue-600" />
-                        Trả lời @{rootComment.user.username}:
+                    <div className="ml-6 sm:ml-12 rounded-xl border border-blue-200 bg-blue-50/50 border-l-4 border-l-blue-500 p-4 space-y-3 shadow-2xs transition-all">
+                      <div className="text-xs font-semibold text-blue-900 flex items-center gap-1.5">
+                        <CornerDownRight className="h-3.5 w-3.5 text-blue-600 shrink-0" />
+                        <span>
+                          Trả lời{' '}
+                          <strong className="font-mono text-blue-950 font-bold">
+                            @{rootComment.user.username}
+                          </strong>
+                          :
+                        </span>
                       </div>
                       <textarea
                         value={replyContent}
@@ -421,9 +432,9 @@ export function CommentSection({ simulationSlug }: CommentSectionProps) {
                         placeholder={`Viết phản hồi cho ${rootComment.user.username}...`}
                         rows={2}
                         maxLength={2000}
-                        className="w-full rounded-lg border border-slate-300 p-2.5 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y min-h-[60px]"
+                        className="w-full rounded-lg border border-blue-200 bg-white p-2.5 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y min-h-[65px]"
                       />
-                      <div className="flex justify-end gap-2">
+                      <div className="flex justify-end items-center gap-2">
                         <Button
                           type="button"
                           variant="ghost"
@@ -432,7 +443,7 @@ export function CommentSection({ simulationSlug }: CommentSectionProps) {
                             setReplyingToId(null);
                             setReplyContent('');
                           }}
-                          className="text-xs text-slate-500 h-7 px-2"
+                          className="text-xs text-slate-600 hover:text-slate-900 h-7 px-2.5"
                         >
                           Hủy
                         </Button>
@@ -441,7 +452,7 @@ export function CommentSection({ simulationSlug }: CommentSectionProps) {
                           size="sm"
                           disabled={isSubmitting || !replyContent.trim()}
                           onClick={() => handleReplySubmit(rootComment.id)}
-                          className="text-xs font-semibold h-7 px-3 shadow-sm"
+                          className="text-xs font-semibold h-7 px-3 shadow-2xs bg-blue-600 hover:bg-blue-700 text-white"
                         >
                           {isSubmitting ? (
                             <Loader2 className="h-3 w-3 mr-1 animate-spin" />
@@ -454,29 +465,33 @@ export function CommentSection({ simulationSlug }: CommentSectionProps) {
                     </div>
                   )}
 
-                  {/* CẤP 2: Danh sách các phản hồi (Level 2 Replies) */}
-                  {rootComment.replies && rootComment.replies.length > 0 && (
-                    <div className="ml-4 sm:ml-9 pl-3 sm:pl-4 border-l-2 border-slate-200 space-y-2.5 pt-2">
-                      {rootComment.replies.map(reply => {
+                  {/* Danh sách các câu trả lời Cấp 2: Mỗi câu trả lời 1 khung, thụt lề trái, width ngắn hơn, màu nhẹ */}
+                  {hasReplies && (
+                    <div className="space-y-2.5 ml-6 sm:ml-12">
+                      {rootComment.replies!.map(reply => {
                         const isReplyAuthor = user?.id === reply.user.id;
                         const canDeleteReply = isReplyAuthor || user?.role === 'ADMIN';
 
                         return (
                           <div
                             key={reply.id}
-                            className="rounded-lg bg-slate-50/80 border border-slate-200/70 p-3 space-y-2"
+                            className="rounded-xl border border-slate-200/90 border-l-4 border-l-blue-400/80 bg-slate-100/75 hover:bg-slate-100 p-3.5 space-y-2 shadow-2xs transition-all"
                           >
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-2">
-                                <div className="h-5 w-5 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center text-xs font-bold font-mono">
+                                <div className="h-6 w-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold font-mono border border-blue-200/50">
                                   {reply.user.username.charAt(0).toUpperCase()}
                                 </div>
                                 <span className="font-mono text-xs font-bold text-slate-800">
                                   {reply.user.username}
                                 </span>
-                                {reply.user.role === 'ADMIN' && (
-                                  <span className="text-xs font-mono font-bold bg-blue-100 text-blue-800 px-1 py-0.5 rounded">
+                                {reply.user.role === 'ADMIN' ? (
+                                  <span className="text-xs font-mono font-bold bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded border border-blue-200/60">
                                     ADMIN
+                                  </span>
+                                ) : (
+                                  <span className="text-xs font-mono bg-slate-200/80 text-slate-600 px-1 py-0.5 rounded">
+                                    USER
                                   </span>
                                 )}
                                 <span className="text-xs font-mono text-slate-400">
@@ -499,11 +514,9 @@ export function CommentSection({ simulationSlug }: CommentSectionProps) {
                             </div>
 
                             {/* Reply Content */}
-                            <p className="text-xs text-slate-700 font-sans leading-relaxed whitespace-pre-line pl-7">
+                            <p className="text-xs sm:text-sm text-slate-700 font-sans leading-relaxed whitespace-pre-line pl-8">
                               {reply.content}
                             </p>
-
-                            {/* NOTE: CẤP 2 TUYỆT ĐỐI KHÔNG CÓ NÚT "TRẢ LỜI" -> ĐẢM BẢO CHẶN TỐI ĐA 2 CẤP */}
                           </div>
                         );
                       })}
