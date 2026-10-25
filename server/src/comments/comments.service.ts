@@ -4,10 +4,11 @@ import {
   BadRequestException,
   ForbiddenException,
 } from '@nestjs/common';
-import { Role } from '@prisma/client';
+import { Role, Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { CommentItemDto } from './dto/comment-response.dto';
+import { ListAdminCommentsQueryDto } from './dto/list-admin-comments-query.dto';
 
 const USER_SELECT = {
   id: true,
@@ -16,45 +17,87 @@ const USER_SELECT = {
   isDeleted: true,
 };
 
+export interface AdminCommentRecord {
+  id: string;
+  content: string;
+  simulationSlug: string;
+  parentId: string | null;
+  isDeleted: boolean;
+  deletedAt: Date | null;
+  createdAt: Date;
+  user: { id: string; username: string; role: Role; isDeleted: boolean };
+  parent: { id: string; content: string; user: { username: string } } | null;
+}
+
+export interface PaginatedAdminCommentsResult {
+  data: AdminCommentRecord[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
 @Injectable()
 export class CommentsService {
   constructor(private readonly prisma: PrismaService) {}
 
   /**
-   * Lấy toàn bộ bình luận trên toàn hệ sinh thái phục vụ kiểm duyệt của Quản trị viên
+   * Lấy danh sách bình luận trên toàn hệ sinh thái phân trang phục vụ kiểm duyệt của Quản trị viên
    */
-  async findAllForAdmin(): Promise<
-    Array<{
-      id: string;
-      content: string;
-      simulationSlug: string;
-      parentId: string | null;
-      isDeleted: boolean;
-      deletedAt: Date | null;
-      createdAt: Date;
-      user: { id: string; username: string; role: Role; isDeleted: boolean };
-      parent: { id: string; content: string; user: { username: string } } | null;
-    }>
-  > {
-    return this.prisma.comment.findMany({
-      include: {
-        user: {
-          select: USER_SELECT,
-        },
-        parent: {
-          select: {
-            id: true,
-            content: true,
-            user: {
-              select: { username: true },
+  async findAllForAdmin(
+    query: ListAdminCommentsQueryDto = new ListAdminCommentsQueryDto(),
+  ): Promise<PaginatedAdminCommentsResult> {
+    const page = Math.max(1, query.page || 1);
+    const limit = Math.max(1, query.limit || 20);
+    const skip = (page - 1) * limit;
+
+    const where: Prisma.CommentWhereInput = {};
+    if (query.simulationSlug && query.simulationSlug !== 'all') {
+      where.simulationSlug = query.simulationSlug;
+    }
+    if (query.search?.trim()) {
+      const q = query.search.trim();
+      where.OR = [
+        { content: { contains: q, mode: 'insensitive' } },
+        { user: { username: { contains: q, mode: 'insensitive' } } },
+      ];
+    }
+
+    const [total, comments] = await this.prisma.$transaction([
+      this.prisma.comment.count({ where }),
+      this.prisma.comment.findMany({
+        where,
+        skip,
+        take: limit,
+        include: {
+          user: {
+            select: USER_SELECT,
+          },
+          parent: {
+            select: {
+              id: true,
+              content: true,
+              user: {
+                select: { username: true },
+              },
             },
           },
         },
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    });
+        orderBy: {
+          createdAt: 'desc',
+        },
+      }),
+    ]);
+
+    const totalPages = Math.max(1, Math.ceil(total / limit));
+
+    return {
+      data: comments as AdminCommentRecord[],
+      total,
+      page,
+      limit,
+      totalPages,
+    };
   }
 
   /**

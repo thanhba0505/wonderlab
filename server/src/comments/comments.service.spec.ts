@@ -15,6 +15,7 @@ describe('CommentsService', () => {
       delete: jest.Mock;
       update: jest.Mock;
       updateMany: jest.Mock;
+      count: jest.Mock;
     };
     $transaction: jest.Mock;
   };
@@ -40,6 +41,7 @@ describe('CommentsService', () => {
         delete: jest.fn(),
         update: jest.fn(),
         updateMany: jest.fn(),
+        count: jest.fn(),
       },
       $transaction: jest
         .fn()
@@ -242,7 +244,7 @@ describe('CommentsService', () => {
   });
 
   describe('findAllForAdmin', () => {
-    it('should query all comments including deleted ones ordered by createdAt desc', async () => {
+    it('should query comments with pagination including deleted ones ordered by createdAt desc', async () => {
       const mockResult = [
         {
           id: 'comment-1',
@@ -256,28 +258,18 @@ describe('CommentsService', () => {
           parent: null,
         },
       ];
-      prisma.comment.findMany.mockResolvedValue(mockResult);
+      prisma.$transaction.mockResolvedValue([1, mockResult]);
 
       const result = await service.findAllForAdmin();
 
-      expect(prisma.comment.findMany).toHaveBeenCalledWith({
-        include: {
-          user: {
-            select: { id: true, username: true, role: true, isDeleted: true },
-          },
-          parent: {
-            select: {
-              id: true,
-              content: true,
-              user: {
-                select: { username: true },
-              },
-            },
-          },
-        },
-        orderBy: { createdAt: 'desc' },
+      expect(prisma.$transaction).toHaveBeenCalled();
+      expect(result).toEqual({
+        data: mockResult,
+        total: 1,
+        page: 1,
+        limit: 20,
+        totalPages: 1,
       });
-      expect(result).toEqual(mockResult);
     });
   });
 

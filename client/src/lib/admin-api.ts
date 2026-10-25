@@ -62,6 +62,28 @@ export interface AdminCommentItem {
   } | null;
 }
 
+export interface PaginatedAdminResponse<T> {
+  data: T[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export interface FetchAdminUsersParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  role?: string;
+}
+
+export interface FetchAdminCommentsParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  simulationSlug?: string;
+}
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4101/api/v1';
 
 export async function fetchAdminOverview(): Promise<AdminOverviewData | null> {
@@ -80,19 +102,43 @@ export async function fetchAdminOverview(): Promise<AdminOverviewData | null> {
   }
 }
 
-export async function fetchAdminUsers(): Promise<AdminUserItem[]> {
+export async function fetchAdminUsers(
+  params?: FetchAdminUsersParams,
+): Promise<PaginatedAdminResponse<AdminUserItem>> {
+  const page = params?.page ?? 1;
+  const limit = params?.limit ?? 20;
   try {
-    const res = await fetch(`${API_BASE_URL}/users`, {
+    const searchParams = new URLSearchParams();
+    searchParams.set('page', String(page));
+    searchParams.set('limit', String(limit));
+    if (params?.search?.trim()) {
+      searchParams.set('search', params.search.trim());
+    }
+    if (params?.role && params.role !== 'all') {
+      searchParams.set('role', params.role);
+    }
+
+    const res = await fetch(`${API_BASE_URL}/users?${searchParams.toString()}`, {
       method: 'GET',
       credentials: 'include',
       headers: { Accept: 'application/json' },
       cache: 'no-store',
     });
-    if (!res.ok) return [];
-    return await res.json();
+    if (!res.ok) return { data: [], total: 0, page, limit, totalPages: 1 };
+    const json = await res.json();
+    if (Array.isArray(json)) {
+      return {
+        data: json,
+        total: json.length,
+        page,
+        limit,
+        totalPages: Math.max(1, Math.ceil(json.length / limit)),
+      };
+    }
+    return json;
   } catch (err) {
     console.error('Failed to load admin users:', err);
-    return [];
+    return { data: [], total: 0, page, limit, totalPages: 1 };
   }
 }
 
@@ -139,19 +185,43 @@ export async function deleteAdminUser(
   }
 }
 
-export async function fetchAdminComments(): Promise<AdminCommentItem[]> {
+export async function fetchAdminComments(
+  params?: FetchAdminCommentsParams,
+): Promise<PaginatedAdminResponse<AdminCommentItem>> {
+  const page = params?.page ?? 1;
+  const limit = params?.limit ?? 20;
   try {
-    const res = await fetch(`${API_BASE_URL}/admin/comments`, {
+    const searchParams = new URLSearchParams();
+    searchParams.set('page', String(page));
+    searchParams.set('limit', String(limit));
+    if (params?.search?.trim()) {
+      searchParams.set('search', params.search.trim());
+    }
+    if (params?.simulationSlug && params.simulationSlug !== 'all') {
+      searchParams.set('simulationSlug', params.simulationSlug);
+    }
+
+    const res = await fetch(`${API_BASE_URL}/admin/comments?${searchParams.toString()}`, {
       method: 'GET',
       credentials: 'include',
       headers: { Accept: 'application/json' },
       cache: 'no-store',
     });
-    if (!res.ok) return [];
-    return await res.json();
+    if (!res.ok) return { data: [], total: 0, page, limit, totalPages: 1 };
+    const json = await res.json();
+    if (Array.isArray(json)) {
+      return {
+        data: json,
+        total: json.length,
+        page,
+        limit,
+        totalPages: Math.max(1, Math.ceil(json.length / limit)),
+      };
+    }
+    return json;
   } catch (err) {
     console.error('Failed to load admin comments:', err);
-    return [];
+    return { data: [], total: 0, page, limit, totalPages: 1 };
   }
 }
 

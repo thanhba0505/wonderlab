@@ -13,34 +13,84 @@ import {
   type AppActiveFilter,
 } from '@/components/ui';
 import { AdminCommentItem, fetchAdminComments, deleteAdminComment } from '@/lib/admin-api';
+import { getAllSimulations } from '@/features/simulations/registry';
 
 export function CommentsView() {
   const [comments, setComments] = React.useState<AdminCommentItem[]>([]);
+  const [total, setTotal] = React.useState<number>(0);
+  const [page, setPage] = React.useState<number>(1);
+  const [limit, setLimit] = React.useState<number>(20);
   const [isLoading, setIsLoading] = React.useState<boolean>(true);
   const [selectedSlug, setSelectedSlug] = React.useState<string>('all');
+  const [appliedSlug, setAppliedSlug] = React.useState<string>('all');
   const [searchQuery, setSearchQuery] = React.useState<string>('');
+  const [appliedSearch, setAppliedSearch] = React.useState<string>('');
   const [deletingId, setDeletingId] = React.useState<string | null>(null);
   const [deleteConfirmCommentId, setDeleteConfirmCommentId] = React.useState<string | null>(null);
 
-  const loadComments = React.useCallback(async (silent = false) => {
-    if (!silent) {
-      setIsLoading(true);
-    }
-    try {
-      const data = await fetchAdminComments();
-      setComments(data);
-    } catch {
-      // Ignored
-    } finally {
+  const loadComments = React.useCallback(
+    async (
+      targetPage = page,
+      targetLimit = limit,
+      search = appliedSearch,
+      slug = appliedSlug,
+      silent = false,
+    ) => {
       if (!silent) {
-        setIsLoading(false);
+        setIsLoading(true);
       }
-    }
-  }, []);
+      try {
+        const res = await fetchAdminComments({
+          page: targetPage,
+          limit: targetLimit,
+          search,
+          simulationSlug: slug !== 'all' ? slug : undefined,
+        });
+        const items = Array.isArray(res) ? res : (res?.data ?? []);
+        const totalCount = Array.isArray(res) ? res.length : (res?.total ?? items.length);
+        setComments(items);
+        setTotal(totalCount);
+      } catch {
+        // Ignored
+      } finally {
+        if (!silent) {
+          setIsLoading(false);
+        }
+      }
+    },
+    [page, limit, appliedSearch, appliedSlug],
+  );
 
   React.useEffect(() => {
     loadComments();
   }, [loadComments]);
+
+  const handleFilter = () => {
+    setPage(1);
+    setAppliedSearch(searchQuery);
+    setAppliedSlug(selectedSlug);
+    loadComments(1, limit, searchQuery, selectedSlug);
+  };
+
+  const handleResetFilters = () => {
+    setSearchQuery('');
+    setSelectedSlug('all');
+    setPage(1);
+    setAppliedSearch('');
+    setAppliedSlug('all');
+    loadComments(1, limit, '', 'all');
+  };
+
+  const handlePageChange = (nextPage: number) => {
+    setPage(nextPage);
+    loadComments(nextPage, limit, appliedSearch, appliedSlug);
+  };
+
+  const handlePageSizeChange = (nextLimit: number) => {
+    setLimit(nextLimit);
+    setPage(1);
+    loadComments(1, nextLimit, appliedSearch, appliedSlug);
+  };
 
   const handleConfirmDelete = async () => {
     if (!deleteConfirmCommentId) return;
@@ -52,7 +102,7 @@ export function CommentsView() {
       setComments(prev =>
         prev.map(c => (c.id === id || c.parentId === id ? { ...c, isDeleted: true } : c)),
       );
-      await loadComments(true);
+      await loadComments(page, limit, appliedSearch, appliedSlug, true);
     } else {
       alert(res.error || 'Lỗi khi xóa bình luận');
     }
@@ -61,19 +111,11 @@ export function CommentsView() {
   };
 
   const simulationSlugs = React.useMemo(() => {
-    const set = new Set(comments.map(c => c.simulationSlug));
+    const all = getAllSimulations().map(s => s.slug);
+    const safeComments = Array.isArray(comments) ? comments : [];
+    const set = new Set([...all, ...safeComments.map(c => c.simulationSlug)]);
     return ['all', ...Array.from(set)];
   }, [comments]);
-
-  const filteredComments = React.useMemo(() => {
-    return comments.filter(c => {
-      const matchSlug = selectedSlug === 'all' || c.simulationSlug === selectedSlug;
-      const q = searchQuery.toLowerCase();
-      const matchSearch =
-        !q || c.content.toLowerCase().includes(q) || c.user.username.toLowerCase().includes(q);
-      return matchSlug && matchSearch;
-    });
-  }, [comments, selectedSlug, searchQuery]);
 
   // Filter definitions
   const filters: AppFilterField[] = [
@@ -90,19 +132,19 @@ export function CommentsView() {
   ];
 
   const activeFilters: AppActiveFilter[] = [];
-  if (selectedSlug !== 'all') {
+  if (appliedSlug !== 'all') {
     activeFilters.push({
       id: 'simulation',
       label: 'Thí nghiệm',
-      valueLabel: `/${selectedSlug}`,
-      onRemove: () => setSelectedSlug('all'),
+      valueLabel: `/${appliedSlug}`,
+      onRemove: () => {
+        setSelectedSlug('all');
+        setAppliedSlug('all');
+        setPage(1);
+        loadComments(1, limit, appliedSearch, 'all');
+      },
     });
   }
-
-  const handleResetFilters = () => {
-    setSearchQuery('');
-    setSelectedSlug('all');
-  };
 
   const columns: AppTableColumn<AdminCommentItem>[] = [
     {
@@ -240,7 +282,7 @@ export function CommentsView() {
                 TRUNG TÂM KIỂM DUYỆT
               </AppTag>
               <span className="text-xs font-mono text-slate-400">
-                {comments.length} bình luận trên toàn sàn
+                {total} bình luận trên toàn sàn
               </span>
             </div>
           ),
@@ -251,7 +293,7 @@ export function CommentsView() {
             <AppButton
               variant="outline"
               size="sm"
-              onClick={() => loadComments()}
+              onClick={() => loadComments(page, limit, appliedSearch, appliedSlug)}
               disabled={isLoading}
               className="text-xs font-semibold gap-1.5 border-slate-300 bg-white shadow-2xs shrink-0"
               leftIcon={<RefreshCw className={`h-3.5 w-3.5 ${isLoading ? 'animate-spin' : ''}`} />}
@@ -262,18 +304,23 @@ export function CommentsView() {
         }}
         searchValue={searchQuery}
         onSearchChange={setSearchQuery}
+        onFilter={handleFilter}
+        filterLabel="Lọc"
         searchPlaceholder="Tìm theo nội dung hoặc tác giả..."
         filters={filters}
         activeFilters={activeFilters}
         onReset={handleResetFilters}
         columns={columns}
-        data={filteredComments}
+        data={comments}
         isLoading={isLoading}
         loadingMessage="Đang tải dữ liệu kiểm duyệt..."
         emptyMessage="Không có bình luận nào phù hợp bộ lọc hiện tại."
-        clientSidePagination
-        pageSize={10}
-        pageSizeOptions={[10, 25, 50]}
+        page={page}
+        limit={limit}
+        total={total}
+        onPageChange={handlePageChange}
+        onPageSizeChange={handlePageSizeChange}
+        pageSizeOptions={[10, 20, 50, 100]}
       />
 
       <AppConfirmModal

@@ -289,8 +289,8 @@ export function SimulationsView({ simulationStats = {} }: SimulationsViewProps) 
       sortDirection={sortDirection}
       onSort={handleSort}
       clientSidePagination
-      pageSize={10}
-      pageSizeOptions={[10, 20, 50]}
+      pageSize={20}
+      pageSizeOptions={[10, 20, 50, 100]}
     />
   );
 }

@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { ArrowUpDown, ArrowUp, ArrowDown, Loader2, Database } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { AppPagination, type AppPaginationProps } from './app-pagination';
 
 export interface AppTableColumn<T> {
   key: string;
@@ -13,9 +14,26 @@ export interface AppTableColumn<T> {
   headerClassName?: string;
 }
 
+export interface AppTableFetchParams {
+  page: number;
+  limit: number;
+  sortColumn?: string;
+  sortDirection?: 'asc' | 'desc';
+  search?: string;
+  filters?: Record<string, string | number>;
+}
+
+export interface AppTableFetchResult<T> {
+  data: T[];
+  total: number;
+  page?: number;
+  limit?: number;
+  totalPages?: number;
+}
+
 export interface AppTableProps<T> extends React.HTMLAttributes<HTMLDivElement> {
   columns: AppTableColumn<T>[];
-  data: T[];
+  data?: T[];
   rowKey?: (item: T, index: number) => string | number;
   isLoading?: boolean;
   loadingMessage?: string;
@@ -29,13 +47,25 @@ export interface AppTableProps<T> extends React.HTMLAttributes<HTMLDivElement> {
   onSelectChange?: (selectedKeys: Array<string | number>) => void;
   tableClassName?: string;
   footer?: React.ReactNode;
+
+  // Server Pagination & Fetch Props
+  page?: number;
+  pageSize?: number;
+  limit?: number;
+  total?: number;
+  onPageChange?: (page: number) => void;
+  onPageSizeChange?: (pageSize: number) => void;
+  onLimitChange?: (limit: number) => void;
+  pageSizeOptions?: number[];
+  pagination?: boolean | Omit<AppPaginationProps, 'className'>;
+  fetchData?: (params: AppTableFetchParams) => Promise<AppTableFetchResult<T> | T[]>;
 }
 
 export function AppTable<T>({
   className,
   tableClassName,
   columns,
-  data,
+  data: externalData,
   rowKey,
   isLoading = false,
   loadingMessage = 'Đang tải dữ liệu...',
@@ -48,8 +78,143 @@ export function AppTable<T>({
   selectedKeys = [],
   onSelectChange,
   footer,
+  page,
+  pageSize,
+  limit,
+  total,
+  onPageChange,
+  onPageSizeChange,
+  onLimitChange,
+  pageSizeOptions = [10, 20, 50, 100],
+  pagination,
+  fetchData,
   ...props
 }: AppTableProps<T>) {
+  const initialLimit = limit ?? pageSize ?? 20;
+  const [internalData, setInternalData] = React.useState<T[]>(externalData ?? []);
+  const [internalTotal, setInternalTotal] = React.useState<number>(
+    total ?? externalData?.length ?? 0,
+  );
+  const [internalPage, setInternalPage] = React.useState<number>(page ?? 1);
+  const [internalLimit, setInternalLimit] = React.useState<number>(initialLimit);
+  const [internalLoading, setInternalLoading] = React.useState<boolean>(false);
+
+  // Sync external data if not using fetchData
+  React.useEffect(() => {
+    if (!fetchData && externalData !== undefined) {
+      setInternalData(externalData);
+      setInternalTotal(total ?? externalData.length);
+    }
+  }, [fetchData, externalData, total]);
+
+  // Execute fetchData when params change
+  React.useEffect(() => {
+    if (!fetchData) return;
+    let isCancelled = false;
+    setInternalLoading(true);
+
+    fetchData({
+      page: internalPage,
+      limit: internalLimit,
+      sortColumn,
+      sortDirection,
+    })
+      .then(res => {
+        if (isCancelled) return;
+        if (Array.isArray(res)) {
+          setInternalData(res);
+          setInternalTotal(res.length);
+        } else if (res && Array.isArray(res.data)) {
+          setInternalData(res.data);
+          setInternalTotal(res.total ?? res.data.length);
+        }
+      })
+      .catch(() => {
+        if (!isCancelled) {
+          setInternalData([]);
+          setInternalTotal(0);
+        }
+      })
+      .finally(() => {
+        if (!isCancelled) setInternalLoading(false);
+      });
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [fetchData, internalPage, internalLimit, sortColumn, sortDirection]);
+
+  const effectiveData = React.useMemo(
+    () => (fetchData ? internalData : (externalData ?? [])),
+    [fetchData, internalData, externalData],
+  );
+  const effectiveLoading = fetchData ? internalLoading : isLoading;
+  const effectiveTotal = fetchData ? internalTotal : (total ?? effectiveData.length);
+  const effectivePage = fetchData ? internalPage : (page ?? 1);
+  const effectiveLimit = fetchData ? internalLimit : (limit ?? pageSize ?? 20);
+
+  const handlePageChange = React.useCallback(
+    (nextPage: number) => {
+      if (fetchData) {
+        setInternalPage(nextPage);
+      }
+      onPageChange?.(nextPage);
+    },
+    [fetchData, onPageChange],
+  );
+
+  const handlePageSizeChange = React.useCallback(
+    (nextSize: number) => {
+      if (fetchData) {
+        setInternalLimit(nextSize);
+        setInternalPage(1);
+      }
+      if (onPageSizeChange) {
+        onPageSizeChange(nextSize);
+      } else if (onLimitChange) {
+        onLimitChange(nextSize);
+      }
+    },
+    [fetchData, onPageSizeChange, onLimitChange],
+  );
+
+  const paginationFooter = React.useMemo(() => {
+    if (footer !== undefined) return footer;
+    if (typeof pagination === 'object' && pagination !== null) {
+      return <AppPagination {...pagination} />;
+    }
+    const shouldRenderPagination =
+      pagination === true ||
+      fetchData !== undefined ||
+      (total !== undefined && onPageChange !== undefined);
+
+    if (shouldRenderPagination) {
+      return (
+        <AppPagination
+          page={effectivePage}
+          pageSize={effectiveLimit}
+          total={effectiveTotal}
+          onPageChange={handlePageChange}
+          pageSizeOptions={pageSizeOptions}
+          onPageSizeChange={handlePageSizeChange}
+        />
+      );
+    }
+    return null;
+  }, [
+    footer,
+    pagination,
+    fetchData,
+    total,
+    onPageChange,
+    effectivePage,
+    effectiveLimit,
+    effectiveTotal,
+    handlePageChange,
+    pageSizeOptions,
+    handlePageSizeChange,
+  ]);
+
   const getRowKey = React.useCallback(
     (item: T, index: number): string | number => {
       if (rowKey) return rowKey(item, index);
@@ -62,15 +227,17 @@ export function AppTable<T>({
   );
 
   const allRowKeys = React.useMemo(
-    () => data.map((item, index) => getRowKey(item, index)),
-    [data, getRowKey],
+    () => effectiveData.map((item, index) => getRowKey(item, index)),
+    [effectiveData, getRowKey],
   );
 
   const isAllSelected =
-    data.length > 0 && allRowKeys.length > 0 && allRowKeys.every(key => selectedKeys.includes(key));
+    effectiveData.length > 0 &&
+    allRowKeys.length > 0 &&
+    allRowKeys.every(key => selectedKeys.includes(key));
 
   const isPartiallySelected =
-    data.length > 0 &&
+    effectiveData.length > 0 &&
     selectedKeys.length > 0 &&
     !isAllSelected &&
     allRowKeys.some(key => selectedKeys.includes(key));
@@ -123,7 +290,7 @@ export function AppTable<T>({
                       if (input) input.indeterminate = isPartiallySelected;
                     }}
                     onChange={handleSelectAll}
-                    disabled={isLoading || data.length === 0}
+                    disabled={effectiveLoading || effectiveData.length === 0}
                     className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-600 focus:ring-2 cursor-pointer transition-colors"
                   />
                 </th>
@@ -184,7 +351,7 @@ export function AppTable<T>({
 
           {/* Body */}
           <tbody className="divide-y divide-slate-100 font-sans text-slate-700">
-            {isLoading ? (
+            {effectiveLoading ? (
               <tr>
                 <td
                   colSpan={columns.length + (selectable ? 1 : 0)}
@@ -196,7 +363,7 @@ export function AppTable<T>({
                   </div>
                 </td>
               </tr>
-            ) : data.length === 0 ? (
+            ) : effectiveData.length === 0 ? (
               <tr>
                 <td
                   colSpan={columns.length + (selectable ? 1 : 0)}
@@ -213,7 +380,7 @@ export function AppTable<T>({
                 </td>
               </tr>
             ) : (
-              data.map((item, index) => {
+              effectiveData.map((item, index) => {
                 const key = getRowKey(item, index);
                 const isSelected = selectedKeys.includes(key);
 
@@ -271,9 +438,11 @@ export function AppTable<T>({
         </table>
       </div>
 
-      {/* Optional Table Footer */}
-      {footer ? (
-        <div className="border-t border-slate-200 bg-slate-50/60 p-3 sm:px-4">{footer}</div>
+      {/* Optional Table / Pagination Footer */}
+      {paginationFooter ? (
+        <div className="border-t border-slate-200 bg-slate-50/60 p-3 sm:px-4">
+          {paginationFooter}
+        </div>
       ) : null}
     </div>
   );

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Search, RotateCcw } from 'lucide-react';
+import { Search, RotateCcw, Filter } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { AppInput } from './app-input';
 import { AppSelect, type AppSelectOption } from './app-select';
@@ -30,6 +30,10 @@ export interface AppFilterProps extends React.HTMLAttributes<HTMLDivElement> {
   searchPlaceholder?: string;
   filters?: AppFilterField[];
   activeFilters?: AppActiveFilter[];
+  onFilter?: () => void;
+  filterLabel?: string;
+  showFilterButton?: boolean;
+  isFiltering?: boolean;
   onReset?: () => void;
   resetLabel?: string;
   showReset?: boolean;
@@ -44,6 +48,10 @@ export const AppFilter: React.FC<AppFilterProps> = ({
   searchPlaceholder = 'Tìm kiếm dữ liệu...',
   filters = [],
   activeFilters = [],
+  onFilter,
+  filterLabel = 'Lọc',
+  showFilterButton = true,
+  isFiltering = false,
   onReset,
   resetLabel = 'Đặt lại',
   showReset = true,
@@ -74,6 +82,12 @@ export const AppFilter: React.FC<AppFilterProps> = ({
                 size="sm"
                 value={searchValue}
                 onChange={e => onSearchChange(e.target.value)}
+                onKeyDown={e => {
+                  if (e.key === 'Enter' && onFilter) {
+                    e.preventDefault();
+                    onFilter();
+                  }
+                }}
                 placeholder={searchPlaceholder}
                 leftIcon={<Search className="h-3.5 w-3.5" />}
                 clearable
@@ -95,6 +109,22 @@ export const AppFilter: React.FC<AppFilterProps> = ({
               />
             </div>
           ))}
+
+          {/* Filter Button */}
+          {showFilterButton && onFilter ? (
+            <AppButton
+              type="button"
+              variant="primary"
+              size="sm"
+              onClick={onFilter}
+              isLoading={isFiltering}
+              disabled={isFiltering}
+              className="text-xs font-semibold gap-1.5 shrink-0"
+              leftIcon={<Filter className="h-3.5 w-3.5" />}
+            >
+              {filterLabel}
+            </AppButton>
+          ) : null}
 
           {/* Reset Filters Button */}
           {showReset && onReset ? (

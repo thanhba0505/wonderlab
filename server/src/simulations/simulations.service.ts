@@ -156,10 +156,15 @@ export class SimulationsService {
       where.clientSession = query.clientSession;
     }
 
+    const page = Math.max(1, query.page || 1);
+    const limit = Math.max(1, query.limit || 20);
+    const skip = (page - 1) * limit;
+
     const runs = await this.prisma.simulationRun.findMany({
       where,
       orderBy: { createdAt: 'desc' },
-      take: query.limit || 20,
+      skip,
+      take: limit,
       select: {
         id: true,
         simulationSlug: true,

@@ -181,6 +181,7 @@ describe('SimulationsService', () => {
           simulationSlug: 'birthday-paradox',
         },
         orderBy: { createdAt: 'desc' },
+        skip: 0,
         take: 10,
         select: {
           id: true,

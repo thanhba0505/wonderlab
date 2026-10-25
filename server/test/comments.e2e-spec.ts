@@ -162,7 +162,8 @@ describe('Comments API (e2e)', () => {
         .set('Cookie', authCookie)
         .expect(200);
 
-      const adminFound = adminRes.body.find((c: { id: string }) => c.id === rootCommentId);
+      const adminComments = Array.isArray(adminRes.body) ? adminRes.body : adminRes.body.data;
+      const adminFound = adminComments.find((c: { id: string }) => c.id === rootCommentId);
       expect(adminFound).toBeDefined();
       expect(adminFound.isDeleted).toBe(true);
     });

@@ -24,9 +24,14 @@ interface UsersViewProps {
 
 export function UsersView({ currentAdminUsername }: UsersViewProps) {
   const [users, setUsers] = React.useState<AdminUserItem[]>([]);
+  const [total, setTotal] = React.useState<number>(0);
+  const [page, setPage] = React.useState<number>(1);
+  const [limit, setLimit] = React.useState<number>(20);
   const [isLoading, setIsLoading] = React.useState<boolean>(true);
   const [searchQuery, setSearchQuery] = React.useState<string>('');
+  const [appliedSearch, setAppliedSearch] = React.useState<string>('');
   const [roleFilter, setRoleFilter] = React.useState<string>('all');
+  const [appliedRole, setAppliedRole] = React.useState<string>('all');
   const [sortColumn, setSortColumn] = React.useState<string>('createdAt');
   const [sortDirection, setSortDirection] = React.useState<'asc' | 'desc'>('desc');
   const [updatingUserId, setUpdatingUserId] = React.useState<string | null>(null);
@@ -44,21 +49,59 @@ export function UsersView({ currentAdminUsername }: UsersViewProps) {
     | null
   >(null);
 
-  const loadUsers = React.useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const data = await fetchAdminUsers();
-      setUsers(data);
-    } catch {
-      // Ignored
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+  const loadUsers = React.useCallback(
+    async (targetPage = page, targetLimit = limit, search = appliedSearch, role = appliedRole) => {
+      setIsLoading(true);
+      try {
+        const res = await fetchAdminUsers({
+          page: targetPage,
+          limit: targetLimit,
+          search,
+          role: role !== 'all' ? role : undefined,
+        });
+        const items = Array.isArray(res) ? res : (res?.data ?? []);
+        const totalCount = Array.isArray(res) ? res.length : (res?.total ?? items.length);
+        setUsers(items);
+        setTotal(totalCount);
+      } catch {
+        // Ignored
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [page, limit, appliedSearch, appliedRole],
+  );
 
   React.useEffect(() => {
     loadUsers();
   }, [loadUsers]);
+
+  const handleFilter = () => {
+    setPage(1);
+    setAppliedSearch(searchQuery);
+    setAppliedRole(roleFilter);
+    loadUsers(1, limit, searchQuery, roleFilter);
+  };
+
+  const handleResetFilters = () => {
+    setSearchQuery('');
+    setRoleFilter('all');
+    setPage(1);
+    setAppliedSearch('');
+    setAppliedRole('all');
+    loadUsers(1, limit, '', 'all');
+  };
+
+  const handlePageChange = (nextPage: number) => {
+    setPage(nextPage);
+    loadUsers(nextPage, limit, appliedSearch, appliedRole);
+  };
+
+  const handlePageSizeChange = (nextLimit: number) => {
+    setLimit(nextLimit);
+    setPage(1);
+    loadUsers(1, nextLimit, appliedSearch, appliedRole);
+  };
 
   const handleToggleRole = (user: AdminUserItem) => {
     if (user.username === currentAdminUsername) {
@@ -117,23 +160,9 @@ export function UsersView({ currentAdminUsername }: UsersViewProps) {
     }
   };
 
-  const processedUsers = React.useMemo(() => {
-    let result = [...users];
+  const sortedUsers = React.useMemo(() => {
+    const result = Array.isArray(users) ? [...users] : [];
 
-    // Filter by search query
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      result = result.filter(
-        u => u.username.toLowerCase().includes(q) || (u.email && u.email.toLowerCase().includes(q)),
-      );
-    }
-
-    // Filter by role
-    if (roleFilter !== 'all') {
-      result = result.filter(u => u.role === roleFilter);
-    }
-
-    // Sort
     result.sort((a, b) => {
       let valA: string | number = '';
       let valB: string | number = '';
@@ -158,7 +187,7 @@ export function UsersView({ currentAdminUsername }: UsersViewProps) {
     });
 
     return result;
-  }, [users, searchQuery, roleFilter, sortColumn, sortDirection]);
+  }, [users, sortColumn, sortDirection]);
 
   // Filter configuration
   const filters: AppFilterField[] = [
@@ -176,19 +205,19 @@ export function UsersView({ currentAdminUsername }: UsersViewProps) {
   ];
 
   const activeFilters: AppActiveFilter[] = [];
-  if (roleFilter !== 'all') {
+  if (appliedRole !== 'all') {
     activeFilters.push({
       id: 'role',
       label: 'Vai trò',
-      valueLabel: roleFilter === 'ADMIN' ? 'Quản trị viên' : 'Người dùng',
-      onRemove: () => setRoleFilter('all'),
+      valueLabel: appliedRole === 'ADMIN' ? 'Quản trị viên' : 'Người dùng',
+      onRemove: () => {
+        setRoleFilter('all');
+        setAppliedRole('all');
+        setPage(1);
+        loadUsers(1, limit, appliedSearch, 'all');
+      },
     });
   }
-
-  const handleResetFilters = () => {
-    setSearchQuery('');
-    setRoleFilter('all');
-  };
 
   const columns: AppTableColumn<AdminUserItem>[] = [
     {
@@ -325,7 +354,7 @@ export function UsersView({ currentAdminUsername }: UsersViewProps) {
                 QUẢN TRỊ NGƯỜI DÙNG
               </AppTag>
               <span className="text-xs font-mono text-slate-400">
-                {users.length} tài khoản trong hệ thống
+                {total} tài khoản trong hệ thống
               </span>
             </div>
           ),
@@ -336,7 +365,7 @@ export function UsersView({ currentAdminUsername }: UsersViewProps) {
             <AppButton
               variant="outline"
               size="sm"
-              onClick={loadUsers}
+              onClick={() => loadUsers(page, limit, appliedSearch, appliedRole)}
               disabled={isLoading}
               className="text-xs font-semibold gap-1.5 border-slate-300 bg-white shadow-2xs shrink-0"
               leftIcon={<RefreshCw className={`h-3.5 w-3.5 ${isLoading ? 'animate-spin' : ''}`} />}
@@ -347,21 +376,26 @@ export function UsersView({ currentAdminUsername }: UsersViewProps) {
         }}
         searchValue={searchQuery}
         onSearchChange={setSearchQuery}
+        onFilter={handleFilter}
+        filterLabel="Lọc"
         searchPlaceholder="Tìm theo tên đăng nhập hoặc email..."
         filters={filters}
         activeFilters={activeFilters}
         onReset={handleResetFilters}
         columns={columns}
-        data={processedUsers}
+        data={sortedUsers}
         isLoading={isLoading}
         loadingMessage="Đang tải danh sách người dùng..."
         emptyMessage="Không tìm thấy người dùng phù hợp."
         sortColumn={sortColumn}
         sortDirection={sortDirection}
         onSort={handleSort}
-        clientSidePagination
-        pageSize={10}
-        pageSizeOptions={[10, 25, 50]}
+        page={page}
+        limit={limit}
+        total={total}
+        onPageChange={handlePageChange}
+        onPageSizeChange={handlePageSizeChange}
+        pageSizeOptions={[10, 20, 50, 100]}
       />
 
       <AppConfirmModal

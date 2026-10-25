@@ -5,14 +5,16 @@ import {
   Delete,
   Param,
   Body,
+  Query,
   UseGuards,
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiCookieAuth, ApiParam } from '@nestjs/swagger';
-import { CommentsService } from './comments.service';
+import { CommentsService, PaginatedAdminCommentsResult } from './comments.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { CommentItemDto, DeleteCommentResponseDto } from './dto/comment-response.dto';
+import { ListAdminCommentsQueryDto } from './dto/list-admin-comments-query.dto';
 import { Public } from '../auth/decorators/public.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -31,16 +33,18 @@ export class CommentsController {
   @Get('admin/comments')
   @ApiCookieAuth('access_token')
   @ApiOperation({
-    summary: 'Lấy toàn bộ bình luận phục vụ kiểm duyệt (Admin only)',
+    summary: 'Lấy danh sách bình luận phục vụ kiểm duyệt phân trang và tìm kiếm (Admin only)',
     description:
-      'Trả về toàn bộ danh sách bình luận trên mọi thí nghiệm, kèm người gửi và thông tin phân cấp.',
+      'Trả về danh sách bình luận phân trang (mặc định 20 bản ghi/trang) trên mọi thí nghiệm, kèm người gửi và thông tin phân cấp.',
   })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Toàn bộ danh sách bình luận kiểm duyệt',
+    description: 'Danh sách bình luận kiểm duyệt phân trang',
   })
-  async getAllCommentsForAdmin() {
-    return this.commentsService.findAllForAdmin();
+  async getAllCommentsForAdmin(
+    @Query() query: ListAdminCommentsQueryDto,
+  ): Promise<PaginatedAdminCommentsResult> {
+    return this.commentsService.findAllForAdmin(query);
   }
 
   @Public()

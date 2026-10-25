@@ -12,7 +12,9 @@ describe('UsersService', () => {
       findUnique: jest.Mock;
       create: jest.Mock;
       update: jest.Mock;
+      count: jest.Mock;
     };
+    $transaction: jest.Mock;
   };
 
   beforeEach(async () => {
@@ -22,7 +24,9 @@ describe('UsersService', () => {
         findUnique: jest.fn(),
         create: jest.fn(),
         update: jest.fn(),
+        count: jest.fn(),
       },
+      $transaction: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -43,7 +47,7 @@ describe('UsersService', () => {
   });
 
   describe('findAll', () => {
-    it('should return all users with count of runs and comments', async () => {
+    it('should return paginated users with count of runs and comments', async () => {
       const mockUsers = [
         {
           id: 'u1',
@@ -55,11 +59,17 @@ describe('UsersService', () => {
           _count: { simulationRuns: 12, comments: 4 },
         },
       ];
-      prisma.user.findMany.mockResolvedValue(mockUsers);
+      prisma.$transaction.mockResolvedValue([1, mockUsers]);
 
       const result = await service.findAll();
-      expect(result).toEqual(mockUsers);
-      expect(prisma.user.findMany).toHaveBeenCalled();
+      expect(result).toEqual({
+        data: mockUsers,
+        total: 1,
+        page: 1,
+        limit: 20,
+        totalPages: 1,
+      });
+      expect(prisma.$transaction).toHaveBeenCalled();
     });
   });
 

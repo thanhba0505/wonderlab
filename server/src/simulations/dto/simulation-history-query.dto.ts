@@ -22,6 +22,18 @@ export class SimulationHistoryQueryDto {
   clientSession?: string;
 
   @ApiPropertyOptional({
+    description: 'Page number for pagination',
+    example: 1,
+    default: 1,
+    minimum: 1,
+  })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  page?: number = 1;
+
+  @ApiPropertyOptional({
     description: 'Maximum number of records to return',
     example: 20,
     default: 20,

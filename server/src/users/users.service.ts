@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
-import { User, Role } from '@prisma/client';
+import { User, Role, Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { ListUsersQueryDto } from './dto/list-users-query.dto';
 
 export type SafeUser = Omit<User, 'passwordHash'>;
 
@@ -11,6 +12,14 @@ export interface UserWithStats extends SafeUser {
     simulationRuns: number;
     comments: number;
   };
+}
+
+export interface PaginatedUsersResult {
+  data: UserWithStats[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
 }
 
 @Injectable()
@@ -132,35 +141,65 @@ export class UsersService {
   }
 
   /**
-   * List all users with activity counts for Admin Console
+   * List users with pagination, search, role filtering, and activity counts for Admin Console
    */
-  async findAll(): Promise<UserWithStats[]> {
-    const users = await this.prisma.user.findMany({
-      select: {
-        id: true,
-        username: true,
-        email: true,
-        role: true,
-        isEmailVerified: true,
-        avatarUrl: true,
-        googleId: true,
-        isDeleted: true,
-        deletedAt: true,
-        createdAt: true,
-        updatedAt: true,
-        _count: {
-          select: {
-            simulationRuns: true,
-            comments: true,
+  async findAll(query: ListUsersQueryDto = new ListUsersQueryDto()): Promise<PaginatedUsersResult> {
+    const page = Math.max(1, query.page || 1);
+    const limit = Math.max(1, query.limit || 20);
+    const skip = (page - 1) * limit;
+
+    const where: Prisma.UserWhereInput = {};
+    if (query.role) {
+      where.role = query.role;
+    }
+    if (query.search?.trim()) {
+      const q = query.search.trim();
+      where.OR = [
+        { username: { contains: q, mode: 'insensitive' } },
+        { email: { contains: q, mode: 'insensitive' } },
+      ];
+    }
+
+    const [total, users] = await this.prisma.$transaction([
+      this.prisma.user.count({ where }),
+      this.prisma.user.findMany({
+        where,
+        skip,
+        take: limit,
+        select: {
+          id: true,
+          username: true,
+          email: true,
+          role: true,
+          isEmailVerified: true,
+          avatarUrl: true,
+          googleId: true,
+          isDeleted: true,
+          deletedAt: true,
+          createdAt: true,
+          updatedAt: true,
+          _count: {
+            select: {
+              simulationRuns: true,
+              comments: true,
+            },
           },
         },
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    });
+        orderBy: {
+          createdAt: 'desc',
+        },
+      }),
+    ]);
 
-    return users as UserWithStats[];
+    const totalPages = Math.max(1, Math.ceil(total / limit));
+
+    return {
+      data: users as UserWithStats[],
+      total,
+      page,
+      limit,
+      totalPages,
+    };
   }
 
   /**
