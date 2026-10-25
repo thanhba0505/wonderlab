@@ -231,14 +231,36 @@ describe('Auth & Session Security (e2e)', () => {
   });
 
   describe('Google OAuth & Automatic Account Linking', () => {
-    it('should link Google account when email matches existing account', async () => {
-      const existingEmail = 'newuser@wonderlab.local';
+    const timestamp = Date.now();
+    const existingEmail = `linkuser_${timestamp}@wonderlab.local`;
+    const existingUsername = `linkuser_${timestamp}`;
+    const googleOnlyEmail = `puregoogle_${timestamp}@wonderlab.local`;
 
+    beforeAll(async () => {
+      await prisma.user.create({
+        data: {
+          username: existingUsername,
+          email: existingEmail,
+          passwordHash: '$argon2id$v=19$m=65536,t=3,p=4$dummyhashforlinkingtest',
+          isEmailVerified: true,
+        },
+      });
+    });
+
+    afterAll(async () => {
+      await prisma.user.deleteMany({
+        where: {
+          OR: [{ email: existingEmail }, { email: googleOnlyEmail }],
+        },
+      });
+    });
+
+    it('should link Google account when email matches existing account', async () => {
       const response = await request(app.getHttpServer())
         .post('/api/v1/auth/google')
         .send({
           email: existingEmail,
-          googleId: 'google-uid-999',
+          googleId: `google-uid-999-${timestamp}`,
           name: 'New User Google',
         })
         .expect(200);
@@ -249,13 +271,11 @@ describe('Auth & Session Security (e2e)', () => {
     });
 
     it('should create new account for new Google user without password', async () => {
-      const googleOnlyEmail = 'puregoogle@wonderlab.local';
-
       const response = await request(app.getHttpServer())
         .post('/api/v1/auth/google')
         .send({
           email: googleOnlyEmail,
-          googleId: 'google-uid-111',
+          googleId: `google-uid-111-${timestamp}`,
           name: 'Pure Google User',
         })
         .expect(200);
