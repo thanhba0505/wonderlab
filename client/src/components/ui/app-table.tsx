@@ -10,8 +10,14 @@ export interface AppTableColumn<T> {
   sortable?: boolean;
   align?: 'left' | 'center' | 'right';
   width?: string | number;
+  minWidth?: string | number;
   className?: string;
   headerClassName?: string;
+}
+
+function formatDimension(dim?: string | number): string | undefined {
+  if (dim === undefined || dim === null) return undefined;
+  return typeof dim === 'number' ? `${dim}px` : String(dim);
 }
 
 export interface AppTableFetchParams {
@@ -46,6 +52,8 @@ export interface AppTableProps<T> extends React.HTMLAttributes<HTMLDivElement> {
   selectedKeys?: Array<string | number>;
   onSelectChange?: (selectedKeys: Array<string | number>) => void;
   tableClassName?: string;
+  tableLayout?: 'fixed' | 'auto';
+  minWidth?: string | number;
   footer?: React.ReactNode;
 
   // Server Pagination & Fetch Props
@@ -64,6 +72,8 @@ export interface AppTableProps<T> extends React.HTMLAttributes<HTMLDivElement> {
 export function AppTable<T>({
   className,
   tableClassName,
+  tableLayout = 'fixed',
+  minWidth,
   columns,
   data: externalData,
   rowKey,
@@ -265,6 +275,42 @@ export function AppTable<T>({
     }
   };
 
+  const calculatedMinWidth = React.useMemo(() => {
+    if (minWidth !== undefined) {
+      return formatDimension(minWidth);
+    }
+    if (tableLayout === 'auto') {
+      return undefined;
+    }
+
+    let totalPixels = selectable ? 44 : 0;
+    for (const col of columns) {
+      if (col.width !== undefined) {
+        if (typeof col.width === 'number') {
+          totalPixels += col.width;
+        } else if (typeof col.width === 'string' && col.width.endsWith('px')) {
+          const parsed = parseFloat(col.width);
+          if (!Number.isNaN(parsed)) totalPixels += parsed;
+        } else {
+          totalPixels += 120;
+        }
+      } else if (col.minWidth !== undefined) {
+        if (typeof col.minWidth === 'number') {
+          totalPixels += col.minWidth;
+        } else if (typeof col.minWidth === 'string' && col.minWidth.endsWith('px')) {
+          const parsed = parseFloat(col.minWidth);
+          if (!Number.isNaN(parsed)) totalPixels += parsed;
+        } else {
+          totalPixels += 120;
+        }
+      } else {
+        totalPixels += 120;
+      }
+    }
+
+    return totalPixels > 0 ? `${totalPixels}px` : undefined;
+  }, [minWidth, tableLayout, columns, selectable]);
+
   return (
     <div
       className={cn(
@@ -275,13 +321,37 @@ export function AppTable<T>({
     >
       <div className="overflow-x-auto w-full">
         <table
-          className={cn('w-full min-w-full text-left border-collapse text-xs', tableClassName)}
+          style={calculatedMinWidth ? { minWidth: calculatedMinWidth } : undefined}
+          className={cn(
+            'w-full min-w-full text-left border-collapse text-xs',
+            tableLayout === 'fixed' ? 'table-fixed' : 'table-auto',
+            tableClassName,
+          )}
         >
+          {/* Column widths */}
+          <colgroup>
+            {selectable ? <col style={{ width: 44, minWidth: 44 }} /> : null}
+            {columns.map(col => {
+              const width = formatDimension(col.width);
+              const minColWidth = formatDimension(col.minWidth);
+              const colStyle: React.CSSProperties = {};
+              if (width) colStyle.width = width;
+              if (minColWidth) colStyle.minWidth = minColWidth;
+
+              return (
+                <col
+                  key={col.key}
+                  style={Object.keys(colStyle).length > 0 ? colStyle : undefined}
+                />
+              );
+            })}
+          </colgroup>
+
           {/* Header */}
           <thead>
             <tr className="border-b border-slate-200 bg-slate-50/80 font-mono text-xs uppercase tracking-wider text-slate-500">
               {selectable ? (
-                <th className="p-3.5 w-10 text-center">
+                <th style={{ width: 44, minWidth: 44 }} className="p-3.5 w-11 text-center">
                   <input
                     type="checkbox"
                     aria-label="Chọn tất cả"
@@ -305,10 +375,16 @@ export function AppTable<T>({
                       ? 'text-right'
                       : 'text-left';
 
+                const width = formatDimension(col.width);
+                const minColWidth = formatDimension(col.minWidth);
+                const cellStyle: React.CSSProperties = {};
+                if (width) cellStyle.width = width;
+                if (minColWidth) cellStyle.minWidth = minColWidth;
+
                 return (
                   <th
                     key={col.key}
-                    style={{ width: col.width }}
+                    style={Object.keys(cellStyle).length > 0 ? cellStyle : undefined}
                     className={cn(
                       'p-3.5 font-semibold select-none',
                       alignClass,
@@ -328,9 +404,9 @@ export function AppTable<T>({
                         col.align === 'right' && 'justify-end',
                       )}
                     >
-                      <span>{col.header}</span>
+                      <span className="truncate">{col.header}</span>
                       {col.sortable ? (
-                        <span className="text-slate-400">
+                        <span className="text-slate-400 shrink-0">
                           {isSorted ? (
                             sortDirection === 'asc' ? (
                               <ArrowUp className="h-3.5 w-3.5 text-blue-600 font-bold" />
@@ -395,7 +471,7 @@ export function AppTable<T>({
                     )}
                   >
                     {selectable ? (
-                      <td className="p-3.5 w-10 text-center">
+                      <td style={{ width: 44, minWidth: 44 }} className="p-3.5 w-11 text-center">
                         <input
                           type="checkbox"
                           aria-label={`Chọn dòng ${index + 1}`}
@@ -415,10 +491,16 @@ export function AppTable<T>({
                             ? 'text-right'
                             : 'text-left';
 
+                      const width = formatDimension(col.width);
+                      const minColWidth = formatDimension(col.minWidth);
+                      const cellStyle: React.CSSProperties = {};
+                      if (width) cellStyle.width = width;
+                      if (minColWidth) cellStyle.minWidth = minColWidth;
+
                       return (
                         <td
                           key={col.key}
-                          style={{ width: col.width }}
+                          style={Object.keys(cellStyle).length > 0 ? cellStyle : undefined}
                           className={cn('p-3.5 align-middle', alignClass, col.className)}
                         >
                           {col.render

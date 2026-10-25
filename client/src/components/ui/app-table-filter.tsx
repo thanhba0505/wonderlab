@@ -51,6 +51,8 @@ export interface AppTableFilterProps<T> extends React.HTMLAttributes<HTMLDivElem
   selectedKeys?: Array<string | number>;
   onSelectChange?: (selectedKeys: Array<string | number>) => void;
   tableClassName?: string;
+  tableLayout?: 'fixed' | 'auto';
+  minWidth?: string | number;
 
   // Pagination & Fetch Props
   page?: number;
@@ -97,6 +99,8 @@ export function AppTableFilter<T>({
   selectedKeys,
   onSelectChange,
   tableClassName,
+  tableLayout = 'fixed',
+  minWidth,
   page,
   limit,
   total,
@@ -318,6 +322,8 @@ export function AppTableFilter<T>({
         selectedKeys={selectedKeys}
         onSelectChange={onSelectChange}
         tableClassName={tableClassName}
+        tableLayout={tableLayout}
+        minWidth={minWidth}
         footer={paginationComponent}
       />
     </div>
