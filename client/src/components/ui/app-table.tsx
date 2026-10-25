@@ -283,7 +283,7 @@ export function AppTable<T>({
       return undefined;
     }
 
-    let totalPixels = selectable ? 44 : 0;
+    let totalPixels = selectable ? 48 : 0;
     for (const col of columns) {
       if (col.width !== undefined) {
         if (typeof col.width === 'number') {
@@ -330,7 +330,7 @@ export function AppTable<T>({
         >
           {/* Column widths */}
           <colgroup>
-            {selectable ? <col style={{ width: 44, minWidth: 44 }} /> : null}
+            {selectable ? <col style={{ width: 48, minWidth: 48 }} /> : null}
             {columns.map(col => {
               const width = formatDimension(col.width);
               const minColWidth = formatDimension(col.minWidth);
@@ -349,9 +349,12 @@ export function AppTable<T>({
 
           {/* Header */}
           <thead>
-            <tr className="border-b border-slate-200 bg-slate-50/80 font-mono text-xs uppercase tracking-wider text-slate-500">
+            <tr className="border-b border-slate-200 bg-slate-50/80 font-mono text-xs uppercase tracking-wider text-slate-500 divide-x divide-slate-200/80">
               {selectable ? (
-                <th style={{ width: 44, minWidth: 44 }} className="p-3.5 w-11 text-center">
+                <th
+                  style={{ width: 48, minWidth: 48 }}
+                  className="px-3.5 py-3.5 w-12 text-center align-middle border-r border-slate-200/80"
+                >
                   <input
                     type="checkbox"
                     aria-label="Chọn tất cả"
@@ -386,7 +389,9 @@ export function AppTable<T>({
                     key={col.key}
                     style={Object.keys(cellStyle).length > 0 ? cellStyle : undefined}
                     className={cn(
-                      'p-3.5 font-semibold select-none',
+                      'px-4 py-3.5 font-semibold select-none align-middle',
+                      'first:pl-5 sm:first:pl-6 last:pr-5 sm:last:pr-6',
+                      'border-r border-slate-200/80 last:border-r-0',
                       alignClass,
                       col.sortable && 'cursor-pointer hover:bg-slate-100/70 transition-colors',
                       col.headerClassName,
@@ -399,14 +404,16 @@ export function AppTable<T>({
                   >
                     <div
                       className={cn(
-                        'inline-flex items-center gap-1.5',
+                        'inline-flex items-center gap-1.5 max-w-full',
                         col.align === 'center' && 'justify-center',
                         col.align === 'right' && 'justify-end',
                       )}
                     >
-                      <span className="truncate">{col.header}</span>
+                      <span className="whitespace-normal break-words leading-tight">
+                        {col.header}
+                      </span>
                       {col.sortable ? (
-                        <span className="text-slate-400 shrink-0">
+                        <span className="text-slate-400 shrink-0 self-center">
                           {isSorted ? (
                             sortDirection === 'asc' ? (
                               <ArrowUp className="h-3.5 w-3.5 text-blue-600 font-bold" />
@@ -431,7 +438,7 @@ export function AppTable<T>({
               <tr>
                 <td
                   colSpan={columns.length + (selectable ? 1 : 0)}
-                  className="py-16 text-center text-xs text-slate-500 font-sans"
+                  className="py-16 text-center text-xs text-slate-500 font-sans px-4"
                 >
                   <div className="flex flex-col items-center justify-center gap-2.5">
                     <Loader2 className="h-5 w-5 animate-spin text-blue-600" />
@@ -443,7 +450,7 @@ export function AppTable<T>({
               <tr>
                 <td
                   colSpan={columns.length + (selectable ? 1 : 0)}
-                  className="py-16 text-center text-xs text-slate-500 font-sans"
+                  className="py-16 text-center text-xs text-slate-500 font-sans px-4"
                 >
                   {typeof emptyMessage === 'string' ? (
                     <div className="flex flex-col items-center justify-center gap-2 text-slate-400">
@@ -471,7 +478,10 @@ export function AppTable<T>({
                     )}
                   >
                     {selectable ? (
-                      <td style={{ width: 44, minWidth: 44 }} className="p-3.5 w-11 text-center">
+                      <td
+                        style={{ width: 48, minWidth: 48 }}
+                        className="px-3.5 py-3.5 w-12 text-center align-middle"
+                      >
                         <input
                           type="checkbox"
                           aria-label={`Chọn dòng ${index + 1}`}
@@ -501,7 +511,12 @@ export function AppTable<T>({
                         <td
                           key={col.key}
                           style={Object.keys(cellStyle).length > 0 ? cellStyle : undefined}
-                          className={cn('p-3.5 align-middle', alignClass, col.className)}
+                          className={cn(
+                            'px-4 py-3.5 align-middle',
+                            'first:pl-5 sm:first:pl-6 last:pr-5 sm:last:pr-6',
+                            alignClass,
+                            col.className,
+                          )}
                         >
                           {col.render
                             ? col.render(item, index)
@@ -522,7 +537,7 @@ export function AppTable<T>({
 
       {/* Optional Table / Pagination Footer */}
       {paginationFooter ? (
-        <div className="border-t border-slate-200 bg-slate-50/60 p-3 sm:px-4">
+        <div className="border-t border-slate-200 bg-slate-50/60 px-5 py-3 sm:px-6">
           {paginationFooter}
         </div>
       ) : null}
