@@ -118,7 +118,7 @@ export function SimulationsView({ simulationStats = {} }: SimulationsViewProps) 
       {/* Simulations Table */}
       <Card className="border-slate-300/85 bg-white shadow-2xs overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse text-xs">
+          <table className="w-full min-w-[850px] text-left border-collapse text-xs">
             <thead>
               <tr className="border-b border-slate-200 bg-slate-50/70 font-mono text-xs uppercase tracking-wider text-slate-500">
                 <th className="p-4">Mô hình / Slug</th>

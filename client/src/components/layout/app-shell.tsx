@@ -14,9 +14,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   if (isAdminRoute) {
     return (
-      <div className="min-h-screen flex flex-col bg-[#f1f5f9] text-slate-800">
+      <div className="h-screen max-h-screen flex flex-col bg-[#f1f5f9] text-slate-800 overflow-hidden">
         <AdminHeader />
-        <main className="flex-1">{children}</main>
+        <main className="flex-1 min-h-0 overflow-hidden">{children}</main>
         {/* Admin route has NO footer as requested */}
         <UserProfileModal />
       </div>

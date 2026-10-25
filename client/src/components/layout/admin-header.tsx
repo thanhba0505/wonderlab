@@ -12,8 +12,8 @@ export function AdminHeader() {
   const { user, logout } = useAuth();
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-slate-300/80 bg-white shadow-2xs">
-      <div className="container mx-auto max-w-7xl flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
+    <header className="sticky top-0 z-40 w-full border-b border-slate-300/80 bg-white shadow-2xs">
+      <div className="w-full max-w-[1680px] mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Brand */}
         <div className="flex items-center gap-3">
           <Link href="/admin" className="flex items-center gap-2.5 group">
