@@ -57,9 +57,10 @@ jobs:
           else
             TARGET_VERSION=$(node -p "require('./package.json').version")
           fi
+          RELEASE_COMMIT=$(git rev-parse origin/main 2>/dev/null || git rev-parse HEAD)
           echo "service=$SERVICE" >> "$GITHUB_OUTPUT"
           echo "version=$TARGET_VERSION" >> "$GITHUB_OUTPUT"
-          echo "commit=${{ github.sha }}" >> "$GITHUB_OUTPUT"
+          echo "commit=$RELEASE_COMMIT" >> "$GITHUB_OUTPUT"
 
       - name: Trigger Server Deploy Hook
         if: ${{ steps.targets.outputs.service == 'all' || steps.targets.outputs.service == 'server' }}
@@ -96,3 +97,14 @@ jobs:
             exit 1
           fi
           echo "wonderlab-client deployment successfully initiated."
+
+      - name: Monitor & Verify Live Deployment Rollout
+        run: |
+          chmod +x scripts/verify-deployment.sh
+          ./scripts/verify-deployment.sh \
+            --service "${{ steps.targets.outputs.service }}" \
+            --version "${{ steps.targets.outputs.version }}" \
+            --commit "${{ steps.targets.outputs.commit }}" \
+            --timeout 600 \
+            --interval 10 \
+            --initial-delay 15
