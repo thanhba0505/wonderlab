@@ -2,11 +2,17 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { ExternalLink, Download, Filter } from 'lucide-react';
+import { ExternalLink, Download } from 'lucide-react';
+import {
+  AppTableFilter,
+  AppTag,
+  AppButton,
+  type AppTableColumn,
+  type AppFilterField,
+  type AppActiveFilter,
+} from '@/components/ui';
 import { getAllSimulations } from '@/features/simulations/registry';
+import { SimulationMeta } from '@/features/simulations/types';
 
 interface SimulationsViewProps {
   simulationStats?: Record<string, { runs: number; trials: number }>;
@@ -15,6 +21,10 @@ interface SimulationsViewProps {
 export function SimulationsView({ simulationStats = {} }: SimulationsViewProps) {
   const allSimulations = React.useMemo(() => getAllSimulations(), []);
   const [selectedCategory, setSelectedCategory] = React.useState<string>('all');
+  const [searchQuery, setSearchQuery] = React.useState<string>('');
+  const [sortColumn, setSortColumn] = React.useState<string>('title');
+  const [sortDirection, setSortDirection] = React.useState<'asc' | 'desc'>('asc');
+
   const [statusMap, setStatusMap] = React.useState<Record<string, 'active' | 'in-development'>>(
     () => {
       const initial: Record<string, 'active' | 'in-development'> = {};
@@ -29,11 +39,6 @@ export function SimulationsView({ simulationStats = {} }: SimulationsViewProps) 
     const set = new Set(allSimulations.map(s => s.category));
     return ['all', ...Array.from(set)];
   }, [allSimulations]);
-
-  const filteredSimulations = React.useMemo(() => {
-    if (selectedCategory === 'all') return allSimulations;
-    return allSimulations.filter(s => s.category === selectedCategory);
-  }, [allSimulations, selectedCategory]);
 
   const toggleStatus = (slug: string) => {
     setStatusMap(prev => ({
@@ -63,156 +68,229 @@ export function SimulationsView({ simulationStats = {} }: SimulationsViewProps) 
     document.body.removeChild(link);
   };
 
-  return (
-    <div className="space-y-6">
-      {/* Header Bar */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 rounded-2xl bg-white border border-slate-300/85 shadow-2xs">
+  const handleSort = (columnKey: string) => {
+    if (sortColumn === columnKey) {
+      setSortDirection(prev => (prev === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortColumn(columnKey);
+      setSortDirection('asc');
+    }
+  };
+
+  const processedSimulations = React.useMemo(() => {
+    let result = [...allSimulations];
+
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(
+        s => s.title.toLowerCase().includes(q) || s.slug.toLowerCase().includes(q),
+      );
+    }
+
+    if (selectedCategory !== 'all') {
+      result = result.filter(s => s.category === selectedCategory);
+    }
+
+    result.sort((a, b) => {
+      const statsA = simulationStats[a.slug] || { runs: 0, trials: 0 };
+      const statsB = simulationStats[b.slug] || { runs: 0, trials: 0 };
+
+      let valA: string | number = '';
+      let valB: string | number = '';
+
+      if (sortColumn === 'title') {
+        valA = a.title.toLowerCase();
+        valB = b.title.toLowerCase();
+      } else if (sortColumn === 'runs') {
+        valA = statsA.runs;
+        valB = statsB.runs;
+      } else if (sortColumn === 'trials') {
+        valA = statsA.trials;
+        valB = statsB.trials;
+      }
+
+      if (valA < valB) return sortDirection === 'asc' ? -1 : 1;
+      if (valA > valB) return sortDirection === 'asc' ? 1 : -1;
+      return 0;
+    });
+
+    return result;
+  }, [allSimulations, searchQuery, selectedCategory, sortColumn, sortDirection, simulationStats]);
+
+  // Filters
+  const filters: AppFilterField[] = [
+    {
+      id: 'category',
+      value: selectedCategory,
+      placeholder: 'Lọc theo chuyên mục',
+      options: categories.map(cat => ({
+        value: cat,
+        label: cat === 'all' ? 'Tất cả chuyên mục' : cat.charAt(0).toUpperCase() + cat.slice(1),
+      })),
+      onChange: setSelectedCategory,
+    },
+  ];
+
+  const activeFilters: AppActiveFilter[] = [];
+  if (selectedCategory !== 'all') {
+    activeFilters.push({
+      id: 'category',
+      label: 'Chuyên mục',
+      valueLabel: selectedCategory,
+      onRemove: () => setSelectedCategory('all'),
+    });
+  }
+
+  const handleResetFilters = () => {
+    setSearchQuery('');
+    setSelectedCategory('all');
+  };
+
+  const columns: AppTableColumn<SimulationMeta>[] = [
+    {
+      key: 'title',
+      header: 'Mô hình / Slug',
+      sortable: true,
+      render: sim => (
         <div>
+          <div className="font-heading font-bold text-slate-900 text-sm leading-tight">
+            {sim.title}
+          </div>
+          <div className="font-mono text-xs text-blue-700 font-semibold mt-0.5">/{sim.slug}</div>
+          <div className="text-xs text-slate-500 line-clamp-1 mt-0.5 max-w-xs font-sans">
+            {sim.summary}
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: 'category',
+      header: 'Chuyên mục',
+      render: sim => (
+        <AppTag variant="default" size="sm" className="capitalize">
+          {sim.category}
+        </AppTag>
+      ),
+    },
+    {
+      key: 'difficulty',
+      header: 'Độ khó',
+      render: sim => (
+        <AppTag variant="outline" size="sm" className="font-mono uppercase font-semibold">
+          {sim.difficulty}
+        </AppTag>
+      ),
+    },
+    {
+      key: 'status',
+      header: 'Trạng thái phát hành',
+      align: 'center',
+      render: sim => {
+        const currentStatus = statusMap[sim.slug] || sim.status;
+        const isActive = currentStatus === 'active';
+        return (
+          <button
+            type="button"
+            onClick={() => toggleStatus(sim.slug)}
+            title="Nhấp để chuyển đổi trạng thái phát hành"
+            className="cursor-pointer focus:outline-none"
+          >
+            <AppTag variant={isActive ? 'emerald' : 'amber'} dot size="sm">
+              {isActive ? 'Đang hoạt động' : 'Đang phát triển'}
+            </AppTag>
+          </button>
+        );
+      },
+    },
+    {
+      key: 'runs',
+      header: 'Lượt chạy thực tế',
+      align: 'right',
+      sortable: true,
+      render: sim => {
+        const stats = simulationStats[sim.slug] || { runs: 0, trials: 0 };
+        return (
+          <span className="font-mono font-bold text-slate-900 tabular-nums">
+            {stats.runs.toLocaleString('vi-VN')}
+          </span>
+        );
+      },
+    },
+    {
+      key: 'trials',
+      header: 'Mẫu thử Monte Carlo',
+      align: 'right',
+      sortable: true,
+      render: sim => {
+        const stats = simulationStats[sim.slug] || { runs: 0, trials: 0 };
+        return (
+          <span className="font-mono text-slate-600 tabular-nums">
+            {stats.trials.toLocaleString('vi-VN')}
+          </span>
+        );
+      },
+    },
+    {
+      key: 'actions',
+      header: 'Thao tác',
+      align: 'center',
+      render: sim => (
+        <Link href={`/simulations/${sim.slug}`} target="_blank">
+          <AppButton
+            variant="outline"
+            size="sm"
+            className="text-xs h-7 px-2.5 text-blue-700 border-blue-200 hover:bg-blue-50"
+            rightIcon={<ExternalLink className="h-3 w-3" />}
+          >
+            Trải nghiệm
+          </AppButton>
+        </Link>
+      ),
+    },
+  ];
+
+  return (
+    <AppTableFilter
+      header={{
+        badge: (
           <div className="flex items-center gap-2">
-            <Badge variant="cyan">QUẢN LÝ DANH MỤC THÍ NGHIỆM</Badge>
+            <AppTag variant="blue" size="sm">
+              QUẢN LÝ DANH MỤC THÍ NGHIỆM
+            </AppTag>
             <span className="text-xs font-mono text-slate-400">
               {allSimulations.length} mô hình toán học
             </span>
           </div>
-          <h2 className="text-xl sm:text-2xl font-heading font-extrabold text-slate-900 mt-1">
-            Cài Đặt & Giám Sát Phòng Thí Nghiệm
-          </h2>
-          <p className="text-xs sm:text-sm text-slate-600 font-sans mt-0.5">
-            Quản trị trạng thái phát hành, xem lưu lượng chạy thực tế và kiểm thử trực tiếp các mô
-            phỏng.
-          </p>
-        </div>
-
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleExportSummary}
-          className="text-xs font-semibold gap-1.5 border-slate-300 bg-white shadow-2xs shrink-0"
-        >
-          <Download className="h-3.5 w-3.5" />
-          Xuất Báo cáo CSV
-        </Button>
-      </div>
-
-      {/* Filter Tabs */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1 text-xs font-mono">
-        <Filter className="h-3.5 w-3.5 text-slate-400 mr-1" />
-        <span className="text-slate-500 font-bold uppercase tracking-wider text-xs mr-2">
-          Chuyên mục:
-        </span>
-        {categories.map(cat => (
-          <button
-            key={cat}
-            onClick={() => setSelectedCategory(cat)}
-            className={`px-3 py-1.5 rounded-lg font-semibold transition-colors capitalize ${
-              selectedCategory === cat
-                ? 'bg-blue-600 text-white shadow-2xs'
-                : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
-            }`}
+        ),
+        title: 'Cài Đặt & Giám Sát Phòng Thí Nghiệm',
+        description:
+          'Quản trị trạng thái phát hành, xem lưu lượng chạy thực tế và kiểm thử trực tiếp các mô phỏng.',
+        actions: (
+          <AppButton
+            variant="outline"
+            size="sm"
+            onClick={handleExportSummary}
+            className="text-xs font-semibold gap-1.5 border-slate-300 bg-white shadow-2xs shrink-0"
+            leftIcon={<Download className="h-3.5 w-3.5" />}
           >
-            {cat === 'all' ? 'Tất cả' : cat}
-          </button>
-        ))}
-      </div>
-
-      {/* Simulations Table */}
-      <Card className="border-slate-300/85 bg-white shadow-2xs overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[850px] text-left border-collapse text-xs">
-            <thead>
-              <tr className="border-b border-slate-200 bg-slate-50/70 font-mono text-xs uppercase tracking-wider text-slate-500">
-                <th className="p-4">Mô hình / Slug</th>
-                <th className="p-4">Chuyên mục</th>
-                <th className="p-4">Độ khó</th>
-                <th className="p-4 text-center">Trạng thái phát hành</th>
-                <th className="p-4 text-right">Lượt chạy thực tế</th>
-                <th className="p-4 text-right">Mẫu thử Monte Carlo</th>
-                <th className="p-4 text-center">Thao tác</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 font-sans">
-              {filteredSimulations.map(sim => {
-                const currentStatus = statusMap[sim.slug] || sim.status;
-                const stats = simulationStats[sim.slug] || { runs: 0, trials: 0 };
-
-                return (
-                  <tr key={sim.slug} className="hover:bg-slate-50/60 transition-colors">
-                    {/* Title & Slug */}
-                    <td className="p-4">
-                      <div className="font-heading font-bold text-slate-900 text-sm">
-                        {sim.title}
-                      </div>
-                      <div className="font-mono text-xs text-blue-700 font-semibold mt-0.5">
-                        /{sim.slug}
-                      </div>
-                      <div className="text-xs text-slate-500 line-clamp-1 mt-0.5 max-w-xs font-sans">
-                        {sim.summary}
-                      </div>
-                    </td>
-
-                    {/* Category */}
-                    <td className="p-4">
-                      <Badge variant="outline" className="capitalize text-slate-700 bg-slate-50">
-                        {sim.category}
-                      </Badge>
-                    </td>
-
-                    {/* Difficulty */}
-                    <td className="p-4 font-mono uppercase text-xs font-semibold text-slate-600">
-                      {sim.difficulty}
-                    </td>
-
-                    {/* Status Toggle */}
-                    <td className="p-4 text-center">
-                      <button
-                        type="button"
-                        onClick={() => toggleStatus(sim.slug)}
-                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold font-mono transition-colors border ${
-                          currentStatus === 'active'
-                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
-                            : 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100'
-                        }`}
-                        title="Nhấp để thay đổi trạng thái"
-                      >
-                        <span
-                          className={`h-1.5 w-1.5 rounded-full ${
-                            currentStatus === 'active' ? 'bg-emerald-600' : 'bg-amber-500'
-                          }`}
-                        />
-                        {currentStatus === 'active' ? 'Đang hoạt động' : 'Đang phát triển'}
-                      </button>
-                    </td>
-
-                    {/* Total Runs */}
-                    <td className="p-4 text-right font-mono font-bold text-slate-900 tabular-nums">
-                      {stats.runs.toLocaleString('vi-VN')}
-                    </td>
-
-                    {/* Total Trials */}
-                    <td className="p-4 text-right font-mono text-slate-600 tabular-nums">
-                      {stats.trials.toLocaleString('vi-VN')}
-                    </td>
-
-                    {/* Actions */}
-                    <td className="p-4 text-center">
-                      <Link href={`/simulations/${sim.slug}`} target="_blank">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="text-xs h-7 px-2.5 text-blue-700 border-blue-200 hover:bg-blue-50"
-                        >
-                          <ExternalLink className="h-3 w-3 mr-1" />
-                          Trải nghiệm
-                        </Button>
-                      </Link>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </Card>
-    </div>
+            Xuất Báo cáo CSV
+          </AppButton>
+        ),
+      }}
+      searchValue={searchQuery}
+      onSearchChange={setSearchQuery}
+      searchPlaceholder="Tìm kiếm theo tiêu đề hoặc slug..."
+      filters={filters}
+      activeFilters={activeFilters}
+      onReset={handleResetFilters}
+      columns={columns}
+      data={processedSimulations}
+      sortColumn={sortColumn}
+      sortDirection={sortDirection}
+      onSort={handleSort}
+      clientSidePagination
+      pageSize={10}
+      pageSizeOptions={[10, 20, 50]}
+    />
   );
 }

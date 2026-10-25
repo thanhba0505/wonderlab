@@ -3,9 +3,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { ArrowLeft, LogOut } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { BrandLogo } from '@/components/ui/brand-logo';
+import { AppButton, AppTag, BrandLogo } from '@/components/ui';
 import { useAuth } from '@/lib/auth-context';
 
 export function AdminHeader() {
@@ -26,12 +24,9 @@ export function AdminHeader() {
                 WONDER<span className="text-blue-600">LAB</span>
               </span>
               <span className="text-slate-300">/</span>
-              <Badge
-                variant="outline"
-                className="text-xs font-mono border-blue-200 bg-blue-50/80 text-blue-700 font-bold uppercase tracking-wider"
-              >
+              <AppTag variant="blue" size="sm" className="font-bold uppercase tracking-wider">
                 Admin Console
-              </Badge>
+              </AppTag>
             </div>
           </Link>
         </div>
@@ -39,14 +34,14 @@ export function AdminHeader() {
         {/* Right Side: Back to site & Profile */}
         <div className="flex items-center gap-3">
           <Link href="/">
-            <Button
+            <AppButton
               variant="outline"
               size="sm"
               className="text-xs text-slate-700 hover:text-slate-900 border-slate-300 bg-white shadow-2xs font-medium"
+              leftIcon={<ArrowLeft className="h-3.5 w-3.5" />}
             >
-              <ArrowLeft className="h-3.5 w-3.5 mr-1.5" />
               Về Trang chủ Lab
-            </Button>
+            </AppButton>
           </Link>
 
           {user && (
@@ -56,20 +51,20 @@ export function AdminHeader() {
                   {user.username.charAt(0).toUpperCase()}
                 </div>
                 <span className="font-mono font-bold text-slate-800">{user.username}</span>
-                <span className="text-xs font-mono px-1 py-0.5 rounded bg-blue-100 text-blue-800 font-bold">
+                <AppTag variant="blue" size="sm">
                   {user.role}
-                </span>
+                </AppTag>
               </div>
 
-              <Button
+              <AppButton
                 variant="ghost"
-                size="sm"
+                size="icon-sm"
                 onClick={() => logout()}
-                className="h-8 w-8 p-0 text-slate-400 hover:text-rose-600 hover:bg-rose-50"
-                title="Đăng xuất"
+                className="text-slate-500 hover:text-rose-600 hover:bg-rose-50"
+                title="Đăng xuất khỏi hệ thống"
               >
                 <LogOut className="h-3.5 w-3.5" />
-              </Button>
+              </AppButton>
             </div>
           )}
         </div>

@@ -3,7 +3,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Badge } from '@/components/ui/badge';
+import { AppTag } from '@/components/ui';
 import { Sliders, ShieldCheck, Database } from 'lucide-react';
 
 interface SettingsTab {
@@ -45,12 +45,14 @@ export default function AdminSettingsLayout({ children }: { children: React.Reac
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 font-sans">
       {/* Settings Section Header */}
       <div className="p-5 rounded-2xl bg-white border border-slate-300/85 shadow-2xs space-y-4">
         <div>
           <div className="flex items-center gap-2">
-            <Badge variant="cyan">CÀI ĐẶT HỆ THỐNG</Badge>
+            <AppTag variant="blue" size="sm">
+              CÀI ĐẶT HỆ THỐNG
+            </AppTag>
             <span className="text-xs font-mono text-slate-400">Vận hành nền tảng</span>
           </div>
           <h2 className="text-[18px] font-heading font-extrabold text-slate-900 mt-1">

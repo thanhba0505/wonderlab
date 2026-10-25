@@ -3,9 +3,8 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { ArrowLeft, Lock, Loader2, AlertCircle, ShieldAlert } from 'lucide-react';
+import { AppButton, AppInput, AppTag, Card } from '@/components/ui';
+import { ArrowLeft, Lock, AlertCircle, ShieldAlert } from 'lucide-react';
 
 export function AdminLoginCard() {
   const { user, login, logout } = useAuth();
@@ -32,27 +31,28 @@ export function AdminLoginCard() {
   // Case 1: Authenticated but not an ADMIN
   if (user && user.role !== 'ADMIN') {
     return (
-      <div className="h-full overflow-y-auto px-4 py-12 flex items-center justify-center">
+      <div className="h-full overflow-y-auto px-4 py-12 flex items-center justify-center font-sans">
         <div className="w-full max-w-md space-y-6 my-auto">
           <div className="flex items-center justify-between">
             <Link href="/">
-              <Button
+              <AppButton
                 variant="outline"
                 size="sm"
                 className="gap-2 border-slate-300 text-slate-700 bg-white"
+                leftIcon={<ArrowLeft className="h-4 w-4" />}
               >
-                <ArrowLeft className="h-4 w-4" />
                 Về Trang chủ
-              </Button>
+              </AppButton>
             </Link>
             <span className="text-xs font-mono text-slate-500">Wonderlab Portal / Auth</span>
           </div>
 
           <Card className="border-slate-300/85 bg-white shadow-md overflow-hidden">
             <div className="p-6 border-b border-slate-200 bg-rose-50/50 space-y-1">
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-rose-50 border border-rose-200 text-rose-700 text-xs font-mono font-bold uppercase tracking-wider mb-2">
-                <ShieldAlert className="h-3 w-3" />
-                TRUY CẬP BỊ TỪ CHỐI
+              <div className="mb-2">
+                <AppTag variant="red" size="md" icon={<ShieldAlert className="h-3 w-3 mr-1" />}>
+                  TRUY CẬP BỊ TỪ CHỐI
+                </AppTag>
               </div>
               <h1 className="font-heading text-xl font-bold text-slate-900">
                 Không đủ quyền quản trị
@@ -70,9 +70,9 @@ export function AdminLoginCard() {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-slate-500 font-mono">Vai trò tài khoản:</span>
-                  <span className="font-mono font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                  <AppTag variant="amber" size="sm">
                     {user.role}
-                  </span>
+                  </AppTag>
                 </div>
                 <div className="pt-2 text-xs text-slate-600 border-t border-slate-200">
                   Vui lòng đăng xuất và đăng nhập lại bằng tài khoản được cấp quyền Quản trị viên
@@ -81,22 +81,24 @@ export function AdminLoginCard() {
               </div>
 
               <div className="flex flex-col gap-2 pt-2">
-                <Button
-                  variant="outline"
+                <AppButton
+                  variant="danger"
                   size="sm"
+                  fullWidth
                   onClick={() => logout()}
-                  className="w-full text-xs font-semibold text-rose-700 hover:text-rose-800 hover:bg-rose-50 border-rose-200"
+                  className="font-semibold"
                 >
                   Đăng xuất tài khoản này
-                </Button>
+                </AppButton>
                 <Link href="/" className="w-full">
-                  <Button
+                  <AppButton
                     variant="ghost"
                     size="sm"
-                    className="w-full text-xs text-slate-600 hover:text-slate-900"
+                    fullWidth
+                    className="text-xs text-slate-600 hover:text-slate-900"
                   >
                     Quay lại Trang chủ Lab
-                  </Button>
+                  </AppButton>
                 </Link>
               </div>
             </div>
@@ -108,27 +110,28 @@ export function AdminLoginCard() {
 
   // Case 2: Not authenticated
   return (
-    <div className="h-full overflow-y-auto px-4 py-12 flex items-center justify-center">
+    <div className="h-full overflow-y-auto px-4 py-12 flex items-center justify-center font-sans">
       <div className="w-full max-w-md space-y-6 my-auto">
         <div className="flex items-center justify-between">
           <Link href="/">
-            <Button
+            <AppButton
               variant="outline"
               size="sm"
               className="gap-2 border-slate-300 text-slate-700 bg-white"
+              leftIcon={<ArrowLeft className="h-4 w-4" />}
             >
-              <ArrowLeft className="h-4 w-4" />
               Về Trang chủ
-            </Button>
+            </AppButton>
           </Link>
           <span className="text-xs font-mono text-slate-500">Wonderlab Portal / Auth</span>
         </div>
 
         <Card className="border-slate-300/85 bg-white shadow-md overflow-hidden">
           <div className="p-6 border-b border-slate-200 bg-slate-50/70 space-y-1">
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-blue-50 border border-blue-200 text-blue-700 text-xs font-mono font-bold uppercase tracking-wider mb-2">
-              <Lock className="h-3 w-3" />
-              XÁC THỰC QUẢN TRỊ
+            <div className="mb-2">
+              <AppTag variant="blue" size="md" icon={<Lock className="h-3 w-3 mr-1" />}>
+                XÁC THỰC QUẢN TRỊ
+              </AppTag>
             </div>
             <h1 className="font-heading text-xl font-bold text-slate-900">
               Đăng nhập Admin Console
@@ -146,58 +149,40 @@ export function AdminLoginCard() {
               </div>
             )}
 
-            <div className="space-y-1.5">
-              <label
-                htmlFor="admin-username"
-                className="text-xs font-mono font-semibold uppercase tracking-wider text-slate-700"
-              >
-                Tên đăng nhập
-              </label>
-              <input
-                id="admin-username"
-                type="text"
-                value={username}
-                onChange={e => setUsername(e.target.value)}
-                placeholder="Nhập tên đăng nhập"
-                autoComplete="username"
-                className="w-full px-3.5 py-2.5 text-sm rounded-lg border border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition-all font-sans"
-                disabled={isSubmitting}
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <label
-                htmlFor="admin-password"
-                className="text-xs font-mono font-semibold uppercase tracking-wider text-slate-700"
-              >
-                Mật khẩu
-              </label>
-              <input
-                id="admin-password"
-                type="password"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                placeholder="••••••••••••"
-                autoComplete="current-password"
-                className="w-full px-3.5 py-2.5 text-sm rounded-lg border border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition-all font-sans"
-                disabled={isSubmitting}
-              />
-            </div>
-
-            <Button
-              type="submit"
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 mt-2 shadow-sm"
+            <AppInput
+              id="admin-username"
+              type="text"
+              label="TÊN ĐĂNG NHẬP"
+              value={username}
+              onChange={e => setUsername(e.target.value)}
+              placeholder="Nhập tên đăng nhập"
+              autoComplete="username"
               disabled={isSubmitting}
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                  Đang xác thực...
-                </>
-              ) : (
-                'Đăng nhập vào Hệ thống'
-              )}
-            </Button>
+            />
+
+            <AppInput
+              id="admin-password"
+              type="password"
+              label="MẬT KHẨU"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              placeholder="••••••••••••"
+              autoComplete="current-password"
+              disabled={isSubmitting}
+            />
+
+            <div className="pt-2">
+              <AppButton
+                type="submit"
+                variant="primary"
+                fullWidth
+                isLoading={isSubmitting}
+                loadingText="Đang xác thực..."
+                className="py-2.5"
+              >
+                Đăng nhập vào Hệ thống
+              </AppButton>
+            </div>
           </form>
         </Card>
       </div>

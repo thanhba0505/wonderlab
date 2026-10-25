@@ -1,8 +1,14 @@
 'use client';
 
 import * as React from 'react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  AppButton,
+} from '@/components/ui';
 import { ShieldCheck, MessageSquare, UserPlus, CheckCircle2 } from 'lucide-react';
 
 export default function AdminAccessSettingsPage() {
@@ -18,7 +24,7 @@ export default function AdminAccessSettingsPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 font-sans">
       {savedNotice && (
         <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2 animate-in fade-in-50">
           <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
@@ -180,9 +186,9 @@ export default function AdminAccessSettingsPage() {
             </div>
 
             <div className="pt-2 flex justify-end">
-              <Button size="sm" onClick={handleSave} className="text-xs font-semibold shadow-sm">
+              <AppButton size="sm" onClick={handleSave} className="text-xs font-semibold shadow-xs">
                 Áp Dụng Chính Sách Truy Cập
-              </Button>
+              </AppButton>
             </div>
           </CardContent>
         </Card>

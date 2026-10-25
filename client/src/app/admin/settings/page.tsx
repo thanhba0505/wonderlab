@@ -1,8 +1,15 @@
 'use client';
 
 import * as React from 'react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  AppButton,
+  AppSelect,
+} from '@/components/ui';
 import { Wrench, Bell, Gauge, CheckCircle2 } from 'lucide-react';
 
 export default function AdminGeneralSettingsPage() {
@@ -20,7 +27,7 @@ export default function AdminGeneralSettingsPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 font-sans">
       {savedNotice && (
         <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2 animate-in fade-in-50">
           <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
@@ -112,17 +119,17 @@ export default function AdminGeneralSettingsPage() {
                 Giới hạn này ngăn chặn việc quá tải vi xử lý trên các thiết bị cấu hình phổ thông
                 khi chạy mô phỏng xác suất lớn.
               </p>
-              <select
+              <AppSelect
                 id="trials-limit"
                 value={maxTrialsLimit}
                 onChange={e => setMaxTrialsLimit(Number(e.target.value))}
-                className="w-full px-3 py-2 text-xs font-mono rounded-lg border border-slate-300 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600"
-              >
-                <option value={1000}>1,000 mẫu thử (Tiết kiệm tài nguyên)</option>
-                <option value={10000}>10,000 mẫu thử (Khuyến nghị chuẩn)</option>
-                <option value={50000}>50,000 mẫu thử (Độ chính xác cao)</option>
-                <option value={100000}>100,000 mẫu thử (Nghiên cứu chuyên sâu)</option>
-              </select>
+                options={[
+                  { value: 1000, label: '1,000 mẫu thử (Tiết kiệm tài nguyên)' },
+                  { value: 10000, label: '10,000 mẫu thử (Khuyến nghị chuẩn)' },
+                  { value: 50000, label: '50,000 mẫu thử (Độ chính xác cao)' },
+                  { value: 100000, label: '100,000 mẫu thử (Nghiên cứu chuyên sâu)' },
+                ]}
+              />
             </div>
 
             <div className="p-3.5 rounded-xl border border-slate-200 bg-slate-50/70 text-slate-600 text-xs space-y-1">
@@ -186,15 +193,15 @@ export default function AdminGeneralSettingsPage() {
                   value={bannerText}
                   onChange={e => setBannerText(e.target.value)}
                   placeholder="Nhập nội dung thông điệp gửi tới cộng đồng nghiên cứu..."
-                  className="w-full px-3.5 py-2 text-xs rounded-lg border border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 font-sans"
+                  className="w-full px-3.5 py-2 text-xs rounded-lg border border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 font-sans shadow-2xs"
                 />
               </div>
             )}
 
             <div className="pt-2 flex justify-end">
-              <Button size="sm" onClick={handleSave} className="text-xs font-semibold shadow-sm">
+              <AppButton size="sm" onClick={handleSave} className="text-xs font-semibold shadow-xs">
                 Lưu Thay Đổi Cài Đặt Chung
-              </Button>
+              </AppButton>
             </div>
           </CardContent>
         </Card>

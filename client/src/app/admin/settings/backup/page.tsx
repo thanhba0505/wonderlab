@@ -1,8 +1,14 @@
 'use client';
 
 import * as React from 'react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  AppButton,
+} from '@/components/ui';
 import { Download, FileText, Database, ShieldCheck, CheckCircle2 } from 'lucide-react';
 import { AdminOverviewData, fetchAdminOverview } from '@/lib/admin-api';
 import { getAllSimulations } from '@/features/simulations/registry';
@@ -63,7 +69,7 @@ export default function AdminBackupSettingsPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 font-sans">
       {exportedNotice && (
         <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2 animate-in fade-in-50">
           <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
@@ -103,15 +109,16 @@ export default function AdminBackupSettingsPage() {
               </ul>
             </div>
 
-            <Button
+            <AppButton
               variant="outline"
               size="sm"
+              fullWidth
               onClick={handleExportFullDump}
-              className="w-full text-xs font-semibold border-slate-300 bg-white hover:bg-slate-50 gap-1.5"
+              className="text-xs font-semibold border-slate-300 bg-white hover:bg-slate-50 gap-1.5"
+              leftIcon={<Download className="h-3.5 w-3.5" />}
             >
-              <Download className="h-3.5 w-3.5" />
               Tải Xuống Gói Dữ Liệu Toàn Nền Tảng (.JSON)
-            </Button>
+            </AppButton>
           </CardContent>
         </Card>
 
@@ -142,15 +149,16 @@ export default function AdminBackupSettingsPage() {
               </div>
             </div>
 
-            <Button
+            <AppButton
               variant="outline"
               size="sm"
+              fullWidth
               onClick={handleExportSimulationsCsv}
-              className="w-full text-xs font-semibold border-slate-300 bg-white hover:bg-slate-50 gap-1.5"
+              className="text-xs font-semibold border-slate-300 bg-white hover:bg-slate-50 gap-1.5"
+              leftIcon={<Download className="h-3.5 w-3.5" />}
             >
-              <Download className="h-3.5 w-3.5" />
               Xuất Báo Cáo Phòng Thí Nghiệm (.CSV)
-            </Button>
+            </AppButton>
           </CardContent>
         </Card>
 

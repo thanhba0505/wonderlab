@@ -19,7 +19,7 @@ import {
   ShieldCheck,
   Database,
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { AppButton } from '@/components/ui';
 import { BrandLogo } from '@/components/ui/brand-logo';
 import { AuthUser } from '@/types';
 
@@ -160,7 +160,7 @@ export function AdminSidebar({ user, onLogout }: AdminSidebarProps) {
             WONDERLAB ADMIN
           </span>
         </div>
-        <Button
+        <AppButton
           variant="outline"
           size="sm"
           onClick={() => setIsMobileOpen(!isMobileOpen)}
@@ -168,7 +168,7 @@ export function AdminSidebar({ user, onLogout }: AdminSidebarProps) {
           aria-label="Toggle navigation"
         >
           {isMobileOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
-        </Button>
+        </AppButton>
       </div>
 
       {/* Mobile Drawer */}
@@ -180,7 +180,7 @@ export function AdminSidebar({ user, onLogout }: AdminSidebarProps) {
               <span className="font-mono text-xs font-bold uppercase tracking-wider text-slate-700">
                 Menu Quản Trị
               </span>
-              <Button
+              <AppButton
                 variant="ghost"
                 size="sm"
                 onClick={() => setIsMobileOpen(false)}
@@ -188,7 +188,7 @@ export function AdminSidebar({ user, onLogout }: AdminSidebarProps) {
                 aria-label="Đóng menu"
               >
                 <X className="h-4 w-4" />
-              </Button>
+              </AppButton>
             </div>
 
             {/* Mobile Nav */}
@@ -260,7 +260,7 @@ export function AdminSidebar({ user, onLogout }: AdminSidebarProps) {
                     </div>
                   </div>
                 </div>
-                <Button
+                <AppButton
                   variant="ghost"
                   size="sm"
                   onClick={onLogout}
@@ -268,18 +268,18 @@ export function AdminSidebar({ user, onLogout }: AdminSidebarProps) {
                   title="Đăng xuất"
                 >
                   <LogOut className="h-3.5 w-3.5" />
-                </Button>
+                </AppButton>
               </div>
 
               <Link href="/" className="block">
-                <Button
+                <AppButton
                   variant="outline"
                   size="sm"
                   className="w-full text-xs text-slate-600 hover:text-slate-900 border-slate-200 bg-white"
                 >
                   <ArrowLeft className="h-3.5 w-3.5 mr-1.5" />
                   Về Trang chủ Lab
-                </Button>
+                </AppButton>
               </Link>
             </div>
           </div>
@@ -425,7 +425,7 @@ export function AdminSidebar({ user, onLogout }: AdminSidebarProps) {
                   <span className="truncate">{user.role}</span>
                 </div>
               </div>
-              <Button
+              <AppButton
                 variant="ghost"
                 size="sm"
                 onClick={onLogout}
@@ -433,7 +433,7 @@ export function AdminSidebar({ user, onLogout }: AdminSidebarProps) {
                 title="Đăng xuất"
               >
                 <LogOut className="h-3.5 w-3.5" />
-              </Button>
+              </AppButton>
             </div>
           </div>
 
