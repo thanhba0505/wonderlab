@@ -42,7 +42,7 @@ export function CommentsView() {
   const handleDelete = async (id: string) => {
     if (
       !confirm(
-        'Bạn có chắc chắn muốn xóa bình luận này? Nếu đây là bình luận Cấp 1, toàn bộ các phản hồi con sẽ bị xóa tự động.',
+        'Bạn có chắc chắn muốn xóa bình luận này? Nếu đây là bình luận gốc, toàn bộ các phản hồi liên quan sẽ bị xóa tự động.',
       )
     ) {
       return;
@@ -85,7 +85,7 @@ export function CommentsView() {
             </span>
           </div>
           <h2 className="text-xl sm:text-2xl font-heading font-extrabold text-slate-900 mt-1">
-            Kiểm Duyệt Thảo Luận & Phản Hồi (2 Cấp)
+            Kiểm Duyệt Thảo Luận & Phản Hồi
           </h2>
           <p className="text-xs sm:text-sm text-slate-600 font-sans mt-0.5">
             Quản trị nội dung học thuật, loại bỏ bình luận vi phạm và giám sát các phản biện khoa
@@ -148,10 +148,10 @@ export function CommentsView() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-xs">
+            <table className="w-full min-w-[900px] text-left border-collapse text-xs">
               <thead>
                 <tr className="border-b border-slate-200 bg-slate-50/70 font-mono text-xs uppercase tracking-wider text-slate-500">
-                  <th className="p-4">Tầng / Thí nghiệm</th>
+                  <th className="p-4">Phân loại / Thí nghiệm</th>
                   <th className="p-4">Tác giả</th>
                   <th className="p-4">Nội dung bình luận</th>
                   <th className="p-4">Thời gian</th>
@@ -165,7 +165,7 @@ export function CommentsView() {
 
                   return (
                     <tr key={item.id} className="hover:bg-slate-50/60 transition-colors">
-                      {/* Level & Simulation Badge */}
+                      {/* Classification & Simulation Badge */}
                       <td className="p-4 space-y-1">
                         <div>
                           {isReply ? (
@@ -174,14 +174,14 @@ export function CommentsView() {
                               className="font-mono text-xs bg-slate-50 text-slate-700 border-slate-300"
                             >
                               <CornerDownRight className="h-2.5 w-2.5 mr-1 text-slate-500" />
-                              Cấp 2 (Phản hồi)
+                              Phản hồi
                             </Badge>
                           ) : (
                             <Badge
                               variant="outline"
                               className="font-mono text-xs bg-blue-50 text-blue-800 border-blue-200"
                             >
-                              Cấp 1 (Gốc)
+                              Bình luận gốc
                             </Badge>
                           )}
                         </div>

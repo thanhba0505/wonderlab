@@ -174,19 +174,17 @@ export default function AdminPortalPage() {
   // VIEW 2: Authenticated -> Professional Sidebar Admin Portal
   // =========================================================================
   return (
-    <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 flex-1 flex flex-col lg:flex-row gap-6 min-h-[calc(100vh-4rem)]">
+    <div className="w-full max-w-[1680px] mx-auto px-4 sm:px-6 lg:px-8 py-4 flex-1 flex flex-col lg:flex-row gap-6 min-h-[calc(100vh-4rem)] lg:h-[calc(100vh-4rem)] lg:overflow-hidden">
       {/* Sidebar Navigation */}
       <AdminSidebar
         currentView={currentView}
         onSelectView={setCurrentView}
         user={user}
         onLogout={logout}
-        commentCount={overview?.totalComments}
-        userCount={overview?.totalUsers}
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 w-full overflow-y-auto">
+      <main className="flex-1 w-full h-full lg:overflow-y-auto min-w-0 pr-0.5 pb-10">
         {currentView === 'dashboard' && (
           <DashboardView
             overview={overview}
