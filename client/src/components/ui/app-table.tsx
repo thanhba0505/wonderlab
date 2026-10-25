@@ -338,12 +338,14 @@ export function AppTable<T>({
   return (
     <div
       className={cn(
-        'w-full rounded-xl border border-slate-300/85 bg-white shadow-2xs overflow-hidden flex flex-col font-sans',
+        'w-full rounded-xl border border-slate-300/85 bg-white shadow-2xs flex flex-col font-sans',
         className,
       )}
       {...props}
     >
-      <div className="overflow-x-auto w-full">
+      <div
+        className={cn('overflow-x-auto w-full', paginationFooter ? 'rounded-t-xl' : 'rounded-xl')}
+      >
         <table
           style={calculatedMinWidth ? { minWidth: calculatedMinWidth } : undefined}
           className={cn(

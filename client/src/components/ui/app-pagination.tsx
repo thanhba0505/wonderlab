@@ -11,6 +11,7 @@ export interface AppPaginationProps extends React.HTMLAttributes<HTMLDivElement>
   onPageChange: (page: number) => void;
   pageSizeOptions?: number[];
   onPageSizeChange?: (pageSize: number) => void;
+  pageSizeSelectPlacement?: 'top' | 'bottom' | 'auto';
   showTotal?: boolean;
 }
 
@@ -22,6 +23,7 @@ export const AppPagination: React.FC<AppPaginationProps> = ({
   onPageChange,
   pageSizeOptions,
   onPageSizeChange,
+  pageSizeSelectPlacement = 'top',
   showTotal = true,
   ...props
 }) => {
@@ -80,6 +82,7 @@ export const AppPagination: React.FC<AppPaginationProps> = ({
             <div className="w-20">
               <AppSelect
                 size="sm"
+                placement={pageSizeSelectPlacement}
                 value={pageSize}
                 onChange={e => onPageSizeChange(Number(e.target.value))}
                 options={pageSizeOptions.map(size => ({
