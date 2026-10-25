@@ -20,9 +20,19 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     private readonly configService: ConfigService,
     private readonly usersService: UsersService,
   ) {
-    const secret =
-      configService.get<string>('JWT_SECRET') ||
-      'wonderlab_production_jwt_secret_minimum_32_chars_for_security!';
+    const isProd = configService.get<string>('NODE_ENV') === 'production';
+    const secret = configService.get<string>('JWT_SECRET');
+
+    if (
+      isProd &&
+      (!secret || secret === 'wonderlab_dev_jwt_secret_change_in_production_32chars_min')
+    ) {
+      throw new Error(
+        'FATAL: JWT_SECRET environment variable must be set in production mode and cannot use dev default.',
+      );
+    }
+
+    const resolvedSecret = secret || 'wonderlab_dev_jwt_secret_change_in_production_32chars_min';
 
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
@@ -34,7 +44,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
         ExtractJwt.fromAuthHeaderAsBearerToken(),
       ]),
       ignoreExpiration: false,
-      secretOrKey: secret,
+      secretOrKey: resolvedSecret,
     });
   }
 

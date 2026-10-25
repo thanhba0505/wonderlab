@@ -4,8 +4,7 @@ node_modules/
 
 # Environment files
 .env
-.env.local
-.env.*.local
+.env.*
 !.env.example
 
 # Next.js build output
