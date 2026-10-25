@@ -24,16 +24,9 @@ export function Header() {
             variant="badge"
             className="h-10 w-10 rounded-xl shadow-sm shadow-blue-500/25 ring-1 ring-black/5 transition-transform duration-200 group-hover:scale-105"
           />
-          <div className="flex flex-col">
-            <div className="flex items-center gap-2">
-              <span className="font-heading text-xl font-extrabold tracking-tight text-slate-900">
-                WONDER<span className="text-blue-600">LAB</span>
-              </span>
-              <span className="hidden sm:inline-flex rounded border border-blue-200 bg-blue-50 px-1.5 py-0.5 text-xs font-mono font-semibold text-blue-700">
-                LAB 2026
-              </span>
-            </div>
-          </div>
+          <span className="font-heading text-xl font-extrabold tracking-tight text-slate-900">
+            WONDER<span className="text-blue-600">LAB</span>
+          </span>
         </Link>
 
         {/* Desktop Navigation */}
