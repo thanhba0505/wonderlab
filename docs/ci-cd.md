@@ -14,21 +14,26 @@ Workflows reside in `.github/workflows/`:
 
 ## 2. CI Workflow (`.github/workflows/ci.yml`)
 
-The CI job runs on `ubuntu-latest` and executes the following deterministic steps:
+The CI workflow runs on `ubuntu-latest` and executes **4 parallel & decoupled jobs** to minimize developer wait times, achieve instant fail-fast feedback, and eliminate unnecessary database container overhead:
 
-1. **PostgreSQL Service**: Khởi chạy container `postgres:16-alpine` trên runner với cấu hình loopback `5434:5432`.
-2. **Checkout**: Checks out source code via `actions/checkout@v4`.
-3. **Install pnpm**: Sets up `pnpm` pinned to `12.11.2` using `pnpm/action-setup@v4`.
-4. **Setup Node.js**: Installs Node 24 with automatic pnpm store caching via `actions/setup-node@v4`.
-5. **Install Dependencies**: Runs `pnpm install --frozen-lockfile`.
-6. **Generate Prisma Client**: Chạy `pnpm --filter wonderlab-server db:generate` để tạo Prisma Client types trước khi typecheck.
-7. **Code Style Check**: Runs `pnpm format:check` using Prettier.
-8. **Linting**: Runs `pnpm lint` across client and server.
-9. **Type Checking**: Runs `pnpm typecheck` với strict TypeScript.
-10. **Prisma Migrations & Seed**: Triển khai `pnpm --filter wonderlab-server prisma migrate deploy` và seed tài khoản Admin vào database CI.
-11. **Unit Tests**: Executes `pnpm test` (Vitest cho Next.js client, Jest cho NestJS server).
-12. **E2E Tests**: Executes `pnpm test:e2e` (NestJS Health & Authentication contract tests).
-13. **Build**: Compiles production bundles via `pnpm build`.
+1. **`quality` (🎨 Quality & Types)**:
+   - **Tài nguyên**: Máy ảo nhẹ không cần database container.
+   - **Các bước**: Checkout -> Setup pnpm/Node 24 -> Cài dependencies -> `db:generate` -> `pnpm format:check` -> `pnpm lint` -> `pnpm typecheck`.
+   - **Mục tiêu**: Phản hồi lỗi format, linting và kiểu dữ liệu chỉ trong ~30-40s.
+
+2. **`unit-tests` (🧪 Unit Tests)**:
+   - **Tài nguyên**: Chạy độc lập, song song với job Quality, không cần database.
+   - **Các bước**: Checkout -> Setup pnpm/Node 24 -> Cài dependencies -> `db:generate` -> `pnpm test` (Vitest Client + Jest Server unit tests).
+   - **Mục tiêu**: Đảm bảo 100% logic thuật toán, toán học và components hoạt động chuẩn xác trong ~30-35s.
+
+3. **`e2e-tests` (🛡️ E2E Tests - Database)**:
+   - **Tài nguyên**: Khởi chạy Service Container `postgres:16-alpine` (port `5434:5432`) kèm health check.
+   - **Các bước**: Setup môi trường -> `prisma migrate deploy` -> `db:seed` -> `pnpm test:e2e`.
+   - **Mục tiêu**: Kiểm thử tích hợp thực tế với database PostgreSQL thật (xác thực, mã hóa argon2id, session cookies, bình luận, telemetry).
+
+4. **`build` (📦 Build Applications)**:
+   - **Ràng buộc**: Chạy sau khi `quality` và `unit-tests` hoàn tất thành công (`needs: [quality, unit-tests]`).
+   - **Các bước**: Build production Next.js SSG bundle và NestJS production build (`pnpm build`).
 
 ---
 

@@ -10,10 +10,71 @@ permissions:
   contents: read
 
 jobs:
-  validate:
-    name: 🔬 Lint, Test & Build
+  quality:
+    name: 🎨 Quality & Types
     runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 12.11.2
+          run_install: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma Client
+        run: pnpm --filter wonderlab-server db:generate
+
+      - name: Check code formatting
+        run: pnpm format:check
+
+      - name: Lint codebase
+        run: pnpm lint
+
+      - name: Typecheck TypeScript
+        run: pnpm typecheck
+
+  unit-tests:
+    name: 🧪 Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 12.11.2
+          run_install: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma Client
+        run: pnpm --filter wonderlab-server db:generate
+
+      - name: Run unit tests
+        run: pnpm test
+
+  e2e-tests:
+    name: 🛡️ E2E Tests (Database)
+    runs-on: ubuntu-latest
     services:
       postgres:
         image: postgres:16-alpine
@@ -51,15 +112,6 @@ jobs:
       - name: Generate Prisma Client
         run: pnpm --filter wonderlab-server db:generate
 
-      - name: Check code formatting
-        run: pnpm format:check
-
-      - name: Lint codebase
-        run: pnpm lint
-
-      - name: Typecheck TypeScript
-        run: pnpm typecheck
-
       - name: Run Prisma Migrations & Seed
         run: |
           cd server
@@ -68,13 +120,36 @@ jobs:
         env:
           DATABASE_URL: postgres://postgres:postgrespassword@localhost:5434/wonderlab?schema=public
 
-      - name: Run unit tests
-        run: pnpm test
-
       - name: Run E2E tests
         run: pnpm test:e2e
         env:
           DATABASE_URL: postgres://postgres:postgrespassword@localhost:5434/wonderlab?schema=public
+
+  build:
+    name: 📦 Build Applications
+    runs-on: ubuntu-latest
+    needs: [quality, unit-tests]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 12.11.2
+          run_install: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma Client
+        run: pnpm --filter wonderlab-server db:generate
 
       - name: Build applications
         run: pnpm build
