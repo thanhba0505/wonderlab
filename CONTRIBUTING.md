@@ -31,20 +31,27 @@ _Ví dụ_: `feat: add Monty Hall simulation interactive component`
 2. **Thực hiện thay đổi**:
    - Đảm bảo tuân thủ các quy tắc trong [AGENTS.md](AGENTS.md).
    - Không đưa bí mật (API token, mật khẩu DB) vào code.
-3. **Chạy kiểm tra bắt buộc trước khi tạo Pull Request**:
+3. **Chạy kiểm tra bắt buộc**:
    ```bash
    pnpm check
    ```
    Tất cả các lệnh con (`format:check`, `lint`, `typecheck`, `test`, `test:e2e`, `build`) phải kết thúc với mã thoát 0.
-4. **Mở Pull Request**:
-   - Sử dụng PR template có sẵn.
-   - Mô tả rõ thay đổi và các bước kiểm thử đã thực hiện.
+4. **Sáp nhập trực tiếp vào `main` (Direct Merge)**:
+   - Sau khi `pnpm check` vượt qua toàn bộ, chuyển về `main`, kéo mã nguồn mới nhất và sáp nhập:
+     ```bash
+     git checkout main
+     git pull origin main
+     git merge --no-ff feat/your-feature-name -m "feat: your feature summary"
+     git push origin main
+     git branch -d feat/your-feature-name
+     ```
+   - Đối với AI agents hoặc tự động hóa, PR không còn là bước bắt buộc; mã nguồn sau khi kiểm tra đạt chuẩn sẽ được sáp nhập trực tiếp vào `main`.
 
 ---
 
 ## 3. Tiêu chí hoàn thành (Definition of Done)
 
-Một Pull Request chỉ được chấp nhận sáp nhập khi:
+Một nhánh mã nguồn chỉ được sáp nhập vào `main` khi:
 
 - [ ] Không có cảnh báo hoặc lỗi linter (`pnpm lint`).
 - [ ] Không có lỗi kiểu dữ liệu TypeScript (`pnpm typecheck`).
