@@ -9,12 +9,12 @@ Welcome to **Wonderlab**. This document is the primary source of truth and autho
 > **Before executing ANY git command, editing ANY file, or creating ANY branch**:
 >
 > 1. **MANDATORY**: Run `git worktree list` on the very first turn to inspect active worktree allocations across the repository.
-> 2. If the main workspace (`Wonderlab`) is on any branch other than a clean `main` (meaning another concurrent task or agent is active):
+> 2. If the main workspace (`Wonderlab`) is on any branch other than a clean `develop` (meaning another concurrent task or agent is active):
 >    - **NEVER** run `git checkout`, `git checkout -b`, `git stash`, or edit files in `/Users/lethanhba/workspace/app/Wonderlab`!
 >    - **IMMEDIATELY SWITCH** to an available idle persistent worktree:
 >      - `Wonderlab-worktree-1` (`/Users/lethanhba/workspace/app/Wonderlab-worktree-1`)
 >      - or `Wonderlab-worktree-2` (`/Users/lethanhba/workspace/app/Wonderlab-worktree-2`)
-> 3. Inside a worktree, sync and create a task branch via `git fetch origin && git checkout -B <type>/<task-name> origin/main` (never `git checkout main`).
+> 3. Inside a worktree, sync and create a task branch via `git fetch origin && git checkout -B <type>/<task-name> origin/develop` (never `git checkout develop`).
 > 4. All file edits (`edit_file`, `write_file`) and command executions (`run_command`) MUST strictly use absolute paths or `cd` targeting the chosen worktree directory.
 > 5. Violating workspace isolation by branch-hopping in `Wonderlab` causes git conflicts, wipes unstaged changes, overwrites stashes, and corrupts concurrent agent workflows!
 
@@ -149,51 +149,52 @@ pnpm check          # Runs all verification steps in sequence
 
 - Commit format: Conventional Commits (`feat:`, `fix:`, `chore:`, `docs:`, `test:`, `refactor:`, `ci:`).
 - Always verify working tree and secrets with `git status` before committing.
-- Never force push (`--force`) to `main`.
-- **Branching & Direct Merge Workflow (No PR Required)**:
-  - **Branch-First Development**: Never edit or commit directly on `main` without creating a dedicated branch first. All development must take place on dedicated task branches (`feat/*`, `fix/*`, `chore/*`, `docs/*`, `refactor/*`).
-  - **Direct Merge into `main` (No Pull Requests)**:
+- Never force push (`--force`) to `main` or `develop`.
+- **Branching & Direct Merge Workflow (Default: `develop`, Production: `main`)**:
+  - **Default Branch (`develop`)**: `develop` is the default active branch where all engineering occurs. The `main` branch is reserved strictly for production releases.
+  - **Branch-First Development**: Never edit or commit directly on `develop` or `main` without creating a dedicated branch first. All development must take place on dedicated task branches (`feat/*`, `fix/*`, `chore/*`, `docs/*`, `refactor/*`).
+  - **Direct Merge into `develop` (No Pull Requests)**:
     - Pull Requests are eliminated for agent tasks.
-    - Upon completing code and passing `pnpm check`, the agent merges the task branch directly into `main` and pushes `main` to `origin main` autonomously without requiring user intervention.
-    - Branch protection on `main` permits direct fast-forward/merge pushes while preventing accidental branch deletion and force-pushes (`--force`).
+    - Upon completing code and passing `pnpm check`, the agent merges the task branch directly into `develop` and pushes `develop` to `origin develop` autonomously without requiring user intervention.
+    - Each push to `develop` automatically updates the Draft Release on GitHub via `release-drafter.yml`.
   - **Branch Cleanup**:
-    - After merging into `main` and pushing to `origin main`, delete the local task branch immediately to keep the repository clean.
+    - After merging into `develop` and pushing to `origin develop`, delete the local task branch immediately to keep the workspace clean.
   - **Concurrent Tasks & Persistent Worktree Pool**:
     - The repository maintains two persistent Git Worktrees alongside the main workspace:
-      - `Wonderlab` (Main workspace): Client on `http://localhost:4100`, Server on `http://localhost:4101`.
-      - `Wonderlab-worktree-1`: Client on `http://localhost:4200`, Server on `http://localhost:4201`. Idle branch: `worktree-1`.
-      - `Wonderlab-worktree-2`: Client on `http://localhost:4300`, Server on `http://localhost:4301`. Idle branch: `worktree-2`.
+      - `Wonderlab` (Main workspace): Client on `http://localhost:4100`, Server on `http://localhost:4101`. Branch: `develop`.
+      - `Wonderlab-worktree-1`: Client on `http://localhost:4200`, Server on `http://localhost:4201`. Idle branch: `worktree-1` (tracking `origin/develop`).
+      - `Wonderlab-worktree-2`: Client on `http://localhost:4300`, Server on `http://localhost:4301`. Idle branch: `worktree-2` (tracking `origin/develop`).
       - PostgreSQL: Shared container on `127.0.0.1:5434` (`docker compose up -d`).
-    - **Worktree Invariant (Git Rule)**: Git does NOT permit checking out `main` in multiple worktrees simultaneously because `main` is checked out in `Wonderlab`. Always branch off `origin/main` in worktrees (`git checkout -B <type>/<task-name> origin/main`).
+    - **Worktree Invariant (Git Rule)**: Git does NOT permit checking out `develop` in multiple worktrees simultaneously because `develop` is checked out in `Wonderlab`. Always branch off `origin/develop` in worktrees (`git checkout -B <type>/<task-name> origin/develop`).
     - **Step-by-Step Execution & Direct Merge**:
       - **When executing in `Wonderlab` (Main Workspace)**:
         ```bash
-        git checkout main && git pull origin main
+        git checkout develop && git pull origin develop
         git checkout -b <type>/<task-name>
         # Perform implementation edits...
         pnpm check
-        git checkout main
-        git pull origin main
+        git checkout develop
+        git pull origin develop
         git merge <type>/<task-name> --no-ff -m "<type>: <concise description>"
-        git push origin main
+        git push origin develop
         git branch -d <type>/<task-name>
         ```
       - **When executing in a Worktree (`Wonderlab-worktree-1` or `Wonderlab-worktree-2`)**:
         ```bash
         cd /Users/lethanhba/workspace/app/Wonderlab-worktree-1
         git fetch origin
-        git checkout -B <type>/<task-name> origin/main
+        git checkout -B <type>/<task-name> origin/develop
         # Perform implementation edits...
         pnpm check
-        # Rebase and push directly to origin/main:
+        # Rebase and push directly to origin/develop:
         git fetch origin
-        git rebase origin/main
-        git push origin HEAD:main
+        git rebase origin/develop
+        git push origin HEAD:develop
         # Reset worktree back to idle tracking branch:
-        git checkout -B worktree-1 origin/main
+        git checkout -B worktree-1 origin/develop
         git branch -d <type>/<task-name>
         # Sync main workspace if idle:
-        git -C /Users/lethanhba/workspace/app/Wonderlab pull origin main
+        git -C /Users/lethanhba/workspace/app/Wonderlab pull origin develop
         ```
     - **Persistent Retention Policy**: Do NOT delete the worktrees upon task completion. Keeping them persistent preserves `node_modules`, Prisma artifacts, and build caches, eliminating repetitive installation overhead.
     - Worktrees guarantee zero port collision, zero dirty stash risk, and total process isolation for parallel development.
@@ -201,11 +202,15 @@ pnpm check          # Runs all verification steps in sequence
   - Root `package.json` is the sole, authoritative source of truth for the project version (`version`).
   - Both `client` (`next.config.ts` -> `process.env.NEXT_PUBLIC_APP_VERSION`) and `server` (`server/src/common/version.ts`) dynamically consume this single root version.
   - Never hardcode version strings in health endpoints, Swagger, or application copy.
-  - **Version Update Policy**: The project version in `package.json` must ONLY be bumped upon official release events (`release: [published]` or tag release `push: tags: ['v*']`). NEVER bump version numbers on draft releases or regular commits pushed to `main`.
-- **Tag-Driven Deployment Only (Publish Tag)**:
+  - **Version Update Policy**: The project version in `package.json` must ONLY be bumped upon official release events (`release: [published]` or tag release `push: tags: ['v*']`). NEVER bump version numbers on draft releases or regular commits pushed to `develop`.
+- **Automated Production Release & Tag-Driven Deployment**:
+  - **Releasing to Production (`main`)**: When the user publishes an official GitHub Release (or pushes a `v*` tag), GitHub Actions (`deploy.yml`) automatically:
+    1. Merges `origin/develop` into `main` (`git merge origin/develop --no-ff`).
+    2. Bumps `package.json` version and commits to `main` (`chore(release): vX.Y.Z [skip ci]`).
+    3. Tags the commit and pushes `main` and tag to GitHub.
+    4. Syncs the version bump commit back to `origin/develop`.
+    5. Triggers deployment hooks to Render.
   - **NEVER** deploy to Render manually or trigger ad-hoc `workflow_dispatch` runs for regular releases.
-  - Deployments to Render must **ONLY** be triggered by publishing a Git tag (`push: tags: ['v*']`) or publishing an official GitHub Release (`release: [published]`).
-  - This ensures every deployment is deterministic, traceable, and tied to an immutable release tag with automated release notes.
 
 ---
 
@@ -217,6 +222,6 @@ pnpm check          # Runs all verification steps in sequence
 4. **No Fake Completions**: Never declare tests or builds have succeeded without actually executing them and inspecting the output.
 5. **Preserve Documentation Integrity**: Update docs in `docs/` whenever architectural decisions or workflows change.
 6. **Publish-Tag Deployments Only**: Never trigger production deployments to Render via manual commands or arbitrary scripts. Always use official tag releases (`git tag vX.Y.Z && git push origin vX.Y.Z` or publishing a GitHub Release).
-7. **Branch-First Development & Direct Merge into Main**: Never commit directly onto `main` without a dedicated branch. Always create a task branch (`feat/*`, `fix/*`, `chore/*`, `docs/*`, `refactor/*`), verify with `pnpm check`, merge directly into `main` (or push `HEAD:main` from worktrees), and push to `origin main`. PR creation is eliminated; user manual approval is not required for verified merges.
+7. **Branch-First Development & Direct Merge into Develop**: Never commit directly onto `develop` or `main` without a dedicated branch. Always create a task branch (`feat/*`, `fix/*`, `chore/*`, `docs/*`, `refactor/*`), verify with `pnpm check`, merge directly into `develop` (or push `HEAD:develop` from worktrees), and push to `origin develop`. `main` is updated strictly via the automated Release workflow.
 8. **Development Server Execution Standard (`pnpm dev` only)**: Agents must NEVER start the client application using `pnpm start`, `pnpm --filter wonderlab-client start`, or `next start`. Always use `pnpm dev` or `pnpm dev:client`. `next start` is strictly an immutable production server that binds to a static in-memory `BUILD_ID`, resulting in catastrophic `400 Bad Request` asset errors, CSS stylesheet drop (FOUC), and permanent client-side chunk loading failures whenever background builds run.
 9. **Strict English for All Commits and Repository Guidelines**: All commit messages, merge commit messages, and repository guidelines must be authored strictly and exclusively in English.
