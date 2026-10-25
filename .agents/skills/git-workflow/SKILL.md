@@ -53,9 +53,10 @@ Before staging or committing:
 ## 3. Branching, Pull Request & Worktree Protocol
 
 1. **Dedicated Branch for Each Task**: Never commit directly to `main`. Always create a task branch (`feat/*`, `fix/*`, `chore/*`, `docs/*`, `refactor/*`).
-2. **User-Only PR Merging**: Once the task is complete and verified, push the branch and open a Pull Request targeting `main`. Agents must never merge PRs; merging is reserved solely for the user.
-3. **Branch Deletion & Post-Merge Sync**: When a branch is merged and auto-deleted, sync `main` locally (`git checkout main && git pull origin main`) and branch off the updated `main` for subsequent tasks. Do not continue work on deleted branches.
-4. **Persistent Git Worktrees & Port Allocation**: Keep two pre-warmed worktrees (`Wonderlab-worktree-1` and `Wonderlab-worktree-2`) to avoid deleting and reinstalling dependencies. Ports are partitioned to prevent collision:
+2. **Strict English PR Title & Description**: Both the Pull Request title (Conventional Commits format) and the entire body MUST be authored 100% in professional English. Fill out every section of `.github/pull_request_template.md` (Description, Type of Change, Checklist) in English. Never use Vietnamese or other non-English languages in PR titles or descriptions.
+3. **User-Only PR Merging**: Once the task is complete and verified, push the branch and open a Pull Request targeting `main`. Agents must never merge PRs; merging is reserved solely for the user.
+4. **Branch Deletion & Post-Merge Sync**: When a branch is merged and auto-deleted, sync `main` locally (`git checkout main && git pull origin main`) and branch off the updated `main` for subsequent tasks. Do not continue work on deleted branches.
+5. **Persistent Git Worktrees & Port Allocation**: Keep two pre-warmed worktrees (`Wonderlab-worktree-1` and `Wonderlab-worktree-2`) to avoid deleting and reinstalling dependencies. Ports are partitioned to prevent collision:
    - `Wonderlab` (Main): Client `4100`, Server `4101`.
    - `Wonderlab-worktree-1`: Client `4200`, Server `4201`.
    - `Wonderlab-worktree-2`: Client `4300`, Server `4301`.

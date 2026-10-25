@@ -142,6 +142,7 @@ pnpm check          # Runs all verification steps in sequence
   - **Never commit directly to `main`**: All development must take place on dedicated branches (`feat/*`, `fix/*`, `chore/*`, `docs/*`, `refactor/*`).
   - **PR Creation & User-Only Merge**:
     - Upon completing code and passing `pnpm check`, push the branch and open a Pull Request (PR) targeted at `main`.
+    - **Strict English PR Requirement**: Both the Pull Request title (Conventional Commits format) and the entire Pull Request description/body (Description, Type of Change, Checklist) **MUST be written 100% in professional English**. Never write PR titles, descriptions, or checklist items in Vietnamese or any other language.
     - **Agents must NEVER merge PRs into `main`**. Only the repository owner/user merges PRs.
   - **Auto-Delete Branches & Post-Merge Handling**:
     - GitHub repository is configured with _Automatically delete head branches_ on merge.
@@ -189,3 +190,4 @@ pnpm check          # Runs all verification steps in sequence
 5. **Preserve Documentation Integrity**: Update docs in `docs/` whenever architectural decisions or workflows change.
 6. **Publish-Tag Deployments Only**: Never trigger production deployments to Render via manual commands or arbitrary scripts. Always use official tag releases (`git tag vX.Y.Z && git push origin vX.Y.Z` or publishing a GitHub Release).
 7. **No Direct Commits to Main & User Merges Only**: Never commit directly to `main`. Always create a feature/fix branch, open a PR, and let the user review and merge.
+8. **Strict English for PRs and Commits**: All commit messages, Pull Request titles, and Pull Request descriptions MUST be written exclusively in English adhering to Conventional Commits and the repository's PR template.
