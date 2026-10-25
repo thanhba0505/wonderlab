@@ -4,18 +4,18 @@ Welcome to **Wonderlab**. This document is the primary source of truth and autho
 
 > [!CRITICAL]
 >
-> ### 🚨 BẮT BUỘC: GIAO THỨC TIỀN KIỂM TRA WORKTREE (WORKTREE PRE-FLIGHT PROTOCOL)
+> ### 🚨 MANDATORY WORKTREE PRE-FLIGHT PROTOCOL
 >
-> **Trước khi gõ bất kỳ lệnh git nào, đọc/sửa bất kỳ file nào, hoặc tạo bất kỳ branch nào**:
+> **Before executing ANY git command, editing ANY file, or creating ANY branch**:
 >
-> 1. **BẮT BUỘC** chạy `git worktree list` đầu tiên để kiểm tra tình trạng phân bổ worktree trên máy.
-> 2. Nếu thư mục chính `Wonderlab` đang ở bất kỳ nhánh nào khác `main` sạch (tức đang có tác vụ song song khác đang chạy):
->    - **TUYỆT ĐỐI KHÔNG** được chạy `git checkout`, `git checkout -b`, `git stash`, hay chỉnh sửa file trong thư mục chính `Wonderlab`!
->    - **PHẢI CHUYỂN NGAY LẬP TỨC** sang làm việc độc lập tại một trong hai persistent worktree có sẵn:
+> 1. **MANDATORY**: Run `git worktree list` on the very first turn to inspect active worktree allocations across the repository.
+> 2. If the main workspace (`Wonderlab`) is on any branch other than a clean `main` (meaning another concurrent task or agent is active):
+>    - **NEVER** run `git checkout`, `git checkout -b`, `git stash`, or edit files in `/Users/lethanhba/workspace/app/Wonderlab`!
+>    - **IMMEDIATELY SWITCH** to an available idle persistent worktree:
 >      - `Wonderlab-worktree-1` (`/Users/lethanhba/workspace/app/Wonderlab-worktree-1`)
->      - `Wonderlab-worktree-2` (`/Users/lethanhba/workspace/app/Wonderlab-worktree-2`)
-> 3. Mọi thao tác chỉnh sửa file (`edit_file`, `write_file`) và chạy lệnh (`run_command`) PHẢI sử dụng đường dẫn tuyệt đối hoặc lệnh `cd` bên trong thư mục worktree đã chọn.
-> 4. Vi phạm việc nhảy nhánh trên workspace chính gây xung đột git, ghi đè stash và làm hỏng tiến trình của các tác vụ AI khác đang chạy song song!
+>      - or `Wonderlab-worktree-2` (`/Users/lethanhba/workspace/app/Wonderlab-worktree-2`)
+> 3. All file edits (`edit_file`, `write_file`) and command executions (`run_command`) MUST strictly use absolute paths or `cd` targeting the chosen worktree directory.
+> 4. Violating workspace isolation by branch-hopping in `Wonderlab` causes git conflicts, wipes unstaged changes, overwrites stashes, and corrupts concurrent agent workflows!
 
 ---
 
@@ -152,12 +152,12 @@ pnpm check          # Runs all verification steps in sequence
       - `Wonderlab-worktree-1`: Client on `http://localhost:4200`, Server on `http://localhost:4201`.
       - `Wonderlab-worktree-2`: Client on `http://localhost:4300`, Server on `http://localhost:4301`.
       - PostgreSQL: Shared container on `127.0.0.1:5434` (`docker compose up -d`).
-    - **Step-by-Step Worktree Selection (Bắt buộc cho mọi Agent Turn)**:
+    - **Step-by-Step Worktree Selection (Mandatory for Every Agent Turn)**:
       ```bash
-      # 1. Kiểm tra danh sách worktree
+      # 1. Inspect active worktrees first
       git worktree list
 
-      # 2. Nếu thư mục chính Wonderlab bận (đang ở nhánh khác main), chuyển sang worktree trống:
+      # 2. If the main workspace Wonderlab is busy (not on a clean main), switch to an idle worktree:
       cd /Users/lethanhba/workspace/app/Wonderlab-worktree-1
       git fetch origin
       git checkout main && git pull origin main && git checkout -b feat/<task-name>
@@ -172,7 +172,7 @@ pnpm check          # Runs all verification steps in sequence
   - Root `package.json` is the sole, authoritative source of truth for the project version (`version`).
   - Both `client` (`next.config.ts` -> `process.env.NEXT_PUBLIC_APP_VERSION`) and `server` (`server/src/common/version.ts`) dynamically consume this single root version.
   - Never hardcode version strings in health endpoints, Swagger, or application copy.
-  - **Version Update Policy**: Phiên bản mã nguồn (`package.json`) chỉ được cập nhật khi **chính thức phát hành Release** (sự kiện `release: [published]` hoặc tag release `push: tags: ['v*']`), tuyệt đối **KHÔNG** cập nhật phiên bản khi đang ở trạng thái bản nháp (Draft Release) hoặc khi push commit thông thường lên `main`.
+  - **Version Update Policy**: The project version in `package.json` must ONLY be bumped upon official release events (`release: [published]` or tag release `push: tags: ['v*']`). NEVER bump version numbers on draft releases or regular commits pushed to `main`.
 - **Tag-Driven Deployment Only (Publish Tag)**:
   - **NEVER** deploy to Render manually or trigger ad-hoc `workflow_dispatch` runs for regular releases.
   - Deployments to Render must **ONLY** be triggered by publishing a Git tag (`push: tags: ['v*']`) or publishing an official GitHub Release (`release: [published]`).
