@@ -20,15 +20,11 @@ on:
 
 permissions:
   contents: read
-  deployments: write
 
 jobs:
   deploy:
-    name: 🚀 Production
+    name: 🚀 Deploy to Render
     runs-on: ubuntu-latest
-    environment:
-      name: Production
-      url: https://wonderlab-client.onrender.com
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -67,6 +63,7 @@ jobs:
             echo "::error::Failed to trigger wonderlab-server deploy hook (HTTP $HTTP_STATUS)"
             exit 1
           fi
+          echo "wonderlab-server deployment successfully initiated."
 
       - name: Trigger Client Deploy Hook
         if: ${{ steps.targets.outputs.service == 'all' || steps.targets.outputs.service == 'client' }}
@@ -84,14 +81,4 @@ jobs:
             echo "::error::Failed to trigger wonderlab-client deploy hook (HTTP $HTTP_STATUS)"
             exit 1
           fi
-
-      - name: Monitor & Verify Live Deployment Rollout
-        run: |
-          chmod +x scripts/verify-deployment.sh
-          ./scripts/verify-deployment.sh \
-            --service "${{ steps.targets.outputs.service }}" \
-            --version "${{ steps.targets.outputs.version }}" \
-            --commit "${{ steps.targets.outputs.commit }}" \
-            --timeout 600 \
-            --interval 10 \
-            --initial-delay 20
+          echo "wonderlab-client deployment successfully initiated."

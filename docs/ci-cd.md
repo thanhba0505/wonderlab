@@ -8,7 +8,7 @@ Workflows reside in `.github/workflows/`:
 
 - **`ci.yml`** (`🧪 CI`): Kiểm thử, lint, typecheck và build tự động trên mỗi Pull Request và commit push lên nhánh `main` với containerized PostgreSQL 16.
 - **`release-drafter.yml`** (`📝 Release Drafter`): Tự động phân tích git commit log theo chuẩn Conventional Commits, tính toán phiên bản SemVer tiếp theo, đồng bộ `package.json` và duy trì bản Draft Release đầy đủ danh sách commits.
-- **`deploy.yml`** (`🚀 Deploy to Render`): Tự động trigger triển khai lên Render khi một Release được xuất bản (`release: [published]`) hoặc tag `v*` được đẩy lên (`push: tags: ['v*']`), ghi nhận tiến trình thời gian thực vào một môi trường GitHub Deployment duy nhất (**`Production`**) và giám sát sức khỏe live endpoints trước khi xác nhận thành công.
+- **`deploy.yml`** (`🚀 Deploy to Render`): Tự động trigger triển khai lên Render khi một Release được xuất bản (`release: [published]`) hoặc tag `v*` được đẩy lên (`push: tags: ['v*']`), đồng bộ tiến trình triển khai trực tiếp vào 2 môi trường Render GitHub App chuẩn (`main - wonderlab-client` và `main - wonderlab-server`).
 
 ---
 
@@ -72,8 +72,8 @@ Kích hoạt triển khai tự động lên Render khi một Release chính th�
   - Thiết lập GitHub Secrets:
     - `RENDER_SERVER_DEPLOY_HOOK`: Webhook URL của `wonderlab-server` trên Render.
     - `RENDER_CLIENT_DEPLOY_HOOK`: Webhook URL của `wonderlab-client` trên Render.
-- **Unified Environment & Real-time Health Monitoring**:
-  - Toàn bộ pipeline ghi nhận vào một môi trường GitHub Deployment duy nhất: **`Production`** (`https://wonderlab-client.onrender.com`).
-  - GitHub Actions giữ trạng thái `In progress` trong suốt thời gian Render xây dựng và triển khai container.
-  - Script [`scripts/verify-deployment.sh`](file:///Users/lethanhba/workspace/app/Wonderlab/scripts/verify-deployment.sh) liên tục thăm dò các health endpoints (`/health`) với chu kỳ 10 giây (tối đa 10 phút) để xác nhận dịch vụ đạt trạng thái hoạt động bình thường, database kết nối thông suốt, và phiên bản trùng khớp với bản phát hành trước khi hoàn tất thành công.
-  - Xuất báo cáo trực quan dạng bảng tổng kết vào `$GITHUB_STEP_SUMMARY`.
+- **Native Render GitHub App Integration**:
+  - Quá trình deploy được theo dõi trực tiếp bởi Render GitHub App trên 2 môi trường chuẩn:
+    - `main - wonderlab-client` (`https://wonderlab-client.onrender.com`)
+    - `main - wonderlab-server` (`https://wonderlab-server.onrender.com`)
+  - Render GitHub App tự động cập nhật trạng thái `in_progress`, cung cấp liên kết xem trực tiếp log build trên dashboard của Render và đánh dấu `success` khi rollout hoàn tất.

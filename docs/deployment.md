@@ -70,13 +70,14 @@ Thay vì kích hoạt rebuild trên từng commit nhỏ lẻ, Render được t�
 
 ---
 
-## 4. GitHub Environments Consolidation
+## 4. GitHub Environments Architecture
 
-Trước đây hệ thống hiển thị 5 môi trường phân mảnh trên trang chủ GitHub (`main - wonderlab-client`, `main - wonderlab-server`, `Wonderlab Client`, `Wonderlab Server`, `Wonderlab DB`). Hiện tại toàn bộ đã được chuẩn hóa và tinh gọn:
+Deployments trên GitHub được tinh gọn và đồng bộ trực tiếp với Render GitHub App:
 
-- **Môi trường duy nhất**: **`Production`**
-- **Live URL**: `https://wonderlab-client.onrender.com`
-- **Render Dashboard**: Tắt "Auto-Deploy" trên 2 service tại Render để Render không tự động tạo các môi trường nhánh `main - ...`, đảm bảo toàn bộ tiến trình triển khai được điều phối và giám sát tập trung tại GitHub Actions.
+- **2 môi trường duy nhất**:
+  1. `main - wonderlab-client` (trỏ đến `https://wonderlab-client.onrender.com`)
+  2. `main - wonderlab-server` (trỏ đến `https://wonderlab-server.onrender.com`)
+- **Render GitHub App**: Tự động theo dõi tiến trình build theo thời gian thực (từ lúc bắt đầu build, hiển thị link log dashboard trực tiếp, cho đến khi rollout thành công hoặc thất bại) mà không cần tạo thêm các môi trường trùng lặp trên GitHub Actions.
 
 ---
 
