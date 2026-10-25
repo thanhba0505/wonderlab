@@ -156,8 +156,8 @@ export class SimulationsService {
       where.clientSession = query.clientSession;
     }
 
-    const page = Math.max(1, query.page || 1);
-    const limit = Math.max(1, query.limit || 20);
+    const page = Math.max(1, Number(query.page) || 1);
+    const limit = Math.max(1, Number(query.limit) || 20);
     const skip = (page - 1) * limit;
 
     const runs = await this.prisma.simulationRun.findMany({

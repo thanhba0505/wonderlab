@@ -285,7 +285,7 @@ export function AppTableFilter<T>({
           <div>
             {header.badge ? <div className="mb-1">{header.badge}</div> : null}
             {header.title ? (
-              <h2 className="text-xl sm:text-2xl font-heading font-extrabold text-slate-900 tracking-tight">
+              <h2 className="text-[18px] sm:text-lg font-heading font-extrabold text-slate-900 tracking-tight">
                 {header.title}
               </h2>
             ) : null}

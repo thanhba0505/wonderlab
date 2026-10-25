@@ -149,7 +149,7 @@ export class UsersService {
     const skip = (page - 1) * limit;
 
     const where: Prisma.UserWhereInput = {};
-    if (query.role) {
+    if (query.role && (query.role === Role.ADMIN || query.role === Role.USER)) {
       where.role = query.role;
     }
     if (query.search?.trim()) {
