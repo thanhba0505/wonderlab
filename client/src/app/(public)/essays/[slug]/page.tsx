@@ -16,9 +16,8 @@ import {
   Lightbulb,
   Atom,
   FlaskConical,
-  ChevronLeft,
-  ChevronRight,
   BookOpen,
+  Sparkles,
 } from 'lucide-react';
 
 interface EssayPageProps {
@@ -65,9 +64,7 @@ export default async function EssayPage({ params }: EssayPageProps) {
   }
 
   const allEssays = getAllEssays();
-  const currentIndex = allEssays.findIndex(e => e.id === essay.id);
-  const prevEssay = currentIndex > 0 ? allEssays[currentIndex - 1] : null;
-  const nextEssay = currentIndex < allEssays.length - 1 ? allEssays[currentIndex + 1] : null;
+  const relatedEssays = allEssays.filter(e => e.id !== essay.id);
 
   return (
     <>
@@ -239,39 +236,39 @@ export default async function EssayPage({ params }: EssayPageProps) {
                 </div>
               )}
 
-              {/* Previous & Next Navigation */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-6 border-t border-slate-200">
-                {prevEssay ? (
+              {/* Mobile-only Xem thêm */}
+              <div className="lg:hidden pt-6 border-t border-slate-200 space-y-3">
+                <div className="flex items-center justify-between text-xs font-mono font-bold uppercase tracking-wider text-slate-800">
+                  <span className="flex items-center gap-1.5 text-blue-700">
+                    <Sparkles className="h-4 w-4" />
+                    Xem thêm
+                  </span>
                   <Link
-                    href={`/essays/${prevEssay.slug || prevEssay.id}`}
-                    className="group flex flex-col p-4 rounded-xl border border-slate-200 hover:border-blue-400 bg-white shadow-2xs transition-all"
+                    href="/essays"
+                    className="text-xs font-mono text-slate-400 hover:text-blue-700 transition-colors font-medium lowercase"
                   >
-                    <span className="flex items-center gap-1 font-mono text-xs text-slate-400 group-hover:text-blue-600 transition-colors">
-                      <ChevronLeft className="h-3.5 w-3.5" />
-                      Bài tiểu luận trước
-                    </span>
-                    <span className="font-heading text-xs sm:text-sm font-bold text-slate-800 group-hover:text-blue-700 transition-colors mt-1 line-clamp-2">
-                      {prevEssay.title}
-                    </span>
+                    tất cả →
                   </Link>
-                ) : (
-                  <div />
-                )}
-
-                {nextEssay && (
-                  <Link
-                    href={`/essays/${nextEssay.slug || nextEssay.id}`}
-                    className="group flex flex-col items-end text-right p-4 rounded-xl border border-slate-200 hover:border-blue-400 bg-white shadow-2xs transition-all"
-                  >
-                    <span className="flex items-center gap-1 font-mono text-xs text-slate-400 group-hover:text-blue-600 transition-colors">
-                      Bài tiểu luận tiếp theo
-                      <ChevronRight className="h-3.5 w-3.5" />
-                    </span>
-                    <span className="font-heading text-xs sm:text-sm font-bold text-slate-800 group-hover:text-blue-700 transition-colors mt-1 line-clamp-2">
-                      {nextEssay.title}
-                    </span>
-                  </Link>
-                )}
+                </div>
+                <div className="space-y-2">
+                  {relatedEssays.map(rel => (
+                    <Link
+                      key={rel.id}
+                      href={`/essays/${rel.slug || rel.id}`}
+                      className="group block p-3 rounded-lg hover:bg-slate-200/50 transition-colors"
+                    >
+                      <div className="flex items-center justify-between text-xs font-mono text-slate-400 mb-1">
+                        <span className="text-blue-700 font-bold">
+                          Tiểu luận #{rel.issueNumber}
+                        </span>
+                        <span>~{rel.readTimeMinutes} phút đọc</span>
+                      </div>
+                      <h5 className="font-heading text-xs sm:text-sm font-bold text-slate-800 group-hover:text-blue-700 transition-colors line-clamp-2 leading-snug">
+                        {rel.title}
+                      </h5>
+                    </Link>
+                  ))}
+                </div>
               </div>
 
               {/* Community Reflections & Comments */}
@@ -325,6 +322,43 @@ export default async function EssayPage({ params }: EssayPageProps) {
                     ~{essay.readTimeMinutes} phút
                   </span>
                 </div>
+              </div>
+            </div>
+
+            {/* Related Essays (Xem thêm) - Không đóng khung, 2 nút bên phải */}
+            <div className="space-y-3 pt-1">
+              <div className="flex items-center justify-between text-xs font-mono font-bold uppercase tracking-wider text-slate-800">
+                <span className="flex items-center gap-1.5 text-blue-700">
+                  <Sparkles className="h-4 w-4" />
+                  Xem thêm
+                </span>
+                <Link
+                  href="/essays"
+                  className="text-xs font-mono text-slate-400 hover:text-blue-700 transition-colors font-medium lowercase"
+                >
+                  tất cả →
+                </Link>
+              </div>
+
+              <div className="space-y-2">
+                {relatedEssays.map(rel => (
+                  <Link
+                    key={rel.id}
+                    href={`/essays/${rel.slug || rel.id}`}
+                    className="group block p-3 rounded-xl hover:bg-slate-200/50 active:bg-slate-200/80 transition-colors"
+                  >
+                    <div className="flex items-center justify-between text-xs font-mono text-slate-400 mb-1">
+                      <span className="text-blue-700 font-bold">Tiểu luận #{rel.issueNumber}</span>
+                      <span>~{rel.readTimeMinutes} phút đọc</span>
+                    </div>
+                    <h5 className="font-heading text-xs sm:text-sm font-bold text-slate-800 group-hover:text-blue-700 transition-colors line-clamp-2 leading-snug">
+                      {rel.title}
+                    </h5>
+                    <p className="text-xs text-slate-500 font-sans mt-1 line-clamp-1">
+                      {rel.subtitle}
+                    </p>
+                  </Link>
+                ))}
               </div>
             </div>
 
