@@ -404,20 +404,24 @@ export function AdminSidebar({ user, onLogout }: AdminSidebarProps) {
             onMouseLeave={handleItemLeave}
             className="flex items-center h-11 w-full rounded-xl bg-slate-50 border border-slate-200/70 px-2 overflow-hidden"
           >
-            <div className="w-9 h-9 flex items-center justify-center shrink-0">
-              <div className="h-7 w-7 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold font-mono">
-                {user.username.charAt(0).toUpperCase()}
-              </div>
-            </div>
-            <div
-              className={`ml-2 min-w-0 flex-1 flex items-center justify-between transition-all duration-300 ${
-                isCollapsed
-                  ? 'opacity-0 max-w-0 -translate-x-2 pointer-events-none'
-                  : 'opacity-100 max-w-[160px] translate-x-0'
-              }`}
+            <Link
+              href="/admin/my-account"
+              className="flex items-center min-w-0 flex-1 hover:opacity-85 transition group"
+              title="Quản lý tài khoản Quản trị"
             >
-              <div className="overflow-hidden pr-1">
-                <div className="font-mono text-xs font-bold text-slate-900 truncate">
+              <div className="w-9 h-9 flex items-center justify-center shrink-0">
+                <div className="h-7 w-7 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold font-mono group-hover:ring-2 group-hover:ring-blue-400">
+                  {user.username.charAt(0).toUpperCase()}
+                </div>
+              </div>
+              <div
+                className={`ml-2 min-w-0 flex-1 transition-all duration-300 ${
+                  isCollapsed
+                    ? 'opacity-0 max-w-0 -translate-x-2 pointer-events-none'
+                    : 'opacity-100 max-w-[125px] translate-x-0'
+                }`}
+              >
+                <div className="font-mono text-xs font-bold text-slate-900 truncate group-hover:text-blue-600">
                   {user.username}
                 </div>
                 <div className="flex items-center gap-1 text-xs font-mono text-slate-500">
@@ -425,6 +429,15 @@ export function AdminSidebar({ user, onLogout }: AdminSidebarProps) {
                   <span className="truncate">{user.role}</span>
                 </div>
               </div>
+            </Link>
+
+            <div
+              className={`transition-all duration-300 ${
+                isCollapsed
+                  ? 'opacity-0 max-w-0 -translate-x-2 pointer-events-none'
+                  : 'opacity-100 translate-x-0'
+              }`}
+            >
               <AppButton
                 variant="ghost"
                 size="sm"
