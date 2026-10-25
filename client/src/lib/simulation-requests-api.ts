@@ -119,9 +119,12 @@ export async function fetchSimulationRequests(
 /**
  * Gửi đề xuất bài toán / thí nghiệm mới
  */
-export async function createSimulationRequest(
-  payload: CreateSimulationRequestPayload,
-): Promise<{ success: boolean; data?: SimulationRequestItem; error?: string }> {
+export async function createSimulationRequest(payload: CreateSimulationRequestPayload): Promise<{
+  success: boolean;
+  data?: SimulationRequestItem;
+  error?: string;
+  errors?: Record<string, string[]>;
+}> {
   try {
     const sessionId = payload.clientSession || getClientSessionId();
     const res = await fetch(`${API_BASE_URL}/simulation-requests`, {
@@ -143,6 +146,7 @@ export async function createSimulationRequest(
       return {
         success: false,
         error: json.message || 'Không thể gửi đề xuất. Vui lòng thử lại.',
+        errors: json.errors,
       };
     }
 

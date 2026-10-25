@@ -8,12 +8,15 @@ import {
   AppTag,
   AppButton,
   AppModal,
-  AppInput,
   AppSelect,
+  AppForm,
+  AppFormField,
+  AppFormSubmit,
   type AppTableColumn,
   type AppFilterField,
   type AppActiveFilter,
 } from '@/components/ui';
+import { cn } from '@/lib/utils';
 import {
   fetchAdminSimulationRequests,
   updateAdminSimulationRequestStatus,
@@ -42,10 +45,6 @@ export function RequestsView() {
   // Moderation Modal state
   const [selectedRequest, setSelectedRequest] = React.useState<SimulationRequestItem | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = React.useState<boolean>(false);
-  const [editStatus, setEditStatus] = React.useState<SimulationRequestStatus>('PENDING');
-  const [editAdminNotes, setEditAdminNotes] = React.useState<string>('');
-  const [editTargetSlug, setEditTargetSlug] = React.useState<string>('');
-  const [isUpdating, setIsUpdating] = React.useState<boolean>(false);
   const [updateError, setUpdateError] = React.useState<string | null>(null);
 
   // Delete modal state
@@ -106,24 +105,22 @@ export function RequestsView() {
 
   const handleOpenEditModal = (item: SimulationRequestItem) => {
     setSelectedRequest(item);
-    setEditStatus(item.status);
-    setEditAdminNotes(item.adminNotes || '');
-    setEditTargetSlug(item.targetSlug || '');
     setUpdateError(null);
     setIsEditModalOpen(true);
   };
 
-  const handleSaveStatus = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSaveStatus = async (values: Record<string, unknown>) => {
     if (!selectedRequest) return;
-
-    setIsUpdating(true);
     setUpdateError(null);
 
+    const status = String(values.status || selectedRequest.status) as SimulationRequestStatus;
+    const adminNotes = String(values.adminNotes || '').trim();
+    const targetSlug = String(values.targetSlug || '').trim();
+
     const res = await updateAdminSimulationRequestStatus(selectedRequest.id, {
-      status: editStatus,
-      adminNotes: editAdminNotes.trim() || undefined,
-      targetSlug: editTargetSlug.trim() || undefined,
+      status,
+      adminNotes: adminNotes || undefined,
+      targetSlug: targetSlug || undefined,
     });
 
     if (res.success && res.data) {
@@ -132,7 +129,6 @@ export function RequestsView() {
     } else {
       setUpdateError(res.error || 'Có lỗi khi cập nhật trạng thái');
     }
-    setIsUpdating(false);
   };
 
   const handleDeleteRequest = async () => {
@@ -384,9 +380,18 @@ export function RequestsView() {
           }
           description={`Mã đề xuất: ${selectedRequest.id}`}
         >
-          <form onSubmit={handleSaveStatus} className="space-y-4 py-2">
+          <AppForm
+            key={selectedRequest.id}
+            initialValues={{
+              status: selectedRequest.status,
+              adminNotes: selectedRequest.adminNotes || '',
+              targetSlug: selectedRequest.targetSlug || '',
+            }}
+            onSubmit={handleSaveStatus}
+            className="space-y-4 py-2"
+          >
             {updateError && (
-              <div className="p-3 text-xs rounded-lg border border-red-300 bg-red-50 text-red-700">
+              <div className="p-3 text-xs rounded-lg border border-red-300 bg-red-50 text-red-700 font-sans">
                 {updateError}
               </div>
             )}
@@ -427,58 +432,62 @@ export function RequestsView() {
             </div>
 
             {/* Change Status */}
-            <div>
-              <label className="block text-xs font-semibold text-slate-800 mb-1">
-                Trạng thái thẩm định & lộ trình <span className="text-red-500">*</span>
-              </label>
-              <AppSelect
-                value={editStatus}
-                onChange={e => setEditStatus(e.target.value as SimulationRequestStatus)}
-                options={Object.entries(STATUS_CONFIG).map(([key, config]) => ({
-                  value: key,
-                  label: `${config.label} — ${config.description}`,
-                }))}
-                disabled={isUpdating}
-              />
-            </div>
+            <AppFormField
+              name="status"
+              label="Trạng thái thẩm định & lộ trình"
+              required="Vui lòng chọn trạng thái"
+              rules={[{ required: true }]}
+            >
+              {({ value, onChange, onBlur, disabled, hasError }) => (
+                <AppSelect
+                  value={String(value || selectedRequest.status)}
+                  onChange={onChange}
+                  onBlur={onBlur}
+                  disabled={disabled}
+                  hasError={hasError}
+                  options={Object.entries(STATUS_CONFIG).map(([key, config]) => ({
+                    value: key,
+                    label: `${config.label} — ${config.description}`,
+                  }))}
+                />
+              )}
+            </AppFormField>
 
             {/* Target Slug (when in development or completed) */}
-            <div>
-              <label className="block text-xs font-semibold text-slate-800 mb-1">
-                Slug phòng thí nghiệm tương ứng (khi hoàn thành)
-              </label>
-              <AppInput
-                value={editTargetSlug}
-                onChange={e => setEditTargetSlug(e.target.value)}
-                placeholder="VD: fermi-paradox, schrodingers-cat..."
-                maxLength={64}
-                disabled={isUpdating}
-              />
-              <p className="mt-1 text-xs text-slate-500">
-                Khi trạng thái là Hoàn thành, thẻ bài toán trên trang công khai sẽ hiển thị nút dẫn
-                thẳng tới /simulations/[slug].
-              </p>
-            </div>
+            <AppFormField
+              name="targetSlug"
+              label="Slug phòng thí nghiệm tương ứng (khi hoàn thành)"
+              placeholder="VD: fermi-paradox, schrodingers-cat..."
+              maxLength={64}
+              rules={[{ maxLength: 64, message: 'Tối đa 64 ký tự' }]}
+              helperText="Khi trạng thái là Hoàn thành, thẻ bài toán trên trang công khai sẽ hiển thị nút dẫn thẳng tới /simulations/[slug]."
+            />
 
             {/* Admin Notes */}
-            <div>
-              <label className="block text-xs font-semibold text-slate-800 mb-1">
-                Ghi chú & Phản hồi chuyên môn của Ban Biên tập
-              </label>
-              <textarea
-                value={editAdminNotes}
-                onChange={e => setEditAdminNotes(e.target.value)}
-                rows={3}
-                placeholder="VD: Đề xuất rất thú vị. Ban biên tập đang xây dựng mô hình trực quan Monte Carlo và dự kiến ra mắt trong tháng tới..."
-                maxLength={2000}
-                disabled={isUpdating}
-                className="w-full rounded-xl border border-slate-300/85 bg-white px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:bg-slate-50"
-              />
-              <p className="mt-1 text-xs text-slate-500">
-                Ghi chú này sẽ hiển thị công khai trên thẻ đề xuất để người gửi và cộng đồng theo
-                dõi.
-              </p>
-            </div>
+            <AppFormField
+              name="adminNotes"
+              label="Ghi chú & Phản hồi chuyên môn của Ban Biên tập"
+              helperText="Ghi chú này sẽ hiển thị công khai trên thẻ đề xuất để người gửi và cộng đồng theo dõi."
+              rules={[{ maxLength: 2000, message: 'Tối đa 2000 ký tự' }]}
+            >
+              {({ value, onChange, onBlur, disabled, hasError }) => (
+                <textarea
+                  value={String(value || '')}
+                  onChange={onChange}
+                  onBlur={onBlur}
+                  rows={3}
+                  placeholder="VD: Đề xuất rất thú vị. Ban biên tập đang xây dựng mô hình trực quan Monte Carlo và dự kiến ra mắt trong tháng tới..."
+                  maxLength={2000}
+                  disabled={disabled}
+                  className={cn(
+                    'w-full rounded-xl border bg-white px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 disabled:bg-slate-50 transition-colors',
+                    hasError
+                      ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20'
+                      : 'border-slate-300/85 focus:border-blue-600 focus:ring-blue-500/20',
+                  )}
+                />
+              )}
+            </AppFormField>
 
             {/* Modal Actions */}
             <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-200">
@@ -487,22 +496,20 @@ export function RequestsView() {
                 variant="outline"
                 size="md"
                 onClick={() => setIsEditModalOpen(false)}
-                disabled={isUpdating}
               >
                 Hủy bỏ
               </AppButton>
-              <AppButton
-                type="submit"
+              <AppFormSubmit
                 variant="primary"
                 size="md"
-                disabled={isUpdating}
+                loadingText="Đang lưu..."
                 className="bg-blue-600 hover:bg-blue-700 text-white"
               >
                 <CheckCircle2 className="mr-1.5 h-4 w-4" />
-                <span>{isUpdating ? 'Đang lưu...' : 'Lưu cập nhật'}</span>
-              </AppButton>
+                <span>Lưu cập nhật</span>
+              </AppFormSubmit>
             </div>
-          </form>
+          </AppForm>
         </AppModal>
       )}
 
