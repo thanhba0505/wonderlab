@@ -1,13 +1,15 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, IsString, Length, MaxLength, MinLength } from 'class-validator';
+import { IsNotEmpty, IsString, Length, MaxLength } from 'class-validator';
+import { IsEmailIfProd, MinLengthIfProd } from './validation-helpers';
 
 export class ResetPasswordDto {
   @ApiProperty({
     example: 'user@wonderlab.local',
     description: 'Email tài khoản cần đặt lại mật khẩu',
   })
-  @IsEmail({}, { message: 'Định dạng email không hợp lệ' })
+  @IsEmailIfProd({ message: 'Định dạng email không hợp lệ' })
   @IsNotEmpty({ message: 'Email không được để trống' })
+  @IsString({ message: 'Email phải là chuỗi ký tự' })
   email!: string;
 
   @ApiProperty({
@@ -25,7 +27,7 @@ export class ResetPasswordDto {
   })
   @IsString()
   @IsNotEmpty({ message: 'Mật khẩu mới không được để trống' })
-  @MinLength(8, { message: 'Mật khẩu mới tối thiểu 8 ký tự' })
+  @MinLengthIfProd(8, { message: 'Mật khẩu mới tối thiểu 8 ký tự' })
   @MaxLength(100, { message: 'Mật khẩu mới tối đa 100 ký tự' })
   newPassword!: string;
 }

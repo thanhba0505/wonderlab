@@ -13,7 +13,7 @@ export default function HomePage() {
       {/* HERO SECTION */}
       {/* ==================================================================== */}
       <section className="relative overflow-hidden pt-12 md:pt-20">
-        <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="container mx-auto max-w-7xl xl:max-w-[1440px] px-4 sm:px-6 lg:px-8 xl:px-12">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
             {/* Left Column: Editorial Hero Copy */}
             <div className="lg:col-span-7 space-y-6 text-left">
@@ -87,7 +87,7 @@ export default function HomePage() {
       {/* FEATURED EXPERIENCE (MONTY HALL INTERACTIVE) */}
       {/* ==================================================================== */}
       <section id="featured" className="scroll-mt-24">
-        <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="container mx-auto max-w-7xl xl:max-w-[1440px] px-4 sm:px-6 lg:px-8 xl:px-12">
           <div className="mb-8 space-y-2">
             <div className="flex items-center gap-2">
               <FlaskConical className="h-5 w-5 text-blue-600" />
@@ -112,7 +112,7 @@ export default function HomePage() {
       {/* EXPLORE CATEGORIES */}
       {/* ==================================================================== */}
       <section id="explore" className="scroll-mt-24">
-        <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="container mx-auto max-w-7xl xl:max-w-[1440px] px-4 sm:px-6 lg:px-8 xl:px-12">
           <div className="mb-8 space-y-2">
             <div className="flex items-center gap-2">
               <Compass className="h-5 w-5 text-violet-600" />
@@ -136,7 +136,7 @@ export default function HomePage() {
       {/* CURATED EXPERIENCES */}
       {/* ==================================================================== */}
       <section id="curated" className="scroll-mt-24">
-        <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="container mx-auto max-w-7xl xl:max-w-[1440px] px-4 sm:px-6 lg:px-8 xl:px-12">
           <div className="mb-8 space-y-2">
             <div className="flex items-center gap-2">
               <Atom className="h-5 w-5 text-amber-600" />
@@ -160,7 +160,7 @@ export default function HomePage() {
       {/* EDITORIAL SECTION */}
       {/* ==================================================================== */}
       <section id="editorial" className="scroll-mt-24">
-        <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="container mx-auto max-w-7xl xl:max-w-[1440px] px-4 sm:px-6 lg:px-8 xl:px-12">
           <div className="mb-8 space-y-2">
             <div className="flex items-center gap-2">
               <BookOpen className="h-5 w-5 text-emerald-600" />

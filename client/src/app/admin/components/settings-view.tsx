@@ -1,9 +1,15 @@
 'use client';
 
 import * as React from 'react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  AppButton,
+  AppTag,
+} from '@/components/ui';
 import { Download, ShieldCheck, CheckCircle2 } from 'lucide-react';
 import { AdminOverviewData } from '@/lib/admin-api';
 
@@ -42,12 +48,14 @@ export function SettingsView({ overview }: SettingsViewProps) {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 font-sans">
       {/* Header Bar */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 rounded-2xl bg-white border border-slate-300/85 shadow-2xs">
         <div>
           <div className="flex items-center gap-2">
-            <Badge variant="cyan">CÀI ĐẶT HỆ THỐNG</Badge>
+            <AppTag variant="blue" size="sm">
+              CÀI ĐẶT HỆ THỐNG
+            </AppTag>
             <span className="text-xs font-mono text-slate-400">Vận hành nền tảng</span>
           </div>
           <h2 className="text-xl sm:text-2xl font-heading font-extrabold text-slate-900 mt-1">
@@ -58,20 +66,20 @@ export function SettingsView({ overview }: SettingsViewProps) {
           </p>
         </div>
 
-        <Button
+        <AppButton
           variant="outline"
           size="sm"
           onClick={handleExportFullDump}
           className="text-xs font-semibold gap-1.5 border-slate-300 bg-white shadow-2xs shrink-0"
+          leftIcon={<Download className="h-3.5 w-3.5" />}
         >
-          <Download className="h-3.5 w-3.5" />
           Xuất Báo cáo JSON
-        </Button>
+        </AppButton>
       </div>
 
       {savedNotice && (
         <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2">
-          <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+          <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
           <span>Cấu hình nền tảng đã được lưu thành công vào bộ nhớ phiên làm việc.</span>
         </div>
       )}
@@ -103,6 +111,7 @@ export function SettingsView({ overview }: SettingsViewProps) {
                 className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
                   allowGuestRuns ? 'bg-blue-600' : 'bg-slate-300'
                 }`}
+                aria-label="Cho phép khách chạy mô phỏng"
               >
                 <span
                   className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
@@ -125,6 +134,7 @@ export function SettingsView({ overview }: SettingsViewProps) {
                 className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
                   allowComments ? 'bg-blue-600' : 'bg-slate-300'
                 }`}
+                aria-label="Bật tính năng thảo luận"
               >
                 <span
                   className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
@@ -135,9 +145,9 @@ export function SettingsView({ overview }: SettingsViewProps) {
             </div>
 
             <div className="pt-2 flex justify-end">
-              <Button size="sm" onClick={handleSave} className="text-xs font-semibold shadow-sm">
+              <AppButton size="sm" onClick={handleSave} className="text-xs font-semibold shadow-xs">
                 Áp dụng thay đổi
-              </Button>
+              </AppButton>
             </div>
           </CardContent>
         </Card>
@@ -173,15 +183,16 @@ export function SettingsView({ overview }: SettingsViewProps) {
               </ul>
             </div>
 
-            <Button
+            <AppButton
               variant="outline"
               size="sm"
+              fullWidth
               onClick={handleExportFullDump}
-              className="w-full text-xs font-semibold border-slate-300 bg-white hover:bg-slate-50"
+              className="text-xs font-semibold border-slate-300 bg-white hover:bg-slate-50"
+              leftIcon={<Download className="h-3.5 w-3.5" />}
             >
-              <Download className="h-3.5 w-3.5 mr-1.5" />
               Tải Xuống Gói Dữ Liệu Toàn Nền Tảng (.JSON)
-            </Button>
+            </AppButton>
           </CardContent>
         </Card>
       </div>

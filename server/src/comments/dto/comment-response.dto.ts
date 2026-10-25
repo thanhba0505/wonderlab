@@ -10,6 +10,9 @@ export class CommentAuthorDto {
 
   @ApiProperty({ enum: Role, example: Role.ADMIN })
   role!: Role;
+
+  @ApiPropertyOptional({ example: false })
+  isDeleted?: boolean;
 }
 
 export class CommentItemDto {
@@ -30,6 +33,12 @@ export class CommentItemDto {
 
   @ApiProperty({ example: '2026-10-24T12:00:00.000Z' })
   createdAt!: Date;
+
+  @ApiPropertyOptional({ example: false })
+  isDeleted?: boolean;
+
+  @ApiPropertyOptional({ example: null, nullable: true })
+  deletedAt?: Date | null;
 
   @ApiPropertyOptional({ type: () => [CommentItemDto] })
   replies?: CommentItemDto[];

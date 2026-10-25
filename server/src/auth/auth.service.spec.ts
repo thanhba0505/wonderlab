@@ -23,6 +23,8 @@ describe('AuthService', () => {
     googleId: null,
     isEmailVerified: true,
     avatarUrl: null,
+    isDeleted: false,
+    deletedAt: null,
     createdAt: new Date(),
     updatedAt: new Date(),
   };

@@ -5,6 +5,15 @@ import { AuthUser } from '@/types';
 
 export type AuthModalView = 'login' | 'register' | 'otp' | 'forgot' | 'reset';
 
+export interface AuthActionResult {
+  success: boolean;
+  error?: string;
+  errors?: Record<string, string[]>;
+  email?: string;
+  devOtpCode?: string;
+  requireOtp?: boolean;
+}
+
 interface AuthContextType {
   user: AuthUser | null;
   isLoading: boolean;
@@ -18,37 +27,23 @@ interface AuthContextType {
   openProfileModal: () => void;
   closeProfileModal: () => void;
   // Actions
-  login: (
-    username: string,
-    password: string,
-  ) => Promise<{ success: boolean; error?: string; requireOtp?: boolean; email?: string }>;
-  register: (
-    username: string,
-    email: string,
-    password: string,
-  ) => Promise<{ success: boolean; error?: string; email?: string }>;
-  verifyEmail: (email: string, code: string) => Promise<{ success: boolean; error?: string }>;
+  login: (username: string, password: string) => Promise<AuthActionResult>;
+  register: (username: string, email: string, password: string) => Promise<AuthActionResult>;
+  verifyEmail: (email: string, code: string) => Promise<AuthActionResult>;
   resendOtp: (
     email: string,
     type?: 'REGISTER_VERIFY' | 'RESET_PASSWORD',
-  ) => Promise<{ success: boolean; error?: string }>;
+  ) => Promise<AuthActionResult>;
   loginWithGoogle: (payload: {
     email?: string;
     name?: string;
     googleId?: string;
     credential?: string;
-  }) => Promise<{ success: boolean; error?: string }>;
-  forgotPassword: (email: string) => Promise<{ success: boolean; error?: string }>;
-  resetPassword: (
-    email: string,
-    code: string,
-    newPassword: string,
-  ) => Promise<{ success: boolean; error?: string }>;
-  changePassword: (
-    currentPassword: string,
-    newPassword: string,
-  ) => Promise<{ success: boolean; error?: string }>;
-  setPassword: (newPassword: string) => Promise<{ success: boolean; error?: string }>;
+  }) => Promise<AuthActionResult>;
+  forgotPassword: (email: string) => Promise<AuthActionResult>;
+  resetPassword: (email: string, code: string, newPassword: string) => Promise<AuthActionResult>;
+  changePassword: (currentPassword: string, newPassword: string) => Promise<AuthActionResult>;
+  setPassword: (newPassword: string) => Promise<AuthActionResult>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
 }
@@ -56,6 +51,52 @@ interface AuthContextType {
 const AuthContext = React.createContext<AuthContextType | undefined>(undefined);
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4101/api/v1';
+
+async function parseAuthResponse<T = Record<string, unknown>>(
+  response: Response,
+): Promise<{
+  ok: boolean;
+  status: number;
+  data: T;
+  error?: string;
+  errors?: Record<string, string[]>;
+}> {
+  const data = (await response.json().catch(() => ({}))) as Record<string, unknown>;
+  const status = response.status;
+  const ok = response.ok;
+
+  if (ok) {
+    return { ok: true, status, data: data as T };
+  }
+
+  let errorMessage = 'Yêu cầu không thành công.';
+  if (typeof data.message === 'string') {
+    errorMessage = data.message;
+  } else if (Array.isArray(data.message) && data.message.length > 0) {
+    errorMessage = String(data.message[0]);
+  } else if (typeof data.error === 'string') {
+    errorMessage = data.error;
+  }
+
+  const errors: Record<string, string[]> = {};
+  if (data.errors && typeof data.errors === 'object' && !Array.isArray(data.errors)) {
+    for (const [key, val] of Object.entries(data.errors as Record<string, unknown>)) {
+      if (Array.isArray(val)) {
+        errors[key] = val.map(String);
+      } else if (typeof val === 'string') {
+        errors[key] = [val];
+      }
+    }
+  }
+
+  return {
+    ok: false,
+    status,
+    data: data as T,
+    error: errorMessage,
+    errors: Object.keys(errors).length > 0 ? errors : undefined,
+  };
+}
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = React.useState<AuthUser | null>(null);
@@ -110,10 +151,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     refreshUser();
   }, [refreshUser]);
 
-  const login = async (
-    username: string,
-    password: string,
-  ): Promise<{ success: boolean; error?: string; requireOtp?: boolean; email?: string }> => {
+  const login = async (username: string, password: string): Promise<AuthActionResult> => {
     setIsLoading(true);
     try {
       const response = await fetch(`${API_BASE_URL}/auth/login`, {
@@ -126,17 +164,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         body: JSON.stringify({ username, password }),
       });
 
-      const data = await response.json();
+      const parsed = await parseAuthResponse<{ user: AuthUser }>(response);
 
-      if (!response.ok) {
-        const message = data.message || 'Tên đăng nhập hoặc mật khẩu không chính xác';
+      if (!parsed.ok) {
+        const message = parsed.error || 'Tên đăng nhập hoặc mật khẩu không chính xác';
         if (message.includes('chưa được xác thực') && username.includes('@')) {
-          return { success: false, error: message, requireOtp: true, email: username };
+          return {
+            success: false,
+            error: message,
+            errors: parsed.errors,
+            requireOtp: true,
+            email: username,
+          };
         }
-        return { success: false, error: message };
+        return { success: false, error: message, errors: parsed.errors };
       }
 
-      setUser(data.user);
+      setUser(parsed.data.user);
       setIsAuthModalOpen(false);
       return { success: true };
     } catch {
@@ -153,7 +197,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     username: string,
     email: string,
     password: string,
-  ): Promise<{ success: boolean; error?: string; email?: string }> => {
+  ): Promise<AuthActionResult> => {
     setIsLoading(true);
     try {
       const response = await fetch(`${API_BASE_URL}/auth/register`, {
@@ -166,18 +210,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         body: JSON.stringify({ username, email, password }),
       });
 
-      const data = await response.json();
+      const parsed = await parseAuthResponse<{ devOtpCode?: string }>(response);
 
-      if (!response.ok) {
+      if (!parsed.ok) {
         return {
           success: false,
-          error: data.message || 'Đăng ký tài khoản không thành công.',
+          error: parsed.error || 'Đăng ký tài khoản không thành công.',
+          errors: parsed.errors,
         };
       }
 
       setPendingEmail(email);
       setAuthModalMode('otp');
-      return { success: true, email };
+      return { success: true, email, devOtpCode: parsed.data.devOtpCode };
     } catch {
       return {
         success: false,
@@ -188,10 +233,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const verifyEmail = async (
-    email: string,
-    code: string,
-  ): Promise<{ success: boolean; error?: string }> => {
+  const verifyEmail = async (email: string, code: string): Promise<AuthActionResult> => {
     setIsLoading(true);
     try {
       const response = await fetch(`${API_BASE_URL}/auth/verify-email`, {
@@ -204,16 +246,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         body: JSON.stringify({ email, code }),
       });
 
-      const data = await response.json();
+      const parsed = await parseAuthResponse<{ user: AuthUser }>(response);
 
-      if (!response.ok) {
+      if (!parsed.ok) {
         return {
           success: false,
-          error: data.message || 'Mã xác thực không hợp lệ hoặc đã hết hạn.',
+          error: parsed.error || 'Mã xác thực không hợp lệ hoặc đã hết hạn.',
+          errors: parsed.errors,
         };
       }
 
-      setUser(data.user);
+      setUser(parsed.data.user);
       setIsAuthModalOpen(false);
       return { success: true };
     } catch {
@@ -229,7 +272,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const resendOtp = async (
     email: string,
     type: 'REGISTER_VERIFY' | 'RESET_PASSWORD' = 'REGISTER_VERIFY',
-  ): Promise<{ success: boolean; error?: string }> => {
+  ): Promise<AuthActionResult> => {
     try {
       const response = await fetch(`${API_BASE_URL}/auth/resend-otp`, {
         method: 'POST',
@@ -241,11 +284,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         body: JSON.stringify({ email, type }),
       });
 
-      const data = await response.json();
-      if (!response.ok) {
+      const parsed = await parseAuthResponse(response);
+      if (!parsed.ok) {
         return {
           success: false,
-          error: data.message || 'Không thể gửi lại mã xác thực lúc này.',
+          error: parsed.error || 'Không thể gửi lại mã xác thực lúc này.',
+          errors: parsed.errors,
         };
       }
 
@@ -263,7 +307,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     name?: string;
     googleId?: string;
     credential?: string;
-  }): Promise<{ success: boolean; error?: string }> => {
+  }): Promise<AuthActionResult> => {
     setIsLoading(true);
     try {
       const response = await fetch(`${API_BASE_URL}/auth/google`, {
@@ -276,16 +320,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         body: JSON.stringify(payload),
       });
 
-      const data = await response.json();
+      const parsed = await parseAuthResponse<{ user: AuthUser }>(response);
 
-      if (!response.ok) {
+      if (!parsed.ok) {
         return {
           success: false,
-          error: data.message || 'Đăng nhập bằng Google thất bại.',
+          error: parsed.error || 'Đăng nhập bằng Google thất bại.',
+          errors: parsed.errors,
         };
       }
 
-      setUser(data.user);
+      setUser(parsed.data.user);
       setIsAuthModalOpen(false);
       return { success: true };
     } catch {
@@ -298,7 +343,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const forgotPassword = async (email: string): Promise<{ success: boolean; error?: string }> => {
+  const forgotPassword = async (email: string): Promise<AuthActionResult> => {
     setIsLoading(true);
     try {
       const response = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
@@ -311,11 +356,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         body: JSON.stringify({ email }),
       });
 
-      const data = await response.json();
-      if (!response.ok) {
+      const parsed = await parseAuthResponse(response);
+      if (!parsed.ok) {
         return {
           success: false,
-          error: data.message || 'Không thể xử lý yêu cầu quên mật khẩu.',
+          error: parsed.error || 'Không thể xử lý yêu cầu quên mật khẩu.',
+          errors: parsed.errors,
         };
       }
 
@@ -336,7 +382,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     email: string,
     code: string,
     newPassword: string,
-  ): Promise<{ success: boolean; error?: string }> => {
+  ): Promise<AuthActionResult> => {
     setIsLoading(true);
     try {
       const response = await fetch(`${API_BASE_URL}/auth/reset-password`, {
@@ -349,11 +395,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         body: JSON.stringify({ email, code, newPassword }),
       });
 
-      const data = await response.json();
-      if (!response.ok) {
+      const parsed = await parseAuthResponse(response);
+      if (!parsed.ok) {
         return {
           success: false,
-          error: data.message || 'Đặt lại mật khẩu không thành công.',
+          error: parsed.error || 'Đặt lại mật khẩu không thành công.',
+          errors: parsed.errors,
         };
       }
 
@@ -372,7 +419,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const changePassword = async (
     currentPassword: string,
     newPassword: string,
-  ): Promise<{ success: boolean; error?: string }> => {
+  ): Promise<AuthActionResult> => {
     setIsLoading(true);
     try {
       const response = await fetch(`${API_BASE_URL}/auth/change-password`, {
@@ -385,11 +432,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         body: JSON.stringify({ currentPassword, newPassword }),
       });
 
-      const data = await response.json();
-      if (!response.ok) {
+      const parsed = await parseAuthResponse(response);
+      if (!parsed.ok) {
         return {
           success: false,
-          error: data.message || 'Đổi mật khẩu thất bại.',
+          error: parsed.error || 'Đổi mật khẩu thất bại.',
+          errors: parsed.errors,
         };
       }
 
@@ -405,9 +453,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const setPassword = async (
-    newPassword: string,
-  ): Promise<{ success: boolean; error?: string }> => {
+  const setPassword = async (newPassword: string): Promise<AuthActionResult> => {
     setIsLoading(true);
     try {
       const response = await fetch(`${API_BASE_URL}/auth/set-password`, {
@@ -420,11 +466,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         body: JSON.stringify({ newPassword }),
       });
 
-      const data = await response.json();
-      if (!response.ok) {
+      const parsed = await parseAuthResponse(response);
+      if (!parsed.ok) {
         return {
           success: false,
-          error: data.message || 'Thiết lập mật khẩu thất bại.',
+          error: parsed.error || 'Thiết lập mật khẩu thất bại.',
+          errors: parsed.errors,
         };
       }
 

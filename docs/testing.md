@@ -1,8 +1,8 @@
 # Testing Strategy & Playbook — Wonderlab
 
-## 1. Overview
+## 1. Overview & Lean Testing Philosophy
 
-Wonderlab adopts a pragmatic, multi-layered testing strategy across both client and server:
+Wonderlab adopts a **pragmatic, lean testing strategy** focused strictly on **core, mission-critical functionality**. To keep CI workflows and local verification fast (< 5s for unit tests), trivial UI rendering tests, static data verification, and boilerplate pass-through mocks are strictly avoided.
 
 ```text
 ┌──────────────────────────────────────────────┐
@@ -10,13 +10,25 @@ Wonderlab adopts a pragmatic, multi-layered testing strategy across both client 
 ├──────────────────────────────────────────────┤
 │       Backend E2E Tests (Supertest)          │ -> server/test/*.e2e-spec.ts
 ├──────────────────────────────────────────────┤
-│ Frontend Unit & State Tests (Vitest)         │ -> client/src/**/*.test.ts
+│ Core Mathematical Engines (Vitest)           │ -> client/src/features/**/math.test.ts
 ├──────────────────────────────────────────────┤
-│ Backend Unit Tests (Jest)                    │ -> server/src/**/*.spec.ts
+│ Backend Service Business Logic (Jest)        │ -> server/src/**/*.service.spec.ts
 ├──────────────────────────────────────────────┤
 │ Static Typecheck & Linting (tsc, ESLint)     │ -> pnpm typecheck && pnpm lint
 └──────────────────────────────────────────────┘
 ```
+
+### Core vs. Prohibited Test Scope:
+
+- **Must Test (Core Functionality)**:
+  - **Simulation Mathematics**: Mathematical correctness, probabilistic convergence, quantum interference equations, and game-theory payoff matrices (e.g. Monty Hall, Birthday Paradox, Zeno's Paradox, Double-Slit).
+  - **Security & Business Logic**: Password hashing with Argon2id, JWT token issuance and validation, authorization policies, soft-deletion semantics, and database transactions in NestJS services.
+  - **High-Value E2E Flows**: Complete HTTP lifecycle tests in `server/test/*.e2e-spec.ts`.
+- **Must NOT Test (Superficial Bloat)**:
+  - Presentational UI components (buttons, inputs, dropdowns, modals, layouts).
+  - Static dictionaries or hardcoded lists (essays, curated lists).
+  - Trivial utility wrappers (e.g. `cn()`).
+  - Pass-through controller unit tests that merely delegate to services.
 
 ---
 

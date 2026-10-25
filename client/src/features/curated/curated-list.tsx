@@ -75,51 +75,47 @@ export function CuratedList() {
         const targetHref = item.href || `/simulations/${item.id}`;
 
         return (
-          <Link
+          <Card
             key={item.id}
-            href={targetHref}
-            className="block group rounded-xl focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-600 active:scale-[0.99] transition-transform"
+            className="relative border-slate-300/85 bg-white hover:border-slate-400 hover:shadow-md transition-all duration-200 p-6 shadow-xs"
           >
-            <Card className="relative border-slate-300/85 bg-white hover:border-blue-500 hover:shadow-md transition-all duration-300 p-6 shadow-xs cursor-pointer">
-              <CardContent className="p-0 flex flex-col md:flex-row md:items-center justify-between gap-5">
-                <div className="space-y-2.5 max-w-3xl">
-                  <div className="flex flex-wrap items-center gap-3">
-                    <span className="font-mono text-xs font-bold text-slate-500">
-                      #0{index + 1}
-                    </span>
-                    <Badge variant={getBadgeVariant(item.category)} className="text-xs">
-                      {item.highlightTag}
-                    </Badge>
-                    <div className="flex items-center gap-1.5 text-xs text-slate-500 font-mono">
-                      <Clock className="h-3.5 w-3.5 text-slate-400" />
-                      <span>~{item.estimatedMinutes} phút tương tác</span>
-                    </div>
-                  </div>
-
-                  <h4 className="text-lg font-heading font-extrabold text-slate-900 group-hover:text-blue-700 transition-colors">
-                    {item.title}
-                  </h4>
-
-                  <p className="text-sm text-slate-600 leading-relaxed font-sans">{item.summary}</p>
-
-                  <div className="flex items-center gap-2 pt-1">
-                    <Sparkles className="h-3.5 w-3.5 text-blue-600 shrink-0" />
-                    <span className="text-xs font-mono font-medium text-blue-900 bg-slate-100 px-2.5 py-1 rounded-md">
-                      {item.concept}
-                    </span>
+            <CardContent className="p-0 flex flex-col md:flex-row md:items-center justify-between gap-5">
+              <div className="space-y-2.5 max-w-3xl">
+                <div className="flex flex-wrap items-center gap-3">
+                  <span className="font-mono text-xs font-bold text-slate-500">#0{index + 1}</span>
+                  <Badge variant={getBadgeVariant(item.category)} className="text-xs">
+                    {item.highlightTag}
+                  </Badge>
+                  <div className="flex items-center gap-1.5 text-xs text-slate-500 font-mono">
+                    <Clock className="h-3.5 w-3.5 text-slate-400" />
+                    <span>~{item.estimatedMinutes} phút tương tác</span>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 self-start md:self-center shrink-0">
-                  <span className="inline-flex items-center justify-center font-bold text-xs gap-1.5 h-9 px-3.5 rounded-lg border border-slate-300 bg-white text-slate-700 shadow-2xs group-hover:border-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all">
-                    <Compass className="h-4 w-4 text-blue-600 group-hover:text-white transition-colors" />
-                    <span>Vào phòng lab</span>
-                    <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                <h4 className="text-lg font-heading font-extrabold text-slate-900">{item.title}</h4>
+
+                <p className="text-sm text-slate-600 leading-relaxed font-sans">{item.summary}</p>
+
+                <div className="flex items-center gap-2 pt-1">
+                  <Sparkles className="h-3.5 w-3.5 text-blue-600 shrink-0" />
+                  <span className="text-xs font-mono font-medium text-blue-900 bg-slate-100 px-2.5 py-1 rounded-md">
+                    {item.concept}
                   </span>
                 </div>
-              </CardContent>
-            </Card>
-          </Link>
+              </div>
+
+              <div className="flex items-center gap-3 self-start md:self-center shrink-0">
+                <Link
+                  href={targetHref}
+                  className="group/btn inline-flex items-center justify-center font-bold text-xs gap-1.5 h-9 px-3.5 rounded-lg border border-slate-300 bg-white text-slate-700 shadow-xs hover:border-blue-600 hover:bg-blue-600 hover:text-white active:scale-[0.98] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 cursor-pointer"
+                >
+                  <Compass className="h-4 w-4 text-blue-600 group-hover/btn:text-white transition-colors" />
+                  <span>Vào phòng lab</span>
+                  <ChevronRight className="h-4 w-4 transition-transform group-hover/btn:translate-x-1" />
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
         );
       })}
 

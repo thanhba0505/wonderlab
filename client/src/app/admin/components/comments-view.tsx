@@ -1,262 +1,338 @@
 'use client';
 
 import * as React from 'react';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import {
-  Trash2,
-  Filter,
-  Search,
-  RefreshCw,
-  Loader2,
-  CornerDownRight,
-  ExternalLink,
-} from 'lucide-react';
+import { Trash2, RefreshCw, CornerDownRight, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
+import {
+  AppTableFilter,
+  AppTag,
+  AppButton,
+  AppConfirmModal,
+  type AppTableColumn,
+  type AppFilterField,
+  type AppActiveFilter,
+} from '@/components/ui';
 import { AdminCommentItem, fetchAdminComments, deleteAdminComment } from '@/lib/admin-api';
+import { getAllSimulations } from '@/features/simulations/registry';
 
 export function CommentsView() {
   const [comments, setComments] = React.useState<AdminCommentItem[]>([]);
+  const [total, setTotal] = React.useState<number>(0);
+  const [page, setPage] = React.useState<number>(1);
+  const [limit, setLimit] = React.useState<number>(20);
   const [isLoading, setIsLoading] = React.useState<boolean>(true);
   const [selectedSlug, setSelectedSlug] = React.useState<string>('all');
+  const [appliedSlug, setAppliedSlug] = React.useState<string>('all');
   const [searchQuery, setSearchQuery] = React.useState<string>('');
+  const [appliedSearch, setAppliedSearch] = React.useState<string>('');
   const [deletingId, setDeletingId] = React.useState<string | null>(null);
+  const [deleteConfirmCommentId, setDeleteConfirmCommentId] = React.useState<string | null>(null);
 
-  const loadComments = React.useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const data = await fetchAdminComments();
-      setComments(data);
-    } catch {
-      // Ignored
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+  const loadComments = React.useCallback(
+    async (
+      targetPage = page,
+      targetLimit = limit,
+      search = appliedSearch,
+      slug = appliedSlug,
+      silent = false,
+    ) => {
+      if (!silent) {
+        setIsLoading(true);
+      }
+      try {
+        const res = await fetchAdminComments({
+          page: targetPage,
+          limit: targetLimit,
+          search,
+          simulationSlug: slug !== 'all' ? slug : undefined,
+        });
+        const items = Array.isArray(res) ? res : (res?.data ?? []);
+        const totalCount = Array.isArray(res) ? res.length : (res?.total ?? items.length);
+        setComments(items);
+        setTotal(totalCount);
+      } catch {
+        // Ignored
+      } finally {
+        if (!silent) {
+          setIsLoading(false);
+        }
+      }
+    },
+    [page, limit, appliedSearch, appliedSlug],
+  );
 
   React.useEffect(() => {
     loadComments();
   }, [loadComments]);
 
-  const handleDelete = async (id: string) => {
-    if (
-      !confirm(
-        'Bạn có chắc chắn muốn xóa bình luận này? Nếu đây là bình luận gốc, toàn bộ các phản hồi liên quan sẽ bị xóa tự động.',
-      )
-    ) {
-      return;
-    }
+  const handleFilter = () => {
+    setPage(1);
+    setAppliedSearch(searchQuery);
+    setAppliedSlug(selectedSlug);
+    loadComments(1, limit, searchQuery, selectedSlug);
+  };
 
+  const handleResetFilters = () => {
+    setSearchQuery('');
+    setSelectedSlug('all');
+    setPage(1);
+    setAppliedSearch('');
+    setAppliedSlug('all');
+    loadComments(1, limit, '', 'all');
+  };
+
+  const handlePageChange = (nextPage: number) => {
+    setPage(nextPage);
+    loadComments(nextPage, limit, appliedSearch, appliedSlug);
+  };
+
+  const handlePageSizeChange = (nextLimit: number) => {
+    setLimit(nextLimit);
+    setPage(1);
+    loadComments(1, nextLimit, appliedSearch, appliedSlug);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteConfirmCommentId) return;
+
+    const id = deleteConfirmCommentId;
     setDeletingId(id);
     const res = await deleteAdminComment(id);
     if (res.success) {
-      await loadComments();
+      setComments(prev =>
+        prev.map(c => (c.id === id || c.parentId === id ? { ...c, isDeleted: true } : c)),
+      );
+      await loadComments(page, limit, appliedSearch, appliedSlug, true);
     } else {
       alert(res.error || 'Lỗi khi xóa bình luận');
     }
     setDeletingId(null);
+    setDeleteConfirmCommentId(null);
   };
 
   const simulationSlugs = React.useMemo(() => {
-    const set = new Set(comments.map(c => c.simulationSlug));
+    const all = getAllSimulations().map(s => s.slug);
+    const safeComments = Array.isArray(comments) ? comments : [];
+    const set = new Set([...all, ...safeComments.map(c => c.simulationSlug)]);
     return ['all', ...Array.from(set)];
   }, [comments]);
 
-  const filteredComments = React.useMemo(() => {
-    return comments.filter(c => {
-      const matchSlug = selectedSlug === 'all' || c.simulationSlug === selectedSlug;
-      const q = searchQuery.toLowerCase();
-      const matchSearch =
-        !q || c.content.toLowerCase().includes(q) || c.user.username.toLowerCase().includes(q);
-      return matchSlug && matchSearch;
+  // Filter definitions
+  const filters: AppFilterField[] = [
+    {
+      id: 'simulation',
+      value: selectedSlug,
+      placeholder: 'Lọc theo phòng Lab',
+      options: simulationSlugs.map(slug => ({
+        value: slug,
+        label: slug === 'all' ? 'Tất cả các phòng Lab' : `/${slug}`,
+      })),
+      onChange: setSelectedSlug,
+    },
+  ];
+
+  const activeFilters: AppActiveFilter[] = [];
+  if (appliedSlug !== 'all') {
+    activeFilters.push({
+      id: 'simulation',
+      label: 'Thí nghiệm',
+      valueLabel: `/${appliedSlug}`,
+      onRemove: () => {
+        setSelectedSlug('all');
+        setAppliedSlug('all');
+        setPage(1);
+        loadComments(1, limit, appliedSearch, 'all');
+      },
     });
-  }, [comments, selectedSlug, searchQuery]);
+  }
+
+  const columns: AppTableColumn<AdminCommentItem>[] = [
+    {
+      key: 'classification',
+      header: 'Phân loại / Thí nghiệm',
+      render: item => {
+        const isReply = item.parentId !== null;
+        return (
+          <div className="space-y-1">
+            <div>
+              {isReply ? (
+                <AppTag
+                  variant="outline"
+                  size="sm"
+                  icon={<CornerDownRight className="h-3 w-3 mr-1 text-slate-500" />}
+                >
+                  Phản hồi
+                </AppTag>
+              ) : (
+                <AppTag variant="blue" size="sm">
+                  Bình luận gốc
+                </AppTag>
+              )}
+            </div>
+            <div className="font-mono text-xs text-blue-700 font-semibold flex items-center gap-1">
+              <Link
+                href={`/simulations/${item.simulationSlug}`}
+                target="_blank"
+                className="hover:underline flex items-center gap-1"
+              >
+                <span>/{item.simulationSlug}</span>
+                <ExternalLink className="h-2.5 w-2.5" />
+              </Link>
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      key: 'author',
+      header: 'Tác giả',
+      render: item => (
+        <div className="flex items-center gap-2">
+          <div className="h-6 w-6 rounded-full bg-slate-100 text-slate-800 flex items-center justify-center text-xs font-bold font-mono shrink-0">
+            {item.user.username.charAt(0).toUpperCase()}
+          </div>
+          <div>
+            <span className="font-mono font-bold text-slate-900 flex items-center gap-1.5 leading-tight">
+              <span>{item.user.username}</span>
+              {item.user.isDeleted && (
+                <AppTag variant="red" size="sm">
+                  Đã xoá
+                </AppTag>
+              )}
+            </span>
+            <span className="text-xs font-mono text-slate-500">{item.user.role}</span>
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: 'content',
+      header: 'Nội dung bình luận',
+      className: 'max-w-md',
+      render: item => {
+        const isReply = item.parentId !== null;
+        return (
+          <div>
+            {isReply && item.parent && (
+              <div className="text-xs text-slate-500 font-sans italic mb-1 border-l-2 border-slate-300 pl-2 line-clamp-1">
+                Trả lời @{item.parent.user.username}: &ldquo;{item.parent.content}&rdquo;
+              </div>
+            )}
+            <p className="text-slate-800 text-xs font-sans leading-relaxed whitespace-pre-line line-clamp-3">
+              {item.content}
+            </p>
+          </div>
+        );
+      },
+    },
+    {
+      key: 'createdAt',
+      header: 'Thời gian',
+      className: 'whitespace-nowrap font-mono text-slate-500 text-xs',
+      render: item => new Date(item.createdAt).toLocaleString('vi-VN'),
+    },
+    {
+      key: 'isDeleted',
+      header: 'Đã xoá',
+      align: 'center',
+      className: 'whitespace-nowrap',
+      render: item =>
+        item.isDeleted ? (
+          <AppTag variant="red" size="sm">
+            Đã xoá
+          </AppTag>
+        ) : (
+          ''
+        ),
+    },
+    {
+      key: 'actions',
+      header: 'Hành động',
+      align: 'center',
+      render: item => {
+        if (item.isDeleted) {
+          return <span className="text-xs text-slate-400 font-mono select-none">—</span>;
+        }
+
+        const isDeleting = deletingId === item.id;
+        return (
+          <AppButton
+            variant="ghost"
+            size="icon-sm"
+            disabled={isDeleting}
+            isLoading={isDeleting}
+            onClick={() => setDeleteConfirmCommentId(item.id)}
+            className="text-slate-400 hover:text-rose-600 hover:bg-rose-50"
+            title="Xóa bình luận vi phạm"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+          </AppButton>
+        );
+      },
+    },
+  ];
 
   return (
-    <div className="space-y-6">
-      {/* Header Bar */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 rounded-2xl bg-white border border-slate-300/85 shadow-2xs">
-        <div>
-          <div className="flex items-center gap-2">
-            <Badge variant="cyan">TRUNG TÂM KIỂM DUYỆT</Badge>
-            <span className="text-xs font-mono text-slate-400">
-              {comments.length} bình luận trên toàn sàn
-            </span>
-          </div>
-          <h2 className="text-xl sm:text-2xl font-heading font-extrabold text-slate-900 mt-1">
-            Kiểm Duyệt Thảo Luận & Phản Hồi
-          </h2>
-          <p className="text-xs sm:text-sm text-slate-600 font-sans mt-0.5">
-            Quản trị nội dung học thuật, loại bỏ bình luận vi phạm và giám sát các phản biện khoa
-            học.
-          </p>
-        </div>
+    <>
+      <AppTableFilter
+        header={{
+          badge: (
+            <div className="flex items-center gap-2">
+              <AppTag variant="blue" size="sm">
+                TRUNG TÂM KIỂM DUYỆT
+              </AppTag>
+              <span className="text-xs font-mono text-slate-400">
+                {total} bình luận trên toàn sàn
+              </span>
+            </div>
+          ),
+          title: 'Kiểm Duyệt Thảo Luận & Phản Hồi',
+          description:
+            'Quản trị nội dung học thuật, loại bỏ bình luận vi phạm và giám sát các phản biện khoa học.',
+          actions: (
+            <AppButton
+              variant="outline"
+              size="sm"
+              onClick={() => loadComments(page, limit, appliedSearch, appliedSlug)}
+              disabled={isLoading}
+              className="text-xs font-semibold gap-1.5 border-slate-300 bg-white shadow-2xs shrink-0"
+              leftIcon={<RefreshCw className={`h-3.5 w-3.5 ${isLoading ? 'animate-spin' : ''}`} />}
+            >
+              Làm mới
+            </AppButton>
+          ),
+        }}
+        searchValue={searchQuery}
+        onSearchChange={setSearchQuery}
+        onFilter={handleFilter}
+        filterLabel="Lọc"
+        searchPlaceholder="Tìm theo nội dung hoặc tác giả..."
+        filters={filters}
+        activeFilters={activeFilters}
+        onReset={handleResetFilters}
+        columns={columns}
+        data={comments}
+        isLoading={isLoading}
+        loadingMessage="Đang tải dữ liệu kiểm duyệt..."
+        emptyMessage="Không có bình luận nào phù hợp bộ lọc hiện tại."
+        page={page}
+        limit={limit}
+        total={total}
+        onPageChange={handlePageChange}
+        onPageSizeChange={handlePageSizeChange}
+        pageSizeOptions={[10, 20, 50, 100]}
+      />
 
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={loadComments}
-          disabled={isLoading}
-          className="text-xs font-semibold gap-1.5 border-slate-300 bg-white shadow-2xs shrink-0"
-        >
-          <RefreshCw className={`h-3.5 w-3.5 ${isLoading ? 'animate-spin' : ''}`} />
-          Làm mới
-        </Button>
-      </div>
-
-      {/* Filter and Search Bar */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="h-4 w-4 text-slate-400 absolute left-3 top-2.5" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-            placeholder="Tìm theo nội dung hoặc tác giả..."
-            className="w-full pl-9 pr-3 py-2 text-xs rounded-lg border border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600"
-          />
-        </div>
-
-        <div className="flex items-center gap-2 text-xs font-mono">
-          <Filter className="h-3.5 w-3.5 text-slate-400" />
-          <span className="text-slate-500 font-bold uppercase text-xs">Thí nghiệm:</span>
-          <select
-            value={selectedSlug}
-            onChange={e => setSelectedSlug(e.target.value)}
-            className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600"
-          >
-            {simulationSlugs.map(slug => (
-              <option key={slug} value={slug}>
-                {slug === 'all' ? 'Tất cả các phòng Lab' : slug}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
-
-      {/* Comments List Table */}
-      <Card className="border-slate-300/85 bg-white shadow-2xs overflow-hidden">
-        {isLoading ? (
-          <div className="py-16 text-center text-xs text-slate-500 flex items-center justify-center gap-2">
-            <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
-            Đang tải dữ liệu kiểm duyệt...
-          </div>
-        ) : filteredComments.length === 0 ? (
-          <div className="py-16 text-center text-xs text-slate-500 font-sans">
-            Không có bình luận nào phù hợp bộ lọc hiện tại.
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[900px] text-left border-collapse text-xs">
-              <thead>
-                <tr className="border-b border-slate-200 bg-slate-50/70 font-mono text-xs uppercase tracking-wider text-slate-500">
-                  <th className="p-4">Phân loại / Thí nghiệm</th>
-                  <th className="p-4">Tác giả</th>
-                  <th className="p-4">Nội dung bình luận</th>
-                  <th className="p-4">Thời gian</th>
-                  <th className="p-4 text-center">Hành động</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 font-sans">
-                {filteredComments.map(item => {
-                  const isReply = item.parentId !== null;
-                  const isDeleting = deletingId === item.id;
-
-                  return (
-                    <tr key={item.id} className="hover:bg-slate-50/60 transition-colors">
-                      {/* Classification & Simulation Badge */}
-                      <td className="p-4 space-y-1">
-                        <div>
-                          {isReply ? (
-                            <Badge
-                              variant="outline"
-                              className="font-mono text-xs bg-slate-50 text-slate-700 border-slate-300"
-                            >
-                              <CornerDownRight className="h-2.5 w-2.5 mr-1 text-slate-500" />
-                              Phản hồi
-                            </Badge>
-                          ) : (
-                            <Badge
-                              variant="outline"
-                              className="font-mono text-xs bg-blue-50 text-blue-800 border-blue-200"
-                            >
-                              Bình luận gốc
-                            </Badge>
-                          )}
-                        </div>
-                        <div className="font-mono text-xs text-blue-700 font-semibold flex items-center gap-1">
-                          <Link
-                            href={`/simulations/${item.simulationSlug}`}
-                            target="_blank"
-                            className="hover:underline flex items-center gap-1"
-                          >
-                            <span>/{item.simulationSlug}</span>
-                            <ExternalLink className="h-2.5 w-2.5" />
-                          </Link>
-                        </div>
-                      </td>
-
-                      {/* Author */}
-                      <td className="p-4">
-                        <div className="flex items-center gap-2">
-                          <div className="h-6 w-6 rounded-full bg-slate-100 text-slate-800 flex items-center justify-center text-xs font-bold font-mono">
-                            {item.user.username.charAt(0).toUpperCase()}
-                          </div>
-                          <div>
-                            <span className="font-mono font-bold text-slate-900 block">
-                              {item.user.username}
-                            </span>
-                            <span className="text-xs font-mono text-slate-500">
-                              {item.user.role}
-                            </span>
-                          </div>
-                        </div>
-                      </td>
-
-                      {/* Content */}
-                      <td className="p-4 max-w-md">
-                        {isReply && item.parent && (
-                          <div className="text-xs text-slate-500 font-sans italic mb-1 border-l-2 border-slate-300 pl-2 line-clamp-1">
-                            Trả lời @{item.parent.user.username}: &ldquo;{item.parent.content}
-                            &rdquo;
-                          </div>
-                        )}
-                        <p className="text-slate-800 text-xs font-sans leading-relaxed whitespace-pre-line line-clamp-3">
-                          {item.content}
-                        </p>
-                      </td>
-
-                      {/* Date */}
-                      <td className="p-4 font-mono text-slate-500 text-xs whitespace-nowrap">
-                        {new Date(item.createdAt).toLocaleString('vi-VN')}
-                      </td>
-
-                      {/* Action */}
-                      <td className="p-4 text-center">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          disabled={isDeleting}
-                          onClick={() => handleDelete(item.id)}
-                          className="h-7 w-7 p-0 text-slate-400 hover:text-rose-600 hover:bg-rose-50"
-                          title="Xóa bình luận vi phạm"
-                        >
-                          {isDeleting ? (
-                            <Loader2 className="h-3 w-3 animate-spin" />
-                          ) : (
-                            <Trash2 className="h-3.5 w-3.5" />
-                          )}
-                        </Button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </Card>
-    </div>
+      <AppConfirmModal
+        isOpen={Boolean(deleteConfirmCommentId)}
+        onClose={() => setDeleteConfirmCommentId(null)}
+        onConfirm={handleConfirmDelete}
+        title="Xác nhận xóa bình luận"
+        message="Bạn có chắc chắn muốn xóa bình luận này? Nếu đây là bình luận gốc, toàn bộ các phản hồi liên quan sẽ bị xóa tự động."
+        confirmText="Xóa bình luận"
+        variant="danger"
+        isLoading={Boolean(deletingId)}
+      />
+    </>
   );
 }

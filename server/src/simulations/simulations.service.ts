@@ -156,10 +156,15 @@ export class SimulationsService {
       where.clientSession = query.clientSession;
     }
 
+    const page = Math.max(1, query.page || 1);
+    const limit = Math.max(1, query.limit || 20);
+    const skip = (page - 1) * limit;
+
     const runs = await this.prisma.simulationRun.findMany({
       where,
       orderBy: { createdAt: 'desc' },
-      take: query.limit || 20,
+      skip,
+      take: limit,
       select: {
         id: true,
         simulationSlug: true,
@@ -214,7 +219,7 @@ export class SimulationsService {
         _sum: { trialsCount: true },
       }),
       this.prisma.user.count(),
-      this.prisma.comment.count(),
+      this.prisma.comment.count({ where: { isDeleted: false } }),
       this.prisma.simulationRun.findMany({
         orderBy: { createdAt: 'desc' },
         take: 8,
@@ -227,6 +232,7 @@ export class SimulationsService {
         },
       }),
       this.prisma.comment.findMany({
+        where: { isDeleted: false },
         orderBy: { createdAt: 'desc' },
         take: 5,
         select: {

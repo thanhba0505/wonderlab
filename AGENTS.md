@@ -4,19 +4,23 @@ Welcome to **Wonderlab**. This document is the primary source of truth and autho
 
 > [!CRITICAL]
 >
-> ### 🚨 MANDATORY WORKTREE PRE-FLIGHT PROTOCOL
+> ### 🚨 MANDATORY WORKTREE-EXCLUSIVE CODING PROTOCOL
 >
 > **Before executing ANY git command, editing ANY file, or creating ANY branch**:
 >
 > 1. **MANDATORY**: Run `git worktree list` on the very first turn to inspect active worktree allocations across the repository.
-> 2. If the main workspace (`Wonderlab`) is on any branch other than a clean `develop` (meaning another concurrent task or agent is active):
->    - **NEVER** run `git checkout`, `git checkout -b`, `git stash`, or edit files in `/Users/lethanhba/workspace/app/Wonderlab`!
->    - **IMMEDIATELY SWITCH** to an available idle persistent worktree:
->      - `Wonderlab-worktree-1` (`/Users/lethanhba/workspace/app/Wonderlab-worktree-1`)
->      - or `Wonderlab-worktree-2` (`/Users/lethanhba/workspace/app/Wonderlab-worktree-2`)
-> 3. Inside a worktree, sync and create a task branch via `git fetch origin && git checkout -B <type>/<task-name> origin/develop` (never `git checkout develop`).
+> 2. **STRICT WORKTREE-EXCLUSIVE RULE**:
+>    - The main workspace (`Wonderlab`) is strictly an idle root anchor on `develop`.
+>    - **NEVER** edit files, run development commands, `git checkout`, `git checkout -b`, or `git stash` in `/Users/lethanhba/workspace/app/Wonderlab`!
+>    - **ALL CODING MUST OCCUR INSIDE A PERSISTENT WORKTREE**:
+>      - `Wonderlab-worktree-1` (`/Users/lethanhba/workspace/app/Wonderlab-worktree-1`, Client `4200`, Server `4201`, branch `worktree-1`)
+>      - `Wonderlab-worktree-2` (`/Users/lethanhba/workspace/app/Wonderlab-worktree-2`, Client `4300`, Server `4301`, branch `worktree-2`)
+>      - `Wonderlab-worktree-3` (`/Users/lethanhba/workspace/app/Wonderlab-worktree-3`, Client `4400`, Server `4401`, branch `worktree-3`)
+>      - `Wonderlab-worktree-4` (`/Users/lethanhba/workspace/app/Wonderlab-worktree-4`, Client `4500`, Server `4501`, branch `worktree-4`)
+>      - `Wonderlab-worktree-5` (`/Users/lethanhba/workspace/app/Wonderlab-worktree-5`, Client `4600`, Server `4601`, branch `worktree-5`)
+> 3. Inside the selected idle worktree, sync and create a task branch via `git fetch origin && git checkout -B <type>/<task-name> origin/develop` (never `git checkout develop`).
 > 4. All file edits (`edit_file`, `write_file`) and command executions (`run_command`) MUST strictly use absolute paths or `cd` targeting the chosen worktree directory.
-> 5. Violating workspace isolation by branch-hopping in `Wonderlab` causes git conflicts, wipes unstaged changes, overwrites stashes, and corrupts concurrent agent workflows!
+> 5. When implementation passes `pnpm check`, push directly to `develop` via `git fetch origin && git rebase origin/develop && git push origin HEAD:develop`, reset the worktree back to `worktree-N`, and pull `develop` in the main workspace.
 
 ---
 
@@ -111,7 +115,17 @@ wonderlab/
 
 ## 6. Coding & TypeScript Conventions
 
-- **TypeScript Strict Mode**: No `any`. Explicit function return types and interface contracts.
+- **Strict Zero-`any` Policy (No Exceptions)**:
+  - The use of `any` is strictly forbidden across the entire codebase (`@typescript-eslint/no-explicit-any: error` in both client and server).
+  - Never use explicit `any`, implicit `any`, `Record<string, any>`, or `Array<any>`.
+  - Never bypass compiler type checks using `@ts-ignore` or `@ts-nocheck` to evade proper type declarations.
+  - When dealing with dynamic, uncertain, or incoming external data (e.g., API payloads, URL queries, localStorage, or JSON parsing), use `unknown` combined with runtime type narrowing, type guards, or validation schemas (Zod / class-validator).
+  - For polymorphic functions, utilities, and components, use generic parameters (`<T extends Record<string, unknown>>`) rather than unconstrained or loose types.
+- **Comprehensive Type & Interface Definitions**:
+  - **Explicit Contracts for All Data Structures**: Every domain entity, simulation parameter set, calculation result, telemetry payload, DTO, and database model must have a dedicated, strongly typed `interface` or `type` definition.
+  - **Explicit Function Signatures**: All exported functions, service methods, API route handlers, utility helpers, and custom React hooks must explicitly declare parameter types and return types (e.g. `function calculateMonty(trials: number): MontyResult`, `async findUserById(id: string): Promise<UserResponseDto>`). Do not rely on ambiguous inferred return types on public contracts.
+  - **Component Props & State Contracts**: Every React component must define a dedicated interface for its props (e.g., `interface AppModalProps`, `interface SimulationWorkbenchProps`) and internal state. Never destructure untyped props inline.
+  - **Strict Null & Undefined Safety**: With `strictNullChecks` and `noUncheckedIndexedAccess` enabled in `tsconfig.base.json`, explicitly handle optionality using optional chaining (`?.`), nullish coalescing (`??`), or early guard clauses. Never force non-null assertions (`!`) unless provably impossible to be null.
 - **Clean Code & Guard Clauses**: Validate inputs early; return early. Avoid nested `if/else` past 2 levels.
 - **Naming**: Intent-revealing names (`isDoorRevealed`, `calculateMontyProbabilities`). No abbreviations or single-character variables except standard loop indices.
 - **Imports**: Group imports (standard/external first, internal path aliases `@/...` second, relative third).
@@ -131,6 +145,21 @@ pnpm test:e2e       # Server E2E tests
 pnpm build          # Production builds for client and server
 pnpm check          # Runs all verification steps in sequence
 ```
+
+### Lean & Core-Only Testing Standard (Avoid CI Slowdown & Test Bloat):
+
+- **Strict Core-Only Scope**: Tests must **ONLY** be written for **core, critical functionality**. Never write tests indiscriminately for every file, component, or utility. Bloated, superficial test suites increase maintenance overhead and needlessly slow down CI and local verification cycles.
+- **What MUST Be Tested (Core Functionality Only)**:
+  1. **Scientific & Mathematical Simulation Engines**: Mathematical correctness, probabilistic convergence, quantum wave formulas, game-theory payoffs, and paradox simulation logic (e.g., Monty Hall, Birthday Paradox, Zeno's Paradox, Double-Slit).
+  2. **Critical Backend Business Logic & Security**: Core service logic in NestJS (`*.service.spec.ts`) dealing with authentication, hashing (Argon2id), token issuance/validation, permissions, data soft-deletion, and transactional mutations.
+  3. **High-Value HTTP Integration (E2E Tests)**: Complete request/response lifecycle verification via Supertest (`server/test/*.e2e-spec.ts`) for primary API routes (`/health`, `/auth`, `/comments`, `/simulations`).
+- **What MUST NOT Be Tested (Strictly Forbidden Test Bloat)**:
+  1. **Generic UI Components & Styling**: Do **NOT** write unit tests for React presentational components, buttons, inputs, dropdowns, badges, tags, modals, or page layouts just to assert that DOM nodes render or CSS classes exist.
+  2. **Static Data & Dictionaries**: Do **NOT** write tests verifying hardcoded array lengths, essay content strings, category lists, or static configuration objects.
+  3. **Boilerplate Controller Pass-Throughs**: Do **NOT** write unit tests for simple controller methods that merely pass arguments directly to a service (`controller.spec.ts` mocking services). These are redundant and already covered by E2E tests and service specs.
+  4. **Trivial Utilities & Third-Party Wrappers**: Do **NOT** write tests for simple library wrappers (e.g., `cn()` wrapping `clsx` and `tailwind-merge`) or basic environment variable getters.
+  5. **Mock-Heavy Component Lifecycle Tests**: Do **NOT** create fragile client component tests that mock every React hook, router, or API call just to verify form submissions or button clicks.
+- **Fast CI Execution Target**: The unit test suite must remain lean, highly targeted, and fast (< 5s). Every test must provide clear, high-value regression prevention for critical logic.
 
 ### Development Server Execution Policy:
 
@@ -159,41 +188,33 @@ pnpm check          # Runs all verification steps in sequence
     - Each push to `develop` automatically updates the Draft Release on GitHub via `release-drafter.yml`.
   - **Branch Cleanup**:
     - After merging into `develop` and pushing to `origin develop`, delete the local task branch immediately to keep the workspace clean.
-  - **Concurrent Tasks & Persistent Worktree Pool**:
-    - The repository maintains two persistent Git Worktrees alongside the main workspace:
-      - `Wonderlab` (Main workspace): Client on `http://localhost:4100`, Server on `http://localhost:4101`. Branch: `develop`.
+  - **Concurrent Tasks & Persistent Worktree Pool (Strict Worktree-Exclusive Coding)**:
+    - The repository maintains five persistent Git Worktrees alongside the main workspace. The main workspace (`Wonderlab`) is strictly an idle root anchor on `develop` and must NEVER be used for direct coding or task branches.
+    - **Worktree Allocation & Partitioned Ports**:
+      - `Wonderlab` (Main workspace): Idle root anchor on `develop` (no coding). Client: `4100`, Server: `4101`.
       - `Wonderlab-worktree-1`: Client on `http://localhost:4200`, Server on `http://localhost:4201`. Idle branch: `worktree-1` (tracking `origin/develop`).
       - `Wonderlab-worktree-2`: Client on `http://localhost:4300`, Server on `http://localhost:4301`. Idle branch: `worktree-2` (tracking `origin/develop`).
+      - `Wonderlab-worktree-3`: Client on `http://localhost:4400`, Server on `http://localhost:4401`. Idle branch: `worktree-3` (tracking `origin/develop`).
+      - `Wonderlab-worktree-4`: Client on `http://localhost:4500`, Server on `http://localhost:4501`. Idle branch: `worktree-4` (tracking `origin/develop`).
+      - `Wonderlab-worktree-5`: Client on `http://localhost:4600`, Server on `http://localhost:4601`. Idle branch: `worktree-5` (tracking `origin/develop`).
       - PostgreSQL: Shared container on `127.0.0.1:5434` (`docker compose up -d`).
     - **Worktree Invariant (Git Rule)**: Git does NOT permit checking out `develop` in multiple worktrees simultaneously because `develop` is checked out in `Wonderlab`. Always branch off `origin/develop` in worktrees (`git checkout -B <type>/<task-name> origin/develop`).
-    - **Step-by-Step Execution & Direct Merge**:
-      - **When executing in `Wonderlab` (Main Workspace)**:
-        ```bash
-        git checkout develop && git pull origin develop
-        git checkout -b <type>/<task-name>
-        # Perform implementation edits...
-        pnpm check
-        git checkout develop
-        git pull origin develop
-        git merge <type>/<task-name> --no-ff -m "<type>: <concise description>"
-        git push origin develop
-        git branch -d <type>/<task-name>
-        ```
-      - **When executing in a Worktree (`Wonderlab-worktree-1` or `Wonderlab-worktree-2`)**:
+    - **Standard Execution & Direct Merge Workflow**:
+      - Choose any available idle worktree (e.g. `Wonderlab-worktree-1` through `Wonderlab-worktree-5`):
         ```bash
         cd /Users/lethanhba/workspace/app/Wonderlab-worktree-1
         git fetch origin
         git checkout -B <type>/<task-name> origin/develop
-        # Perform implementation edits...
+        # Perform implementation edits and verify:
         pnpm check
-        # Rebase and push directly to origin/develop:
+        # Rebase onto latest origin/develop and push directly to develop:
         git fetch origin
         git rebase origin/develop
         git push origin HEAD:develop
         # Reset worktree back to idle tracking branch:
         git checkout -B worktree-1 origin/develop
         git branch -d <type>/<task-name>
-        # Sync main workspace if idle:
+        # Sync main workspace clean develop copy:
         git -C /Users/lethanhba/workspace/app/Wonderlab pull origin develop
         ```
     - **Persistent Retention Policy**: Do NOT delete the worktrees upon task completion. Keeping them persistent preserves `node_modules`, Prisma artifacts, and build caches, eliminating repetitive installation overhead.
@@ -216,7 +237,7 @@ pnpm check          # Runs all verification steps in sequence
 
 ## 9. Non-Negotiable Agent Rules
 
-1. **Mandatory Worktree Pre-Flight Protocol**: Run `git worktree list` on your very first turn. If the main workspace `Wonderlab` has active work or another branch checked out, you MUST execute all work inside `Wonderlab-worktree-1` or `Wonderlab-worktree-2`. NEVER checkout branches or touch files in `Wonderlab` during concurrent tasks.
+1. **Mandatory Worktree-Exclusive Protocol**: Run `git worktree list` on your very first turn to identify an idle worktree (`Wonderlab-worktree-1` through `Wonderlab-worktree-5`). The main workspace `Wonderlab` is strictly an idle root anchor on `develop` — NEVER edit files, checkout task branches, or code in `Wonderlab`. Always branch off `origin/develop` inside an idle worktree, code and verify with `pnpm check`, push directly to `origin develop`, and reset the worktree to its tracking branch.
 2. **Read Before Writing**: Inspect existing files and documentation before editing.
 3. **No Unrequested Scope Creep**: Do not add user management, authentication, payment, or complex databases until explicitly requested.
 4. **No Fake Completions**: Never declare tests or builds have succeeded without actually executing them and inspecting the output.
@@ -225,3 +246,5 @@ pnpm check          # Runs all verification steps in sequence
 7. **Branch-First Development & Direct Merge into Develop**: Never commit directly onto `develop` or `main` without a dedicated branch. Always create a task branch (`feat/*`, `fix/*`, `chore/*`, `docs/*`, `refactor/*`), verify with `pnpm check`, merge directly into `develop` (or push `HEAD:develop` from worktrees), and push to `origin develop`. `main` is updated strictly via the automated Release workflow.
 8. **Development Server Execution Standard (`pnpm dev` only)**: Agents must NEVER start the client application using `pnpm start`, `pnpm --filter wonderlab-client start`, or `next start`. Always use `pnpm dev` or `pnpm dev:client`. `next start` is strictly an immutable production server that binds to a static in-memory `BUILD_ID`, resulting in catastrophic `400 Bad Request` asset errors, CSS stylesheet drop (FOUC), and permanent client-side chunk loading failures whenever background builds run.
 9. **Strict English for All Commits and Repository Guidelines**: All commit messages, merge commit messages, and repository guidelines must be authored strictly and exclusively in English.
+10. **Lean & Core-Only Testing Rule**: Write tests ONLY for core, critical business logic, scientific/mathematical simulation calculations, and essential E2E API flows. NEVER write superficial tests for generic UI components, static dictionaries, trivial utilities, or pass-through controller mocks. Eliminate redundant test bloat to keep CI fast and maintainable.
+11. **Strict Zero-`any` & Explicit Type/Interface Definition Rule**: The use of `any` is strictly prohibited across the entire codebase without exception (enforced via `@typescript-eslint/no-explicit-any: error` in both client and server). Every function, method, React component prop, DTO, simulation state model, and API payload MUST have fully declared, explicit types or interfaces. For dynamic or uncertain values, use `unknown` with runtime type narrowing or generic parameters (`<T>`). Never silence type errors using `@ts-ignore` or `@ts-nocheck`.

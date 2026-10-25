@@ -24,10 +24,13 @@ description: Next.js App Router engineering standards for Wonderlab. Covers rout
   - Browser-only APIs (`window`, `localStorage`, `canvas`).
   - Interactive simulations (e.g. `MontyHallSimulation`).
 
-## 3. Configuration & Imports
+## 3. Configuration, Typing & Imports
 
 - Path aliases: `@/` resolves to `src/`.
-- Strict typing: No `any`. Explicit props interfaces.
+- Strict typing (Zero-`any` standard):
+  - Strictly no `any` (enforced by `@typescript-eslint/no-explicit-any: error`).
+  - Explicit `interface` declarations for all component props, internal state, and API client responses.
+  - Use `unknown` with runtime narrowing or generics `<T>` for dynamic data.
 - Environment variables:
   - Client-accessible: `NEXT_PUBLIC_*` (validate before use; never expose private keys or DB credentials).
   - Server-only: regular environment variables.

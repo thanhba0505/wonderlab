@@ -10,14 +10,14 @@ import { UserProfileModal } from '@/features/auth/components/user-profile-modal'
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const isAdminRoute = pathname?.startsWith('/admin');
+  const isConsoleRoute = pathname?.startsWith('/admin') || pathname?.startsWith('/my-account');
 
-  if (isAdminRoute) {
+  if (isConsoleRoute) {
     return (
       <div className="h-screen max-h-screen flex flex-col bg-[#f1f5f9] text-slate-800 overflow-hidden">
         <AdminHeader />
         <main className="flex-1 min-h-0 overflow-hidden">{children}</main>
-        {/* Admin route has NO footer as requested */}
+        {/* Console routes have NO footer as requested */}
         <UserProfileModal />
       </div>
     );

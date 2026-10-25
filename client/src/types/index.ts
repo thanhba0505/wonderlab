@@ -22,13 +22,44 @@ export interface CuratedExperience {
   href?: string;
 }
 
+export interface EditorialCallout {
+  type: 'quote' | 'insight' | 'math' | 'simulation-link';
+  title?: string;
+  text: string;
+  author?: string;
+  simulationSlug?: string;
+  simulationTitle?: string;
+}
+
+export interface EditorialSectionBlock {
+  id: string;
+  heading: string;
+  paragraphs: string[];
+  callout?: EditorialCallout;
+}
+
+export interface EditorialLinkedSimulation {
+  slug: string;
+  title: string;
+  description: string;
+  badge: string;
+}
+
 export interface EditorialArticle {
   id: string;
+  slug?: string;
+  issueNumber?: string;
   title: string;
   subtitle: string;
   readTimeMinutes: number;
+  publishedDate?: string;
+  category?: ContentCategory;
+  categoryLabel?: string;
   teaser: string;
   quote: string;
+  quoteAuthor?: string;
+  sections?: EditorialSectionBlock[];
+  linkedSimulations?: EditorialLinkedSimulation[];
 }
 
 export interface AuthUser {

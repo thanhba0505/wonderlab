@@ -1,9 +1,16 @@
 'use client';
 
 import * as React from 'react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import Link from 'next/link';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  AppButton,
+  AppTag,
+} from '@/components/ui';
 import {
   Play,
   Flame,
@@ -20,7 +27,7 @@ interface DashboardViewProps {
   overview: AdminOverviewData | null;
   isLoading: boolean;
   onRefresh: () => void;
-  onNavigateTo: (view: 'simulations' | 'users' | 'comments') => void;
+  onNavigateTo?: (view: 'simulations' | 'users' | 'comments') => void;
 }
 
 export function DashboardView({
@@ -74,12 +81,14 @@ export function DashboardView({
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 font-sans">
       {/* Top Banner */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 rounded-2xl bg-white border border-slate-300/85 shadow-2xs">
         <div>
           <div className="flex items-center gap-2">
-            <Badge variant="cyan">BẢNG ĐIỀU HÀNH TỔNG QUAN</Badge>
+            <AppTag variant="blue" size="sm">
+              BẢNG ĐIỀU HÀNH TỔNG QUAN
+            </AppTag>
             <span className="text-xs font-mono text-slate-400">Thời gian thực</span>
           </div>
           <h2 className="text-xl sm:text-2xl font-heading font-extrabold text-slate-900 mt-1">
@@ -91,16 +100,16 @@ export function DashboardView({
           </p>
         </div>
 
-        <Button
+        <AppButton
           variant="outline"
           size="sm"
           onClick={onRefresh}
           disabled={isLoading}
           className="text-xs font-semibold gap-1.5 border-slate-300 bg-white shadow-2xs shrink-0"
+          leftIcon={<RefreshCw className={`h-3.5 w-3.5 ${isLoading ? 'animate-spin' : ''}`} />}
         >
-          <RefreshCw className={`h-3.5 w-3.5 ${isLoading ? 'animate-spin' : ''}`} />
           Làm mới số liệu
-        </Button>
+        </AppButton>
       </div>
 
       {/* 4 Core KPI Cards */}
@@ -142,15 +151,17 @@ export function DashboardView({
                   Các phiên tính toán Monte Carlo được gửi về từ trình duyệt người dùng.
                 </CardDescription>
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => onNavigateTo('simulations')}
-                className="text-xs text-blue-700 hover:text-blue-800 font-semibold"
-              >
-                Xem tất cả
-                <ArrowUpRight className="h-3 w-3 ml-1" />
-              </Button>
+              <Link href="/admin/simulations">
+                <AppButton
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => onNavigateTo?.('simulations')}
+                  className="text-xs text-blue-700 hover:text-blue-800 font-semibold"
+                  rightIcon={<ArrowUpRight className="h-3 w-3" />}
+                >
+                  Xem tất cả
+                </AppButton>
+              </Link>
             </div>
           </CardHeader>
           <CardContent className="pt-4 p-0">
@@ -166,12 +177,9 @@ export function DashboardView({
                         <span className="font-mono font-bold text-slate-900">
                           {run.simulationSlug}
                         </span>
-                        <Badge
-                          variant="outline"
-                          className="font-mono text-xs bg-blue-50 text-blue-700 border-blue-200"
-                        >
+                        <AppTag variant="blue" size="sm">
                           {run.trialsCount.toLocaleString('vi-VN')} ván
-                        </Badge>
+                        </AppTag>
                       </div>
                       <div className="text-xs font-mono text-slate-400">
                         {new Date(run.createdAt).toLocaleString('vi-VN')}
@@ -207,15 +215,17 @@ export function DashboardView({
                   Bình luận và phản hồi từ các thành viên trong các phòng Lab.
                 </CardDescription>
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => onNavigateTo('comments')}
-                className="text-xs text-violet-700 hover:text-violet-800 font-semibold"
-              >
-                Kiểm duyệt
-                <ArrowUpRight className="h-3 w-3 ml-1" />
-              </Button>
+              <Link href="/admin/comments">
+                <AppButton
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => onNavigateTo?.('comments')}
+                  className="text-xs text-violet-700 hover:text-violet-800 font-semibold"
+                  rightIcon={<ArrowUpRight className="h-3 w-3" />}
+                >
+                  Kiểm duyệt
+                </AppButton>
+              </Link>
             </div>
           </CardHeader>
           <CardContent className="pt-4 p-0">
@@ -231,18 +241,12 @@ export function DashboardView({
                         <span className="font-mono font-bold text-slate-900">
                           {comment.user.username}
                         </span>
-                        <Badge
-                          variant="outline"
-                          className="font-mono text-xs bg-slate-100 text-slate-700"
-                        >
+                        <AppTag variant="default" size="sm">
                           {comment.user.role}
-                        </Badge>
-                        <Badge
-                          variant="outline"
-                          className="font-mono text-xs bg-blue-50 text-blue-700 border-blue-200"
-                        >
+                        </AppTag>
+                        <AppTag variant="blue" size="sm">
                           {comment.simulationSlug}
-                        </Badge>
+                        </AppTag>
                       </div>
                       <span className="text-xs font-mono text-slate-400">
                         {new Date(comment.createdAt).toLocaleDateString('vi-VN')}

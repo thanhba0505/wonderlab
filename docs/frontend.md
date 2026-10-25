@@ -38,8 +38,7 @@ client/
 │   │   └── editorial/      # Thought-provoking essays & quotes
 │   ├── lib/
 │   │   ├── auth-context.tsx # React Context for HttpOnly cookie authentication
-│   │   ├── utils.ts        # cn() helper and API base URL resolver
-│   │   └── utils.test.ts
+│   │   └── utils.ts        # cn() helper and API base URL resolver
 │   └── types/              # Domain TypeScript interfaces (Category, Article, AuthUser)
 ├── components.json         # shadcn/ui configuration
 ├── next.config.ts          # Next.js compiler settings

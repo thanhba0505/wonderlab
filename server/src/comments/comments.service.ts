@@ -4,54 +4,100 @@ import {
   BadRequestException,
   ForbiddenException,
 } from '@nestjs/common';
-import { Role } from '@prisma/client';
+import { Role, Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { CommentItemDto } from './dto/comment-response.dto';
+import { ListAdminCommentsQueryDto } from './dto/list-admin-comments-query.dto';
 
 const USER_SELECT = {
   id: true,
   username: true,
   role: true,
+  isDeleted: true,
 };
+
+export interface AdminCommentRecord {
+  id: string;
+  content: string;
+  simulationSlug: string;
+  parentId: string | null;
+  isDeleted: boolean;
+  deletedAt: Date | null;
+  createdAt: Date;
+  user: { id: string; username: string; role: Role; isDeleted: boolean };
+  parent: { id: string; content: string; user: { username: string } } | null;
+}
+
+export interface PaginatedAdminCommentsResult {
+  data: AdminCommentRecord[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
 
 @Injectable()
 export class CommentsService {
   constructor(private readonly prisma: PrismaService) {}
 
   /**
-   * Lấy toàn bộ bình luận trên toàn hệ sinh thái phục vụ kiểm duyệt của Quản trị viên
+   * Lấy danh sách bình luận trên toàn hệ sinh thái phân trang phục vụ kiểm duyệt của Quản trị viên
    */
-  async findAllForAdmin(): Promise<
-    Array<{
-      id: string;
-      content: string;
-      simulationSlug: string;
-      parentId: string | null;
-      createdAt: Date;
-      user: { id: string; username: string; role: Role };
-      parent: { id: string; content: string; user: { username: string } } | null;
-    }>
-  > {
-    return this.prisma.comment.findMany({
-      include: {
-        user: {
-          select: USER_SELECT,
-        },
-        parent: {
-          select: {
-            id: true,
-            content: true,
-            user: {
-              select: { username: true },
+  async findAllForAdmin(
+    query: ListAdminCommentsQueryDto = new ListAdminCommentsQueryDto(),
+  ): Promise<PaginatedAdminCommentsResult> {
+    const page = Math.max(1, query.page || 1);
+    const limit = Math.max(1, query.limit || 20);
+    const skip = (page - 1) * limit;
+
+    const where: Prisma.CommentWhereInput = {};
+    if (query.simulationSlug && query.simulationSlug !== 'all') {
+      where.simulationSlug = query.simulationSlug;
+    }
+    if (query.search?.trim()) {
+      const q = query.search.trim();
+      where.OR = [
+        { content: { contains: q, mode: 'insensitive' } },
+        { user: { username: { contains: q, mode: 'insensitive' } } },
+      ];
+    }
+
+    const [total, comments] = await this.prisma.$transaction([
+      this.prisma.comment.count({ where }),
+      this.prisma.comment.findMany({
+        where,
+        skip,
+        take: limit,
+        include: {
+          user: {
+            select: USER_SELECT,
+          },
+          parent: {
+            select: {
+              id: true,
+              content: true,
+              user: {
+                select: { username: true },
+              },
             },
           },
         },
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    });
+        orderBy: {
+          createdAt: 'desc',
+        },
+      }),
+    ]);
+
+    const totalPages = Math.max(1, Math.ceil(total / limit));
+
+    return {
+      data: comments as AdminCommentRecord[],
+      total,
+      page,
+      limit,
+      totalPages,
+    };
   }
 
   /**
@@ -62,12 +108,16 @@ export class CommentsService {
       where: {
         simulationSlug,
         parentId: null, // Chỉ lấy bình luận cấp 1 ở tầng gốc
+        isDeleted: false,
       },
       include: {
         user: {
           select: USER_SELECT,
         },
         replies: {
+          where: {
+            isDeleted: false,
+          },
           include: {
             user: {
               select: USER_SELECT,
@@ -100,19 +150,27 @@ export class CommentsService {
         where: { id: dto.parentId },
       });
 
-      if (!parentComment) {
-        throw new NotFoundException('Bình luận gốc không tồn tại hoặc đã bị xóa.');
+      if (!parentComment || parentComment.isDeleted) {
+        throw new NotFoundException({
+          message: 'Bình luận gốc không tồn tại hoặc đã bị xóa.',
+          errors: { parentId: ['Bình luận gốc không tồn tại hoặc đã bị xóa.'] },
+        });
       }
 
       // RÀNG BUỘC CỐT LÕI: Chặn lồng quá 2 cấp
       if (parentComment.parentId !== null) {
-        throw new BadRequestException(
-          'Hệ thống chỉ hỗ trợ thảo luận tối đa 2 cấp. Không thể trả lời một phản hồi con.',
-        );
+        throw new BadRequestException({
+          message:
+            'Hệ thống chỉ hỗ trợ thảo luận tối đa 2 cấp. Không thể trả lời một phản hồi con.',
+          errors: { parentId: ['Không thể trả lời một phản hồi con.'] },
+        });
       }
 
       if (parentComment.simulationSlug !== simulationSlug) {
-        throw new BadRequestException('Bình luận gốc không thuộc về thí nghiệm mô phỏng này.');
+        throw new BadRequestException({
+          message: 'Bình luận gốc không thuộc về thí nghiệm mô phỏng này.',
+          errors: { parentId: ['Bình luận gốc không thuộc về thí nghiệm mô phỏng này.'] },
+        });
       }
     }
 
@@ -148,7 +206,7 @@ export class CommentsService {
       where: { id: commentId },
     });
 
-    if (!comment) {
+    if (!comment || comment.isDeleted) {
       throw new NotFoundException('Bình luận không tồn tại hoặc đã được xóa trước đó.');
     }
 
@@ -157,9 +215,23 @@ export class CommentsService {
       throw new ForbiddenException('Bạn không có quyền xóa bình luận của người khác.');
     }
 
-    await this.prisma.comment.delete({
-      where: { id: commentId },
-    });
+    const now = new Date();
+    await this.prisma.$transaction([
+      this.prisma.comment.update({
+        where: { id: commentId },
+        data: {
+          isDeleted: true,
+          deletedAt: now,
+        },
+      }),
+      this.prisma.comment.updateMany({
+        where: { parentId: commentId },
+        data: {
+          isDeleted: true,
+          deletedAt: now,
+        },
+      }),
+    ]);
 
     return {
       success: true,

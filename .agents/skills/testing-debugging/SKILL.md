@@ -5,12 +5,19 @@ description: Testing standards, smoke testing procedures, and systematic debuggi
 
 # Testing & Debugging Playbook
 
-## 1. Testing Pyramid for Wonderlab
+## 1. Lean Testing Pyramid for Wonderlab
 
-- **Backend Unit Tests (Jest)**: Unit tests for controllers, services, and DTO validators (`*.spec.ts`).
-- **Backend E2E Tests (Supertest)**: End-to-end tests validating the full NestJS HTTP pipeline (`/test/*.e2e-spec.ts`), including health checks and route prefixing.
-- **Frontend Unit & Component Tests**: Utility and simulation state testing. Ensure mathematical accuracy of paradoxes and interactive components.
+Wonderlab strictly enforces a **lean, core-only testing policy** to avoid CI slowdowns and test bloat:
+
+- **Frontend Mathematical Engine Tests (Vitest)**: High-value tests verifying mathematical correctness, statistical convergence, and quantum/probabilistic models of paradoxes (e.g. `birthday-math.test.ts`, `monty-hall.test.ts`, `quantum-math.test.ts`, `zeno-math.test.ts`, `game-theory-math.test.ts`).
+- **Backend Service Unit Tests (Jest)**: Core domain logic, authentication/authorization, password hashing, soft-delete mechanisms, and mutations in NestJS services (`*.service.spec.ts`).
+- **Backend E2E Tests (Supertest)**: End-to-end tests validating the full NestJS HTTP pipeline (`/test/*.e2e-spec.ts`), including guards, health checks, cookies, and route prefixing.
 - **Smoke Tests**: Automated script (`scripts/smoke-test.sh`) verifying HTTP 200 on all primary public routes, health endpoints, and Swagger UI.
+
+### Strict Scope Boundaries:
+
+- **DO NOT** write unit tests for generic React UI components (buttons, dropdowns, inputs, modals), static dictionaries (essays, curated lists), trivial utilities (`cn()`), or pass-through controller mocks.
+- Tests must remain fast, deterministic, and focused on mission-critical calculations and security-sensitive backend flows.
 
 ## 2. Systematic Debugging Rules
 

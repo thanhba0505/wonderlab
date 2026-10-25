@@ -27,7 +27,14 @@ description: NestJS architecture patterns, validation, Swagger documentation, an
 - Return standardized JSON error formats with HTTP status codes.
 - Never leak stack traces, internal paths, or credentials in error responses.
 
-## 4. Scope Discipline
+## 4. Strict Type Safety & Zero-`any` Standard
+
+- Strictly zero `any` (enforced by `@typescript-eslint/no-explicit-any: error`).
+- Complete DTO classes decorated with `class-validator` and `class-transformer` properties.
+- Explicit method parameter and return type signatures on all services, controllers, and helpers.
+- Never use untyped `Record<string, any>` or bypass type checks.
+
+## 5. Scope Discipline
 
 - Do not create unrequested CRUD modules, user management, auth guards, or database providers until explicitly requested.
 - Keep the server lightweight and extensible.

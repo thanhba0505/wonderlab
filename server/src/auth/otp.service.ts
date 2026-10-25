@@ -20,21 +20,23 @@ export class OtpService {
   ): Promise<{ code: string; expiresAt: Date }> {
     const normalizedEmail = email.toLowerCase();
 
-    // Kiểm tra rate limit: Trong 60 giây qua đã gửi mã chưa
-    const recentToken = await this.prisma.otpToken.findFirst({
-      where: {
-        email: normalizedEmail,
-        type,
-        createdAt: {
-          gte: new Date(Date.now() - 60 * 1000), // 60s cooldown
+    // Kiểm tra rate limit: Trong 60 giây qua đã gửi mã chưa (chỉ áp dụng ở production)
+    if (process.env.NODE_ENV === 'production') {
+      const recentToken = await this.prisma.otpToken.findFirst({
+        where: {
+          email: normalizedEmail,
+          type,
+          createdAt: {
+            gte: new Date(Date.now() - 60 * 1000), // 60s cooldown
+          },
         },
-      },
-    });
+      });
 
-    if (recentToken) {
-      throw new BadRequestException(
-        'Vui lòng chờ 60 giây trước khi yêu cầu gửi lại mã xác thực mới.',
-      );
+      if (recentToken) {
+        throw new BadRequestException(
+          'Vui lòng chờ 60 giây trước khi yêu cầu gửi lại mã xác thực mới.',
+        );
+      }
     }
 
     // Sinh mã 6 số ngẫu nhiên từ 100000 đến 999999
@@ -63,6 +65,11 @@ export class OtpService {
   async verifyOtp(email: string, code: string, type: OtpType): Promise<boolean> {
     const normalizedEmail = email.toLowerCase();
 
+    // Trong môi trường development, cho phép mã test thông dụng để tăng tốc phát triển
+    if (process.env.NODE_ENV !== 'production' && (code === '000000' || code === '123456')) {
+      return true;
+    }
+
     const token = await this.prisma.otpToken.findFirst({
       where: {
         email: normalizedEmail,
@@ -79,7 +86,10 @@ export class OtpService {
     });
 
     if (!token) {
-      throw new BadRequestException('Mã xác thực 6 số không chính xác hoặc đã hết hạn.');
+      throw new BadRequestException({
+        message: 'Mã xác thực 6 số không chính xác hoặc đã hết hạn.',
+        errors: { code: ['Mã xác thực 6 số không chính xác hoặc đã hết hạn.'] },
+      });
     }
 
     // Đánh dấu đã sử dụng

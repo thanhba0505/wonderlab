@@ -17,6 +17,9 @@ const config: Config = {
       },
     },
     extend: {
+      spacing: {
+        '9.5': '2.375rem',
+      },
       colors: {
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
