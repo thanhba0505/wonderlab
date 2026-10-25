@@ -5,6 +5,30 @@ description: Git branching, Conventional Commits formatting, Pull Request hygien
 
 # Git & GitHub Workflow Standards
 
+## 0. Mandatory Worktree Pre-Flight Protocol (Step 0)
+
+**MANDATORY FIRST STEP BEFORE RUNNING ANY TASK OR GIT COMMAND**:
+
+```bash
+# 1. Always inspect active worktrees first
+git worktree list
+```
+
+- If `Wonderlab` (Main workspace) is on any branch other than a clean `main` (meaning another agent or developer is currently working in it):
+  - **NEVER** run `git checkout`, `git checkout -b`, `git stash`, or edit files in `/Users/lethanhba/workspace/app/Wonderlab`!
+  - **IMMEDIATELY SWITCH** to an available idle persistent worktree:
+    ```bash
+    cd /Users/lethanhba/workspace/app/Wonderlab-worktree-1
+    # or
+    cd /Users/lethanhba/workspace/app/Wonderlab-worktree-2
+    ```
+- Sync `main` and branch off inside the worktree:
+  ```bash
+  git fetch origin
+  git checkout main && git pull origin main && git checkout -b <type>/<task-name>
+  ```
+- Execute all file modifications (`edit_file`, `write_file`) and tool calls (`run_command`) strictly using absolute paths or `cd` targeting the selected worktree.
+
 ## 1. Commit Message Convention
 
 Follow Conventional Commits v1.0.0:

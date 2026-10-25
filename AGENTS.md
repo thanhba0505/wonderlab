@@ -2,6 +2,21 @@
 
 Welcome to **Wonderlab**. This document is the primary source of truth and authoritative set of rules for AI coding assistants working in this repository.
 
+> [!CRITICAL]
+>
+> ### 🚨 BẮT BUỘC: GIAO THỨC TIỀN KIỂM TRA WORKTREE (WORKTREE PRE-FLIGHT PROTOCOL)
+>
+> **Trước khi gõ bất kỳ lệnh git nào, đọc/sửa bất kỳ file nào, hoặc tạo bất kỳ branch nào**:
+>
+> 1. **BẮT BUỘC** chạy `git worktree list` đầu tiên để kiểm tra tình trạng phân bổ worktree trên máy.
+> 2. Nếu thư mục chính `Wonderlab` đang ở bất kỳ nhánh nào khác `main` sạch (tức đang có tác vụ song song khác đang chạy):
+>    - **TUYỆT ĐỐI KHÔNG** được chạy `git checkout`, `git checkout -b`, `git stash`, hay chỉnh sửa file trong thư mục chính `Wonderlab`!
+>    - **PHẢI CHUYỂN NGAY LẬP TỨC** sang làm việc độc lập tại một trong hai persistent worktree có sẵn:
+>      - `Wonderlab-worktree-1` (`/Users/lethanhba/workspace/app/Wonderlab-worktree-1`)
+>      - `Wonderlab-worktree-2` (`/Users/lethanhba/workspace/app/Wonderlab-worktree-2`)
+> 3. Mọi thao tác chỉnh sửa file (`edit_file`, `write_file`) và chạy lệnh (`run_command`) PHẢI sử dụng đường dẫn tuyệt đối hoặc lệnh `cd` bên trong thư mục worktree đã chọn.
+> 4. Vi phạm việc nhảy nhánh trên workspace chính gây xung đột git, ghi đè stash và làm hỏng tiến trình của các tác vụ AI khác đang chạy song song!
+
 ---
 
 ## 1. Product Overview
@@ -137,6 +152,16 @@ pnpm check          # Runs all verification steps in sequence
       - `Wonderlab-worktree-1`: Client on `http://localhost:4200`, Server on `http://localhost:4201`.
       - `Wonderlab-worktree-2`: Client on `http://localhost:4300`, Server on `http://localhost:4301`.
       - PostgreSQL: Shared container on `127.0.0.1:5434` (`docker compose up -d`).
+    - **Step-by-Step Worktree Selection (Bắt buộc cho mọi Agent Turn)**:
+      ```bash
+      # 1. Kiểm tra danh sách worktree
+      git worktree list
+
+      # 2. Nếu thư mục chính Wonderlab bận (đang ở nhánh khác main), chuyển sang worktree trống:
+      cd /Users/lethanhba/workspace/app/Wonderlab-worktree-1
+      git fetch origin
+      git checkout main && git pull origin main && git checkout -b feat/<task-name>
+      ```
     - **Persistent Retention Policy**: Do NOT delete the worktrees upon task completion. Keeping them persistent preserves `node_modules`, Prisma artifacts, and build caches, eliminating repetitive installation overhead.
     - **Reusing Worktrees Across Tasks**: When a task PR is merged and the remote branch is auto-deleted, reset the worktree to the latest `main`:
       ```bash
@@ -157,10 +182,10 @@ pnpm check          # Runs all verification steps in sequence
 
 ## 9. Non-Negotiable Agent Rules
 
-1. **Read Before Writing**: Inspect existing files and documentation before editing.
-2. **No Unrequested Scope Creep**: Do not add user management, authentication, payment, or complex databases until explicitly requested.
-3. **No Fake Completions**: Never declare tests or builds have succeeded without actually executing them and inspecting the output.
-4. **Preserve Documentation Integrity**: Update docs in `docs/` whenever architectural decisions or workflows change.
-5. **Publish-Tag Deployments Only**: Never trigger production deployments to Render via manual commands or arbitrary scripts. Always use official tag releases (`git tag vX.Y.Z && git push origin vX.Y.Z` or publishing a GitHub Release).
-6. **No Direct Commits to Main & User Merges Only**: Never commit directly to `main`. Always create a feature/fix branch, open a PR, and let the user review and merge.
-7. **Git Worktree Isolation for Parallel Tasks**: When an existing branch is active with an in-progress task, use Git Worktrees to isolate concurrent work cleanly and safely.
+1. **Mandatory Worktree Pre-Flight Protocol**: Run `git worktree list` on your very first turn. If the main workspace `Wonderlab` has active work or another branch checked out, you MUST execute all work inside `Wonderlab-worktree-1` or `Wonderlab-worktree-2`. NEVER checkout branches or touch files in `Wonderlab` during concurrent tasks.
+2. **Read Before Writing**: Inspect existing files and documentation before editing.
+3. **No Unrequested Scope Creep**: Do not add user management, authentication, payment, or complex databases until explicitly requested.
+4. **No Fake Completions**: Never declare tests or builds have succeeded without actually executing them and inspecting the output.
+5. **Preserve Documentation Integrity**: Update docs in `docs/` whenever architectural decisions or workflows change.
+6. **Publish-Tag Deployments Only**: Never trigger production deployments to Render via manual commands or arbitrary scripts. Always use official tag releases (`git tag vX.Y.Z && git push origin vX.Y.Z` or publishing a GitHub Release).
+7. **No Direct Commits to Main & User Merges Only**: Never commit directly to `main`. Always create a feature/fix branch, open a PR, and let the user review and merge.
