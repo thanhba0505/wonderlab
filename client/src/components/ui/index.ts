@@ -11,6 +11,7 @@ export * from './app-pagination';
 export * from './app-table-filter';
 export * from './app-modal';
 export * from './app-dropdown';
+export * from '@/lib/hooks/use-delayed-loading';
 
 // Legacy / Existing UI Components
 export * from './button';

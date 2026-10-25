@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { ArrowUpDown, ArrowUp, ArrowDown, Loader2, Database } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useDelayedLoading } from '@/lib/hooks/use-delayed-loading';
 import { AppPagination, type AppPaginationProps } from './app-pagination';
 
 export interface AppTableColumn<T> {
@@ -67,39 +68,67 @@ export interface AppTableProps<T> extends React.HTMLAttributes<HTMLDivElement> {
   pageSizeOptions?: number[];
   pagination?: boolean | Omit<AppPaginationProps, 'className'>;
   fetchData?: (params: AppTableFetchParams) => Promise<AppTableFetchResult<T> | T[]>;
+
+  // Anti-Flicker Loading Props
+  loadingDelay?: number;
+  minLoadingDuration?: number;
+
+  // Auto Scroll-to-Top Props
+  scrollToTopOnChange?: boolean;
 }
 
-export function AppTable<T>({
-  className,
-  tableClassName,
-  tableLayout = 'fixed',
-  minWidth,
-  columns,
-  data: externalData,
-  rowKey,
-  isLoading = false,
-  loadingMessage = 'Đang tải dữ liệu...',
-  emptyMessage = 'Không có dữ liệu phù hợp.',
-  sortColumn,
-  sortDirection = 'asc',
-  onSort,
-  onRowClick,
-  selectable = false,
-  selectedKeys = [],
-  onSelectChange,
-  footer,
-  page,
-  pageSize,
-  limit,
-  total,
-  onPageChange,
-  onPageSizeChange,
-  onLimitChange,
-  pageSizeOptions = [10, 20, 50, 100],
-  pagination,
-  fetchData,
-  ...props
-}: AppTableProps<T>) {
+export const AppTable = React.forwardRef(function AppTable<T>(
+  {
+    className,
+    tableClassName,
+    tableLayout = 'fixed',
+    minWidth,
+    columns,
+    data: externalData,
+    rowKey,
+    isLoading = false,
+    loadingDelay = 180,
+    minLoadingDuration = 250,
+    scrollToTopOnChange = true,
+    loadingMessage = 'Đang tải dữ liệu...',
+    emptyMessage = 'Không có dữ liệu phù hợp.',
+    sortColumn,
+    sortDirection = 'asc',
+    onSort,
+    onRowClick,
+    selectable = false,
+    selectedKeys = [],
+    onSelectChange,
+    footer,
+    page,
+    pageSize,
+    limit,
+    total,
+    onPageChange,
+    onPageSizeChange,
+    onLimitChange,
+    pageSizeOptions = [10, 20, 50, 100],
+    pagination,
+    fetchData,
+    ...props
+  }: AppTableProps<T>,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
+) {
+  const internalContainerRef = React.useRef<HTMLDivElement>(null);
+
+  React.useImperativeHandle(forwardedRef, () => internalContainerRef.current as HTMLDivElement);
+
+  const scrollToTop = React.useCallback(() => {
+    if (!scrollToTopOnChange || typeof window === 'undefined') return;
+    const node = internalContainerRef.current;
+    if (!node) return;
+    const prefersReducedMotion =
+      window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches ?? false;
+    node.scrollIntoView?.({
+      behavior: prefersReducedMotion ? 'auto' : 'smooth',
+      block: 'start',
+    });
+  }, [scrollToTopOnChange]);
   const initialLimit = limit ?? pageSize ?? 20;
   const [internalData, setInternalData] = React.useState<T[]>(externalData ?? []);
   const [internalTotal, setInternalTotal] = React.useState<number>(
@@ -197,8 +226,9 @@ export function AppTable<T>({
         setInternalPage(nextPage);
       }
       onPageChange?.(nextPage);
+      scrollToTop();
     },
-    [fetchData, onPageChange],
+    [fetchData, onPageChange, scrollToTop],
   );
 
   const handlePageSizeChange = React.useCallback(
@@ -211,9 +241,16 @@ export function AppTable<T>({
       } else if (onLimitChange) {
         onLimitChange(nextSize);
       }
+      scrollToTop();
     },
-    [onPageSizeChange, onLimitChange],
+    [onPageSizeChange, onLimitChange, scrollToTop],
   );
+
+  // Anti-flicker delayed loading for table overlay
+  const showDelayedOverlay = useDelayedLoading(effectiveLoading && displayedData.length > 0, {
+    delay: loadingDelay,
+    minDuration: minLoadingDuration,
+  });
 
   const paginationFooter = React.useMemo(() => {
     if (footer !== undefined) return footer;
@@ -340,8 +377,9 @@ export function AppTable<T>({
 
   return (
     <div
+      ref={internalContainerRef}
       className={cn(
-        'relative w-full rounded-xl border border-slate-300/85 bg-white shadow-2xs flex flex-col font-sans',
+        'relative w-full rounded-xl border border-slate-300/85 bg-white shadow-2xs flex flex-col font-sans scroll-mt-4',
         className,
       )}
       {...props}
@@ -565,9 +603,9 @@ export function AppTable<T>({
       ) : null}
 
       {/* Loading Overlay when table already has data */}
-      {effectiveLoading && displayedData.length > 0 ? (
+      {showDelayedOverlay ? (
         <div
-          className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-white/60 backdrop-blur-[1.5px] rounded-xl transition-all duration-200 cursor-wait select-none"
+          className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-white/60 backdrop-blur-[1.5px] rounded-xl transition-opacity duration-200 cursor-wait select-none animate-in fade-in-50"
           aria-live="polite"
           aria-busy="true"
         >
@@ -581,4 +619,6 @@ export function AppTable<T>({
       ) : null}
     </div>
   );
-}
+}) as <T>(
+  props: AppTableProps<T> & { ref?: React.Ref<HTMLDivElement> },
+) => React.ReactElement | null;
