@@ -14,8 +14,9 @@ Welcome to **Wonderlab**. This document is the primary source of truth and autho
 >    - **IMMEDIATELY SWITCH** to an available idle persistent worktree:
 >      - `Wonderlab-worktree-1` (`/Users/lethanhba/workspace/app/Wonderlab-worktree-1`)
 >      - or `Wonderlab-worktree-2` (`/Users/lethanhba/workspace/app/Wonderlab-worktree-2`)
-> 3. All file edits (`edit_file`, `write_file`) and command executions (`run_command`) MUST strictly use absolute paths or `cd` targeting the chosen worktree directory.
-> 4. Violating workspace isolation by branch-hopping in `Wonderlab` causes git conflicts, wipes unstaged changes, overwrites stashes, and corrupts concurrent agent workflows!
+> 3. Inside a worktree, sync and create a task branch via `git fetch origin && git checkout -B <type>/<task-name> origin/main` (never `git checkout main`).
+> 4. All file edits (`edit_file`, `write_file`) and command executions (`run_command`) MUST strictly use absolute paths or `cd` targeting the chosen worktree directory.
+> 5. Violating workspace isolation by branch-hopping in `Wonderlab` causes git conflicts, wipes unstaged changes, overwrites stashes, and corrupts concurrent agent workflows!
 
 ---
 
@@ -149,35 +150,52 @@ pnpm check          # Runs all verification steps in sequence
 - Commit format: Conventional Commits (`feat:`, `fix:`, `chore:`, `docs:`, `test:`, `refactor:`, `ci:`).
 - Always verify working tree and secrets with `git status` before committing.
 - Never force push (`--force`) to `main`.
-- **Branching & PR Workflow**:
-  - **Never commit directly to `main`**: All development must take place on dedicated branches (`feat/*`, `fix/*`, `chore/*`, `docs/*`, `refactor/*`).
-  - **PR Creation & User-Only Merge**:
-    - Upon completing code and passing `pnpm check`, push the branch and open a Pull Request (PR) targeted at `main`.
-    - **Agents must NEVER merge PRs into `main`**. Only the repository owner/user merges PRs.
-  - **Auto-Delete Branches & Post-Merge Handling**:
-    - GitHub repository is configured with _Automatically delete head branches_ on merge.
-    - When a branch is merged and deleted by the user, pull latest `main` (`git checkout main && git pull origin main`) and branch off `main` for subsequent tasks. Never attempt to resurrect or continue committing onto a merged/deleted branch.
+- **Branching & Direct Merge Workflow (No PR Required)**:
+  - **Branch-First Development**: Never edit or commit directly on `main` without creating a dedicated branch first. All development must take place on dedicated task branches (`feat/*`, `fix/*`, `chore/*`, `docs/*`, `refactor/*`).
+  - **Direct Merge into `main` (No Pull Requests)**:
+    - Pull Requests are eliminated for agent tasks.
+    - Upon completing code and passing `pnpm check`, the agent merges the task branch directly into `main` and pushes `main` to `origin main` autonomously without requiring user intervention.
+    - Branch protection on `main` permits direct fast-forward/merge pushes while preventing accidental branch deletion and force-pushes (`--force`).
+  - **Branch Cleanup**:
+    - After merging into `main` and pushing to `origin main`, delete the local task branch immediately to keep the repository clean.
   - **Concurrent Tasks & Persistent Worktree Pool**:
     - The repository maintains two persistent Git Worktrees alongside the main workspace:
       - `Wonderlab` (Main workspace): Client on `http://localhost:4100`, Server on `http://localhost:4101`.
-      - `Wonderlab-worktree-1`: Client on `http://localhost:4200`, Server on `http://localhost:4201`.
-      - `Wonderlab-worktree-2`: Client on `http://localhost:4300`, Server on `http://localhost:4301`.
+      - `Wonderlab-worktree-1`: Client on `http://localhost:4200`, Server on `http://localhost:4201`. Idle branch: `worktree-1`.
+      - `Wonderlab-worktree-2`: Client on `http://localhost:4300`, Server on `http://localhost:4301`. Idle branch: `worktree-2`.
       - PostgreSQL: Shared container on `127.0.0.1:5434` (`docker compose up -d`).
-    - **Step-by-Step Worktree Selection (Mandatory for Every Agent Turn)**:
-      ```bash
-      # 1. Inspect active worktrees first
-      git worktree list
-
-      # 2. If the main workspace Wonderlab is busy (not on a clean main), switch to an idle worktree:
-      cd /Users/lethanhba/workspace/app/Wonderlab-worktree-1
-      git fetch origin
-      git checkout main && git pull origin main && git checkout -b feat/<task-name>
-      ```
+    - **Worktree Invariant (Git Rule)**: Git does NOT permit checking out `main` in multiple worktrees simultaneously because `main` is checked out in `Wonderlab`. Always branch off `origin/main` in worktrees (`git checkout -B <type>/<task-name> origin/main`).
+    - **Step-by-Step Execution & Direct Merge**:
+      - **When executing in `Wonderlab` (Main Workspace)**:
+        ```bash
+        git checkout main && git pull origin main
+        git checkout -b <type>/<task-name>
+        # Perform implementation edits...
+        pnpm check
+        git checkout main
+        git pull origin main
+        git merge <type>/<task-name> --no-ff -m "<type>: <concise description>"
+        git push origin main
+        git branch -d <type>/<task-name>
+        ```
+      - **When executing in a Worktree (`Wonderlab-worktree-1` or `Wonderlab-worktree-2`)**:
+        ```bash
+        cd /Users/lethanhba/workspace/app/Wonderlab-worktree-1
+        git fetch origin
+        git checkout -B <type>/<task-name> origin/main
+        # Perform implementation edits...
+        pnpm check
+        # Rebase and push directly to origin/main:
+        git fetch origin
+        git rebase origin/main
+        git push origin HEAD:main
+        # Reset worktree back to idle tracking branch:
+        git checkout -B worktree-1 origin/main
+        git branch -d <type>/<task-name>
+        # Sync main workspace if idle:
+        git -C /Users/lethanhba/workspace/app/Wonderlab pull origin main
+        ```
     - **Persistent Retention Policy**: Do NOT delete the worktrees upon task completion. Keeping them persistent preserves `node_modules`, Prisma artifacts, and build caches, eliminating repetitive installation overhead.
-    - **Reusing Worktrees Across Tasks**: When a task PR is merged and the remote branch is auto-deleted, reset the worktree to the latest `main`:
-      ```bash
-      git checkout main && git pull origin main && git checkout -b feat/<next-task>
-      ```
     - Worktrees guarantee zero port collision, zero dirty stash risk, and total process isolation for parallel development.
 - **Single Source of Truth for Versioning**:
   - Root `package.json` is the sole, authoritative source of truth for the project version (`version`).
@@ -199,6 +217,6 @@ pnpm check          # Runs all verification steps in sequence
 4. **No Fake Completions**: Never declare tests or builds have succeeded without actually executing them and inspecting the output.
 5. **Preserve Documentation Integrity**: Update docs in `docs/` whenever architectural decisions or workflows change.
 6. **Publish-Tag Deployments Only**: Never trigger production deployments to Render via manual commands or arbitrary scripts. Always use official tag releases (`git tag vX.Y.Z && git push origin vX.Y.Z` or publishing a GitHub Release).
-7. **No Direct Commits to Main & User Merges Only**: Never commit directly to `main`. Always create a feature/fix branch, open a PR, and let the user review and merge.
+7. **Branch-First Development & Direct Merge into Main**: Never commit directly onto `main` without a dedicated branch. Always create a task branch (`feat/*`, `fix/*`, `chore/*`, `docs/*`, `refactor/*`), verify with `pnpm check`, merge directly into `main` (or push `HEAD:main` from worktrees), and push to `origin main`. PR creation is eliminated; user manual approval is not required for verified merges.
 8. **Development Server Execution Standard (`pnpm dev` only)**: Agents must NEVER start the client application using `pnpm start`, `pnpm --filter wonderlab-client start`, or `next start`. Always use `pnpm dev` or `pnpm dev:client`. `next start` is strictly an immutable production server that binds to a static in-memory `BUILD_ID`, resulting in catastrophic `400 Bad Request` asset errors, CSS stylesheet drop (FOUC), and permanent client-side chunk loading failures whenever background builds run.
-9. **Strict English for All Pull Requests & Commits**: All PR titles, PR descriptions, commit messages, and repository guidelines must be authored strictly and exclusively in English.
+9. **Strict English for All Commits and Repository Guidelines**: All commit messages, merge commit messages, and repository guidelines must be authored strictly and exclusively in English.
