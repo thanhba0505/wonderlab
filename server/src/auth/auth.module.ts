@@ -9,6 +9,7 @@ import { AuthService } from './auth.service';
 import { OtpService } from './otp.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { OptionalJwtAuthGuard } from './guards/optional-jwt-auth.guard';
 import { RolesGuard } from './guards/roles.guard';
 
 @Module({
@@ -48,7 +49,7 @@ import { RolesGuard } from './guards/roles.guard';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, OtpService, JwtStrategy, JwtAuthGuard, RolesGuard],
-  exports: [AuthService, OtpService, JwtAuthGuard, RolesGuard],
+  providers: [AuthService, OtpService, JwtStrategy, JwtAuthGuard, OptionalJwtAuthGuard, RolesGuard],
+  exports: [AuthService, OtpService, JwtAuthGuard, OptionalJwtAuthGuard, RolesGuard],
 })
 export class AuthModule {}

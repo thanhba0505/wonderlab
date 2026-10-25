@@ -19,6 +19,7 @@ import {
   ShieldCheck,
   Database,
   KeyRound,
+  Lightbulb,
 } from 'lucide-react';
 import { AppButton } from '@/components/ui';
 import { BrandLogo } from '@/components/ui/brand-logo';
@@ -125,6 +126,12 @@ export function AdminSidebar({ user, onLogout }: AdminSidebarProps) {
             label: 'Cài đặt Thí nghiệm',
             href: '/admin/simulations',
             icon: FlaskConical,
+          },
+          {
+            id: 'requests',
+            label: 'Đề xuất Thí nghiệm',
+            href: '/admin/requests',
+            icon: Lightbulb,
           },
           {
             id: 'users',

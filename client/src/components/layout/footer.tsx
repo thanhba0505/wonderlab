@@ -92,6 +92,17 @@ export function Footer() {
                   Tiểu luận & Tư duy
                 </Link>
               </li>
+              <li>
+                <Link
+                  href="/requests"
+                  className="text-slate-600 hover:text-slate-900 transition-colors font-medium flex items-center gap-1.5"
+                >
+                  <span>Đề xuất Thí nghiệm</span>
+                  <span className="text-xs font-mono bg-blue-100 text-blue-700 px-1 py-0.2 rounded font-semibold">
+                    Mới
+                  </span>
+                </Link>
+              </li>
 
               {/* Chỉ hiển thị link Admin khi đã đăng nhập tài khoản ADMIN */}
               {user?.role === 'ADMIN' && (

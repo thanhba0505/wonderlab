@@ -93,6 +93,29 @@ export default function SimulationsIndexPage() {
           );
         })}
       </div>
+
+      {/* Khối kêu gọi đề xuất bài toán mới */}
+      <div className="mt-4 rounded-2xl border border-slate-300/85 bg-white p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.06)]">
+        <div className="max-w-xl">
+          <div className="flex items-center gap-2 text-xs font-mono font-semibold text-blue-700 uppercase">
+            <Sparkles className="h-3.5 w-3.5 text-blue-600" />
+            <span>Đề xuất từ cộng đồng</span>
+          </div>
+          <h2 className="font-heading mt-1 text-lg font-bold text-slate-900">
+            Chưa tìm thấy bài toán bạn muốn thử nghiệm?
+          </h2>
+          <p className="mt-1 text-xs text-slate-600 leading-relaxed">
+            Hãy gửi ý tưởng nghịch lý hoặc hiện tượng bạn quan tâm. Cộng đồng Wonderlab sẽ bình chọn
+            để đội ngũ ưu tiên xây dựng mô phỏng tiếp theo.
+          </p>
+        </div>
+        <Link href="/requests">
+          <Button className="bg-blue-600 hover:bg-blue-700 text-white shrink-0">
+            <span>Đề xuất & Bình chọn</span>
+            <ArrowRight className="ml-1.5 h-4 w-4" />
+          </Button>
+        </Link>
+      </div>
     </div>
   );
 }
