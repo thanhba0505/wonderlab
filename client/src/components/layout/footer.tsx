@@ -2,7 +2,8 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { Sparkles, Github, ArrowUpRight, Scale, Shield } from 'lucide-react';
+import { Github, ArrowUpRight, Scale, Shield } from 'lucide-react';
+import { BrandLogo } from '@/components/ui/brand-logo';
 import { useAuth } from '@/lib/auth-context';
 
 export function Footer() {
@@ -15,9 +16,10 @@ export function Footer() {
           {/* Brand info */}
           <div className="space-y-3 md:col-span-2">
             <div className="flex items-center gap-2.5">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-indigo-600 shadow-sm shadow-blue-500/20 ring-1 ring-black/5">
-                <Sparkles className="h-4 w-4 text-white" />
-              </div>
+              <BrandLogo
+                variant="badge"
+                className="h-8 w-8 rounded-lg shadow-sm shadow-blue-500/20 ring-1 ring-black/5"
+              />
               <span className="text-xl font-heading font-black text-slate-900 tracking-tight">
                 WONDER<span className="text-blue-600">LAB</span>
               </span>

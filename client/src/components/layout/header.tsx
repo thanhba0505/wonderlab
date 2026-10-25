@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Sparkles, Menu, X, Compass, FlaskConical, BookOpen, LogOut, LogIn } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { BrandLogo } from '@/components/ui/brand-logo';
 import { useAuth } from '@/lib/auth-context';
 
 export function Header() {
@@ -19,9 +20,10 @@ export function Header() {
           href="/"
           className="flex items-center gap-3 font-bold tracking-tight text-slate-900 transition hover:opacity-95 group"
         >
-          <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 via-indigo-600 to-sky-500 shadow-sm shadow-blue-500/25 ring-1 ring-black/5 transition-transform duration-200 group-hover:scale-105">
-            <Sparkles className="h-5 w-5 text-white" />
-          </div>
+          <BrandLogo
+            variant="badge"
+            className="h-10 w-10 rounded-xl shadow-sm shadow-blue-500/25 ring-1 ring-black/5 transition-transform duration-200 group-hover:scale-105"
+          />
           <div className="flex flex-col">
             <div className="flex items-center gap-2">
               <span className="font-heading text-xl font-extrabold tracking-tight text-slate-900">
