@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import Link from 'next/link';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -20,7 +21,7 @@ interface DashboardViewProps {
   overview: AdminOverviewData | null;
   isLoading: boolean;
   onRefresh: () => void;
-  onNavigateTo: (view: 'simulations' | 'users' | 'comments') => void;
+  onNavigateTo?: (view: 'simulations' | 'users' | 'comments') => void;
 }
 
 export function DashboardView({
@@ -142,15 +143,17 @@ export function DashboardView({
                   Các phiên tính toán Monte Carlo được gửi về từ trình duyệt người dùng.
                 </CardDescription>
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => onNavigateTo('simulations')}
-                className="text-xs text-blue-700 hover:text-blue-800 font-semibold"
-              >
-                Xem tất cả
-                <ArrowUpRight className="h-3 w-3 ml-1" />
-              </Button>
+              <Link href="/admin/simulations">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => onNavigateTo?.('simulations')}
+                  className="text-xs text-blue-700 hover:text-blue-800 font-semibold"
+                >
+                  Xem tất cả
+                  <ArrowUpRight className="h-3 w-3 ml-1" />
+                </Button>
+              </Link>
             </div>
           </CardHeader>
           <CardContent className="pt-4 p-0">
@@ -207,15 +210,17 @@ export function DashboardView({
                   Bình luận và phản hồi từ các thành viên trong các phòng Lab.
                 </CardDescription>
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => onNavigateTo('comments')}
-                className="text-xs text-violet-700 hover:text-violet-800 font-semibold"
-              >
-                Kiểm duyệt
-                <ArrowUpRight className="h-3 w-3 ml-1" />
-              </Button>
+              <Link href="/admin/comments">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => onNavigateTo?.('comments')}
+                  className="text-xs text-violet-700 hover:text-violet-800 font-semibold"
+                >
+                  Kiểm duyệt
+                  <ArrowUpRight className="h-3 w-3 ml-1" />
+                </Button>
+              </Link>
             </div>
           </CardHeader>
           <CardContent className="pt-4 p-0">

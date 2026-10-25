@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
   FlaskConical,
@@ -14,6 +15,9 @@ import {
   Menu,
   X,
   PanelLeft,
+  Sliders,
+  ShieldCheck,
+  Database,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { BrandLogo } from '@/components/ui/brand-logo';
@@ -22,15 +26,28 @@ import { AuthUser } from '@/types';
 export type AdminViewType = 'dashboard' | 'simulations' | 'users' | 'comments' | 'settings';
 
 interface AdminSidebarProps {
-  currentView: AdminViewType;
-  onSelectView: (view: AdminViewType) => void;
+  currentView?: AdminViewType;
+  onSelectView?: (view: AdminViewType) => void;
   user: AuthUser;
   onLogout: () => void;
   commentCount?: number;
   userCount?: number;
 }
 
-export function AdminSidebar({ currentView, onSelectView, user, onLogout }: AdminSidebarProps) {
+interface NavItem {
+  id: AdminViewType;
+  label: string;
+  href: string;
+  icon: React.ComponentType<{ className?: string }>;
+  subItems?: Array<{
+    label: string;
+    href: string;
+    icon: React.ComponentType<{ className?: string }>;
+  }>;
+}
+
+export function AdminSidebar({ user, onLogout }: AdminSidebarProps) {
+  const pathname = usePathname();
   const [isMobileOpen, setIsMobileOpen] = React.useState(false);
   const [isCollapsed, setIsCollapsed] = React.useState(false);
   const [hoveredTooltip, setHoveredTooltip] = React.useState<{
@@ -65,38 +82,56 @@ export function AdminSidebar({ currentView, onSelectView, user, onLogout }: Admi
     setHoveredTooltip(null);
   };
 
-  const navItems = [
+  const navItems: NavItem[] = [
     {
-      id: 'dashboard' as AdminViewType,
+      id: 'dashboard',
       label: 'Tổng quan',
+      href: '/admin',
       icon: LayoutDashboard,
     },
     {
-      id: 'simulations' as AdminViewType,
+      id: 'simulations',
       label: 'Cài đặt Thí nghiệm',
+      href: '/admin/simulations',
       icon: FlaskConical,
     },
     {
-      id: 'users' as AdminViewType,
+      id: 'users',
       label: 'Quản lý Người dùng',
+      href: '/admin/users',
       icon: Users,
     },
     {
-      id: 'comments' as AdminViewType,
+      id: 'comments',
       label: 'Kiểm duyệt Bình luận',
+      href: '/admin/comments',
       icon: MessageSquare,
     },
     {
-      id: 'settings' as AdminViewType,
+      id: 'settings',
       label: 'Cài đặt Nền tảng',
+      href: '/admin/settings',
       icon: Settings,
+      subItems: [
+        { label: 'Cài đặt Chung', href: '/admin/settings', icon: Sliders },
+        { label: 'Quyền Truy cập', href: '/admin/settings/access', icon: ShieldCheck },
+        { label: 'Sao lưu & Dữ liệu', href: '/admin/settings/backup', icon: Database },
+      ],
     },
   ];
 
-  const handleSelect = (view: AdminViewType) => {
-    onSelectView(view);
-    setIsMobileOpen(false);
-    setHoveredTooltip(null);
+  const isRouteActive = (itemHref: string) => {
+    if (itemHref === '/admin') {
+      return pathname === '/admin' || pathname === '/admin/dashboard';
+    }
+    return pathname.startsWith(itemHref);
+  };
+
+  const isSubRouteActive = (subHref: string) => {
+    if (subHref === '/admin/settings') {
+      return pathname === '/admin/settings';
+    }
+    return pathname === subHref;
   };
 
   const handleItemHover = (e: React.MouseEvent<HTMLElement>, text: string) => {
@@ -160,22 +195,50 @@ export function AdminSidebar({ currentView, onSelectView, user, onLogout }: Admi
             <nav className="flex-1 min-h-0 overflow-y-auto p-3 space-y-1">
               {navItems.map(item => {
                 const Icon = item.icon;
-                const isActive = currentView === item.id;
+                const isActive = isRouteActive(item.href);
 
                 return (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => handleSelect(item.id)}
-                    className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
-                      isActive
-                        ? 'bg-blue-50 text-blue-700 font-bold border border-blue-200/70'
-                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-                    }`}
-                  >
-                    <Icon className={`h-4 w-4 ${isActive ? 'text-blue-600' : 'text-slate-400'}`} />
-                    <span>{item.label}</span>
-                  </button>
+                  <div key={item.id} className="space-y-1">
+                    <Link
+                      href={item.href}
+                      onClick={() => setIsMobileOpen(false)}
+                      className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+                        isActive
+                          ? 'bg-blue-50 text-blue-700 font-bold border border-blue-200/70'
+                          : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                      }`}
+                    >
+                      <Icon
+                        className={`h-4 w-4 shrink-0 ${isActive ? 'text-blue-600' : 'text-slate-400'}`}
+                      />
+                      <span>{item.label}</span>
+                    </Link>
+
+                    {/* Mobile Sub-items */}
+                    {item.subItems && isActive && (
+                      <div className="pl-6 pr-1 py-1 space-y-1 border-l-2 border-blue-100 ml-4">
+                        {item.subItems.map(sub => {
+                          const SubIcon = sub.icon;
+                          const isSubActive = isSubRouteActive(sub.href);
+                          return (
+                            <Link
+                              key={sub.href}
+                              href={sub.href}
+                              onClick={() => setIsMobileOpen(false)}
+                              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs transition-colors ${
+                                isSubActive
+                                  ? 'bg-blue-100/60 text-blue-800 font-bold'
+                                  : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100/60'
+                              }`}
+                            >
+                              <SubIcon className="h-3.5 w-3.5" />
+                              <span>{sub.label}</span>
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
                 );
               })}
             </nav>
@@ -246,12 +309,12 @@ export function AdminSidebar({ currentView, onSelectView, user, onLogout }: Admi
             className="group relative flex items-center h-10 w-full rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors duration-150 px-2"
             aria-label={isCollapsed ? 'Mở rộng thanh điều hướng' : 'Thu gọn thanh điều hướng'}
           >
-            {/* Fixed Icon - Standing still in exact same spot */}
+            {/* Fixed Icon */}
             <div className="w-9 h-9 flex items-center justify-center shrink-0">
               <PanelLeft className="h-4 w-4 text-slate-500 group-hover:text-slate-900 transition-colors" />
             </div>
 
-            {/* Label - Smoothly reveals when expanded */}
+            {/* Label */}
             <span
               className={`ml-2 text-xs font-mono font-bold uppercase tracking-wider text-slate-500 truncate whitespace-nowrap transition-all duration-300 ${
                 isCollapsed
@@ -264,45 +327,71 @@ export function AdminSidebar({ currentView, onSelectView, user, onLogout }: Admi
           </button>
         </div>
 
-        {/* Nav Items (Only this list scrolls if there are many tabs) */}
+        {/* Nav Items */}
         <nav className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-2 space-y-1.5">
           {navItems.map(item => {
             const Icon = item.icon;
-            const isActive = currentView === item.id;
+            const isActive = isRouteActive(item.href);
 
             return (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => handleSelect(item.id)}
-                onMouseEnter={e => handleItemHover(e, item.label)}
-                onMouseLeave={handleItemLeave}
-                className={`group relative flex items-center h-11 w-full rounded-xl text-xs font-semibold transition-colors duration-150 px-2 ${
-                  isActive
-                    ? 'bg-blue-50 text-blue-700 shadow-2xs font-bold border border-blue-200/70'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-                }`}
-              >
-                {/* Fixed Icon Container */}
-                <div className="w-9 h-9 flex items-center justify-center shrink-0">
-                  <Icon
-                    className={`h-4 w-4 transition-colors ${
-                      isActive ? 'text-blue-600' : 'text-slate-400 group-hover:text-slate-700'
-                    }`}
-                  />
-                </div>
-
-                {/* Tab Title Label - Smoothly reveals when expanded */}
-                <span
-                  className={`ml-2 text-xs truncate whitespace-nowrap transition-all duration-300 ${
-                    isCollapsed
-                      ? 'opacity-0 max-w-0 -translate-x-2 pointer-events-none'
-                      : 'opacity-100 max-w-[160px] translate-x-0'
+              <div key={item.id} className="space-y-1">
+                <Link
+                  href={item.href}
+                  onMouseEnter={e => handleItemHover(e, item.label)}
+                  onMouseLeave={handleItemLeave}
+                  className={`group relative flex items-center h-11 w-full rounded-xl text-xs font-semibold transition-colors duration-150 px-2 ${
+                    isActive
+                      ? 'bg-blue-50 text-blue-700 shadow-2xs font-bold border border-blue-200/70'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                   }`}
                 >
-                  {item.label}
-                </span>
-              </button>
+                  {/* Fixed Icon Container */}
+                  <div className="w-9 h-9 flex items-center justify-center shrink-0">
+                    <Icon
+                      className={`h-4 w-4 transition-colors ${
+                        isActive ? 'text-blue-600' : 'text-slate-400 group-hover:text-slate-700'
+                      }`}
+                    />
+                  </div>
+
+                  {/* Tab Title Label */}
+                  <span
+                    className={`ml-2 text-xs truncate whitespace-nowrap transition-all duration-300 ${
+                      isCollapsed
+                        ? 'opacity-0 max-w-0 -translate-x-2 pointer-events-none'
+                        : 'opacity-100 max-w-[160px] translate-x-0'
+                    }`}
+                  >
+                    {item.label}
+                  </span>
+                </Link>
+
+                {/* Sub-items in expanded sidebar */}
+                {item.subItems && isActive && !isCollapsed && (
+                  <div className="ml-5 pl-4 py-1 space-y-1 border-l-2 border-blue-100">
+                    {item.subItems.map(sub => {
+                      const SubIcon = sub.icon;
+                      const isSubActive = isSubRouteActive(sub.href);
+                      return (
+                        <Link
+                          key={sub.href}
+                          href={sub.href}
+                          className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs transition-colors ${
+                            isSubActive
+                              ? 'bg-blue-100/70 text-blue-800 font-bold'
+                              : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100/60'
+                          }`}
+                        >
+                          <SubIcon
+                            className={`h-3.5 w-3.5 ${isSubActive ? 'text-blue-600' : 'text-slate-400'}`}
+                          />
+                          <span className="truncate">{sub.label}</span>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
             );
           })}
         </nav>
