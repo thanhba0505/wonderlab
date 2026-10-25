@@ -13,8 +13,7 @@ import {
   Shield,
   Menu,
   X,
-  PanelLeftClose,
-  PanelLeftOpen,
+  PanelLeft,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { BrandLogo } from '@/components/ui/brand-logo';
@@ -233,37 +232,37 @@ export function AdminSidebar({ currentView, onSelectView, user, onLogout }: Admi
         }`}
       >
         {/* Header: Toggle Collapse/Expand Button */}
-        {isCollapsed ? (
-          <div className="h-14 flex items-center justify-center border-b border-slate-200/80 px-2 shrink-0">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={toggleSidebar}
-              onMouseEnter={e => handleItemHover(e, 'Mở rộng thanh điều hướng')}
-              onMouseLeave={handleItemLeave}
-              className="h-10 w-10 p-0 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-colors"
-              aria-label="Mở rộng thanh điều hướng"
+        <div className="h-14 p-2 flex items-center border-b border-slate-200/80 shrink-0">
+          <button
+            type="button"
+            onClick={toggleSidebar}
+            onMouseEnter={e =>
+              handleItemHover(
+                e,
+                isCollapsed ? 'Mở rộng thanh điều hướng' : 'Thu gọn thanh điều hướng',
+              )
+            }
+            onMouseLeave={handleItemLeave}
+            className="group relative flex items-center h-10 w-full rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors duration-150 px-2"
+            aria-label={isCollapsed ? 'Mở rộng thanh điều hướng' : 'Thu gọn thanh điều hướng'}
+          >
+            {/* Fixed Icon - Standing still in exact same spot */}
+            <div className="w-9 h-9 flex items-center justify-center shrink-0">
+              <PanelLeft className="h-4 w-4 text-slate-500 group-hover:text-slate-900 transition-colors" />
+            </div>
+
+            {/* Label - Smoothly reveals when expanded */}
+            <span
+              className={`ml-2 text-xs font-mono font-bold uppercase tracking-wider text-slate-500 truncate whitespace-nowrap transition-all duration-300 ${
+                isCollapsed
+                  ? 'opacity-0 max-w-0 -translate-x-2 pointer-events-none'
+                  : 'opacity-100 max-w-[160px] translate-x-0'
+              }`}
             >
-              <PanelLeftOpen className="h-5 w-5 text-slate-600" />
-            </Button>
-          </div>
-        ) : (
-          <div className="h-14 flex items-center justify-between border-b border-slate-200/80 px-4 shrink-0">
-            <span className="font-mono text-xs font-bold uppercase tracking-wider text-slate-400">
-              Điều Hướng
+              Thu gọn menu
             </span>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={toggleSidebar}
-              className="h-8 w-8 p-0 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
-              aria-label="Thu gọn thanh điều hướng"
-              title="Thu gọn thanh điều hướng"
-            >
-              <PanelLeftClose className="h-4 w-4" />
-            </Button>
-          </div>
-        )}
+          </button>
+        </div>
 
         {/* Nav Items (Only this list scrolls if there are many tabs) */}
         <nav className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-2 space-y-1.5">
@@ -309,83 +308,86 @@ export function AdminSidebar({ currentView, onSelectView, user, onLogout }: Admi
         </nav>
 
         {/* Footer: User Profile & Actions */}
-        {isCollapsed ? (
-          <div className="p-2 border-t border-slate-200/80 flex flex-col items-center gap-2 shrink-0">
-            <div
-              onMouseEnter={e => handleItemHover(e, `${user.username} (${user.role})`)}
-              onMouseLeave={handleItemLeave}
-              className="h-9 w-9 rounded-xl bg-blue-50 border border-blue-200 text-blue-700 flex items-center justify-center text-xs font-bold font-mono shrink-0 cursor-default"
-            >
-              {user.username.charAt(0).toUpperCase()}
+        <div className="p-2 border-t border-slate-200/80 space-y-1.5 shrink-0">
+          {/* User Profile Card */}
+          <div
+            onMouseEnter={e => handleItemHover(e, `${user.username} (${user.role})`)}
+            onMouseLeave={handleItemLeave}
+            className="flex items-center h-11 w-full rounded-xl bg-slate-50 border border-slate-200/70 px-2 overflow-hidden"
+          >
+            <div className="w-9 h-9 flex items-center justify-center shrink-0">
+              <div className="h-7 w-7 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold font-mono">
+                {user.username.charAt(0).toUpperCase()}
+              </div>
             </div>
-
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onLogout}
-              onMouseEnter={e => handleItemHover(e, 'Đăng xuất')}
-              onMouseLeave={handleItemLeave}
-              className="h-9 w-9 p-0 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl"
-              aria-label="Đăng xuất"
+            <div
+              className={`ml-2 min-w-0 flex-1 flex items-center justify-between transition-all duration-300 ${
+                isCollapsed
+                  ? 'opacity-0 max-w-0 -translate-x-2 pointer-events-none'
+                  : 'opacity-100 max-w-[160px] translate-x-0'
+              }`}
             >
-              <LogOut className="h-4 w-4" />
-            </Button>
-
-            <Link href="/" className="block">
-              <Button
-                variant="outline"
-                size="sm"
-                onMouseEnter={e => handleItemHover(e, 'Về Trang chủ Lab')}
-                onMouseLeave={handleItemLeave}
-                className="h-9 w-9 p-0 text-slate-600 hover:text-slate-900 border-slate-200 bg-white rounded-xl"
-                aria-label="Về Trang chủ Lab"
-              >
-                <ArrowLeft className="h-4 w-4" />
-              </Button>
-            </Link>
-          </div>
-        ) : (
-          <div className="p-3 border-t border-slate-200/80 space-y-2 shrink-0">
-            {/* User Card */}
-            <div className="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-200/70">
-              <div className="flex items-center gap-2.5 overflow-hidden">
-                <div className="h-8 w-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold font-mono shrink-0">
-                  {user.username.charAt(0).toUpperCase()}
+              <div className="overflow-hidden pr-1">
+                <div className="font-mono text-xs font-bold text-slate-900 truncate">
+                  {user.username}
                 </div>
-                <div className="overflow-hidden">
-                  <div className="font-mono text-xs font-bold text-slate-900 truncate">
-                    {user.username}
-                  </div>
-                  <div className="flex items-center gap-1 text-xs font-mono text-slate-500">
-                    <Shield className="h-3 w-3 text-blue-600" />
-                    <span>{user.role}</span>
-                  </div>
+                <div className="flex items-center gap-1 text-xs font-mono text-slate-500">
+                  <Shield className="h-3 w-3 text-blue-600 shrink-0" />
+                  <span className="truncate">{user.role}</span>
                 </div>
               </div>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={onLogout}
-                className="h-8 w-8 p-0 text-slate-400 hover:text-rose-600 hover:bg-rose-50 shrink-0"
+                className="h-7 w-7 p-0 text-slate-400 hover:text-rose-600 hover:bg-rose-50 shrink-0"
                 title="Đăng xuất"
               >
                 <LogOut className="h-3.5 w-3.5" />
               </Button>
             </div>
-
-            {/* Back to site button */}
-            <Link href="/" className="block">
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full text-xs text-slate-600 hover:text-slate-900 border-slate-200 bg-white"
-              >
-                <ArrowLeft className="h-3.5 w-3.5 mr-1.5" />
-                Về Trang chủ Lab
-              </Button>
-            </Link>
           </div>
-        )}
+
+          {/* When collapsed: Dedicated logout icon button */}
+          {isCollapsed && (
+            <button
+              type="button"
+              onClick={onLogout}
+              onMouseEnter={e => handleItemHover(e, 'Đăng xuất')}
+              onMouseLeave={handleItemLeave}
+              className="flex items-center h-10 w-full rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors px-2"
+              aria-label="Đăng xuất"
+            >
+              <div className="w-9 h-9 flex items-center justify-center shrink-0">
+                <LogOut className="h-4 w-4" />
+              </div>
+            </button>
+          )}
+
+          {/* Back to site row */}
+          <Link href="/" className="block">
+            <button
+              type="button"
+              onMouseEnter={e => handleItemHover(e, 'Về Trang chủ Lab')}
+              onMouseLeave={handleItemLeave}
+              className="group flex items-center h-10 w-full rounded-xl text-xs text-slate-600 hover:text-slate-900 border border-slate-200 bg-white hover:bg-slate-50 transition-colors px-2 overflow-hidden"
+              aria-label="Về Trang chủ Lab"
+            >
+              <div className="w-9 h-9 flex items-center justify-center shrink-0">
+                <ArrowLeft className="h-4 w-4 text-slate-500 group-hover:text-slate-900 transition-colors" />
+              </div>
+              <span
+                className={`ml-2 text-xs truncate whitespace-nowrap transition-all duration-300 ${
+                  isCollapsed
+                    ? 'opacity-0 max-w-0 -translate-x-2 pointer-events-none'
+                    : 'opacity-100 max-w-[150px] translate-x-0'
+                }`}
+              >
+                Về Trang chủ Lab
+              </span>
+            </button>
+          </Link>
+        </div>
       </aside>
 
       {/* Floating Tooltip When Collapsed */}
