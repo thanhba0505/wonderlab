@@ -52,10 +52,9 @@ Workflow sử dụng script Python tự động [`.github/scripts/update_draft_r
   - 🔧 **Bảo trì & CI/CD (Maintenance)**: `chore:`, `ci:`, `test:`, `build:`
 - **Định dạng Release Notes**:
   - Mỗi commit có liên kết trực tiếp tới GitHub: `• {msg} ([{short_hash}](https://github.com/.../commit/{full_hash})) by @{author}`.
-- **Tính toán SemVer & Đồng bộ**:
-  - Tự động nhận diện breaking changes (`BREAKING CHANGE:`, `feat!:`) để bump Major, `feat` để bump Minor, hoặc `fix` để bump Patch.
-  - Tự động đồng bộ trường `"version"` trong `package.json`, `client/package.json` và `server/package.json`.
-  - Cập nhật hoặc tạo mới bản Draft Release trên GitHub thông qua GitHub CLI (`gh release`).
+- **Tính toán SemVer & Dự thảo phát hành**:
+  - Tự động nhận diện breaking changes (`BREAKING CHANGE:`, `feat!:`) để bump Major, `feat` để bump Minor, hoặc `fix` để bump Patch cho bản phát hành kế tiếp.
+  - Cập nhật hoặc tạo mới bản Draft Release trên GitHub với tag dự kiến và release notes đầy đủ mà không tự ý tạo commit gây nhiễu vào nhánh `main`.
 
 ---
 

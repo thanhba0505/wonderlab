@@ -48,30 +48,6 @@ def get_current_pkg_version() -> str:
     return "0.1.0"
 
 
-def sync_monorepo_version(version: str, tag: str) -> bool:
-    """Đồng bộ version vào root package.json, client/package.json và server/package.json."""
-    changed = False
-    pkg_paths = [
-        ROOT_DIR / "package.json",
-        ROOT_DIR / "client" / "package.json",
-        ROOT_DIR / "server" / "package.json",
-    ]
-
-    for p in pkg_paths:
-        if not p.exists():
-            continue
-        with open(p, "r", encoding="utf-8") as f:
-            data = json.load(f)
-        if data.get("version") != version:
-            data["version"] = version
-            with open(p, "w", encoding="utf-8") as f:
-                json.dump(data, f, indent=2)
-                f.write("\n")
-            changed = True
-
-    return changed
-
-
 def main() -> None:
     repo = get_repo_slug()
     pkg_version = get_current_pkg_version()
@@ -175,34 +151,7 @@ def main() -> None:
     next_tag = f"v{next_version}"
     print(f"🎯 Target release version: {next_tag}")
 
-    # 4. Đồng bộ phiên bản vào package.json nếu cần
-    changed = sync_monorepo_version(next_version, next_tag)
-    if changed and os.environ.get("GITHUB_ACTIONS") == "true":
-        print("📝 Đang ghi nhận phiên bản đồng bộ...")
-        run(["git", "config", "user.name", "github-actions[bot]"])
-        run([
-            "git",
-            "config",
-            "user.email",
-            "github-actions[bot]@users.noreply.github.com",
-        ])
-        run(["git", "add", "package.json", "client/package.json", "server/package.json"])
-        diff_res = subprocess.run(["git", "diff", "--staged", "--quiet"], cwd=ROOT_DIR)
-        if diff_res.returncode != 0:
-            try:
-                run([
-                    "git",
-                    "commit",
-                    "-m",
-                    f"chore(release): bump monorepo version to {next_tag} [skip ci]",
-                ])
-                run(["git", "push", "origin", "main"])
-                print("✅ Đã push commit bump version vào main.")
-            except Exception as e:
-                print(f"⚠️ Nhánh main được bảo vệ hoặc chưa có quyền push trực tiếp: {e}")
-                run(["git", "reset", "--hard", "HEAD~1"])
-
-    # 5. Phân loại commits theo Conventional Commits
+    # 4. Phân loại commits theo Conventional Commits
     features: list[str] = []
     fixes: list[str] = []
     refactors: list[str] = []
