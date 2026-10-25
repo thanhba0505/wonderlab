@@ -4,19 +4,23 @@ Welcome to **Wonderlab**. This document is the primary source of truth and autho
 
 > [!CRITICAL]
 >
-> ### 🚨 MANDATORY WORKTREE PRE-FLIGHT PROTOCOL
+> ### 🚨 MANDATORY WORKTREE-EXCLUSIVE CODING PROTOCOL
 >
 > **Before executing ANY git command, editing ANY file, or creating ANY branch**:
 >
 > 1. **MANDATORY**: Run `git worktree list` on the very first turn to inspect active worktree allocations across the repository.
-> 2. If the main workspace (`Wonderlab`) is on any branch other than a clean `develop` (meaning another concurrent task or agent is active):
->    - **NEVER** run `git checkout`, `git checkout -b`, `git stash`, or edit files in `/Users/lethanhba/workspace/app/Wonderlab`!
->    - **IMMEDIATELY SWITCH** to an available idle persistent worktree:
->      - `Wonderlab-worktree-1` (`/Users/lethanhba/workspace/app/Wonderlab-worktree-1`)
->      - or `Wonderlab-worktree-2` (`/Users/lethanhba/workspace/app/Wonderlab-worktree-2`)
-> 3. Inside a worktree, sync and create a task branch via `git fetch origin && git checkout -B <type>/<task-name> origin/develop` (never `git checkout develop`).
+> 2. **STRICT WORKTREE-EXCLUSIVE RULE**:
+>    - The main workspace (`Wonderlab`) is strictly an idle root anchor on `develop`.
+>    - **NEVER** edit files, run development commands, `git checkout`, `git checkout -b`, or `git stash` in `/Users/lethanhba/workspace/app/Wonderlab`!
+>    - **ALL CODING MUST OCCUR INSIDE A PERSISTENT WORKTREE**:
+>      - `Wonderlab-worktree-1` (`/Users/lethanhba/workspace/app/Wonderlab-worktree-1`, Client `4200`, Server `4201`, branch `worktree-1`)
+>      - `Wonderlab-worktree-2` (`/Users/lethanhba/workspace/app/Wonderlab-worktree-2`, Client `4300`, Server `4301`, branch `worktree-2`)
+>      - `Wonderlab-worktree-3` (`/Users/lethanhba/workspace/app/Wonderlab-worktree-3`, Client `4400`, Server `4401`, branch `worktree-3`)
+>      - `Wonderlab-worktree-4` (`/Users/lethanhba/workspace/app/Wonderlab-worktree-4`, Client `4500`, Server `4501`, branch `worktree-4`)
+>      - `Wonderlab-worktree-5` (`/Users/lethanhba/workspace/app/Wonderlab-worktree-5`, Client `4600`, Server `4601`, branch `worktree-5`)
+> 3. Inside the selected idle worktree, sync and create a task branch via `git fetch origin && git checkout -B <type>/<task-name> origin/develop` (never `git checkout develop`).
 > 4. All file edits (`edit_file`, `write_file`) and command executions (`run_command`) MUST strictly use absolute paths or `cd` targeting the chosen worktree directory.
-> 5. Violating workspace isolation by branch-hopping in `Wonderlab` causes git conflicts, wipes unstaged changes, overwrites stashes, and corrupts concurrent agent workflows!
+> 5. When implementation passes `pnpm check`, push directly to `develop` via `git fetch origin && git rebase origin/develop && git push origin HEAD:develop`, reset the worktree back to `worktree-N`, and pull `develop` in the main workspace.
 
 ---
 
@@ -159,41 +163,33 @@ pnpm check          # Runs all verification steps in sequence
     - Each push to `develop` automatically updates the Draft Release on GitHub via `release-drafter.yml`.
   - **Branch Cleanup**:
     - After merging into `develop` and pushing to `origin develop`, delete the local task branch immediately to keep the workspace clean.
-  - **Concurrent Tasks & Persistent Worktree Pool**:
-    - The repository maintains two persistent Git Worktrees alongside the main workspace:
-      - `Wonderlab` (Main workspace): Client on `http://localhost:4100`, Server on `http://localhost:4101`. Branch: `develop`.
+  - **Concurrent Tasks & Persistent Worktree Pool (Strict Worktree-Exclusive Coding)**:
+    - The repository maintains five persistent Git Worktrees alongside the main workspace. The main workspace (`Wonderlab`) is strictly an idle root anchor on `develop` and must NEVER be used for direct coding or task branches.
+    - **Worktree Allocation & Partitioned Ports**:
+      - `Wonderlab` (Main workspace): Idle root anchor on `develop` (no coding). Client: `4100`, Server: `4101`.
       - `Wonderlab-worktree-1`: Client on `http://localhost:4200`, Server on `http://localhost:4201`. Idle branch: `worktree-1` (tracking `origin/develop`).
       - `Wonderlab-worktree-2`: Client on `http://localhost:4300`, Server on `http://localhost:4301`. Idle branch: `worktree-2` (tracking `origin/develop`).
+      - `Wonderlab-worktree-3`: Client on `http://localhost:4400`, Server on `http://localhost:4401`. Idle branch: `worktree-3` (tracking `origin/develop`).
+      - `Wonderlab-worktree-4`: Client on `http://localhost:4500`, Server on `http://localhost:4501`. Idle branch: `worktree-4` (tracking `origin/develop`).
+      - `Wonderlab-worktree-5`: Client on `http://localhost:4600`, Server on `http://localhost:4601`. Idle branch: `worktree-5` (tracking `origin/develop`).
       - PostgreSQL: Shared container on `127.0.0.1:5434` (`docker compose up -d`).
     - **Worktree Invariant (Git Rule)**: Git does NOT permit checking out `develop` in multiple worktrees simultaneously because `develop` is checked out in `Wonderlab`. Always branch off `origin/develop` in worktrees (`git checkout -B <type>/<task-name> origin/develop`).
-    - **Step-by-Step Execution & Direct Merge**:
-      - **When executing in `Wonderlab` (Main Workspace)**:
-        ```bash
-        git checkout develop && git pull origin develop
-        git checkout -b <type>/<task-name>
-        # Perform implementation edits...
-        pnpm check
-        git checkout develop
-        git pull origin develop
-        git merge <type>/<task-name> --no-ff -m "<type>: <concise description>"
-        git push origin develop
-        git branch -d <type>/<task-name>
-        ```
-      - **When executing in a Worktree (`Wonderlab-worktree-1` or `Wonderlab-worktree-2`)**:
+    - **Standard Execution & Direct Merge Workflow**:
+      - Choose any available idle worktree (e.g. `Wonderlab-worktree-1` through `Wonderlab-worktree-5`):
         ```bash
         cd /Users/lethanhba/workspace/app/Wonderlab-worktree-1
         git fetch origin
         git checkout -B <type>/<task-name> origin/develop
-        # Perform implementation edits...
+        # Perform implementation edits and verify:
         pnpm check
-        # Rebase and push directly to origin/develop:
+        # Rebase onto latest origin/develop and push directly to develop:
         git fetch origin
         git rebase origin/develop
         git push origin HEAD:develop
         # Reset worktree back to idle tracking branch:
         git checkout -B worktree-1 origin/develop
         git branch -d <type>/<task-name>
-        # Sync main workspace if idle:
+        # Sync main workspace clean develop copy:
         git -C /Users/lethanhba/workspace/app/Wonderlab pull origin develop
         ```
     - **Persistent Retention Policy**: Do NOT delete the worktrees upon task completion. Keeping them persistent preserves `node_modules`, Prisma artifacts, and build caches, eliminating repetitive installation overhead.
@@ -216,7 +212,7 @@ pnpm check          # Runs all verification steps in sequence
 
 ## 9. Non-Negotiable Agent Rules
 
-1. **Mandatory Worktree Pre-Flight Protocol**: Run `git worktree list` on your very first turn. If the main workspace `Wonderlab` has active work or another branch checked out, you MUST execute all work inside `Wonderlab-worktree-1` or `Wonderlab-worktree-2`. NEVER checkout branches or touch files in `Wonderlab` during concurrent tasks.
+1. **Mandatory Worktree-Exclusive Protocol**: Run `git worktree list` on your very first turn to identify an idle worktree (`Wonderlab-worktree-1` through `Wonderlab-worktree-5`). The main workspace `Wonderlab` is strictly an idle root anchor on `develop` — NEVER edit files, checkout task branches, or code in `Wonderlab`. Always branch off `origin/develop` inside an idle worktree, code and verify with `pnpm check`, push directly to `origin develop`, and reset the worktree to its tracking branch.
 2. **Read Before Writing**: Inspect existing files and documentation before editing.
 3. **No Unrequested Scope Creep**: Do not add user management, authentication, payment, or complex databases until explicitly requested.
 4. **No Fake Completions**: Never declare tests or builds have succeeded without actually executing them and inspecting the output.

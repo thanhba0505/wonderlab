@@ -24,7 +24,7 @@ The following skills are located in `.agents/skills/`:
 
 When an AI agent operates on this codebase:
 
-1. **Worktree Pre-Flight Check**: The agent must run `git worktree list`. If the main workspace `Wonderlab` is on a task branch, the agent must immediately operate within `Wonderlab-worktree-1` or `Wonderlab-worktree-2`.
+1. **Worktree-Exclusive Pre-Flight Check**: The agent must run `git worktree list` and select an idle worktree (`Wonderlab-worktree-1` through `Wonderlab-worktree-5`). The main workspace `Wonderlab` is strictly an idle root anchor on `develop` — never edit files or code in `Wonderlab`. Always branch off `origin/develop` inside a worktree.
 2. **Context Loading**: The agent must read `AGENTS.md` and the relevant skill playbook in `.agents/skills/` before proposing or editing code.
 3. **Scope Discipline**: Never introduce unrequested dependencies, complex database schemas, or speculative features.
 4. **Execution Verification**: The agent must execute `pnpm check` and verify that all format, lint, typecheck, test, and build tasks exit with code 0 before concluding the turn.
