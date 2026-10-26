@@ -290,6 +290,65 @@ export const SIMULATIONS_REGISTRY: SimulationMeta[] = [
         'Não bộ con người thường mặc định rằng hễ cộng vô số thứ lại với nhau thì kết quả bắt buộc phải là vô cực, mà không nhận ra các khoảng vô hạn nhỏ có thể lấp đầy một khoảng thời gian hữu hạn.',
     },
   },
+  {
+    slug: 'art-gallery',
+    title: 'Bài toán Người gác Phòng trưng bày (Art Gallery Problem)',
+    subtitle: 'Định lý Chvátal, tam giác hóa Steve Fisk và bài toán tối ưu NP-hard',
+    category: 'logic',
+    difficulty: 'intermediate',
+    estimatedMinutes: 5,
+    formula: 'g(n) = \\left\\lfloor \\frac{n}{3} \\right\\rfloor',
+    summary:
+      'Trong một căn phòng đa giác bất kỳ gồm n bức tường (lồi hoặc lõm ngoằn ngoèo), luôn luôn chỉ cần tối đa ⌊n/3⌋ người gác để quan sát trọn vẹn 100% diện tích mà không bị che khuất.',
+    description:
+      'Định lý kinh điển được Václav Chvátal chứng minh năm 1975 và Steve Fisk đưa ra lời giải hình học tuyệt đẹp năm 1978 bằng tam giác hóa và tô 3 màu. Mặc dù chặn trên luôn là ⌊n/3⌋, nhưng bài toán tìm số lính tối thiểu tuyệt đối cho một bản vẽ phòng cụ thể lại là bài toán NP-hard.',
+    tags: ['Hình học tính toán', 'Định lý Chvátal', 'Tam giác hóa', 'Tô 3 màu', 'NP-hard'],
+    status: 'active',
+    accentColor: 'emerald',
+    hypothesis: {
+      question:
+        'Trong trường hợp xấu nhất của căn phòng đa giác đơn n đỉnh (nhiều ngách nhọn che khuất), cần tối đa bao nhiêu người gác để chắc chắn quan sát trọn vẹn 100% diện tích?',
+      context:
+        'Căn phòng có n bức tường thẳng liên tiếp khép kín, không tự cắt. Người gác đứng yên tại các đỉnh hoặc bên trong phòng.',
+      options: [
+        {
+          id: 'opt-a',
+          label: 'Khoảng một nửa số đỉnh (~ n/2)',
+          value: 0.5,
+          explanation:
+            'Đánh giá quá cao số người cần thiết do nghĩ rằng mỗi góc nhọn cần 1 người riêng biệt.',
+        },
+        {
+          id: 'opt-b',
+          label: 'Đúng ⌊n/3⌋ người gác (Khoảng 1/3 số đỉnh)',
+          value: 0.333,
+          explanation:
+            'Chính xác xuất sắc! Định lý Chvátal chứng minh ⌊n/3⌋ người luôn luôn đủ và đôi khi là bắt buộc (như phòng hình răng lược).',
+        },
+        {
+          id: 'opt-c',
+          label: 'Khoảng 1/4 số đỉnh (~ n/4)',
+          value: 0.25,
+          explanation:
+            'Ngưỡng ⌊n/4⌋ chỉ áp dụng cho phòng trực giao (chỉ gồm các bức tường vuông góc 90 độ), không đủ cho phòng có góc nhọn.',
+        },
+        {
+          id: 'opt-d',
+          label: 'Chỉ cần đúng 1 người nếu chọn góc đặt khéo léo',
+          value: 0.1,
+          explanation:
+            'Ngộ nhận hình lồi: Chỉ căn phòng lồi mới cần 1 người. Các góc lõm và ngách sâu sẽ tạo ra nhiều góc chết không thể nhìn thấy chỉ từ 1 điểm.',
+        },
+      ],
+      theoreticalTruth: 0.333,
+      truthExplanation:
+        'Định lý Chvátal (1975) và chứng minh tuyệt đẹp của Steve Fisk (1978) sử dụng phương pháp tam giác hóa và tô 3 màu để chứng minh rằng ⌊n/3⌋ người luôn luôn đủ để bao quát mọi ngóc ngách của bất kỳ đa giác n đỉnh nào.',
+      biasType: 'convexity-illusion',
+      biasName: 'Ngộ Nhận Tính Lồi & Bẫy Góc Chết (Convexity Illusion)',
+      biasDescription:
+        'Xu hướng tâm lý đánh giá thấp số góc chết trong không gian đa giác lõm phức tạp, hoặc ngược lại đánh giá quá cao số người cần vì không nhận ra mỗi người có thể nhìn thấy nhiều tam giác cùng lúc.',
+    },
+  },
 ];
 
 export function getSimulationBySlug(slug: string): SimulationMeta | undefined {

@@ -86,6 +86,14 @@ export function Footer() {
               </li>
               <li>
                 <Link
+                  href="/simulations/art-gallery"
+                  className="text-slate-600 hover:text-slate-900 transition-colors"
+                >
+                  Bài toán Người gác Phòng tranh
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/essays"
                   className="text-slate-600 hover:text-slate-900 transition-colors"
                 >

@@ -52,6 +52,17 @@ export const CURATED_LIST: CuratedExperience[] = [
     concept: 'Lưỡng tính sóng - hạt |ψ⟩ = c1|1⟩ + c2|2⟩',
     href: '/simulations/double-slit',
   },
+  {
+    id: 'art-gallery',
+    title: 'Bài toán Người gác Phòng trưng bày (Art Gallery Problem)',
+    summary:
+      'Trong căn phòng đa giác bất kỳ n đỉnh, cần bao nhiêu người để quan sát trọn vẹn mọi ngóc ngách? Khám phá định lý Chvátal và chứng minh Steve Fisk.',
+    category: 'mind-games',
+    estimatedMinutes: 5,
+    highlightTag: 'Hình học & Logic',
+    concept: 'g(n) = \\lfloor n/3 \\rfloor',
+    href: '/simulations/art-gallery',
+  },
 ];
 
 export function CuratedList() {

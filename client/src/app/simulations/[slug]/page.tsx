@@ -7,6 +7,7 @@ import { MontyHallSimulation } from '@/features/monty-hall/monty-hall-simulation
 import { DoubleSlitSimulation } from '@/features/double-slit/double-slit-simulation';
 import { PrisonersDilemmaSimulation } from '@/features/prisoners-dilemma/prisoners-dilemma-simulation';
 import { ZenoSimulation } from '@/features/zeno-paradox/zeno-simulation';
+import { ArtGallerySimulation } from '@/features/art-gallery/art-gallery-simulation';
 import { CommentSection } from '@/features/simulations/components/comment-section';
 import { SimulationMathCard } from '@/features/simulations/components/simulation-math-card';
 import { SimulationSection } from '@/features/simulations/components/simulation-section';
@@ -133,6 +134,7 @@ export default async function SimulationPage({ params }: SimulationPageProps) {
       {sim.slug === 'double-slit' && <DoubleSlitSimulation />}
       {sim.slug === 'prisoners-dilemma' && <PrisonersDilemmaSimulation />}
       {sim.slug === 'zeno-paradox' && <ZenoSimulation />}
+      {sim.slug === 'art-gallery' && <ArtGallerySimulation />}
 
       {/* Hiển thị cho các mô phỏng đang phát triển */}
       {sim.status === 'in-development' && (

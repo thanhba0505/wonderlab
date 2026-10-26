@@ -422,6 +422,20 @@ export function IntuitionChallengeCard({
                         <span className="font-bold text-blue-700">11.11 s</span>
                       </div>
                     )}
+
+                    {simulationSlug === 'art-gallery' && (
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="font-bold text-blue-900">g(n)</span>
+                        <span>=</span>
+                        <span className="font-bold text-emerald-700">&lfloor;</span>
+                        <MathFraction numerator="n" denominator="3" className="text-xs" />
+                        <span className="font-bold text-emerald-700">&rfloor;</span>
+                        <span>=</span>
+                        <span className="font-bold text-emerald-700">
+                          Tối đa &lfloor;n/3&rfloor; lính gác
+                        </span>
+                      </div>
+                    )}
                   </div>
 
                   <p className="font-sans text-slate-500 text-xs">

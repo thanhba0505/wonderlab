@@ -68,6 +68,12 @@ const CATEGORY_MAP: Record<string, CategoryStyle> = {
     border: '#ddd6fe',
     text: '#6d28d9',
   },
+  logic: {
+    label: 'Logic & Hình học',
+    bg: '#ecfdf5',
+    border: '#a7f3d0',
+    text: '#047857',
+  },
 };
 
 export default async function Image({ params }: { params: Promise<{ slug: string }> }) {
