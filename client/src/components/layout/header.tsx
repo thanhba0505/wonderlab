@@ -14,6 +14,7 @@ import {
   User,
   ShieldCheck,
   ChevronDown,
+  Lightbulb,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -79,6 +80,13 @@ export function Header() {
           >
             <BookOpen className="h-4 w-4 text-emerald-600" />
             Góc tư duy
+          </Link>
+          <Link
+            href="/requests"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg transition-colors hover:text-slate-900 hover:bg-slate-100"
+          >
+            <Lightbulb className="h-4 w-4 text-cyan-600" />
+            Đề xuất
           </Link>
         </nav>
 
@@ -248,6 +256,14 @@ export function Header() {
             >
               <BookOpen className="h-4 w-4 text-emerald-600" />
               Góc tư duy
+            </Link>
+            <Link
+              href="/requests"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-slate-700 hover:bg-slate-100"
+            >
+              <Lightbulb className="h-4 w-4 text-cyan-600" />
+              Đề xuất bài toán
             </Link>
 
             <div className="pt-2 border-t border-slate-100">

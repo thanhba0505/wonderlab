@@ -75,15 +75,18 @@ describe('AdminSidebar (Role-based Console Navigation)', () => {
     // Both personal and admin tabs must be present
     expect(text).toContain('Tổng quan Cá nhân');
     expect(text).toContain('Hồ sơ & Bảo mật');
-    expect(text).toContain('Quản trị Toàn sàn');
     expect(text).toContain('Tổng quan Hệ thống');
     expect(text).toContain('Cài đặt Thí nghiệm');
     expect(text).toContain('Quản lý Người dùng');
     expect(text).toContain('Kiểm duyệt Bình luận');
     expect(text).toContain('Cài đặt Nền tảng');
+
+    // Group labels are omitted in favor of dividers
+    expect(text).not.toContain('Không gian Cá nhân');
+    expect(text).not.toContain('Quản trị Toàn sàn');
   });
 
-  it('triggers onLogout callback when logout button is clicked', () => {
+  it('triggers onLogout callback when mobile drawer logout button is clicked and omits logout button from desktop sidebar', () => {
     const regularUser: AuthUser = {
       id: 'user-1',
       username: 'bohr',
@@ -96,6 +99,21 @@ describe('AdminSidebar (Role-based Console Navigation)', () => {
 
     act(() => {
       root.render(<AdminSidebar user={regularUser} onLogout={onLogout} />);
+    });
+
+    // Desktop sidebar intentionally omits logout button
+    const desktopAside = container.querySelector('aside');
+    expect(desktopAside?.querySelector('button[title="Đăng xuất"]')).toBeNull();
+    expect(desktopAside?.querySelector('button[aria-label="Đăng xuất"]')).toBeNull();
+
+    // Open mobile drawer
+    const mobileToggle = container.querySelector(
+      'button[aria-label="Toggle navigation"]',
+    ) as HTMLButtonElement;
+    expect(mobileToggle).toBeTruthy();
+
+    act(() => {
+      mobileToggle.click();
     });
 
     const logoutButtons = container.querySelectorAll('button[title="Đăng xuất"]');

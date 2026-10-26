@@ -77,3 +77,27 @@ Every interactive element must provide genuine physical affordance:
 - Every interactive component (e.g., Monty Hall, Double Slit, Birthday Paradox) must run genuine mathematical simulations in code.
 - If a simulation allows 100 trials, execute 100 actual random trials and graph the real empirical convergence.
 - Accompany simulations with clear, elegant mathematical explanations ($P(A)$, Bayes theorem, wave equations) rather than dumbed-down superficial summaries.
+
+---
+
+## 6. Dynamic Open Graph Image Design Standards ("Clean Paper & Lab Editorial")
+
+When generating dynamic social share preview cards (`opengraph-image.tsx` using `ImageResponse` from `next/og`):
+
+1. **Canvas & Layout Architecture (1200x630)**:
+   - Outer Canvas: Slate-100 (`#f1f5f9`) with a subtle technical laboratory coordinate grid (`linear-gradient(to right, rgba(148, 163, 184, 0.22) 1px, transparent 1px)`).
+   - Inner Plate: Crisp white surface (`#ffffff`) with hairline technical border (`border: 1px solid rgba(203, 213, 225, 0.9)`), rounded corners (`borderRadius: 16px`), and layered ambient depth (`boxShadow: 0 20px 25px -5px rgba(15, 23, 42, 0.05)`).
+2. **Semantic Category Accent Badges**:
+   - Categorize scientific domains with dedicated semantic accents:
+     - **Quantum Physics**: Cobalt Blue (`bg: #eff6ff, border: #bfdbfe, text: #1d4ed8`).
+     - **Probability & Statistics**: Warm Amber (`bg: #fef3c7, border: #fde68a, text: #b45309`).
+     - **Game Theory**: Emerald Green (`bg: #ecfdf5, border: #a7f3d0, text: #047857`).
+     - **Paradox & Philosophy**: Deep Violet (`bg: #f5f3ff, border: #ddd6fe, text: #6d28d9`).
+   - Pair category badges with metadata tags (`~N PHÚT TRẢI NGHIỆM`, `LAB #SLUG`).
+3. **Typography & Diacritic Integrity**:
+   - Embed local `Be Vietnam Pro` (Bold 700 & Regular 400) TTF fonts directly from `client/src/assets/fonts/`.
+   - Never rely on default or remote fonts during build time to prevent broken Vietnamese diacritics (tofu / missing marks).
+4. **Editorial Authority & Verification Badges**:
+   - Footer Branding: Geometric Wonderlab flask icon + bold wordmark + sub-label `"PHÒNG THÍ NGHIỆM TRỰC QUAN"`.
+   - Physical Verification Stamp: Technical pill container with live pulse indicator (`#10b981`) and uppercase label `"INTERACTIVE SCIENCE SIMULATION"`.
+   - Zero AI Slop: Strictly ban unmotivated purple/pink gradients, blurry glow effects, or marketing buzzwords. Keep the card feeling like an authentic scientific publication plate.

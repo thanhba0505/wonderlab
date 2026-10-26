@@ -241,10 +241,38 @@ pnpm check          # Runs all verification steps in sequence
 2. **Read Before Writing**: Inspect existing files and documentation before editing.
 3. **No Unrequested Scope Creep**: Do not add user management, authentication, payment, or complex databases until explicitly requested.
 4. **No Fake Completions**: Never declare tests or builds have succeeded without actually executing them and inspecting the output.
-5. **Preserve Documentation Integrity**: Update docs in `docs/` whenever architectural decisions or workflows change.
+5. **Preserve Documentation Integrity & Continuous Knowledge Synchronization**: Keep all documentation in `docs/` accurate and synchronized with the codebase whenever architectural decisions, workflows, or technical specifications change. Coupled with Rule 12, proactively update documentation and rules whenever persistent standards are established.
 6. **Publish-Tag Deployments Only**: Never trigger production deployments to Render via manual commands or arbitrary scripts. Always use official tag releases (`git tag vX.Y.Z && git push origin vX.Y.Z` or publishing a GitHub Release).
 7. **Branch-First Development & Direct Merge into Develop**: Never commit directly onto `develop` or `main` without a dedicated branch. Always create a task branch (`feat/*`, `fix/*`, `chore/*`, `docs/*`, `refactor/*`), verify with `pnpm check`, merge directly into `develop` (or push `HEAD:develop` from worktrees), and push to `origin develop`. `main` is updated strictly via the automated Release workflow.
 8. **Development Server Execution Standard (`pnpm dev` only)**: Agents must NEVER start the client application using `pnpm start`, `pnpm --filter wonderlab-client start`, or `next start`. Always use `pnpm dev` or `pnpm dev:client`. `next start` is strictly an immutable production server that binds to a static in-memory `BUILD_ID`, resulting in catastrophic `400 Bad Request` asset errors, CSS stylesheet drop (FOUC), and permanent client-side chunk loading failures whenever background builds run.
 9. **Strict English for All Commits and Repository Guidelines**: All commit messages, merge commit messages, and repository guidelines must be authored strictly and exclusively in English.
 10. **Lean & Core-Only Testing Rule**: Write tests ONLY for core, critical business logic, scientific/mathematical simulation calculations, and essential E2E API flows. NEVER write superficial tests for generic UI components, static dictionaries, trivial utilities, or pass-through controller mocks. Eliminate redundant test bloat to keep CI fast and maintainable.
 11. **Strict Zero-`any` & Explicit Type/Interface Definition Rule**: The use of `any` is strictly prohibited across the entire codebase without exception (enforced via `@typescript-eslint/no-explicit-any: error` in both client and server). Every function, method, React component prop, DTO, simulation state model, and API payload MUST have fully declared, explicit types or interfaces. For dynamic or uncertain values, use `unknown` with runtime type narrowing or generic parameters (`<T>`). Never silence type errors using `@ts-ignore` or `@ts-nocheck`.
+12. **Autonomous Knowledge Persistence & Continuous Rule Codification Protocol**: Whenever the user establishes a rule, constraint, or preference requiring sustained long-term compliance, or whenever an ongoing technical/domain standard is identified or adopted (e.g., SEO guidelines when introduced, state management patterns, UI/UX constraints, security policies, API contracts, deployment checks):
+    - The agent MUST **autonomously codify and record it into `AGENTS.md` and the appropriate documentation under `docs/` (or `.agents/skills/`) within the very same task**.
+    - Never treat permanent rules or long-term directives as ephemeral conversational memory. Do not wait for the user to explicitly remind you to document them. If a standard or constraint must be obeyed in future tasks and sessions, it must be committed directly to repository memory (`AGENTS.md` and `docs/`) so all future agents immediately inherit and enforce it.
+13. **Mandatory SEO, Schema.org Structured Data & Dynamic Open Graph Protocol**: Every newly introduced public interactive simulation or editorial essay must be registered in the dynamic sitemap (`sitemap.ts`), configured with explicit canonical URL metadata, equipped with Schema.org JSON-LD structured data (`LearningResource` / `TechArticle` + `BreadcrumbList`) rendered via typed server components with XSS sanitization, and paired with a dynamic 1200x630 Open Graph Image (`opengraph-image.tsx`) adhering to Clean Paper & Lab Editorial standards and local font bundling for Vietnamese diacritics.
+
+---
+
+## 10. SEO, Structured Data (Schema.org) & Dynamic Open Graph Standards
+
+- **Dynamic Sitemap (`src/app/sitemap.ts`) & Robots (`src/app/robots.ts`)**:
+  - Automatically indexes all routes from registries (`SIMULATIONS_REGISTRY`, `ESSAYS`).
+  - Sets calibrated change frequencies and priorities: `/` (1.0, weekly), `/simulations` (0.9, daily), `/simulations/[slug]` (0.9, weekly), `/essays` (0.8, monthly), `/essays/[slug]` (0.8, monthly, actual `publishedDate`), `/requests` (0.8, daily).
+  - Sanitizes `process.env.NEXT_PUBLIC_APP_URL` (fallback `https://wonderlab.vn`).
+  - `robots.ts` allows public routes and disallows private paths (`/admin`, `/my-account`, `/api/`).
+- **Global Metadata & Title Templates (`src/app/layout.tsx`)**:
+  - `metadataBase: new URL(...)` configured at root.
+  - Title template: `{ default: 'Wonderlab — Khám phá Khoa học, Xác suất & Nghịch lý Trực quan', template: '%s | Wonderlab' }`.
+  - Subpages define base titles without trailing suffix to prevent repetitive duplication (`Title | Wonderlab`).
+- **Schema.org Structured Data (JSON-LD)**:
+  - Strongly typed contracts via `schema-dts`. Zero `any` tolerance.
+  - Multi-type entities and breadcrumbs aggregated via `@graph` notation.
+  - Simulations: `@type: ["LearningResource", "WebApplication"]` with `applicationCategory: "EducationalApplication"`, `operatingSystem: "All"`, `educationalLevel: "All"`, `inLanguage: "vi"`, and `BreadcrumbList`.
+  - Essays: `@type: "TechArticle"` with `headline`, `author`, `publisher`, `datePublished`, and `BreadcrumbList`.
+  - Security: All JSON-LD scripts must sanitize HTML tags (`JSON.stringify(...).replace(/</g, '\\u003c')`) to prevent XSS injection.
+- **Dynamic Open Graph Images (`opengraph-image.tsx`)**:
+  - Standard resolution: 1200x630 (`next/og` ImageResponse).
+  - Aesthetics: "Clean Paper & Lab Editorial" with Slate-100 technical coordinate grid, hairline white plate, semantic category badges, and physical verification stamps.
+  - Font Bundling: Always load bundled `Be Vietnam Pro` TTF fonts from `client/src/assets/fonts/` via `fs.readFile` to guarantee 100% complete Vietnamese diacritic rendering without network dependency during builds.

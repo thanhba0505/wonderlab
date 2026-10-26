@@ -25,8 +25,14 @@ const jetbrainsMono = JetBrains_Mono({
   display: 'swap',
 });
 
+const defaultSiteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://wonderlab.vn';
+
 export const metadata: Metadata = {
-  title: 'Wonderlab — Khám phá Khoa học, Xác suất & Nghịch lý Trực quan',
+  metadataBase: new URL(defaultSiteUrl),
+  title: {
+    default: 'Wonderlab — Khám phá Khoa học, Xác suất & Nghịch lý Trực quan',
+    template: '%s | Wonderlab',
+  },
   description:
     'Nền tảng thí nghiệm trực quan, mô phỏng xác suất Monte Carlo, các nghịch lý tư duy và trò chơi trí tuệ phản trực giác.',
   keywords: [
@@ -39,6 +45,25 @@ export const metadata: Metadata = {
     'toán học',
   ],
   authors: [{ name: 'Wonderlab Engineering Team' }],
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'vi_VN',
+    url: '/',
+    siteName: 'Wonderlab',
+    title: 'Wonderlab — Khám phá Khoa học, Xác suất & Nghịch lý Trực quan',
+    description:
+      'Nền tảng thí nghiệm trực quan, mô phỏng xác suất Monte Carlo, các nghịch lý tư duy và trò chơi trí tuệ phản trực giác.',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    creator: '@wonderlab',
+    title: 'Wonderlab — Khám phá Khoa học, Xác suất & Nghịch lý Trực quan',
+    description:
+      'Nền tảng thí nghiệm trực quan, mô phỏng xác suất Monte Carlo, các nghịch lý tư duy và trò chơi trí tuệ phản trực giác.',
+  },
   icons: {
     icon: [
       { url: '/favicon.ico', sizes: 'any' },

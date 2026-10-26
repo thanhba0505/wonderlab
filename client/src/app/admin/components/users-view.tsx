@@ -224,19 +224,22 @@ export function UsersView({ currentAdminUsername }: UsersViewProps) {
       key: 'username',
       header: 'Người dùng',
       sortable: true,
+      width: 200,
       render: item => {
         const isCurrent = item.username === currentAdminUsername;
         return (
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2.5 min-w-0">
             <div className="h-7 w-7 rounded-full bg-blue-100 text-blue-800 flex items-center justify-center text-xs font-bold font-mono shrink-0">
               {item.username.charAt(0).toUpperCase()}
             </div>
-            <div>
-              <span className="font-mono font-bold text-slate-900 block leading-tight">
+            <div className="min-w-0 flex-1">
+              <span className="font-mono font-bold text-slate-900 block leading-tight truncate">
                 {item.username}
               </span>
               {isCurrent && (
-                <span className="text-xs text-blue-700 font-sans">(Tài khoản hiện tại)</span>
+                <span className="text-xs text-blue-700 font-sans block truncate">
+                  (Tài khoản hiện tại)
+                </span>
               )}
             </div>
           </div>
@@ -246,11 +249,17 @@ export function UsersView({ currentAdminUsername }: UsersViewProps) {
     {
       key: 'email',
       header: 'Email',
-      render: item => <span className="font-mono text-slate-600">{item.email || '—'}</span>,
+      minWidth: 200,
+      render: item => (
+        <span className="font-mono text-slate-600 block truncate" title={item.email || undefined}>
+          {item.email || '—'}
+        </span>
+      ),
     },
     {
       key: 'role',
       header: 'Vai trò',
+      width: 130,
       align: 'center',
       render: item => (
         <AppTag
@@ -265,6 +274,7 @@ export function UsersView({ currentAdminUsername }: UsersViewProps) {
     {
       key: 'runs',
       header: 'Số lượt chạy',
+      width: 110,
       align: 'center',
       sortable: true,
       render: item => (
@@ -276,6 +286,7 @@ export function UsersView({ currentAdminUsername }: UsersViewProps) {
     {
       key: 'comments',
       header: 'Số thảo luận',
+      width: 110,
       align: 'center',
       sortable: true,
       render: item => (
@@ -287,9 +298,11 @@ export function UsersView({ currentAdminUsername }: UsersViewProps) {
     {
       key: 'createdAt',
       header: 'Ngày đăng ký',
+      width: 130,
+      align: 'center',
       sortable: true,
       render: item => (
-        <span className="font-mono text-slate-500 text-xs">
+        <span className="font-mono text-slate-500 text-xs whitespace-nowrap">
           {new Date(item.createdAt).toLocaleDateString('vi-VN')}
         </span>
       ),
@@ -297,10 +310,11 @@ export function UsersView({ currentAdminUsername }: UsersViewProps) {
     {
       key: 'isDeleted',
       header: 'Đã xoá',
+      width: 90,
       align: 'center',
       render: item =>
         item.isDeleted ? (
-          <span className="inline-flex items-center text-xs font-semibold text-rose-600 bg-rose-50 border border-rose-200/80 px-2.5 py-0.5 rounded-md">
+          <span className="inline-flex items-center text-xs font-semibold text-rose-600 bg-rose-50 border border-rose-200/80 px-2 py-0.5 rounded-md whitespace-nowrap">
             Đã xoá
           </span>
         ) : null,
@@ -308,6 +322,7 @@ export function UsersView({ currentAdminUsername }: UsersViewProps) {
     {
       key: 'actions',
       header: 'Hành động',
+      width: 220,
       align: 'center',
       render: item => {
         const isCurrent = item.username === currentAdminUsername;
@@ -392,6 +407,7 @@ export function UsersView({ currentAdminUsername }: UsersViewProps) {
         onSort={handleSort}
         page={page}
         limit={limit}
+        pageSize={limit}
         total={total}
         onPageChange={handlePageChange}
         onPageSizeChange={handlePageSizeChange}

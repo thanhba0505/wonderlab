@@ -48,6 +48,7 @@ export interface AppSelectProps
   containerClassName?: string;
   selectClassName?: string;
   dropdownClassName?: string;
+  placement?: 'bottom' | 'top' | 'auto';
   onChange?: (e: React.ChangeEvent<HTMLSelectElement>) => void;
   onValueChange?: (value: string) => void;
 }
@@ -59,6 +60,7 @@ export const AppSelect = React.forwardRef<HTMLSelectElement, AppSelectProps>(
       selectClassName,
       containerClassName,
       dropdownClassName,
+      placement = 'auto',
       label,
       helperText,
       error,
@@ -85,6 +87,7 @@ export const AppSelect = React.forwardRef<HTMLSelectElement, AppSelectProps>(
 
     const [isOpen, setIsOpen] = React.useState<boolean>(false);
     const [highlightedIndex, setHighlightedIndex] = React.useState<number>(-1);
+    const [computedPlacement, setComputedPlacement] = React.useState<'bottom' | 'top'>('bottom');
 
     const containerRef = React.useRef<HTMLDivElement>(null);
     const internalSelectRef = React.useRef<HTMLSelectElement | null>(null);
@@ -122,6 +125,36 @@ export const AppSelect = React.forwardRef<HTMLSelectElement, AppSelectProps>(
       return [];
     }, [options, children]);
 
+    // Handle auto or responsive dropdown placement
+    React.useEffect(() => {
+      if (!isOpen) return;
+
+      if (placement === 'top') {
+        setComputedPlacement('top');
+        return;
+      }
+      if (placement === 'bottom') {
+        setComputedPlacement('bottom');
+        return;
+      }
+
+      if (containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect();
+        const spaceBelow = window.innerHeight - rect.bottom;
+        const spaceAbove = rect.top;
+        const estimatedDropdownHeight = Math.min(parsedOptions.length * 36 + 16, 240);
+
+        if (spaceBelow < estimatedDropdownHeight + 16 && spaceAbove > spaceBelow) {
+          setComputedPlacement('top');
+        } else {
+          setComputedPlacement('bottom');
+        }
+      }
+    }, [isOpen, placement, parsedOptions.length]);
+
+    const isPlacementTop =
+      placement === 'top' || (placement === 'auto' && computedPlacement === 'top');
+
     // Track controlled vs uncontrolled value
     const [internalValue, setInternalValue] = React.useState<string | number>(() => {
       if (value !== undefined) return Array.isArray(value) ? (value[0] ?? '') : value;
@@ -130,6 +163,13 @@ export const AppSelect = React.forwardRef<HTMLSelectElement, AppSelectProps>(
       }
       return '';
     });
+
+    // Sync external value prop
+    React.useEffect(() => {
+      if (value !== undefined) {
+        setInternalValue(Array.isArray(value) ? (value[0] ?? '') : value);
+      }
+    }, [value]);
 
     const activeValue = value !== undefined ? value : internalValue;
 
@@ -162,17 +202,46 @@ export const AppSelect = React.forwardRef<HTMLSelectElement, AppSelectProps>(
     const handleSelectOption = (opt: AppSelectOption) => {
       if (opt.disabled || disabled) return;
 
-      setInternalValue(opt.value);
+      const nextValue = opt.value;
+      setInternalValue(nextValue);
       setIsOpen(false);
       setHighlightedIndex(-1);
 
       if (onValueChange) {
-        onValueChange(String(opt.value));
+        onValueChange(String(nextValue));
+      }
+
+      if (onChange) {
+        const syntheticEvent = {
+          target: {
+            value: String(nextValue),
+            name: name || selectId,
+          },
+          currentTarget: {
+            value: String(nextValue),
+            name: name || selectId,
+          },
+          bubbles: true,
+          cancelable: true,
+          defaultPrevented: false,
+          eventPhase: 3,
+          isTrusted: true,
+          preventDefault: () => {},
+          isDefaultPrevented: () => false,
+          stopPropagation: () => {},
+          isPropagationStopped: () => false,
+          persist: () => {},
+          timeStamp: Date.now(),
+          type: 'change',
+          nativeEvent: new Event('change'),
+        } as unknown as React.ChangeEvent<HTMLSelectElement>;
+
+        onChange(syntheticEvent);
       }
 
       // Dispatch native change event on hidden select so standard React onChange works
       if (internalSelectRef.current) {
-        internalSelectRef.current.value = String(opt.value);
+        internalSelectRef.current.value = String(nextValue);
         const event = new Event('change', { bubbles: true });
         internalSelectRef.current.dispatchEvent(event);
       }
@@ -303,7 +372,10 @@ export const AppSelect = React.forwardRef<HTMLSelectElement, AppSelectProps>(
               id={`${selectId}-listbox`}
               role="listbox"
               className={cn(
-                'absolute left-0 right-0 top-[calc(100%+4px)] z-50 w-full min-w-0 max-w-full rounded-xl border border-slate-300/85 bg-white p-1.5 shadow-lg shadow-slate-900/10 animate-in fade-in-0 zoom-in-95 duration-150',
+                'absolute left-0 right-0 z-50 w-full min-w-0 max-w-full rounded-xl border border-slate-300/85 bg-white p-1.5 shadow-lg shadow-slate-900/10 animate-in fade-in-0 zoom-in-95 duration-150',
+                isPlacementTop
+                  ? 'bottom-[calc(100%+4px)] origin-bottom'
+                  : 'top-[calc(100%+4px)] origin-top',
                 dropdownClassName,
               )}
             >

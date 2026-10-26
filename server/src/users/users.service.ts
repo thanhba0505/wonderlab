@@ -144,12 +144,12 @@ export class UsersService {
    * List users with pagination, search, role filtering, and activity counts for Admin Console
    */
   async findAll(query: ListUsersQueryDto = new ListUsersQueryDto()): Promise<PaginatedUsersResult> {
-    const page = Math.max(1, query.page || 1);
-    const limit = Math.max(1, query.limit || 20);
+    const page = Math.max(1, Number(query.page) || 1);
+    const limit = Math.max(1, Number(query.limit) || 20);
     const skip = (page - 1) * limit;
 
     const where: Prisma.UserWhereInput = {};
-    if (query.role) {
+    if (query.role && (query.role === Role.ADMIN || query.role === Role.USER)) {
       where.role = query.role;
     }
     if (query.search?.trim()) {

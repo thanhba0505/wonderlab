@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { ArrowUpDown, ArrowUp, ArrowDown, Loader2, Database } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useDelayedLoading } from '@/lib/hooks/use-delayed-loading';
 import { AppPagination, type AppPaginationProps } from './app-pagination';
 
 export interface AppTableColumn<T> {
@@ -10,8 +11,14 @@ export interface AppTableColumn<T> {
   sortable?: boolean;
   align?: 'left' | 'center' | 'right';
   width?: string | number;
+  minWidth?: string | number;
   className?: string;
   headerClassName?: string;
+}
+
+function formatDimension(dim?: string | number): string | undefined {
+  if (dim === undefined || dim === null) return undefined;
+  return typeof dim === 'number' ? `${dim}px` : String(dim);
 }
 
 export interface AppTableFetchParams {
@@ -46,6 +53,8 @@ export interface AppTableProps<T> extends React.HTMLAttributes<HTMLDivElement> {
   selectedKeys?: Array<string | number>;
   onSelectChange?: (selectedKeys: Array<string | number>) => void;
   tableClassName?: string;
+  tableLayout?: 'fixed' | 'auto';
+  minWidth?: string | number;
   footer?: React.ReactNode;
 
   // Server Pagination & Fetch Props
@@ -59,37 +68,67 @@ export interface AppTableProps<T> extends React.HTMLAttributes<HTMLDivElement> {
   pageSizeOptions?: number[];
   pagination?: boolean | Omit<AppPaginationProps, 'className'>;
   fetchData?: (params: AppTableFetchParams) => Promise<AppTableFetchResult<T> | T[]>;
+
+  // Anti-Flicker Loading Props
+  loadingDelay?: number;
+  minLoadingDuration?: number;
+
+  // Auto Scroll-to-Top Props
+  scrollToTopOnChange?: boolean;
 }
 
-export function AppTable<T>({
-  className,
-  tableClassName,
-  columns,
-  data: externalData,
-  rowKey,
-  isLoading = false,
-  loadingMessage = 'Đang tải dữ liệu...',
-  emptyMessage = 'Không có dữ liệu phù hợp.',
-  sortColumn,
-  sortDirection = 'asc',
-  onSort,
-  onRowClick,
-  selectable = false,
-  selectedKeys = [],
-  onSelectChange,
-  footer,
-  page,
-  pageSize,
-  limit,
-  total,
-  onPageChange,
-  onPageSizeChange,
-  onLimitChange,
-  pageSizeOptions = [10, 20, 50, 100],
-  pagination,
-  fetchData,
-  ...props
-}: AppTableProps<T>) {
+export const AppTable = React.forwardRef(function AppTable<T>(
+  {
+    className,
+    tableClassName,
+    tableLayout = 'fixed',
+    minWidth,
+    columns,
+    data: externalData,
+    rowKey,
+    isLoading = false,
+    loadingDelay = 180,
+    minLoadingDuration = 250,
+    scrollToTopOnChange = true,
+    loadingMessage = 'Đang tải dữ liệu...',
+    emptyMessage = 'Không có dữ liệu phù hợp.',
+    sortColumn,
+    sortDirection = 'asc',
+    onSort,
+    onRowClick,
+    selectable = false,
+    selectedKeys = [],
+    onSelectChange,
+    footer,
+    page,
+    pageSize,
+    limit,
+    total,
+    onPageChange,
+    onPageSizeChange,
+    onLimitChange,
+    pageSizeOptions = [10, 20, 50, 100],
+    pagination,
+    fetchData,
+    ...props
+  }: AppTableProps<T>,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
+) {
+  const internalContainerRef = React.useRef<HTMLDivElement>(null);
+
+  React.useImperativeHandle(forwardedRef, () => internalContainerRef.current as HTMLDivElement);
+
+  const scrollToTop = React.useCallback(() => {
+    if (!scrollToTopOnChange || typeof window === 'undefined') return;
+    const node = internalContainerRef.current;
+    if (!node) return;
+    const prefersReducedMotion =
+      window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches ?? false;
+    node.scrollIntoView?.({
+      behavior: prefersReducedMotion ? 'auto' : 'smooth',
+      block: 'start',
+    });
+  }, [scrollToTopOnChange]);
   const initialLimit = limit ?? pageSize ?? 20;
   const [internalData, setInternalData] = React.useState<T[]>(externalData ?? []);
   const [internalTotal, setInternalTotal] = React.useState<number>(
@@ -144,14 +183,42 @@ export function AppTable<T>({
     };
   }, [fetchData, internalPage, internalLimit, sortColumn, sortDirection]);
 
+  // Sync external page and pageSize props to internal state
+  const prevPageProp = React.useRef(page);
+  React.useEffect(() => {
+    if (page !== undefined && page !== prevPageProp.current) {
+      prevPageProp.current = page;
+      setInternalPage(page);
+    }
+  }, [page]);
+
+  const prevPageSizeProp = React.useRef(limit ?? pageSize);
+  React.useEffect(() => {
+    const size = limit ?? pageSize;
+    if (size !== undefined && size !== prevPageSizeProp.current) {
+      prevPageSizeProp.current = size;
+      setInternalLimit(size);
+    }
+  }, [limit, pageSize]);
+
   const effectiveData = React.useMemo(
     () => (fetchData ? internalData : (externalData ?? [])),
     [fetchData, internalData, externalData],
   );
   const effectiveLoading = fetchData ? internalLoading : isLoading;
   const effectiveTotal = fetchData ? internalTotal : (total ?? effectiveData.length);
-  const effectivePage = fetchData ? internalPage : (page ?? 1);
-  const effectiveLimit = fetchData ? internalLimit : (limit ?? pageSize ?? 20);
+  const effectivePage = internalPage;
+  const effectiveLimit = internalLimit;
+
+  // Compute table data based on pagination (slicing if external data has more items than limit)
+  const displayedData = React.useMemo(() => {
+    if (fetchData) return internalData;
+    if (externalData && externalData.length > effectiveLimit) {
+      const start = (effectivePage - 1) * effectiveLimit;
+      return externalData.slice(start, start + effectiveLimit);
+    }
+    return effectiveData;
+  }, [fetchData, internalData, externalData, effectiveData, effectiveLimit, effectivePage]);
 
   const handlePageChange = React.useCallback(
     (nextPage: number) => {
@@ -159,24 +226,31 @@ export function AppTable<T>({
         setInternalPage(nextPage);
       }
       onPageChange?.(nextPage);
+      scrollToTop();
     },
-    [fetchData, onPageChange],
+    [fetchData, onPageChange, scrollToTop],
   );
 
   const handlePageSizeChange = React.useCallback(
     (nextSize: number) => {
-      if (fetchData) {
-        setInternalLimit(nextSize);
-        setInternalPage(1);
-      }
+      prevPageSizeProp.current = nextSize;
+      setInternalLimit(nextSize);
+      setInternalPage(1);
       if (onPageSizeChange) {
         onPageSizeChange(nextSize);
       } else if (onLimitChange) {
         onLimitChange(nextSize);
       }
+      scrollToTop();
     },
-    [fetchData, onPageSizeChange, onLimitChange],
+    [onPageSizeChange, onLimitChange, scrollToTop],
   );
+
+  // Anti-flicker delayed loading for table overlay
+  const showDelayedOverlay = useDelayedLoading(effectiveLoading && displayedData.length > 0, {
+    delay: loadingDelay,
+    minDuration: minLoadingDuration,
+  });
 
   const paginationFooter = React.useMemo(() => {
     if (footer !== undefined) return footer;
@@ -227,17 +301,17 @@ export function AppTable<T>({
   );
 
   const allRowKeys = React.useMemo(
-    () => effectiveData.map((item, index) => getRowKey(item, index)),
-    [effectiveData, getRowKey],
+    () => displayedData.map((item, index) => getRowKey(item, index)),
+    [displayedData, getRowKey],
   );
 
   const isAllSelected =
-    effectiveData.length > 0 &&
+    displayedData.length > 0 &&
     allRowKeys.length > 0 &&
     allRowKeys.every(key => selectedKeys.includes(key));
 
   const isPartiallySelected =
-    effectiveData.length > 0 &&
+    displayedData.length > 0 &&
     selectedKeys.length > 0 &&
     !isAllSelected &&
     allRowKeys.some(key => selectedKeys.includes(key));
@@ -265,23 +339,89 @@ export function AppTable<T>({
     }
   };
 
+  const calculatedMinWidth = React.useMemo(() => {
+    if (minWidth !== undefined) {
+      return formatDimension(minWidth);
+    }
+    if (tableLayout === 'auto') {
+      return undefined;
+    }
+
+    let totalPixels = selectable ? 48 : 0;
+    for (const col of columns) {
+      if (col.width !== undefined) {
+        if (typeof col.width === 'number') {
+          totalPixels += col.width;
+        } else if (typeof col.width === 'string' && col.width.endsWith('px')) {
+          const parsed = parseFloat(col.width);
+          if (!Number.isNaN(parsed)) totalPixels += parsed;
+        } else {
+          totalPixels += 120;
+        }
+      } else if (col.minWidth !== undefined) {
+        if (typeof col.minWidth === 'number') {
+          totalPixels += col.minWidth;
+        } else if (typeof col.minWidth === 'string' && col.minWidth.endsWith('px')) {
+          const parsed = parseFloat(col.minWidth);
+          if (!Number.isNaN(parsed)) totalPixels += parsed;
+        } else {
+          totalPixels += 120;
+        }
+      } else {
+        totalPixels += 120;
+      }
+    }
+
+    return totalPixels > 0 ? `${totalPixels}px` : undefined;
+  }, [minWidth, tableLayout, columns, selectable]);
+
   return (
     <div
+      ref={internalContainerRef}
       className={cn(
-        'w-full rounded-xl border border-slate-300/85 bg-white shadow-2xs overflow-hidden flex flex-col font-sans',
+        'relative w-full rounded-xl border border-slate-300/85 bg-white shadow-2xs flex flex-col font-sans scroll-mt-4',
         className,
       )}
       {...props}
     >
-      <div className="overflow-x-auto w-full">
+      <div
+        className={cn('overflow-x-auto w-full', paginationFooter ? 'rounded-t-xl' : 'rounded-xl')}
+      >
         <table
-          className={cn('w-full min-w-full text-left border-collapse text-xs', tableClassName)}
+          style={calculatedMinWidth ? { minWidth: calculatedMinWidth } : undefined}
+          className={cn(
+            'w-full min-w-full text-left border-collapse text-xs',
+            tableLayout === 'fixed' ? 'table-fixed' : 'table-auto',
+            tableClassName,
+          )}
         >
+          {/* Column widths */}
+          <colgroup>
+            {selectable ? <col style={{ width: 48, minWidth: 48 }} /> : null}
+            {columns.map(col => {
+              const width = formatDimension(col.width);
+              const minColWidth = formatDimension(col.minWidth);
+              const colStyle: React.CSSProperties = {};
+              if (width) colStyle.width = width;
+              if (minColWidth) colStyle.minWidth = minColWidth;
+
+              return (
+                <col
+                  key={col.key}
+                  style={Object.keys(colStyle).length > 0 ? colStyle : undefined}
+                />
+              );
+            })}
+          </colgroup>
+
           {/* Header */}
           <thead>
-            <tr className="border-b border-slate-200 bg-slate-50/80 font-mono text-xs uppercase tracking-wider text-slate-500">
+            <tr className="border-b border-slate-200 bg-slate-50/80 font-mono text-xs uppercase tracking-wider text-slate-500 divide-x divide-slate-200/80">
               {selectable ? (
-                <th className="p-3.5 w-10 text-center">
+                <th
+                  style={{ width: 48, minWidth: 48 }}
+                  className="px-3.5 py-3.5 w-12 text-center align-middle border-r border-slate-200/80"
+                >
                   <input
                     type="checkbox"
                     aria-label="Chọn tất cả"
@@ -305,12 +445,20 @@ export function AppTable<T>({
                       ? 'text-right'
                       : 'text-left';
 
+                const width = formatDimension(col.width);
+                const minColWidth = formatDimension(col.minWidth);
+                const cellStyle: React.CSSProperties = {};
+                if (width) cellStyle.width = width;
+                if (minColWidth) cellStyle.minWidth = minColWidth;
+
                 return (
                   <th
                     key={col.key}
-                    style={{ width: col.width }}
+                    style={Object.keys(cellStyle).length > 0 ? cellStyle : undefined}
                     className={cn(
-                      'p-3.5 font-semibold select-none',
+                      'px-4 py-3.5 font-semibold select-none align-middle',
+                      'first:pl-6 sm:first:pl-7 last:pr-6 sm:last:pr-7',
+                      'border-r border-slate-200/80 last:border-r-0',
                       alignClass,
                       col.sortable && 'cursor-pointer hover:bg-slate-100/70 transition-colors',
                       col.headerClassName,
@@ -323,14 +471,16 @@ export function AppTable<T>({
                   >
                     <div
                       className={cn(
-                        'inline-flex items-center gap-1.5',
+                        'inline-flex items-center gap-1.5 max-w-full',
                         col.align === 'center' && 'justify-center',
                         col.align === 'right' && 'justify-end',
                       )}
                     >
-                      <span>{col.header}</span>
+                      <span className="whitespace-normal break-words leading-tight">
+                        {col.header}
+                      </span>
                       {col.sortable ? (
-                        <span className="text-slate-400">
+                        <span className="text-slate-400 shrink-0 self-center">
                           {isSorted ? (
                             sortDirection === 'asc' ? (
                               <ArrowUp className="h-3.5 w-3.5 text-blue-600 font-bold" />
@@ -351,25 +501,18 @@ export function AppTable<T>({
 
           {/* Body */}
           <tbody className="divide-y divide-slate-100 font-sans text-slate-700">
-            {effectiveLoading ? (
+            {displayedData.length === 0 ? (
               <tr>
                 <td
                   colSpan={columns.length + (selectable ? 1 : 0)}
-                  className="py-16 text-center text-xs text-slate-500 font-sans"
+                  className="py-16 text-center text-xs text-slate-500 font-sans px-4"
                 >
-                  <div className="flex flex-col items-center justify-center gap-2.5">
-                    <Loader2 className="h-5 w-5 animate-spin text-blue-600" />
-                    <span className="font-medium text-slate-600">{loadingMessage}</span>
-                  </div>
-                </td>
-              </tr>
-            ) : effectiveData.length === 0 ? (
-              <tr>
-                <td
-                  colSpan={columns.length + (selectable ? 1 : 0)}
-                  className="py-16 text-center text-xs text-slate-500 font-sans"
-                >
-                  {typeof emptyMessage === 'string' ? (
+                  {effectiveLoading ? (
+                    <div className="flex flex-col items-center justify-center gap-2.5">
+                      <Loader2 className="h-5 w-5 animate-spin text-blue-600" />
+                      <span className="font-medium text-slate-600">{loadingMessage}</span>
+                    </div>
+                  ) : typeof emptyMessage === 'string' ? (
                     <div className="flex flex-col items-center justify-center gap-2 text-slate-400">
                       <Database className="h-8 w-8 stroke-[1.5]" />
                       <p className="text-slate-500 text-xs font-medium">{emptyMessage}</p>
@@ -380,7 +523,7 @@ export function AppTable<T>({
                 </td>
               </tr>
             ) : (
-              effectiveData.map((item, index) => {
+              displayedData.map((item, index) => {
                 const key = getRowKey(item, index);
                 const isSelected = selectedKeys.includes(key);
 
@@ -395,7 +538,10 @@ export function AppTable<T>({
                     )}
                   >
                     {selectable ? (
-                      <td className="p-3.5 w-10 text-center">
+                      <td
+                        style={{ width: 48, minWidth: 48 }}
+                        className="px-3.5 py-3.5 w-12 text-center align-middle"
+                      >
                         <input
                           type="checkbox"
                           aria-label={`Chọn dòng ${index + 1}`}
@@ -415,11 +561,22 @@ export function AppTable<T>({
                             ? 'text-right'
                             : 'text-left';
 
+                      const width = formatDimension(col.width);
+                      const minColWidth = formatDimension(col.minWidth);
+                      const cellStyle: React.CSSProperties = {};
+                      if (width) cellStyle.width = width;
+                      if (minColWidth) cellStyle.minWidth = minColWidth;
+
                       return (
                         <td
                           key={col.key}
-                          style={{ width: col.width }}
-                          className={cn('p-3.5 align-middle', alignClass, col.className)}
+                          style={Object.keys(cellStyle).length > 0 ? cellStyle : undefined}
+                          className={cn(
+                            'px-4 py-3.5 align-middle',
+                            'first:pl-6 sm:first:pl-7 last:pr-6 sm:last:pr-7',
+                            alignClass,
+                            col.className,
+                          )}
                         >
                           {col.render
                             ? col.render(item, index)
@@ -440,10 +597,28 @@ export function AppTable<T>({
 
       {/* Optional Table / Pagination Footer */}
       {paginationFooter ? (
-        <div className="border-t border-slate-200 bg-slate-50/60 p-3 sm:px-4">
+        <div className="border-t border-slate-200 bg-slate-50/60 px-6 py-3 sm:px-7 rounded-b-xl relative z-10">
           {paginationFooter}
+        </div>
+      ) : null}
+
+      {/* Loading Overlay when table already has data */}
+      {showDelayedOverlay ? (
+        <div
+          className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-white/60 backdrop-blur-[1.5px] rounded-xl transition-opacity duration-200 cursor-wait select-none animate-in fade-in-50"
+          aria-live="polite"
+          aria-busy="true"
+        >
+          <div className="flex items-center gap-2.5 rounded-xl border border-slate-300/85 bg-white/95 px-4 py-2.5 shadow-[0_4px_16px_-2px_rgba(15,23,42,0.08),0_2px_6px_-1px_rgba(15,23,42,0.04)]">
+            <Loader2 className="h-4 w-4 animate-spin text-blue-600 shrink-0" />
+            <span className="text-xs font-semibold text-slate-700 font-sans tracking-tight">
+              {loadingMessage}
+            </span>
+          </div>
         </div>
       ) : null}
     </div>
   );
-}
+}) as <T>(
+  props: AppTableProps<T> & { ref?: React.Ref<HTMLDivElement> },
+) => React.ReactElement | null;

@@ -4,6 +4,7 @@ import type { Metadata } from 'next';
 import { getAllEssays, getEssayBySlug } from '@/features/editorial/essays-data';
 import { ReadingProgressBar } from '@/features/editorial/components/reading-progress-bar';
 import { TableOfContents } from '@/features/editorial/components/table-of-contents';
+import { EssayJsonLd } from './EssayJsonLd';
 import { SimulationBridgeCard } from '@/features/editorial/components/simulation-bridge-card';
 import { CommentSection } from '@/features/simulations/components/comment-section';
 import { Badge } from '@/components/ui/badge';
@@ -39,18 +40,29 @@ export async function generateMetadata({ params }: EssayPageProps): Promise<Meta
 
   if (!essay) {
     return {
-      title: 'Không tìm thấy tiểu luận — Wonderlab',
+      title: 'Không tìm thấy tiểu luận',
     };
   }
 
+  const essaySlug = essay.slug || essay.id;
+
   return {
-    title: `${essay.title} — Wonderlab Editorial`,
+    title: essay.title,
     description: essay.teaser,
+    alternates: {
+      canonical: `/essays/${essaySlug}`,
+    },
     openGraph: {
       title: essay.title,
       description: essay.teaser,
+      url: `/essays/${essaySlug}`,
       type: 'article',
       publishedTime: essay.publishedDate,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: essay.title,
+      description: essay.teaser,
     },
   };
 }
@@ -66,8 +78,13 @@ export default async function EssayPage({ params }: EssayPageProps) {
   const allEssays = getAllEssays();
   const relatedEssays = allEssays.filter(e => e.id !== essay.id);
 
+  const rawBaseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://wonderlab.vn';
+  const baseUrl = rawBaseUrl.replace(/\/$/, '');
+  const canonicalUrl = `${baseUrl}/essays/${essay.slug || essay.id}`;
+
   return (
     <>
+      <EssayJsonLd essay={essay} url={canonicalUrl} baseUrl={baseUrl} />
       <ReadingProgressBar />
 
       <div className="flex flex-col gap-8 xl:gap-10 pb-16">

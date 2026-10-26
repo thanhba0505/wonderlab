@@ -127,8 +127,9 @@ export async function fetchAdminUsers(
     if (!res.ok) return { data: [], total: 0, page, limit, totalPages: 1 };
     const json = await res.json();
     if (Array.isArray(json)) {
+      const start = (page - 1) * limit;
       return {
-        data: json,
+        data: json.slice(start, start + limit),
         total: json.length,
         page,
         limit,
@@ -210,8 +211,9 @@ export async function fetchAdminComments(
     if (!res.ok) return { data: [], total: 0, page, limit, totalPages: 1 };
     const json = await res.json();
     if (Array.isArray(json)) {
+      const start = (page - 1) * limit;
       return {
-        data: json,
+        data: json.slice(start, start + limit),
         total: json.length,
         page,
         limit,

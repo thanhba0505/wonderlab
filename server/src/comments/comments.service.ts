@@ -47,8 +47,8 @@ export class CommentsService {
   async findAllForAdmin(
     query: ListAdminCommentsQueryDto = new ListAdminCommentsQueryDto(),
   ): Promise<PaginatedAdminCommentsResult> {
-    const page = Math.max(1, query.page || 1);
-    const limit = Math.max(1, query.limit || 20);
+    const page = Math.max(1, Number(query.page) || 1);
+    const limit = Math.max(1, Number(query.limit) || 20);
     const skip = (page - 1) * limit;
 
     const where: Prisma.CommentWhereInput = {};

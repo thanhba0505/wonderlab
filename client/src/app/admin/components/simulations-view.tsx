@@ -151,13 +151,16 @@ export function SimulationsView({ simulationStats = {} }: SimulationsViewProps) 
       key: 'title',
       header: 'Mô hình / Slug',
       sortable: true,
+      minWidth: 260,
       render: sim => (
-        <div>
-          <div className="font-heading font-bold text-slate-900 text-sm leading-tight">
+        <div className="min-w-0">
+          <div className="font-heading font-bold text-slate-900 text-sm leading-tight truncate">
             {sim.title}
           </div>
-          <div className="font-mono text-xs text-blue-700 font-semibold mt-0.5">/{sim.slug}</div>
-          <div className="text-xs text-slate-500 line-clamp-1 mt-0.5 max-w-xs font-sans">
+          <div className="font-mono text-xs text-blue-700 font-semibold mt-0.5 truncate">
+            /{sim.slug}
+          </div>
+          <div className="text-xs text-slate-500 line-clamp-1 mt-0.5 font-sans break-words">
             {sim.summary}
           </div>
         </div>
@@ -166,6 +169,7 @@ export function SimulationsView({ simulationStats = {} }: SimulationsViewProps) 
     {
       key: 'category',
       header: 'Chuyên mục',
+      width: 140,
       render: sim => (
         <AppTag variant="default" size="sm" className="capitalize">
           {sim.category}
@@ -175,6 +179,7 @@ export function SimulationsView({ simulationStats = {} }: SimulationsViewProps) 
     {
       key: 'difficulty',
       header: 'Độ khó',
+      width: 120,
       render: sim => (
         <AppTag variant="outline" size="sm" className="font-mono uppercase font-semibold">
           {sim.difficulty}
@@ -184,6 +189,7 @@ export function SimulationsView({ simulationStats = {} }: SimulationsViewProps) 
     {
       key: 'status',
       header: 'Trạng thái phát hành',
+      width: 170,
       align: 'center',
       render: sim => {
         const currentStatus = statusMap[sim.slug] || sim.status;
@@ -205,6 +211,7 @@ export function SimulationsView({ simulationStats = {} }: SimulationsViewProps) 
     {
       key: 'runs',
       header: 'Lượt chạy thực tế',
+      width: 140,
       align: 'right',
       sortable: true,
       render: sim => {
@@ -219,6 +226,7 @@ export function SimulationsView({ simulationStats = {} }: SimulationsViewProps) 
     {
       key: 'trials',
       header: 'Mẫu thử Monte Carlo',
+      width: 160,
       align: 'right',
       sortable: true,
       render: sim => {
@@ -233,6 +241,7 @@ export function SimulationsView({ simulationStats = {} }: SimulationsViewProps) 
     {
       key: 'actions',
       header: 'Thao tác',
+      width: 170,
       align: 'center',
       render: sim => (
         <Link href={`/simulations/${sim.slug}`} target="_blank">

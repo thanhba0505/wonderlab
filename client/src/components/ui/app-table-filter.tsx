@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { cn } from '@/lib/utils';
+import { useDelayedLoading } from '@/lib/hooks/use-delayed-loading';
 import { AppFilter, type AppFilterField, type AppActiveFilter } from './app-filter';
 import {
   AppTable,
@@ -51,6 +52,8 @@ export interface AppTableFilterProps<T> extends React.HTMLAttributes<HTMLDivElem
   selectedKeys?: Array<string | number>;
   onSelectChange?: (selectedKeys: Array<string | number>) => void;
   tableClassName?: string;
+  tableLayout?: 'fixed' | 'auto';
+  minWidth?: string | number;
 
   // Pagination & Fetch Props
   page?: number;
@@ -64,6 +67,14 @@ export interface AppTableFilterProps<T> extends React.HTMLAttributes<HTMLDivElem
   pageSize?: number;
   pageSizeOptions?: number[];
   fetchData?: (params: AppTableFetchParams) => Promise<AppTableFetchResult<T> | T[]>;
+
+  // Anti-Flicker Loading Props
+  loadingDelay?: number;
+  minLoadingDuration?: number;
+
+  // Auto Scroll-to-Top Props
+  scrollToTopOnChange?: boolean;
+  scrollToTopTarget?: 'table' | 'container' | 'header';
 }
 
 export function AppTableFilter<T>({
@@ -87,6 +98,10 @@ export function AppTableFilter<T>({
   data,
   rowKey,
   isLoading = false,
+  loadingDelay = 180,
+  minLoadingDuration = 250,
+  scrollToTopOnChange = true,
+  scrollToTopTarget = 'table',
   loadingMessage,
   emptyMessage,
   sortColumn,
@@ -97,6 +112,8 @@ export function AppTableFilter<T>({
   selectedKeys,
   onSelectChange,
   tableClassName,
+  tableLayout = 'fixed',
+  minWidth,
   page,
   limit,
   total,
@@ -173,6 +190,24 @@ export function AppTableFilter<T>({
     }
   }, [fetchData, internalPage, internalPageSize, runFetch]);
 
+  // Sync external page & pageSize props to internal state
+  const prevPageProp = React.useRef(page);
+  React.useEffect(() => {
+    if (page !== undefined && page !== prevPageProp.current) {
+      prevPageProp.current = page;
+      setInternalPage(page);
+    }
+  }, [page]);
+
+  const prevPageSizeProp = React.useRef(limit ?? pageSize);
+  React.useEffect(() => {
+    const size = limit ?? pageSize;
+    if (size !== undefined && size !== prevPageSizeProp.current) {
+      prevPageSizeProp.current = size;
+      setInternalPageSize(size);
+    }
+  }, [limit, pageSize]);
+
   // Reset internal page if client side data length changes
   React.useEffect(() => {
     if (clientSidePagination) {
@@ -186,15 +221,35 @@ export function AppTableFilter<T>({
   );
   const effectiveLoading = fetchData ? internalLoading : isLoading;
   const effectiveTotal = fetchData ? internalTotal : (total ?? effectiveData.length);
-  const effectivePage = fetchData ? internalPage : (page ?? internalPage);
-  const effectivePageSize = fetchData ? internalPageSize : (limit ?? pageSize ?? internalPageSize);
+  const effectivePage = internalPage;
+  const effectivePageSize = internalPageSize;
 
-  // Compute table data based on client-side pagination
+  // Compute table data based on pagination (client-side or overflow fallback)
   const displayedData = React.useMemo(() => {
-    if (!clientSidePagination) return effectiveData;
-    const start = (internalPage - 1) * internalPageSize;
-    return effectiveData.slice(start, start + internalPageSize);
-  }, [clientSidePagination, effectiveData, internalPage, internalPageSize]);
+    const shouldSlice =
+      clientSidePagination || (!fetchData && effectiveData.length > effectivePageSize);
+    if (!shouldSlice) return effectiveData;
+    const start = (effectivePage - 1) * effectivePageSize;
+    return effectiveData.slice(start, start + effectivePageSize);
+  }, [clientSidePagination, fetchData, effectiveData, effectivePage, effectivePageSize]);
+
+  const containerRef = React.useRef<HTMLDivElement>(null);
+  const tableRef = React.useRef<HTMLDivElement>(null);
+
+  const scrollToTop = React.useCallback(() => {
+    if (!scrollToTopOnChange || typeof window === 'undefined') return;
+    const target =
+      scrollToTopTarget === 'header'
+        ? containerRef.current
+        : (tableRef.current ?? containerRef.current);
+    if (!target) return;
+    const prefersReducedMotion =
+      window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches ?? false;
+    target.scrollIntoView?.({
+      behavior: prefersReducedMotion ? 'auto' : 'smooth',
+      block: 'start',
+    });
+  }, [scrollToTopOnChange, scrollToTopTarget]);
 
   const handleFilterClick = React.useCallback(() => {
     if (fetchData) {
@@ -202,7 +257,13 @@ export function AppTableFilter<T>({
       runFetch(1, internalPageSize);
     }
     onFilter?.();
-  }, [fetchData, runFetch, internalPageSize, onFilter]);
+    scrollToTop();
+  }, [fetchData, runFetch, internalPageSize, onFilter, scrollToTop]);
+
+  const handleResetClick = React.useCallback(() => {
+    onReset?.();
+    scrollToTop();
+  }, [onReset, scrollToTop]);
 
   const handlePageChange = React.useCallback(
     (nextPage: number) => {
@@ -212,26 +273,24 @@ export function AppTableFilter<T>({
         setInternalPage(nextPage);
       }
       onPageChange?.(nextPage);
+      scrollToTop();
     },
-    [fetchData, clientSidePagination, onPageChange],
+    [fetchData, clientSidePagination, onPageChange, scrollToTop],
   );
 
   const handlePageSizeChange = React.useCallback(
     (nextSize: number) => {
-      if (fetchData) {
-        setInternalPageSize(nextSize);
-        setInternalPage(1);
-      } else if (clientSidePagination) {
-        setInternalPageSize(nextSize);
-        setInternalPage(1);
-      }
+      prevPageSizeProp.current = nextSize;
+      setInternalPageSize(nextSize);
+      setInternalPage(1);
       if (onPageSizeChange) {
         onPageSizeChange(nextSize);
       } else if (onLimitChange) {
         onLimitChange(nextSize);
       }
+      scrollToTop();
     },
-    [fetchData, clientSidePagination, onPageSizeChange, onLimitChange],
+    [onPageSizeChange, onLimitChange, scrollToTop],
   );
 
   const hasFilterSection =
@@ -241,6 +300,12 @@ export function AppTableFilter<T>({
     Boolean(filterActions) ||
     Boolean(onFilter) ||
     Boolean(fetchData);
+
+  const isFilterActive = isFiltering || (fetchData ? internalLoading : false);
+  const showDelayedFilterLoading = useDelayedLoading(isFilterActive, {
+    delay: loadingDelay,
+    minDuration: minLoadingDuration,
+  });
 
   const paginationComponent = pagination ? (
     <AppPagination {...pagination} />
@@ -258,14 +323,18 @@ export function AppTableFilter<T>({
   ) : null;
 
   return (
-    <div className={cn('flex flex-col gap-4 font-sans', className)} {...props}>
+    <div
+      ref={containerRef}
+      className={cn('flex flex-col gap-4 font-sans scroll-mt-4', className)}
+      {...props}
+    >
       {/* Optional Top Header Banner */}
       {header && (header.title || header.badge || header.actions) ? (
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 sm:p-5 rounded-2xl bg-white border border-slate-300/85 shadow-2xs">
           <div>
             {header.badge ? <div className="mb-1">{header.badge}</div> : null}
             {header.title ? (
-              <h2 className="text-xl sm:text-2xl font-heading font-extrabold text-slate-900 tracking-tight">
+              <h2 className="text-[18px] sm:text-lg font-heading font-extrabold text-slate-900 tracking-tight">
                 {header.title}
               </h2>
             ) : null}
@@ -294,8 +363,8 @@ export function AppTableFilter<T>({
           onFilter={handleFilterClick}
           filterLabel={filterLabel}
           showFilterButton={showFilterButton}
-          isFiltering={isFiltering || (fetchData ? internalLoading : false)}
-          onReset={onReset}
+          isFiltering={showDelayedFilterLoading}
+          onReset={handleResetClick}
           resetLabel={resetLabel}
           showReset={showReset}
           actions={filterActions}
@@ -304,10 +373,14 @@ export function AppTableFilter<T>({
 
       {/* Table & Embedded Pagination Footer */}
       <AppTable
+        ref={tableRef}
         columns={columns}
         data={displayedData}
         rowKey={rowKey}
         isLoading={effectiveLoading}
+        loadingDelay={loadingDelay}
+        minLoadingDuration={minLoadingDuration}
+        scrollToTopOnChange={false}
         loadingMessage={loadingMessage}
         emptyMessage={emptyMessage}
         sortColumn={sortColumn}
@@ -318,6 +391,8 @@ export function AppTableFilter<T>({
         selectedKeys={selectedKeys}
         onSelectChange={onSelectChange}
         tableClassName={tableClassName}
+        tableLayout={tableLayout}
+        minWidth={minWidth}
         footer={paginationComponent}
       />
     </div>

@@ -19,6 +19,7 @@ import {
   ShieldCheck,
   Database,
   KeyRound,
+  Lightbulb,
 } from 'lucide-react';
 import { AppButton } from '@/components/ui';
 import { BrandLogo } from '@/components/ui/brand-logo';
@@ -93,7 +94,6 @@ export function AdminSidebar({ user, onLogout }: AdminSidebarProps) {
     const groups: NavGroup[] = [
       {
         id: 'personal',
-        label: user.role === 'ADMIN' ? 'Không gian Cá nhân' : undefined,
         items: [
           {
             id: 'account-overview',
@@ -114,7 +114,6 @@ export function AdminSidebar({ user, onLogout }: AdminSidebarProps) {
     if (user.role === 'ADMIN') {
       groups.push({
         id: 'admin-system',
-        label: 'Quản trị Toàn sàn',
         items: [
           {
             id: 'dashboard',
@@ -127,6 +126,12 @@ export function AdminSidebar({ user, onLogout }: AdminSidebarProps) {
             label: 'Cài đặt Thí nghiệm',
             href: '/admin/simulations',
             icon: FlaskConical,
+          },
+          {
+            id: 'requests',
+            label: 'Đề xuất Thí nghiệm',
+            href: '/admin/requests',
+            icon: Lightbulb,
           },
           {
             id: 'users',
@@ -237,11 +242,6 @@ export function AdminSidebar({ user, onLogout }: AdminSidebarProps) {
               {navGroups.map((group, groupIdx) => (
                 <div key={group.id} className="space-y-1">
                   {groupIdx > 0 && <div className="my-2 h-px bg-slate-200" />}
-                  {group.label && (
-                    <div className="px-2 pt-1 pb-1 text-xs font-mono font-bold uppercase tracking-wider text-slate-400 select-none">
-                      {group.label}
-                    </div>
-                  )}
 
                   <div className="space-y-1">
                     {group.items.map(item => {
@@ -382,15 +382,14 @@ export function AdminSidebar({ user, onLogout }: AdminSidebarProps) {
         </div>
 
         {/* Nav Items */}
-        <nav className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-2 space-y-3">
+        <nav
+          className={`flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-2 space-y-3 ${
+            isCollapsed ? 'no-scrollbar' : ''
+          }`}
+        >
           {navGroups.map((group, groupIdx) => (
             <div key={group.id} className="space-y-1">
-              {groupIdx > 0 && isCollapsed && <div className="my-2 h-px bg-slate-200/90 mx-1" />}
-              {group.label && !isCollapsed && (
-                <div className="px-2 pt-1 pb-1 text-xs font-mono font-bold uppercase tracking-wider text-slate-400 select-none">
-                  {group.label}
-                </div>
-              )}
+              {groupIdx > 0 && <div className="my-2 h-px bg-slate-200/90 mx-1" />}
 
               <div className="space-y-1">
                 {group.items.map(item => {
@@ -487,7 +486,7 @@ export function AdminSidebar({ user, onLogout }: AdminSidebarProps) {
                 className={`ml-2 min-w-0 flex-1 transition-all duration-300 ${
                   isCollapsed
                     ? 'opacity-0 max-w-0 -translate-x-2 pointer-events-none'
-                    : 'opacity-100 max-w-[125px] translate-x-0'
+                    : 'opacity-100 max-w-[170px] translate-x-0'
                 }`}
               >
                 <div className="font-mono text-xs font-bold text-slate-900 truncate group-hover:text-blue-600">
@@ -499,41 +498,7 @@ export function AdminSidebar({ user, onLogout }: AdminSidebarProps) {
                 </div>
               </div>
             </Link>
-
-            <div
-              className={`transition-all duration-300 ${
-                isCollapsed
-                  ? 'opacity-0 max-w-0 -translate-x-2 pointer-events-none'
-                  : 'opacity-100 translate-x-0'
-              }`}
-            >
-              <AppButton
-                variant="ghost"
-                size="sm"
-                onClick={onLogout}
-                className="h-7 w-7 p-0 text-slate-400 hover:text-rose-600 hover:bg-rose-50 shrink-0"
-                title="Đăng xuất"
-              >
-                <LogOut className="h-3.5 w-3.5" />
-              </AppButton>
-            </div>
           </div>
-
-          {/* When collapsed: Dedicated logout icon button */}
-          {isCollapsed && (
-            <button
-              type="button"
-              onClick={onLogout}
-              onMouseEnter={e => handleItemHover(e, 'Đăng xuất')}
-              onMouseLeave={handleItemLeave}
-              className="flex items-center h-10 w-full rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors px-2"
-              aria-label="Đăng xuất"
-            >
-              <div className="w-9 h-9 flex items-center justify-center shrink-0">
-                <LogOut className="h-4 w-4" />
-              </div>
-            </button>
-          )}
 
           {/* Back to site row */}
           <Link href="/" className="block">

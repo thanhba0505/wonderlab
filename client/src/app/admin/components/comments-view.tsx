@@ -150,6 +150,7 @@ export function CommentsView() {
     {
       key: 'classification',
       header: 'Phân loại / Thí nghiệm',
+      width: 220,
       render: item => {
         const isReply = item.parentId !== null;
         return (
@@ -173,10 +174,10 @@ export function CommentsView() {
               <Link
                 href={`/simulations/${item.simulationSlug}`}
                 target="_blank"
-                className="hover:underline flex items-center gap-1"
+                className="hover:underline flex items-center gap-1 truncate"
               >
-                <span>/{item.simulationSlug}</span>
-                <ExternalLink className="h-2.5 w-2.5" />
+                <span className="truncate">/{item.simulationSlug}</span>
+                <ExternalLink className="h-2.5 w-2.5 shrink-0" />
               </Link>
             </div>
           </div>
@@ -186,21 +187,24 @@ export function CommentsView() {
     {
       key: 'author',
       header: 'Tác giả',
+      width: 180,
       render: item => (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 min-w-0">
           <div className="h-6 w-6 rounded-full bg-slate-100 text-slate-800 flex items-center justify-center text-xs font-bold font-mono shrink-0">
             {item.user.username.charAt(0).toUpperCase()}
           </div>
-          <div>
-            <span className="font-mono font-bold text-slate-900 flex items-center gap-1.5 leading-tight">
-              <span>{item.user.username}</span>
+          <div className="min-w-0 flex-1">
+            <span className="font-mono font-bold text-slate-900 flex items-center gap-1.5 leading-tight truncate">
+              <span className="truncate">{item.user.username}</span>
               {item.user.isDeleted && (
-                <AppTag variant="red" size="sm">
+                <AppTag variant="red" size="sm" className="shrink-0">
                   Đã xoá
                 </AppTag>
               )}
             </span>
-            <span className="text-xs font-mono text-slate-500">{item.user.role}</span>
+            <span className="text-xs font-mono text-slate-500 block truncate">
+              {item.user.role}
+            </span>
           </div>
         </div>
       ),
@@ -208,17 +212,17 @@ export function CommentsView() {
     {
       key: 'content',
       header: 'Nội dung bình luận',
-      className: 'max-w-md',
+      minWidth: 260,
       render: item => {
         const isReply = item.parentId !== null;
         return (
-          <div>
+          <div className="min-w-0">
             {isReply && item.parent && (
-              <div className="text-xs text-slate-500 font-sans italic mb-1 border-l-2 border-slate-300 pl-2 line-clamp-1">
+              <div className="text-xs text-slate-500 font-sans italic mb-1 border-l-2 border-slate-300 pl-2 line-clamp-1 break-words">
                 Trả lời @{item.parent.user.username}: &ldquo;{item.parent.content}&rdquo;
               </div>
             )}
-            <p className="text-slate-800 text-xs font-sans leading-relaxed whitespace-pre-line line-clamp-3">
+            <p className="text-slate-800 text-xs font-sans leading-relaxed whitespace-pre-line line-clamp-3 break-words">
               {item.content}
             </p>
           </div>
@@ -228,12 +232,14 @@ export function CommentsView() {
     {
       key: 'createdAt',
       header: 'Thời gian',
+      width: 160,
       className: 'whitespace-nowrap font-mono text-slate-500 text-xs',
       render: item => new Date(item.createdAt).toLocaleString('vi-VN'),
     },
     {
       key: 'isDeleted',
       header: 'Đã xoá',
+      width: 90,
       align: 'center',
       className: 'whitespace-nowrap',
       render: item =>
@@ -248,6 +254,7 @@ export function CommentsView() {
     {
       key: 'actions',
       header: 'Hành động',
+      width: 110,
       align: 'center',
       render: item => {
         if (item.isDeleted) {
@@ -317,6 +324,7 @@ export function CommentsView() {
         emptyMessage="Không có bình luận nào phù hợp bộ lọc hiện tại."
         page={page}
         limit={limit}
+        pageSize={limit}
         total={total}
         onPageChange={handlePageChange}
         onPageSizeChange={handlePageSizeChange}
