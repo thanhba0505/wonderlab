@@ -28,3 +28,22 @@ When an AI agent operates on this codebase:
 2. **Context Loading**: The agent must read `AGENTS.md` and the relevant skill playbook in `.agents/skills/` before proposing or editing code.
 3. **Scope Discipline**: Never introduce unrequested dependencies, complex database schemas, or speculative features.
 4. **Execution Verification**: The agent must execute `pnpm check` and verify that all format, lint, typecheck, test, and build tasks exit with code 0 before concluding the turn.
+5. **Continuous Knowledge Persistence**: Whenever the user establishes a rule or long-term requirement, or when an enduring technical standard is introduced, autonomously codify it in `AGENTS.md` and `docs/` within the same turn.
+
+---
+
+## 4. Autonomous Knowledge Persistence Protocol
+
+To eliminate repetitive instructions and prevent regressions across sessions, agents must adhere to the **Self-Updating Memory Standard**:
+
+1. **Trigger Criteria**:
+   - The user defines a persistent rule, stylistic constraint, or architecture policy meant to hold indefinitely (e.g., naming conventions, styling guardrails, security rules, testing boundaries).
+   - A new technical subsystem or feature category is introduced that brings ongoing guidelines (e.g., SEO metadata protocols when SEO is added, caching strategies, state management patterns, error reporting).
+   - An architectural decision or engineering workflow is finalized or modified.
+2. **Action Plan**:
+   - **Repository-Wide Rules**: Add or update the rule directly in [AGENTS.md](file:///Users/lethanhba/workspace/app/Wonderlab/AGENTS.md) under Section 9 (Non-Negotiable Agent Rules) or the corresponding topical section.
+   - **Subsystem & Technical Details**: Update the matching file under `docs/` (e.g. `frontend.md`, `backend.md`, `architecture.md`, `testing.md`).
+   - **Specialized Playbooks**: If the rule dictates agent workflows or domain design, update or create the relevant playbook in `.agents/skills/`.
+3. **Zero-Reminder Invariant**:
+   - Never wait for the user to say "update AGENTS.md" or "save to docs".
+   - Proactively persist long-term standards into repository files during the same turn the standard is discovered or requested.
