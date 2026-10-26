@@ -5,9 +5,18 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BookOpen, Atom, Quote, ArrowUpRight, ArrowLeft } from 'lucide-react';
 
 export const metadata: Metadata = {
-  title: 'Góc Tiểu luận & Suy ngẫm — Wonderlab',
+  title: 'Góc Tiểu luận & Suy ngẫm',
   description:
     'Góc nhìn chuyên sâu kết nối triết học, toán học và các ranh giới nhận thức của con người.',
+  alternates: {
+    canonical: '/essays',
+  },
+  openGraph: {
+    title: 'Góc Tiểu luận & Suy ngẫm',
+    description:
+      'Góc nhìn chuyên sâu kết nối triết học, toán học và các ranh giới nhận thức của con người.',
+    url: '/essays',
+  },
 };
 
 export default function EssaysArchivePage() {

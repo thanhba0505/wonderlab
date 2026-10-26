@@ -4,9 +4,18 @@ import { ArrowLeft } from 'lucide-react';
 import { RequestListView } from '@/features/simulation-requests/components/request-list-view';
 
 export const metadata: Metadata = {
-  title: 'Đề xuất Bài toán & Lộ trình Thí nghiệm — Wonderlab',
+  title: 'Đề xuất Bài toán & Lộ trình Thí nghiệm',
   description:
     'Gửi ý tưởng bài toán hoặc nghịch lý khoa học bạn muốn Wonderlab mô phỏng trực quan. Bình chọn những thí nghiệm yêu thích để định hình lộ trình phát triển của phòng Lab.',
+  alternates: {
+    canonical: '/requests',
+  },
+  openGraph: {
+    title: 'Đề xuất Bài toán & Lộ trình Thí nghiệm',
+    description:
+      'Gửi ý tưởng bài toán hoặc nghịch lý khoa học bạn muốn Wonderlab mô phỏng trực quan. Bình chọn những thí nghiệm yêu thích để định hình lộ trình phát triển của phòng Lab.',
+    url: '/requests',
+  },
 };
 
 export default function SimulationRequestsPage() {

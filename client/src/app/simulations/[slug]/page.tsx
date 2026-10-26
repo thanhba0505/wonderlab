@@ -10,6 +10,7 @@ import { ZenoSimulation } from '@/features/zeno-paradox/zeno-simulation';
 import { CommentSection } from '@/features/simulations/components/comment-section';
 import { SimulationMathCard } from '@/features/simulations/components/simulation-math-card';
 import { SimulationSection } from '@/features/simulations/components/simulation-section';
+import { SimulationJsonLd } from './SimulationJsonLd';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Clock, FlaskConical, Sparkles } from 'lucide-react';
@@ -33,13 +34,30 @@ export async function generateMetadata({ params }: SimulationPageProps): Promise
 
   if (!sim) {
     return {
-      title: 'Không tìm thấy mô phỏng — Wonderlab',
+      title: 'Không tìm thấy mô phỏng',
     };
   }
 
+  const description = sim.description || sim.summary;
+
   return {
-    title: `${sim.title} — Wonderlab`,
-    description: sim.summary,
+    title: sim.title,
+    description,
+    alternates: {
+      canonical: `/simulations/${slug}`,
+    },
+    openGraph: {
+      title: sim.title,
+      description,
+      url: `/simulations/${slug}`,
+      type: 'article',
+      tags: sim.tags,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: sim.title,
+      description,
+    },
   };
 }
 
@@ -51,8 +69,13 @@ export default async function SimulationPage({ params }: SimulationPageProps) {
     notFound();
   }
 
+  const rawBaseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://wonderlab.vn';
+  const baseUrl = rawBaseUrl.replace(/\/$/, '');
+  const canonicalUrl = `${baseUrl}/simulations/${slug}`;
+
   return (
     <div className="flex flex-col gap-6">
+      <SimulationJsonLd simulation={sim} url={canonicalUrl} baseUrl={baseUrl} />
       {/* Breadcrumb và Header điều hướng */}
       <div className="flex flex-col gap-3 border-b border-slate-200 pb-5">
         <div className="flex items-center gap-2 text-xs font-mono text-slate-500">
