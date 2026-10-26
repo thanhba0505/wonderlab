@@ -4,6 +4,8 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { AdminSidebar } from './admin-sidebar';
 import { AuthUser } from '@/types';
 
+import { adminNavVi } from '@/i18n/locales/vi/nav';
+
 // @ts-expect-error global flag for react act
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 
@@ -45,14 +47,14 @@ describe('AdminSidebar (Role-based Console Navigation)', () => {
 
     const text = container.textContent || '';
     // Personal tabs MUST be present
-    expect(text).toContain('Tổng quan Cá nhân');
-    expect(text).toContain('Hồ sơ & Bảo mật');
+    expect(text).toContain(adminNavVi.personal_overview);
+    expect(text).toContain(adminNavVi.personal_profile);
 
     // Admin-exclusive tabs MUST NOT be present
-    expect(text).not.toContain('Cài đặt Thí nghiệm');
-    expect(text).not.toContain('Quản lý Người dùng');
-    expect(text).not.toContain('Kiểm duyệt Bình luận');
-    expect(text).not.toContain('Cài đặt Nền tảng');
+    expect(text).not.toContain(adminNavVi.system_simulations);
+    expect(text).not.toContain(adminNavVi.system_users);
+    expect(text).not.toContain(adminNavVi.system_comments);
+    expect(text).not.toContain(adminNavVi.system_settings);
     expect(text).not.toContain('Quản trị Toàn sàn');
   });
 
@@ -73,13 +75,13 @@ describe('AdminSidebar (Role-based Console Navigation)', () => {
 
     const text = container.textContent || '';
     // Both personal and admin tabs must be present
-    expect(text).toContain('Tổng quan Cá nhân');
-    expect(text).toContain('Hồ sơ & Bảo mật');
-    expect(text).toContain('Tổng quan Hệ thống');
-    expect(text).toContain('Cài đặt Thí nghiệm');
-    expect(text).toContain('Quản lý Người dùng');
-    expect(text).toContain('Kiểm duyệt Bình luận');
-    expect(text).toContain('Cài đặt Nền tảng');
+    expect(text).toContain(adminNavVi.personal_overview);
+    expect(text).toContain(adminNavVi.personal_profile);
+    expect(text).toContain(adminNavVi.system_dashboard);
+    expect(text).toContain(adminNavVi.system_simulations);
+    expect(text).toContain(adminNavVi.system_users);
+    expect(text).toContain(adminNavVi.system_comments);
+    expect(text).toContain(adminNavVi.system_settings);
 
     // Group labels are omitted in favor of dividers
     expect(text).not.toContain('Không gian Cá nhân');

@@ -30,6 +30,9 @@ export interface SimulationHypothesisChallenge {
   biasDescription: string;
 }
 
+export type SimulationHypothesis = SimulationHypothesisChallenge;
+export type SimulationHypothesisOption = HypothesisOption;
+
 export interface SimulationMeta {
   slug: string;
   title: string;

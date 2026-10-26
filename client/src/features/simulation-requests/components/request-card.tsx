@@ -4,17 +4,17 @@ import * as React from 'react';
 import Link from 'next/link';
 import {
   ArrowBigUp,
-  ExternalLink,
   FlaskConical,
-  MessageSquare,
+  ExternalLink,
   Sparkles,
   Sliders,
+  MessageSquare,
   User,
 } from 'lucide-react';
-import { SimulationRequestItem } from '@/lib/simulation-requests-api';
-import { RequestStatusBadge } from './request-status-badge';
 import { AppButton } from '@/components/ui';
 import { cn } from '@/lib/utils';
+import { SimulationRequestItem } from '@/lib/simulation-requests-api';
+import { RequestStatusBadge } from './request-status-badge';
 import { useTranslation } from '@/i18n';
 
 interface RequestCardProps {
@@ -24,13 +24,11 @@ interface RequestCardProps {
 }
 
 export function RequestCard({ request, onToggleVote, isVoting = false }: RequestCardProps) {
-  const { locale } = useTranslation();
-  const isEn = locale === 'en';
-
+  const { locale, dict } = useTranslation();
   const [localVoted, setLocalVoted] = React.useState(request.hasVoted);
   const [localVoteCount, setLocalVoteCount] = React.useState(request.voteCount);
 
-  // Sync state when props update
+  // Sync with prop changes if refreshed
   React.useEffect(() => {
     setLocalVoted(request.hasVoted);
     setLocalVoteCount(request.voteCount);
@@ -50,7 +48,7 @@ export function RequestCard({ request, onToggleVote, isVoting = false }: Request
   const formattedDate = React.useMemo(() => {
     try {
       const d = new Date(request.createdAt);
-      return d.toLocaleDateString(isEn ? 'en-US' : 'vi-VN', {
+      return d.toLocaleDateString(locale === 'en' ? 'en-US' : 'vi-VN', {
         day: '2-digit',
         month: '2-digit',
         year: 'numeric',
@@ -58,7 +56,7 @@ export function RequestCard({ request, onToggleVote, isVoting = false }: Request
     } catch {
       return '';
     }
-  }, [request.createdAt, isEn]);
+  }, [request.createdAt, locale]);
 
   const isCompleted = request.status === 'COMPLETED';
 
@@ -88,11 +86,7 @@ export function RequestCard({ request, onToggleVote, isVoting = false }: Request
           <div className="mt-3 rounded-lg border-l-4 border-l-blue-500 bg-slate-50 p-3 text-xs text-slate-700 leading-relaxed">
             <div className="flex items-center gap-1.5 font-semibold text-blue-900 mb-1">
               <Sparkles className="h-3.5 w-3.5 text-blue-600 shrink-0" />
-              <span>
-                {isEn
-                  ? 'Intuition hook & visual curiosity'
-                  : 'Điểm phản trực giác & trực quan thú vị'}
-              </span>
+              <span>{dict.requests.intuition_hook_title}</span>
             </div>
             <p className="text-slate-600 line-clamp-3">{request.whyInteresting}</p>
           </div>
@@ -104,7 +98,7 @@ export function RequestCard({ request, onToggleVote, isVoting = false }: Request
             <Sliders className="h-3.5 w-3.5 text-slate-400 shrink-0 mt-0.5" />
             <span className="line-clamp-2">
               <strong className="text-slate-700 font-medium">
-                {isEn ? 'Proposed interaction:' : 'Ý tưởng tương tác:'}
+                {dict.requests.proposed_interaction}
               </strong>{' '}
               {request.proposedControls}
             </span>
@@ -121,7 +115,7 @@ export function RequestCard({ request, onToggleVote, isVoting = false }: Request
               className="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 hover:underline transition-colors font-medium"
             >
               <ExternalLink className="h-3.5 w-3.5" />
-              <span>{isEn ? 'Reference literature' : 'Nguồn tài liệu tham khảo'}</span>
+              <span>{dict.requests.reference_literature}</span>
             </a>
           </div>
         )}
@@ -131,9 +125,7 @@ export function RequestCard({ request, onToggleVote, isVoting = false }: Request
           <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50/70 p-3 text-xs text-amber-900 leading-relaxed">
             <div className="flex items-center gap-1.5 font-semibold text-amber-900 mb-1">
               <MessageSquare className="h-3.5 w-3.5 text-amber-700 shrink-0" />
-              <span>
-                {isEn ? 'Scientific editorial feedback' : 'Phản hồi từ Ban Biên tập Khoa học'}
-              </span>
+              <span>{dict.requests.editorial_feedback}</span>
             </div>
             <p className="text-amber-800/90">{request.adminNotes}</p>
           </div>
@@ -164,7 +156,7 @@ export function RequestCard({ request, onToggleVote, isVoting = false }: Request
                 className="bg-emerald-600 hover:bg-emerald-700 text-white"
               >
                 <FlaskConical className="mr-1.5 h-3.5 w-3.5" />
-                <span>{isEn ? 'Launch simulation' : 'Trải nghiệm mô phỏng'}</span>
+                <span>{dict.requests.launch_simulation}</span>
               </AppButton>
             </Link>
           )}
@@ -179,15 +171,7 @@ export function RequestCard({ request, onToggleVote, isVoting = false }: Request
                 ? 'border-blue-500 bg-blue-50 text-blue-700 shadow-2xs'
                 : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50 hover:border-slate-400 shadow-2xs',
             )}
-            title={
-              localVoted
-                ? isEn
-                  ? 'Click to remove upvote'
-                  : 'Bấm để hủy bình chọn'
-                : isEn
-                  ? 'Upvote this proposal'
-                  : 'Bình chọn bài toán này'
-            }
+            title={localVoted ? dict.requests.remove_upvote_tooltip : dict.requests.upvote_tooltip}
             aria-pressed={localVoted}
           >
             <ArrowBigUp
@@ -198,7 +182,7 @@ export function RequestCard({ request, onToggleVote, isVoting = false }: Request
             />
             <span className="font-mono tabular-nums text-xs font-bold">{localVoteCount}</span>
             <span className="text-slate-500 font-normal">
-              {localVoted ? (isEn ? 'Voted' : 'Đã vote') : isEn ? 'Vote' : 'Vote'}
+              {localVoted ? dict.requests.voted_btn : dict.requests.vote_btn}
             </span>
           </button>
         </div>

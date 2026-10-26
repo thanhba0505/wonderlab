@@ -52,8 +52,10 @@ function createDeterministicRng(seed = 2026) {
 }
 
 export const BirthdaySimulation: React.FC = () => {
-  const { locale } = useTranslation();
-  const isEn = locale === 'en';
+  const { locale, dict } = useTranslation();
+  const bDict = dict.sim_birthday;
+  const exp = dict.simulations.export;
+  const tel = dict.simulations.telemetry;
   const meta = useSimulationMeta('birthday-paradox');
   const [userPrediction, setUserPrediction] = useState<{
     option: HypothesisOption;
@@ -332,34 +334,20 @@ export const BirthdaySimulation: React.FC = () => {
       <hr className="border-slate-200/80 -mt-2" />
 
       {/* 2. TITLE CÂU HỎI & CÂU HỎI TRỰC GIÁC */}
-      <SimulationSection
-        dotColor="amber"
-        title={isEn ? 'Pre-experiment Intuition Survey' : 'Khảo Sát Trực Giác Trước Thực Nghiệm'}
-        subtitle={
-          isEn
-            ? 'Make a personal prediction to measure the gap between naive intuition and probability'
-            : 'Đưa ra dự đoán cá nhân để đo lường khoảng cách giữa trực giác thông thường và toán học xác suất'
-        }
-      >
+      <SimulationSection dotColor="amber" title={bDict.survey_title} subtitle={bDict.survey_desc}>
         {meta?.hypothesis && (
           <IntuitionChallengeCard
             challenge={meta.hypothesis}
             simulationSlug="birthday-paradox"
-            onPredictionSelected={(option, gap) => setUserPrediction({ option, gap })}
+            onPredictionSelected={(option: HypothesisOption, gap: number) =>
+              setUserPrediction({ option, gap })
+            }
           />
         )}
       </SimulationSection>
 
       {/* 3. TITLE CHỖ THÍ NGHIỆM & BLOCK THÍ NGHIỆM HỢP NHẤT */}
-      <SimulationSection
-        dotColor="blue"
-        title={isEn ? 'Laboratory & Visual Simulation' : 'Buồng Thí Nghiệm & Mô Phỏng Trực Quan'}
-        subtitle={
-          isEn
-            ? 'Interactive parameter manipulation, spatial collision radar, and Monte Carlo engine'
-            : 'Không gian thao tác tham số trực tiếp, radar va chạm không gian và mô phỏng Monte Carlo'
-        }
-      >
+      <SimulationSection dotColor="blue" title={bDict.sim_title} subtitle={bDict.sim_desc}>
         {/* 🧪 BLOCK THÍ NGHIỆM HỢP NHẤT (Single Unified Lab Workbench - Không lồng khung) */}
         <div className="rounded-2xl border border-slate-300/85 bg-white shadow-xs p-5 sm:p-6 space-y-6">
           {/* [A] Thanh trạng thái đo lường nhỏ gọn (Không viền hộp lồng nhau) */}
@@ -367,70 +355,64 @@ export const BirthdaySimulation: React.FC = () => {
             {/* Metric 1: Group size n */}
             <div className="space-y-1">
               <div className="text-xs font-semibold tracking-wider text-slate-500 uppercase">
-                {isEn ? 'Room population (n)' : 'Số người trong phòng (n)'}
+                {bDict.room_population}
               </div>
               <div className="font-mono text-2xl sm:text-3xl font-bold text-slate-900 tabular-nums">
                 {n}
               </div>
               <div className="text-xs text-slate-500 font-mono">
-                {totalPairs} {isEn ? 'pairwise comparisons' : 'cặp đối sánh'}
+                {totalPairs} {bDict.pairwise_comparisons}
               </div>
             </div>
 
             {/* Metric 2: Theoretical P(n) */}
             <div className="space-y-1 sm:border-l sm:border-slate-200/80 sm:pl-4">
               <div className="text-xs font-semibold tracking-wider text-slate-500 uppercase">
-                {isEn ? 'Theoretical Probability P(n)' : 'Xác suất Lý thuyết P(n)'}
+                {bDict.theoretical_prob}
               </div>
               <div className="font-mono text-2xl sm:text-3xl font-bold text-blue-700 tabular-nums">
                 {(theoreticalP * 100).toFixed(1)}%
               </div>
               <div className="text-xs text-slate-500 font-sans">
-                {n >= 23
-                  ? isEn
-                    ? 'Exceeds 50% ★'
-                    : 'Vượt ngưỡng 50% ★'
-                  : isEn
-                    ? 'Below 50%'
-                    : 'Dưới ngưỡng 50%'}
+                {n >= 23 ? '> 50% ★' : '< 50%'}
               </div>
             </div>
 
             {/* Metric 3: Current room collision */}
             <div className="space-y-1 border-t sm:border-t-0 pt-3 sm:pt-0 sm:border-l sm:border-slate-200/80 sm:pl-4">
               <div className="text-xs font-semibold tracking-wider text-slate-500 uppercase">
-                {isEn ? 'Current Room' : 'Phòng hiện tại'}
+                {bDict.current_room}
               </div>
               <div className="flex items-center gap-1.5 font-mono text-xl sm:text-2xl font-bold pt-0.5">
                 {room.hasCollision ? (
                   <>
                     <CheckCircle2 className="h-5 w-5 text-amber-600" />
-                    <span className="text-amber-700">{isEn ? 'Collision' : 'Có trùng'}</span>
+                    <span className="text-amber-700">{bDict.collision}</span>
                   </>
                 ) : (
                   <>
                     <XCircle className="h-5 w-5 text-slate-400" />
-                    <span className="text-slate-600">{isEn ? 'No collision' : 'Không trùng'}</span>
+                    <span className="text-slate-600">{bDict.no_collision}</span>
                   </>
                 )}
               </div>
               <div className="font-mono text-xs text-slate-500 tabular-nums">
-                {room.collisionPairs.length} {isEn ? 'shared pairs' : 'cặp trùng nhau'}
+                {room.collisionPairs.length} {bDict.shared_pairs}
               </div>
             </div>
 
             {/* Metric 4: Monte Carlo rate */}
             <div className="space-y-1 border-t sm:border-t-0 pt-3 sm:pt-0 sm:border-l sm:border-slate-200/80 sm:pl-4">
               <div className="text-xs font-semibold tracking-wider text-slate-500 uppercase">
-                {isEn ? 'Monte Carlo Trials' : 'Thực nghiệm Monte Carlo'}
+                {bDict.monte_carlo_trials}
               </div>
               <div className="font-mono text-2xl sm:text-3xl font-bold text-emerald-700 tabular-nums">
                 {(currentEmpiricalRate * 100).toFixed(1)}%
               </div>
               <div className="font-mono text-xs text-slate-500 tabular-nums">
                 {monteCarloResult
-                  ? `${monteCarloResult.collisions}/${monteCarloResult.trials} ${isEn ? 'rooms' : 'phòng'}`
-                  : `${sessionCollisionCount}/${sessionRoomsCount} ${isEn ? 'trials' : 'lần thử'}`}
+                  ? `${monteCarloResult.collisions}/${monteCarloResult.trials} ${bDict.rooms_unit}`
+                  : `${sessionCollisionCount}/${sessionRoomsCount} ${bDict.trials_unit}`}
               </div>
             </div>
           </div>
@@ -445,13 +427,13 @@ export const BirthdaySimulation: React.FC = () => {
                   <div className="flex items-center gap-2">
                     <Sliders className="h-4 w-4 text-blue-600" />
                     <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800 font-heading">
-                      {isEn ? 'Laboratory Parameters' : 'Tham số Buồng Thí nghiệm'}
+                      {bDict.lab_parameters}
                     </h3>
                   </div>
                   {room.hasCollision && (
                     <Badge className="bg-amber-100 text-amber-800 border-amber-300 text-xs">
                       <Sparkles className="mr-1 h-3 w-3" />
-                      {isEn ? 'Collision!' : 'Va chạm!'}
+                      {bDict.collision_exclamation}
                     </Badge>
                   )}
                 </div>
@@ -475,7 +457,7 @@ export const BirthdaySimulation: React.FC = () => {
                 <div className="flex items-center gap-2 pb-1">
                   <Radar className="h-4 w-4 text-violet-600" />
                   <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800 font-heading">
-                    {isEn ? 'Spatial Radar Chamber' : 'Buồng Radar Không gian (Chamber View)'}
+                    {bDict.spatial_radar}
                   </h3>
                 </div>
                 <div className="flex justify-center pt-1">
@@ -517,10 +499,10 @@ export const BirthdaySimulation: React.FC = () => {
                 size="sm"
                 onClick={handleExportCsv}
                 className="h-7 gap-1.5 border-slate-300 bg-white font-mono text-xs text-slate-700 hover:bg-slate-50 hover:text-slate-900"
-                title={isEn ? 'Export CSV Spreadsheet' : 'Tải tệp bảng tính CSV'}
+                title={exp.csv_title}
               >
                 <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-600" />
-                {isEn ? 'Export CSV' : 'Xuất CSV'}
+                {exp.csv}
               </Button>
 
               <Button
@@ -528,10 +510,10 @@ export const BirthdaySimulation: React.FC = () => {
                 size="sm"
                 onClick={handleExportJson}
                 className="h-7 gap-1.5 border-slate-300 bg-white font-mono text-xs text-slate-700 hover:bg-slate-50 hover:text-slate-900"
-                title={isEn ? 'Export JSON Data' : 'Tải tệp JSON dữ liệu'}
+                title={exp.json_title}
               >
                 <FileJson className="h-3.5 w-3.5 text-blue-600" />
-                {isEn ? 'Export JSON' : 'Xuất JSON'}
+                {exp.json}
               </Button>
 
               <Button
@@ -539,19 +521,17 @@ export const BirthdaySimulation: React.FC = () => {
                 size="sm"
                 onClick={handleCopyReport}
                 className="h-7 gap-1.5 border-slate-300 bg-white font-mono text-xs text-slate-700 hover:bg-slate-50 hover:text-slate-900"
-                title={isEn ? 'Copy Markdown Report' : 'Sao chép báo cáo Markdown'}
+                title={exp.report_title}
               >
                 {copiedType === 'report' ? (
                   <>
                     <Check className="h-3.5 w-3.5 text-emerald-600" />
-                    <span className="text-emerald-700 font-semibold">
-                      {isEn ? 'Copied!' : 'Đã chép!'}
-                    </span>
+                    <span className="text-emerald-700 font-semibold">{exp.copied}</span>
                   </>
                 ) : (
                   <>
                     <Copy className="h-3.5 w-3.5 text-slate-500" />
-                    {isEn ? 'Copy Report' : 'Chép Báo cáo'}
+                    {exp.report}
                   </>
                 )}
               </Button>
@@ -561,19 +541,17 @@ export const BirthdaySimulation: React.FC = () => {
                 size="sm"
                 onClick={handleShareUrl}
                 className="h-7 gap-1.5 border-slate-300 bg-white font-mono text-xs text-slate-700 hover:bg-slate-50 hover:text-slate-900"
-                title={isEn ? 'Copy Parameter Share Link' : 'Sao chép liên kết chia sẻ tham số'}
+                title={exp.share_link_title}
               >
                 {copiedType === 'url' ? (
                   <>
                     <Check className="h-3.5 w-3.5 text-emerald-600" />
-                    <span className="text-emerald-700 font-semibold">
-                      {isEn ? 'Link Copied!' : 'Đã chép Link!'}
-                    </span>
+                    <span className="text-emerald-700 font-semibold">{exp.link_copied}</span>
                   </>
                 ) : (
                   <>
                     <Share2 className="h-3.5 w-3.5 text-violet-600" />
-                    {isEn ? 'Share Link' : 'Chia sẻ URL'}
+                    {exp.share_link}
                   </>
                 )}
               </Button>
@@ -588,23 +566,23 @@ export const BirthdaySimulation: React.FC = () => {
                   <div className="flex items-center gap-1 text-slate-700">
                     <Database className="h-3.5 w-3.5 text-blue-600" />
                     <span className="font-bold text-blue-700 tabular-nums">
-                      {globalStats.totalTrials.toLocaleString(isEn ? 'en-US' : 'vi-VN')}
+                      {globalStats.totalTrials.toLocaleString(locale === 'en' ? 'en-US' : 'vi-VN')}
                     </span>
-                    <span className="text-slate-400">{isEn ? 'trials' : 'phép thử'}</span>
+                    <span className="text-slate-400">{tel.trials}</span>
                   </div>
                   <span className="text-slate-300">•</span>
                   <div className="flex items-center gap-1 text-slate-600">
                     <Sparkles className="h-3.5 w-3.5 text-amber-500" />
                     <span className="font-bold text-slate-800 tabular-nums">
-                      {globalStats.totalRuns.toLocaleString(isEn ? 'en-US' : 'vi-VN')}
+                      {globalStats.totalRuns.toLocaleString(locale === 'en' ? 'en-US' : 'vi-VN')}
                     </span>
-                    <span className="text-slate-400">{isEn ? 'runs' : 'lượt'}</span>
+                    <span className="text-slate-400">{tel.runs}</span>
                   </div>
                 </div>
               ) : (
                 <div className="flex items-center gap-2 text-xs text-slate-500">
                   <Activity className="h-3.5 w-3.5 text-blue-600 animate-pulse" />
-                  <span>{isEn ? 'Ready for telemetry' : 'Sẵn sàng thu thập telemetry'}</span>
+                  <span>{tel.ready}</span>
                 </div>
               )}
             </div>
@@ -615,12 +593,8 @@ export const BirthdaySimulation: React.FC = () => {
       {/* 4. TITLE NHẬT KÝ & NHẬT KÝ THỰC NGHIỆM */}
       <SimulationSection
         dotColor="emerald"
-        title={isEn ? 'Experimental Log' : 'Nhật Ký Thực Nghiệm'}
-        subtitle={
-          isEn
-            ? 'Detailed trial history and experiment logs recorded during this session'
-            : 'Bảng lưu trữ chi tiết các lượt chạy và kết quả thực nghiệm trong phiên nghiên cứu'
-        }
+        title={dict.simulations.history.title}
+        subtitle={dict.simulations.history.auto_synced}
       >
         <SimulationHistoryTable
           runs={history}
@@ -636,16 +610,8 @@ export const BirthdaySimulation: React.FC = () => {
       {/* 5. TITLE GIẢI THÍCH & GIẢI THÍCH KHOA HỌC */}
       <SimulationSection
         dotColor="blue"
-        title={
-          isEn
-            ? 'Scientific Explanation & Mathematical Foundation'
-            : 'Giải Thích Khoa Học & Bản Chất Toán Học'
-        }
-        subtitle={
-          isEn
-            ? 'Deconstructing the paradox root cause and the combinatorial explosion of comparison pairs'
-            : 'Bóc tách nguyên nhân nghịch lý và sự bùng nổ tổ hợp của các cặp đối sánh'
-        }
+        title={dict.simulations.explanation}
+        subtitle={bDict.explainer_desc}
       >
         <SimulationExplainerCard>
           <IntuitionExplainer currentN={n} />

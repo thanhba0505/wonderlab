@@ -16,14 +16,6 @@ export interface GalleryControlsProps {
   onToggleVertexMode: (vertexOnly: boolean) => void;
 }
 
-const PRESET_NAMES_EN: Record<string, string> = {
-  'chvatal-comb-3': 'Chvátal Comb Room (9 vertices)',
-  'chvatal-comb-4': 'Large Comb Room (12 vertices)',
-  'l-shaped': 'L-Shaped Room (6 vertices)',
-  'convex-hexagon': 'Convex Hexagon (6 vertices)',
-  'zigzag-hallway': 'Zigzag Hallway (10 vertices)',
-};
-
 export const GalleryControls: React.FC<GalleryControlsProps> = ({
   currentPresetId,
   onSelectPreset,
@@ -33,8 +25,7 @@ export const GalleryControls: React.FC<GalleryControlsProps> = ({
   isVertexOnlyMode,
   onToggleVertexMode,
 }) => {
-  const { locale } = useTranslation();
-  const isEn = locale === 'en';
+  const { dict } = useTranslation();
   const [randomVerticesCount, setRandomVerticesCount] = React.useState<number>(9);
 
   return (
@@ -43,12 +34,13 @@ export const GalleryControls: React.FC<GalleryControlsProps> = ({
       <div className="space-y-2.5">
         <div className="flex items-center justify-between">
           <label className="font-heading text-xs font-bold uppercase tracking-wider text-slate-800">
-            {isEn ? 'Classic Preset Gallery' : 'Thư Viện Phòng Mẫu Kinh Điển'}
+            {dict.sim_art_gallery.presets_title}
           </label>
           <span className="font-mono text-xs text-slate-500">
-            {isEn
-              ? `${GALLERY_PRESETS.length} presets available`
-              : `${GALLERY_PRESETS.length} mẫu có sẵn`}
+            {dict.sim_art_gallery.presets_available.replace(
+              '{count}',
+              String(GALLERY_PRESETS.length),
+            )}
           </span>
         </div>
 
@@ -66,12 +58,12 @@ export const GalleryControls: React.FC<GalleryControlsProps> = ({
                 }`}
               >
                 <span className="font-sans text-xs font-semibold leading-tight line-clamp-1">
-                  {isEn ? (PRESET_NAMES_EN[preset.id] ?? preset.name) : preset.name}
+                  {dict.sim_art_gallery.preset_names[preset.id] ?? preset.name}
                 </span>
                 <span className="font-mono text-xs text-slate-500 mt-1">
-                  {isEn
-                    ? `n = ${preset.vertices.length} • Needs ≥ ${preset.recommendedGuards} guards`
-                    : `n = ${preset.vertices.length} • Cần ≥ ${preset.recommendedGuards} lính`}
+                  {dict.sim_art_gallery.needs_guards
+                    .replace('{vertices}', String(preset.vertices.length))
+                    .replace('{guards}', String(preset.recommendedGuards))}
                 </span>
               </button>
             );
@@ -85,10 +77,10 @@ export const GalleryControls: React.FC<GalleryControlsProps> = ({
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <label className="font-heading text-xs font-bold uppercase tracking-wider text-slate-800">
-            {isEn ? 'Generate Random Polygon Room' : 'Tạo Phòng Đa Giác Ngẫu Nhiên'}
+            {dict.sim_art_gallery.random_room_title}
           </label>
           <span className="font-mono text-xs font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded">
-            {isEn ? `n = ${randomVerticesCount} Vertices` : `n = ${randomVerticesCount} Đỉnh`}
+            {dict.sim_art_gallery.vertices_badge.replace('{count}', String(randomVerticesCount))}
           </span>
         </div>
 
@@ -107,8 +99,8 @@ export const GalleryControls: React.FC<GalleryControlsProps> = ({
             <span className="font-mono text-xs text-slate-500">16</span>
           </div>
           <div className="flex items-center justify-between text-xs text-slate-500 font-sans">
-            <span>{isEn ? 'Simple (fewer nooks)' : 'Đơn giản (ít ngách)'}</span>
-            <span>{isEn ? 'Complex (more blind spots)' : 'Phức tạp (nhiều góc khuất)'}</span>
+            <span>{dict.sim_art_gallery.simple_desc}</span>
+            <span>{dict.sim_art_gallery.complex_desc}</span>
           </div>
         </div>
 
@@ -119,9 +111,7 @@ export const GalleryControls: React.FC<GalleryControlsProps> = ({
         >
           <Shuffle className="h-4 w-4 text-blue-600" />
           <span>
-            {isEn
-              ? `Generate Random Room (${randomVerticesCount} Vertices)`
-              : `Sinh Phòng Ngẫu Nhiên (${randomVerticesCount} Đỉnh)`}
+            {dict.sim_art_gallery.generate_btn.replace('{count}', String(randomVerticesCount))}
           </span>
         </Button>
       </div>
@@ -131,7 +121,7 @@ export const GalleryControls: React.FC<GalleryControlsProps> = ({
       {/* 3. Chế độ đặt lính & Thao tác tự động */}
       <div className="space-y-3">
         <label className="font-heading text-xs font-bold uppercase tracking-wider text-slate-800">
-          {isEn ? 'Guard Placement Mode & Solutions' : 'Chế Độ Đặt Người Gác & Lời Giải'}
+          {dict.sim_art_gallery.placement_mode_title}
         </label>
 
         <div className="grid grid-cols-2 gap-2">
@@ -144,7 +134,7 @@ export const GalleryControls: React.FC<GalleryControlsProps> = ({
             }`}
           >
             <Shield className="h-3.5 w-3.5 text-blue-600" />
-            <span>{isEn ? 'Vertices Only' : 'Chỉ tại đỉnh phòng'}</span>
+            <span>{dict.sim_art_gallery.mode_vertices_only}</span>
           </button>
 
           <button
@@ -156,7 +146,7 @@ export const GalleryControls: React.FC<GalleryControlsProps> = ({
             }`}
           >
             <Crosshair className="h-3.5 w-3.5 text-blue-600" />
-            <span>{isEn ? 'Anywhere in Room' : 'Tự do trong phòng'}</span>
+            <span>{dict.sim_art_gallery.mode_anywhere}</span>
           </button>
         </div>
 
@@ -166,7 +156,7 @@ export const GalleryControls: React.FC<GalleryControlsProps> = ({
             className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium flex items-center justify-center gap-2 active:scale-[0.98]"
           >
             <Wand2 className="h-3.5 w-3.5" />
-            <span>{isEn ? 'Auto-place Guards (Fisk)' : 'Tự Đặt Lính (Steve Fisk)'}</span>
+            <span>{dict.sim_art_gallery.auto_fisk_btn}</span>
           </Button>
 
           <Button
@@ -175,7 +165,7 @@ export const GalleryControls: React.FC<GalleryControlsProps> = ({
             className="border-slate-300 text-slate-700 hover:bg-slate-100 text-xs font-medium flex items-center justify-center gap-2 active:scale-[0.98]"
           >
             <RotateCcw className="h-3.5 w-3.5 text-slate-500" />
-            <span>{isEn ? 'Reset to Default' : 'Đặt Lại Về Mặc Định'}</span>
+            <span>{dict.sim_art_gallery.reset_default_btn}</span>
           </Button>
         </div>
       </div>

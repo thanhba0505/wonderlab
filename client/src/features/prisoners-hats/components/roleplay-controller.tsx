@@ -39,8 +39,8 @@ export function RoleplayController({
   onUserSubmitGuess,
   onResetChallenge,
 }: RoleplayControllerProps) {
-  const { locale } = useTranslation();
-  const isEn = locale === 'en';
+  const { dict } = useTranslation();
+  const t = dict.sim_prisoners_hats;
   const [showHint, setShowHint] = React.useState<boolean>(false);
   const palette = getPalette(colorCount);
 
@@ -71,23 +71,15 @@ export function RoleplayController({
           </div>
           <div>
             <h3 className="font-heading text-sm font-bold text-slate-900">
-              {isEn
-                ? 'Roleplay Mode: You Are in the Lineup'
-                : 'Chế Độ Nhập Vai: Bạn Đang Đứng Trong Hàng'}
+              {t.roleplay_panel_title}
             </h3>
-            <p className="text-xs text-slate-500 font-sans">
-              {isEn
-                ? 'Your hat is concealed. Deducing your color based on observation and team calls!'
-                : 'Mũ của bạn bị giấu kín. Dựa vào quan sát và câu hô của đồng đội để tự suy luận!'}
-            </p>
+            <p className="text-xs text-slate-500 font-sans">{t.roleplay_panel_desc}</p>
           </div>
         </div>
 
         {/* Position Selector */}
         <div className="flex items-center gap-1.5 text-xs font-sans">
-          <span className="text-slate-500 font-medium">
-            {isEn ? 'Select your position:' : 'Chọn vị trí của bạn:'}
-          </span>
+          <span className="text-slate-500 font-medium">{t.select_position}</span>
           <div className="flex items-center gap-1 overflow-x-auto max-w-[200px] sm:max-w-none">
             {Array.from({ length: n }, (_, i) => i + 1).map(pos => (
               <button
@@ -115,16 +107,14 @@ export function RoleplayController({
         <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
           <div className="flex items-center gap-2">
             <span className="font-semibold text-slate-800">
-              {isEn ? 'Your position: ' : 'Vị trí của bạn: '}
+              {t.your_position_label}
               <span className="text-blue-700 font-bold">
-                {isEn ? `Person #${rolePlayPosition}` : `Người #${rolePlayPosition}`}
+                {t.person_tag.replace('{id}', String(rolePlayPosition))}
               </span>
             </span>
             {rolePlayPosition === n && (
               <span className="bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-medium text-xs">
-                {isEn
-                  ? 'Sacrifice person transmitting parity signal'
-                  : 'Người hy sinh phát tín hiệu Parity'}
+                {t.sacrifice_transmitting_badge}
               </span>
             )}
           </div>
@@ -132,25 +122,17 @@ export function RoleplayController({
           <div className="flex items-center gap-2 text-slate-500">
             <Eye className="h-3.5 w-3.5 text-slate-400" />
             <span>
-              {isEn ? 'Visible ahead: ' : 'Phía trước nhìn thấy: '}
-              <strong>
-                {seenHatsAhead.length} {isEn ? 'people' : 'người'}
-              </strong>
+              {t.visible_ahead_label}
+              <strong>{t.people_count.replace('{count}', String(seenHatsAhead.length))}</strong>
             </span>
           </div>
         </div>
 
         {/* Visible hats summary */}
         <div className="text-xs text-slate-600 font-sans flex flex-wrap items-center gap-2 bg-white p-2.5 rounded border border-slate-200">
-          <span className="text-slate-500">
-            {isEn ? 'Hats visible in front:' : 'Mũ bạn nhìn thấy phía trước:'}
-          </span>
+          <span className="text-slate-500">{t.hats_visible_in_front}</span>
           {seenHatsAhead.length === 0 ? (
-            <span className="italic text-slate-400">
-              {isEn
-                ? 'Nobody ahead (you are the front person #1).'
-                : 'Không có ai phía trước (bạn là người đầu hàng #1).'}
-            </span>
+            <span className="italic text-slate-400">{t.nobody_ahead}</span>
           ) : (
             <div className="flex items-center gap-1">
               {seenHatsAhead.map((color, idx) => {
@@ -164,7 +146,9 @@ export function RoleplayController({
                       borderColor: meta.id === 0 ? '#cbd5e1' : '#0f172a',
                       color: meta.textHex,
                     }}
-                    title={`${isEn ? 'Person' : 'Người'} #${idx + 1}: ${meta.label}`}
+                    title={t.person_tooltip
+                      .replace('{id}', String(idx + 1))
+                      .replace('{label}', meta.label)}
                   >
                     {meta.id}
                   </span>
@@ -172,7 +156,10 @@ export function RoleplayController({
               })}
               {colorCount === 2 && (
                 <span className="ml-2 font-mono text-slate-700">
-                  (&Sigma; {isEn ? 'Black' : 'Đen'} = {seenBlackCount}, mod 2 = {seenBlackCount % 2}
+                  (
+                  {t.sum_black_label
+                    .replace('{sum}', String(seenBlackCount))
+                    .replace('{mod}', String(seenBlackCount % 2))}
                   )
                 </span>
               )}
@@ -187,13 +174,7 @@ export function RoleplayController({
           <div>
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-800 font-heading">
-                {isMyTurn
-                  ? isEn
-                    ? '🎯 It is your turn! Select your hat color:'
-                    : '🎯 Đã đến lượt bạn! Hãy bấm chọn màu mũ của mình:'
-                  : isEn
-                    ? 'Waiting for your turn in the lineup...'
-                    : 'Đang chờ đến lượt bạn trong hàng...'}
+                {isMyTurn ? t.your_turn_prompt : t.waiting_turn_prompt}
               </span>
 
               <Button
@@ -203,13 +184,7 @@ export function RoleplayController({
                 className="text-xs text-blue-600 hover:text-blue-700 h-7 px-2"
               >
                 <Lightbulb className="mr-1 h-3.5 w-3.5 text-amber-500" />
-                {showHint
-                  ? isEn
-                    ? 'Hide hint'
-                    : 'Ẩn gợi ý'
-                  : isEn
-                    ? 'Open hint handbook'
-                    : 'Mở sổ tay gợi ý'}
+                {showHint ? t.hide_hint : t.open_hint}
               </Button>
             </div>
 
@@ -218,20 +193,12 @@ export function RoleplayController({
               <div className="mb-3 rounded-lg border border-amber-200 bg-amber-50/70 p-3 text-xs text-amber-900 space-y-1.5 animate-fade-in font-sans">
                 <div className="font-semibold flex items-center gap-1">
                   <Sparkles className="h-3.5 w-3.5 text-amber-600" />
-                  {isEn ? 'Deduction tip:' : 'Mẹo suy luận:'}
+                  {t.deduction_tip_title}
                 </div>
                 {rolePlayPosition === n ? (
-                  <p>
-                    {isEn
-                      ? `You are at the back of the lineup! Count total visible ${colorCount === 2 ? 'Black' : ''} hats in front. If the count is ${colorCount === 2 ? 'Even call White (0), if Odd call Black (1)' : 'take sum mod 3 and call corresponding color'}.`
-                      : `Bạn là người cuối hàng! Hãy đếm tổng số mũ ${colorCount === 2 ? 'Đen' : ''} phía trước. Nếu số lượng là ${colorCount === 2 ? 'Chẵn thì hô Trắng (0), Lẻ thì hô Đen (1)' : 'tính tổng mod 3 và hô màu tương ứng'}.`}
-                  </p>
+                  <p>{colorCount === 2 ? t.tip_sacrifice_2 : t.tip_sacrifice_3}</p>
                 ) : (
-                  <p>
-                    {isEn
-                      ? `Take current expected Parity (transmitted from behind) minus the sum of hats visible ahead mod ${colorCount}. The result is exactly your hat color!`
-                      : `Lấy Parity kỳ vọng hiện tại (do người trước để lại) trừ đi tổng mũ bạn thấy trước mặt mod ${colorCount}. Kết quả chính là màu mũ của bạn!`}
-                  </p>
+                  <p>{t.tip_deduction_formula.replace('{k}', String(colorCount))}</p>
                 )}
               </div>
             )}
@@ -250,9 +217,9 @@ export function RoleplayController({
                     style={{ backgroundColor: color.bgHex }}
                   />
                   <span>
-                    {isEn
-                      ? `Guess ${color.label.toUpperCase()} (${color.id})`
-                      : `Đoán Mũ ${color.label.toUpperCase()} (${color.id})`}
+                    {t.guess_color_btn
+                      .replace('{color}', color.label.toUpperCase())
+                      .replace('{id}', String(color.id))}
                   </span>
                 </button>
               ))}
@@ -280,13 +247,7 @@ export function RoleplayController({
                     </div>
                   )}
                   <h4 className="font-heading text-sm font-bold">
-                    {evalResult.isCorrect
-                      ? isEn
-                        ? 'Congratulations! Correct Guess'
-                        : 'Chúc Mừng! Bạn Đã Đoán Chính Xác'
-                      : isEn
-                        ? 'Oops! Incorrect Guess'
-                        : 'Rất Tiếc! Kết Quả Chưa Đúng'}
+                    {evalResult.isCorrect ? t.congrats_correct : t.oops_incorrect}
                   </h4>
                 </div>
 
@@ -297,16 +258,14 @@ export function RoleplayController({
                   className="border-slate-300 bg-white text-xs h-7 gap-1"
                 >
                   <RotateCcw className="h-3 w-3" />
-                  {isEn ? 'Try new round' : 'Thử lại ván mới'}
+                  {t.try_again_btn}
                 </Button>
               </div>
 
               <div className="text-xs space-y-1 font-sans leading-relaxed">
                 <p>
-                  <strong>{isEn ? 'Your guess:' : 'Lựa chọn của bạn:'}</strong>{' '}
-                  {isEn ? 'Hat' : 'Mũ'} {evalResult.userGuessLabel} |{' '}
-                  <strong>{isEn ? 'Actual hat:' : 'Mũ thực tế:'}</strong> {isEn ? 'Hat' : 'Mũ'}{' '}
-                  {evalResult.optimalLabel}
+                  <strong>{t.your_guess_label}</strong> {t.hat_word} {evalResult.userGuessLabel} |{' '}
+                  <strong>{t.actual_hat_label}</strong> {t.hat_word} {evalResult.optimalLabel}
                 </p>
                 <p className="pt-1">{evalResult.explanation}</p>
               </div>

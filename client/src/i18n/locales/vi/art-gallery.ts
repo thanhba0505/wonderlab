@@ -1,0 +1,153 @@
+import { ArtGallerySimulationDictionary } from '../../types';
+
+export const artGalleryVi: ArtGallerySimulationDictionary = {
+  survey_title: 'Khảo Sát Trực Giác Trước Thực Nghiệm',
+  survey_desc: 'Hãy thử ước đoán xác suất trước khi xem máy tính mô phỏng kết quả',
+  sim_title: 'Buồng Thí Nghiệm & Mô Phỏng Trực Quan',
+  sim_desc: 'Bài toán phòng trưng bày tranh, tam giác hóa đa giác và định lý Steve Fisk',
+  guard_tip_title: 'Mẹo Bố Trí Lính Gác',
+  guard_tip_body:
+    'Bấm vào các nút đỉnh (chấm tròn) hoặc bấm tự do trong phòng để đặt lính gác. Quan sát vùng màu hổ phách/ngọc bích biểu diễn tầm nhìn được chiếu sáng thời gian thực!',
+  preset_pentagon: 'Ngũ giác đều (5 đỉnh)',
+  preset_hexagon: 'Lục giác (6 đỉnh)',
+  preset_comb: 'Đa giác răng lược (Chvátal Comb)',
+  preset_star: 'Đa giác ngôi sao (Non-convex)',
+  preset_names: {
+    'chvatal-comb-3': 'Phòng Răng Lược Chvátal (9 đỉnh)',
+    'chvatal-comb-4': 'Phòng Lược Lớn (12 đỉnh)',
+    'l-shaped': 'Phòng Chữ L (6 đỉnh)',
+    'convex-hexagon': 'Lục Giác Lồi (6 đỉnh)',
+    'zigzag-hallway': 'Hành Lang Gấp Khúc (10 đỉnh)',
+  },
+  custom_polygon: 'Vẽ đa giác tùy ý',
+  triangulate_step: 'Tam giác hóa (Ear-Clipping)',
+  three_color_step: 'Tô 3 màu đồ thị (3-Coloring)',
+  guards_placed: 'Số lính gác đã bố trí',
+  min_guards_theorem: 'Định lý Chvátal: Tối đa ⌊n/3⌋ lính gác là đủ',
+  fisk_theorem_title: 'Chứng Minh Thanh Lịch Của Steve Fisk (1978)',
+  fisk_theorem_desc:
+    'Mọi đa giác đơn đều có thể tam giác hóa thành đồ thị 3-màu. Chọn tập màu có số đỉnh ít nhất (≤ ⌊n/3⌋) sẽ bao phủ toàn bộ phòng tranh.',
+  ear_clipping_status: 'Trạng thái thuật toán Ear-Clipping',
+  clear_polygon: 'Xóa đa giác để vẽ lại',
+  presets_title: 'Thư Viện Phòng Mẫu Kinh Điển',
+  presets_available: '{count} mẫu có sẵn',
+  needs_guards: 'n = {vertices} • Cần ≥ {guards} lính',
+  random_room_title: 'Tạo Phòng Đa Giác Ngẫu Nhiên',
+  vertices_badge: 'n = {count} Đỉnh',
+  simple_desc: 'Đơn giản (ít ngách)',
+  complex_desc: 'Phức tạp (nhiều góc khuất)',
+  generate_btn: 'Sinh Phòng Ngẫu Nhiên ({count} Đỉnh)',
+  placement_mode_title: 'Chế Độ Đặt Người Gác & Lời Giải',
+  mode_vertices_only: 'Chỉ tại đỉnh phòng',
+  mode_anywhere: 'Tự do trong phòng',
+  auto_fisk_btn: 'Tự Đặt Lính (Steve Fisk)',
+  reset_default_btn: 'Đặt Lại Về Mặc Định',
+  canvas_title: 'Bản Vẽ Phòng & Không Gian Tầm Nhìn',
+  mode_vertex_placement: 'Chế độ: Đặt tại đỉnh phòng',
+  mode_free_placement: 'Chế độ: Tự do trong phòng',
+  vertices_count: 'Đỉnh',
+  guards_count: 'Người gác',
+  chvatal_bound_label: 'Cận Chvátal: ',
+  empty_vertex_guide: 'Bấm vào một đỉnh bất kỳ (chấm tròn) để đặt lính gác quan sát',
+  empty_free_guide: 'Bấm vào bất kỳ đâu trong căn phòng hoặc tại đỉnh để bố trí lính gác',
+  fisk_legend_title: 'Tô 3 màu theo định lý Steve Fisk:',
+  color_amber: 'Màu Hổ Phách',
+  color_emerald: 'Màu Ngọc Bích',
+  color_indigo: 'Màu Chàm',
+  vertices_unit: 'đỉnh',
+  minimal_bound_badge: 'Cực tiểu ≤ ⌊n/3⌋',
+  canvas_helper_hint: 'Click lính gác đã đặt để xóa | Click đỉnh để bật/tắt lính',
+  clear_all_guards_btn: 'Xóa toàn bộ lính',
+  vertices_chvatal_title: 'Số Đỉnh & Cận Chvátal',
+  current_guards_title: 'Số Người Gác Hiện Tại',
+  lte_chvatal: '≤ Cận Chvátal',
+  gt_chvatal: '> Cận Chvátal',
+  coverage_title: 'Độ Phủ Tầm Nhìn',
+  security_status_title: 'Trạng Thái An Ninh',
+  covered_100: 'Bao Quát 100%',
+  blind_spots_remain: 'Còn Góc Khuất',
+  no_blind_spots_desc: 'Không còn góc chết nào trong phòng',
+  need_more_guards_desc: 'Cần thêm lính hoặc đổi góc đặt',
+  fisk_stepper_title: 'Từng Bước Chứng Minh Định Lý Fisk (1978)',
+  fisk_stepper_subtitle: 'Minh họa trực quan 5 giai đoạn chứng minh định lý phòng trưng bày tranh',
+  step_label: 'Bước',
+  triangles_count_label: 'Số tam giác: ',
+  diagonals_count_label: 'Đường chéo nội vi: ',
+  prev_step: 'Bước trước',
+  next_step: 'Bước kế tiếp',
+  color_a: 'Màu A: ',
+  color_b: 'Màu B: ',
+  color_c: 'Màu C: ',
+  pigeonhole_proof_note:
+    'Theo nguyên lý lồng chim (Pigeonhole), trong 3 màu luôn có ít nhất một màu xuất hiện ≤ ⌊n/3⌋ lần. Đặt lính gác vào các đỉnh này sẽ bao phủ 100% căn phòng!',
+  fisk_steps: [
+    {
+      title: 'Bước 0: Khảo sát căn phòng ban đầu',
+      subtitle: 'Đa giác đơn n đỉnh với các góc lồi và lõm',
+      description:
+        'Căn phòng có thể ngoằn ngoèo với nhiều góc khuất. Định lý Chvátal khẳng định ta không bao giờ cần quá ⌊n/3⌋ người gác đặt tại các đỉnh.',
+    },
+    {
+      title: 'Bước 1: Tam giác hóa (Ear Clipping Triangulation)',
+      subtitle: 'Phân rã đa giác thành n - 2 tam giác',
+      description:
+        'Nối các đỉnh bằng các đường chéo nằm trọn bên trong phòng để chia phòng thành các tam giác con. Mỗi tam giác là một hình lồi.',
+    },
+    {
+      title: 'Bước 2: Tô 3 màu các đỉnh (Steve Fisk 3-Coloring)',
+      subtitle: 'Đồ thị đối ngẫu là cây -> Luôn tô được bằng 3 màu',
+      description:
+        'Tô tất cả các đỉnh bằng 3 màu (Hổ phách, Ngọc bích, Tím lam) sao cho mọi tam giác con đều chứa đủ 3 đỉnh mang 3 màu khác biệt.',
+    },
+    {
+      title: 'Bước 3: Nguyên lý Dirichlet & Bố trí lính gác',
+      subtitle: 'Chọn nhóm màu có số đỉnh ít nhất (≤ ⌊n/3⌋)',
+      description:
+        'Theo nguyên lý lồng chim (Pigeonhole), trong 3 màu luôn có ít nhất một màu xuất hiện không quá ⌊n/3⌋ lần. Đặt lính gác vào các đỉnh này!',
+    },
+    {
+      title: 'Bước 4: Kiểm chứng tầm nhìn toàn diện 100%',
+      subtitle: 'Mỗi tam giác được bao quát bởi ít nhất 1 lính gác',
+      description:
+        'Vì mọi tam giác đều có 1 đỉnh thuộc màu được chọn, và tam giác là hình lồi, người gác nhìn thấy trọn vẹn tam giác đó -> 100% căn phòng sáng rực!',
+    },
+  ],
+  explainer_sec1_title: '1. Nguồn Gốc Bài Toán & Câu Hỏi Của Victor Klee (1973)',
+  explainer_sec1_p1:
+    'Năm 1973, tại một hội nghị toán học ở Stanford, nhà toán học Victor Klee đã đặt ra một câu hỏi tưởng chừng đơn giản cho Václav Chvátal: "Một bảo tàng nghệ thuật có n bức tường thẳng liên tiếp (tạo thành một đa giác đơn n đỉnh). Cần bao nhiêu lính gác tĩnh để luôn luôn có thể quan sát hết mọi ngóc ngách của căn phòng, bất kể hình thù căn phòng quái dị ra sao?"',
+  explainer_sec1_p2:
+    'Chỉ ít lâu sau, năm 1975, Václav Chvátal đã chứng minh thành công định lý mang tên ông: Số người gác luôn luôn đủ và đôi khi là bắt buộc chính xác bằng ⌊n/3⌋.',
+  explainer_sec2_title: '2. Vẻ Đẹp Kỳ Diệu Trong Chứng Minh Của Steve Fisk (1978)',
+  explainer_sec2_p1:
+    'Lời giải ban đầu của Chvátal dùng quy nạp hình học rất phức tạp và dài dòng. Năm 1978, Steve Fisk công bố một chứng minh chỉ vỏn vẹn trong một trang tạp chí, được nhà toán học vĩ đại Paul Erdős tuyển chọn vào cuốn sách danh giá "Proofs from THE BOOK":',
+  explainer_point_triangulation_title: 'Tam giác hóa đa giác:',
+  explainer_point_triangulation_body:
+    'Bất kỳ đa giác đơn n đỉnh nào cũng chia được thành n - 2 hình tam giác nhờ n - 3 đường chéo nội vi (thuật toán Ear Clipping).',
+  explainer_point_dual_title: 'Đồ thị đối ngẫu là cây:',
+  explainer_point_dual_body:
+    'Khi xem mỗi tam giác là một nút và hai tam giác chung cạnh là một nhánh nối, đồ thị này không bao giờ có chu trình (luôn là một cây). Do đó, các đỉnh của đồ thị tam giác hóa luôn có thể tô bằng 3 màu sao cho không có cạnh nào nối 2 đỉnh cùng màu.',
+  explainer_point_pigeonhole_title: 'Nguyên lý Dirichlet (Lồng chim):',
+  explainer_point_pigeonhole_body:
+    'Có n đỉnh chia cho 3 màu. Chắc chắn nhóm màu xuất hiện ít nhất sẽ có số lượng đỉnh ≤ ⌊n/3⌋.',
+  explainer_point_convex_title: 'Tam giác là tập lồi:',
+  explainer_point_convex_body:
+    'Mỗi tam giác con có đủ 3 màu, tức là luôn chứa 1 đỉnh thuộc nhóm màu cực tiểu đó. Một người đứng tại đỉnh tam giác lồi sẽ nhìn thấy trọn vẹn 100% diện tích tam giác đó. Hợp của mọi tam giác chính là toàn bộ phòng trưng bày!',
+  explainer_sec3_title: '3. Tại Sao Tìm Số Lính Ít Nhất Cho Một Bản Vẽ Lại Là NP-Hard?',
+  explainer_sec3_subtitle: 'Cần phân biệt rõ hai câu hỏi toán học rất khác nhau:',
+  explainer_worst_case_title: '1. Chặn Trên Mọi Trường Hợp (Worst-Case Bound)',
+  explainer_worst_case_body:
+    'Định lý Chvátal cho ta một bảo đảm an toàn: dù căn phòng có hình thù quái gở nhất (như răng lược), ta không bao giờ cần quá ⌊n/3⌋ người. Ta tìm được vị trí đặt lính chỉ trong thời gian O(n log n).',
+  explainer_np_hard_title: '2. Tối Ưu Cho 1 Phòng Cụ Thể (Minimum Guard Problem)',
+  explainer_np_hard_body:
+    'Với một bản vẽ phòng cụ thể đưa vào, việc tìm số lượng lính ít nhất tuyệt đối (ví dụ phòng 12 đỉnh nhưng thực tế chỉ cần 2 lính thay vì 4) là bài toán NP-khó (NP-hard) và APX-hard. Máy tính không thể tìm ra lời giải tối ưu nhanh chóng nếu số đỉnh n lớn.',
+  report_title: '# Báo Cáo Thực Nghiệm: Bài toán Người gác Phòng trưng bày (Art Gallery Problem)',
+  report_vertices: '- **Số đỉnh phòng (n)**: {n} đỉnh',
+  report_chvatal: '- **Định lý Chvátal (⌊n/3⌋)**: Tối đa {bound} bảo vệ',
+  report_guards: '- **Bảo vệ đã bố trí**: {count} vị trí',
+  report_coverage: '- **Tỷ lệ bao phủ**: {pct}%',
+  report_security_status: '- **Trạng thái an ninh**: {status}',
+  report_status_full: 'Bảo vệ toàn diện 100%',
+  report_status_blind: 'Còn điểm mù',
+  report_fisk:
+    '- **Thuật toán Steve Fisk (1978)**: Đã tam giác hóa {triangles} tam giác, tô 3 màu {colors}, chọn nhóm màu ít nhất với {guardIndices} đỉnh.',
+};

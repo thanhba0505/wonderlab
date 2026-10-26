@@ -31,8 +31,7 @@ export function RaceTrack({
   perspective,
   onPerspectiveChange,
 }: RaceTrackProps) {
-  const { locale } = useTranslation();
-  const isEn = locale === 'en';
+  const { dict } = useTranslation();
   const analytical = calculateOvertakePoint(params);
 
   // Real-time animation states for continuous mode
@@ -94,15 +93,9 @@ export function RaceTrack({
           </div>
           <div>
             <h3 className="font-heading text-base font-bold text-slate-900">
-              {isEn
-                ? 'Interactive Racetrack: Achilles vs Tortoise'
-                : 'Đường Chạy Tương Tác: Achilles vs Rùa'}
+              {dict.sim_zeno.racetrack_title}
             </h3>
-            <p className="text-xs text-slate-500">
-              {isEn
-                ? 'Visual comparison between Zeno’s infinite subdivision paradox and continuous real-world physics'
-                : 'Đối chiếu trực quan giữa góc nhìn phân chia vô hạn của Zeno và vật lý chuyển động thực tế'}
-            </p>
+            <p className="text-xs text-slate-500">{dict.sim_zeno.racetrack_desc}</p>
           </div>
         </div>
 
@@ -123,7 +116,7 @@ export function RaceTrack({
             }`}
           >
             <ZoomIn className="h-3.5 w-3.5 mr-1 text-violet-600" />
-            {isEn ? '1. Zeno Perspective (Infinite Zoom)' : '1. Góc nhìn Zeno (Thu phóng vô hạn)'}
+            {dict.sim_zeno.perspective_zeno}
           </Button>
 
           <Button
@@ -138,7 +131,7 @@ export function RaceTrack({
             }`}
           >
             <Sparkles className="h-3.5 w-3.5 mr-1 text-blue-600" />
-            {isEn ? '2. Continuous Physics (Real Time)' : '2. Vật lý Thực tế (Thời gian liên tục)'}
+            {dict.sim_zeno.perspective_continuous}
           </Button>
         </div>
       </div>
@@ -150,23 +143,22 @@ export function RaceTrack({
           <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-violet-50/70 border border-violet-200/80 p-3 text-xs">
             <div className="flex items-center gap-2">
               <Badge className="bg-violet-700 text-white font-mono text-xs">
-                {isEn
-                  ? `SUBDIVISION STEP #${currentStep.step}`
-                  : `CHẶNG PHÂN CHIA #${currentStep.step}`}
+                {dict.sim_zeno.subdivision_step_badge.replace('{step}', String(currentStep.step))}
               </Badge>
               <span className="font-semibold text-violet-950 font-sans">
-                {isEn
-                  ? `Achilles reaches previous tortoise position (${currentStep.achillesEnd.toFixed(2)}m)`
-                  : `Achilles đuổi tới vị trí cũ của Rùa (${currentStep.achillesEnd.toFixed(2)}m)`}
+                {dict.sim_zeno.achilles_reaches_tortoise.replace(
+                  '{pos}',
+                  currentStep.achillesEnd.toFixed(2),
+                )}
               </span>
             </div>
             <div className="flex items-center gap-3 font-mono text-violet-800 text-xs">
               <span>
-                {isEn ? 'Remaining gap: ' : 'Khoảng cách còn lại: '}
+                {dict.sim_zeno.remaining_gap_label}
                 <strong>{currentStep.remainingGap.toFixed(4)}m</strong>
               </span>
               <span>
-                {isEn ? 'Step duration: ' : 'Thời gian chặng: '}
+                {dict.sim_zeno.step_duration_label}
                 <strong>+{currentStep.deltaTime.toFixed(4)}s</strong>
               </span>
             </div>
@@ -215,7 +207,7 @@ export function RaceTrack({
                     🐢
                   </div>
                   <span className="mt-1 font-mono text-xs font-bold text-emerald-300">
-                    {isEn ? 'Tortoise' : 'Rùa'}
+                    {dict.sim_zeno.tortoise_name}
                   </span>
                 </div>
 
@@ -229,7 +221,7 @@ export function RaceTrack({
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-slate-800 text-center font-mono">
                 <div className="bg-slate-800/80 p-2 rounded-lg">
                   <span className="text-xs text-slate-400 block">
-                    {isEn ? 'Achilles covered' : 'Achilles chạy được'}
+                    {dict.sim_zeno.achilles_covered}
                   </span>
                   <span className="text-xs font-bold text-amber-400 tabular-nums">
                     {(currentStep.achillesEnd - currentStep.achillesStart).toFixed(4)}m
@@ -237,7 +229,7 @@ export function RaceTrack({
                 </div>
                 <div className="bg-slate-800/80 p-2 rounded-lg">
                   <span className="text-xs text-slate-400 block">
-                    {isEn ? 'Tortoise crept' : 'Rùa nhích thêm'}
+                    {dict.sim_zeno.tortoise_crept}
                   </span>
                   <span className="text-xs font-bold text-emerald-400 tabular-nums">
                     {(currentStep.tortoiseEnd - currentStep.tortoiseStart).toFixed(4)}m
@@ -245,7 +237,7 @@ export function RaceTrack({
                 </div>
                 <div className="bg-slate-800/80 p-2 rounded-lg">
                   <span className="text-xs text-slate-400 block">
-                    {isEn ? 'Cumulative time' : 'Thời gian tích lũy'}
+                    {dict.sim_zeno.cumulative_time}
                   </span>
                   <span className="text-xs font-bold text-blue-400 tabular-nums">
                     {currentStep.cumulativeTime.toFixed(4)}s
@@ -253,7 +245,7 @@ export function RaceTrack({
                 </div>
                 <div className="bg-slate-800/80 p-2 rounded-lg">
                   <span className="text-xs text-slate-400 block">
-                    {isEn ? 'Progress to overtake' : 'Tiến độ tới điểm bắt kịp'}
+                    {dict.sim_zeno.progress_overtake}
                   </span>
                   <span className="text-xs font-bold text-violet-400 tabular-nums">
                     {currentStep.fractionOfTotalTime.toFixed(2)}%
@@ -273,7 +265,7 @@ export function RaceTrack({
                 onClick={() => onStepChange(Math.max(0, currentStepIndex - 1))}
                 className="text-xs border-slate-300"
               >
-                {isEn ? '← Previous step' : '← Chặng trước'}
+                {dict.sim_zeno.prev_step_btn}
               </Button>
               <Button
                 variant="outline"
@@ -282,7 +274,7 @@ export function RaceTrack({
                 onClick={() => onStepChange(Math.min(steps.length - 1, currentStepIndex + 1))}
                 className="text-xs border-slate-300 bg-violet-50 text-violet-700 font-semibold hover:bg-violet-100"
               >
-                {isEn ? 'Next step (Zoom in) →' : 'Chặng tiếp theo (Thu phóng) →'}
+                {dict.sim_zeno.next_step_btn}
               </Button>
               <Button
                 variant="ghost"
@@ -291,7 +283,7 @@ export function RaceTrack({
                 className="text-xs text-slate-500 hover:text-slate-800"
               >
                 <RotateCcw className="h-3 w-3 mr-1" />
-                {isEn ? 'Reset' : 'Về ban đầu'}
+                {dict.sim_zeno.reset_start_btn}
               </Button>
             </div>
 
@@ -329,15 +321,11 @@ export function RaceTrack({
                 }
               >
                 {currentContinuous.isOvertaken
-                  ? isEn
-                    ? 'OVERTAKEN'
-                    : 'ĐÃ VƯỢT QUA'
-                  : isEn
-                    ? 'CHASING'
-                    : 'ĐANG ĐUỔI THEO'}
+                  ? dict.sim_zeno.overtaken_badge
+                  : dict.sim_zeno.chasing_badge}
               </Badge>
               <span className="font-semibold text-blue-950 font-sans">
-                {isEn ? 'Experiment elapsed time: ' : 'Thời gian thực nghiệm: '}
+                {dict.sim_zeno.elapsed_time_label}
                 <strong className="font-mono">{currentTime.toFixed(2)}s</strong> /{' '}
                 {analytical.overtakeTime.toFixed(2)}s
               </span>
@@ -347,13 +335,14 @@ export function RaceTrack({
               {currentContinuous.isOvertaken ? (
                 <span className="flex items-center gap-1 font-semibold text-emerald-700">
                   <CheckCircle2 className="h-3.5 w-3.5" />
-                  {isEn
-                    ? `Achilles passed Tortoise by ${(currentContinuous.achillesPos - currentContinuous.tortoisePos).toFixed(2)}m!`
-                    : `Achilles đã vượt trước Rùa ${(currentContinuous.achillesPos - currentContinuous.tortoisePos).toFixed(2)}m!`}
+                  {dict.sim_zeno.achilles_passed_tortoise.replace(
+                    '{gap}',
+                    (currentContinuous.achillesPos - currentContinuous.tortoisePos).toFixed(2),
+                  )}
                 </span>
               ) : (
                 <span>
-                  {isEn ? 'Remaining gap: ' : 'Khoảng cách còn: '}
+                  {dict.sim_zeno.remaining_gap_label}
                   <strong>{currentContinuous.gap.toFixed(2)}m</strong>
                 </span>
               )}
@@ -365,7 +354,7 @@ export function RaceTrack({
             {/* Start line */}
             <div className="absolute top-4 bottom-4 left-6 border-l-2 border-slate-600">
               <span className="absolute -top-3 left-1 text-xs font-mono text-slate-400">
-                {isEn ? 'Start line (0m)' : 'Vạch xuất phát (0m)'}
+                {dict.sim_zeno.start_line}
               </span>
             </div>
 
@@ -376,9 +365,10 @@ export function RaceTrack({
                 style={{ left: `${getContinuousXPercent(analytical.overtakeDistance)}%` }}
               >
                 <span className="absolute -top-3 left-1 text-xs font-mono text-rose-400 font-bold">
-                  {isEn
-                    ? `Overtake (${analytical.overtakeDistance.toFixed(1)}m)`
-                    : `Bắt kịp (${analytical.overtakeDistance.toFixed(1)}m)`}
+                  {dict.sim_zeno.overtake_flag.replace(
+                    '{distance}',
+                    analytical.overtakeDistance.toFixed(1),
+                  )}
                 </span>
               </div>
             )}
@@ -423,13 +413,7 @@ export function RaceTrack({
                 className="h-8 gap-1.5 px-3 text-xs bg-blue-600 hover:bg-blue-700 text-white font-semibold"
               >
                 {isPlaying ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5" />}
-                {isPlaying
-                  ? isEn
-                    ? 'Pause'
-                    : 'Tạm dừng'
-                  : isEn
-                    ? 'Run experiment'
-                    : 'Chạy thử nghiệm'}
+                {isPlaying ? dict.sim_zeno.pause_btn : dict.sim_zeno.run_exp_btn}
               </Button>
 
               <Button
@@ -439,13 +423,13 @@ export function RaceTrack({
                 className="h-8 text-xs border-slate-300"
               >
                 <RotateCcw className="h-3.5 w-3.5 mr-1" />
-                {isEn ? 'Reset' : 'Làm lại'}
+                {dict.sim_zeno.reset_start_btn}
               </Button>
             </div>
 
             {/* Speed Multiplier */}
             <div className="flex items-center gap-1.5 text-xs font-mono text-slate-500">
-              <span>{isEn ? 'Speed:' : 'Tốc độ:'}</span>
+              <span>{dict.sim_zeno.speed_label}</span>
               {[0.5, 1, 2, 4].map(spd => (
                 <button
                   key={spd}

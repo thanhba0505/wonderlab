@@ -36,8 +36,7 @@ import { Button } from '@/components/ui/button';
 import { FileSpreadsheet, FileJson, Copy, Check } from 'lucide-react';
 
 export function ArtGallerySimulation() {
-  const { locale } = useTranslation();
-  const isEn = locale === 'en';
+  const { dict } = useTranslation();
   const meta = useSimulationMeta('art-gallery');
 
   const [polygon, setPolygon] = React.useState<Point[]>(GALLERY_PRESETS[0]!.vertices);
@@ -184,21 +183,20 @@ export function ArtGallerySimulation() {
   };
 
   const handleCopyReport = async () => {
-    const report = isEn
-      ? `# Experimental Report: Art Gallery Problem
-- **Room Vertices (n)**: ${polygon.length} vertices
-- **Chvátal Theorem Bound (⌊n/3⌋)**: ${Math.floor(polygon.length / 3)} guards
-- **Guards Placed**: ${guards.length} guards
-- **Coverage Percentage**: ${coveragePercentage.toFixed(1)}%
-- **Security Status**: ${coveragePercentage >= 99.5 ? '100% full coverage' : 'Blind spots remain'}
-- **Steve Fisk Algorithm (1978)**: Triangulated ${fiskProof.triangles.length} triangles, 3-colored ${fiskProof.colorCounts.join('-')}, selected minimum color group with ${fiskProof.guardVertexIndices.length} vertices.`
-      : `# Báo Cáo Thực Nghiệm: Bài toán Người gác Phòng trưng bày (Art Gallery Problem)
-- **Số đỉnh căn phòng (n)**: ${polygon.length} đỉnh
-- **Ngưỡng định lý Chvátal (⌊n/3⌋)**: ${Math.floor(polygon.length / 3)} lính gác
-- **Số người gác thực tế đang bố trí**: ${guards.length} lính gác
-- **Tỉ lệ diện tích bao quát**: ${coveragePercentage.toFixed(1)}%
-- **Trạng thái an ninh**: ${coveragePercentage >= 99.5 ? 'Bao quát trọn vẹn 100%' : 'Còn góc khuất chưa quan sát'}
-- **Thuật toán Steve Fisk (1978)**: Phân rã ${fiskProof.triangles.length} tam giác, tô 3 màu ${fiskProof.colorCounts.join('-')}, chọn nhóm cực tiểu ${fiskProof.guardVertexIndices.length} đỉnh.`;
+    const ag = dict.sim_art_gallery;
+    const statusText = coveragePercentage >= 99.5 ? ag.report_status_full : ag.report_status_blind;
+    const report = [
+      ag.report_title,
+      ag.report_vertices.replace('{n}', String(polygon.length)),
+      ag.report_chvatal.replace('{bound}', String(Math.floor(polygon.length / 3))),
+      ag.report_guards.replace('{count}', String(guards.length)),
+      ag.report_coverage.replace('{pct}', coveragePercentage.toFixed(1)),
+      ag.report_security_status.replace('{status}', statusText),
+      ag.report_fisk
+        .replace('{triangles}', String(fiskProof.triangles.length))
+        .replace('{colors}', fiskProof.colorCounts.join('-'))
+        .replace('{guardIndices}', String(fiskProof.guardVertexIndices.length)),
+    ].join('\n');
     const success = await copyToClipboard(report);
     if (success) {
       setCopiedType('report');
@@ -214,12 +212,8 @@ export function ArtGallerySimulation() {
       {/* 1. KHẢO SÁT TRỰC GIÁC TRƯỚC THỰC NGHIỆM */}
       <SimulationSection
         dotColor="amber"
-        title={isEn ? 'Pre-Experiment Intuition Challenge' : 'Khảo Sát Trực Giác Trước Thực Nghiệm'}
-        subtitle={
-          isEn
-            ? 'Gauge geometric spatial intuition against Václav Chvátal’s bound theorem'
-            : 'Đo lường trực giác không gian hình học so với định lý giới hạn Václav Chvátal'
-        }
+        title={dict.sim_art_gallery.survey_title}
+        subtitle={dict.sim_art_gallery.survey_desc}
       >
         {meta?.hypothesis && (
           <IntuitionChallengeCard
@@ -235,16 +229,8 @@ export function ArtGallerySimulation() {
       {/* 2. BUỒNG THÍ NGHIỆM & BÀN TƯƠNG TÁC HÌNH HỌC */}
       <SimulationSection
         dotColor="emerald"
-        title={
-          isEn
-            ? 'Laboratory & Geometric Interactive Workbench'
-            : 'Buồng Thí Nghiệm & Bàn Tương Tác Hình Học'
-        }
-        subtitle={
-          isEn
-            ? 'Simulate 360-degree vision, test occluded regions, and visually verify Chvátal theorem'
-            : 'Mô phỏng góc nhìn 360 độ, kiểm tra vùng che khuất và chứng minh trực quan định lý Chvátal'
-        }
+        title={dict.sim_art_gallery.sim_title}
+        subtitle={dict.sim_art_gallery.sim_desc}
       >
         <SimulationWorkbenchCard
           metricsBar={
@@ -293,27 +279,9 @@ export function ArtGallerySimulation() {
               {/* Thông tin nhanh về lính gác */}
               <div className="rounded-xl border border-slate-300/85 bg-slate-50/60 p-4 space-y-2 text-xs text-slate-600">
                 <div className="font-heading font-bold text-slate-800 uppercase tracking-wider">
-                  {isEn ? 'Guard Placement Tip' : 'Mẹo Bố Trí Lính Gác'}
+                  {dict.sim_art_gallery.guard_tip_title}
                 </div>
-                <p className="leading-relaxed">
-                  {isEn ? (
-                    <>
-                      In a convex room (all interior angles &lt; 180&deg;), 1 single guard sees
-                      100%. But in comb-shaped rooms, each spike forms an independent blind pocket,
-                      requiring exactly{' '}
-                      <strong className="font-mono text-slate-900">&lfloor;n/3&rfloor;</strong>{' '}
-                      guards.
-                    </>
-                  ) : (
-                    <>
-                      Ở căn phòng lồi (mọi góc trong &lt; 180&deg;), 1 người duy nhất đủ quan sát
-                      100%. Nhưng với các phòng răng lược, mỗi chóp nhọn tạo thành một góc chết độc
-                      lập, đòi hỏi đúng{' '}
-                      <strong className="font-mono text-slate-900">&lfloor;n/3&rfloor;</strong>{' '}
-                      người gác.
-                    </>
-                  )}
-                </p>
+                <p className="leading-relaxed">{dict.sim_art_gallery.guard_tip_body}</p>
               </div>
             </div>
           </div>
@@ -324,13 +292,9 @@ export function ArtGallerySimulation() {
       <div className="flex flex-wrap items-center justify-between gap-3 p-4 rounded-xl border border-slate-300/85 bg-white shadow-xs">
         <div className="space-y-0.5">
           <div className="font-heading text-xs font-bold uppercase tracking-wider text-slate-800">
-            {isEn ? 'Export Experimental Data & Report' : 'Xuất Dữ Liệu Thực Nghiệm & Báo Cáo'}
+            {dict.simulations.export.title}
           </div>
-          <p className="text-xs text-slate-500 font-sans">
-            {isEn
-              ? 'Download polygon coordinates, guard positions, and coverage calculations'
-              : 'Tải về bộ tọa độ hình học, vị trí lính gác và kết quả tính toán độ phủ'}
-          </p>
+          <p className="text-xs text-slate-500 font-sans">{dict.simulations.export.subtitle}</p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
@@ -341,7 +305,7 @@ export function ArtGallerySimulation() {
             className="border-slate-300 text-slate-700 text-xs flex items-center gap-1.5 active:scale-[0.98]"
           >
             <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-600" />
-            <span>{isEn ? 'Export CSV' : 'Xuất CSV'}</span>
+            <span>{dict.simulations.export.csv}</span>
           </Button>
 
           <Button
@@ -351,7 +315,7 @@ export function ArtGallerySimulation() {
             className="border-slate-300 text-slate-700 text-xs flex items-center gap-1.5 active:scale-[0.98]"
           >
             <FileJson className="h-3.5 w-3.5 text-blue-600" />
-            <span>{isEn ? 'Export JSON' : 'Xuất JSON'}</span>
+            <span>{dict.simulations.export.json}</span>
           </Button>
 
           <Button
@@ -366,12 +330,8 @@ export function ArtGallerySimulation() {
             )}
             <span>
               {copiedType === 'report'
-                ? isEn
-                  ? 'Copied!'
-                  : 'Đã sao chép!'
-                : isEn
-                  ? 'Copy Report'
-                  : 'Sao chép báo cáo'}
+                ? dict.simulations.export.copied
+                : dict.simulations.export.copy_report}
             </span>
           </Button>
         </div>
@@ -380,16 +340,8 @@ export function ArtGallerySimulation() {
       {/* 4. GIẢI THÍCH CHUYÊN SÂU & TOÁN HỌC */}
       <SimulationSection
         dotColor="violet"
-        title={
-          isEn
-            ? 'Scientific Inquiry & Mathematical Meaning'
-            : 'Luận Giải Khoa Học & Ý Nghĩa Toán Học'
-        }
-        subtitle={
-          isEn
-            ? 'From Victor Klee’s question to Steve Fisk’s elegant proof and the NP-hard optimization problem'
-            : 'Từ câu hỏi của Victor Klee đến chứng minh ngắn gọn của Steve Fisk và bài toán tối ưu NP-hard'
-        }
+        title={dict.simulations.explainer.title}
+        subtitle={dict.simulations.explainer.subtitle}
       >
         <SimulationExplainerCard>
           <GalleryExplainer />
@@ -399,12 +351,8 @@ export function ArtGallerySimulation() {
       {/* 5. LỊCH SỬ THỰC NGHIỆM */}
       <SimulationSection
         dotColor="indigo"
-        title={isEn ? 'Personal Experimental Log' : 'Nhật Ký Thực Nghiệm Cá Nhân'}
-        subtitle={
-          isEn
-            ? 'Storage of room layouts and verified 100% coverage runs in current session'
-            : 'Lưu trữ các cấu hình phòng và kết quả đạt độ phủ 100% trong phiên làm việc hiện tại'
-        }
+        title={dict.simulations.history.title}
+        subtitle={dict.simulations.history.subtitle}
       >
         <SimulationHistoryTable runs={history} />
       </SimulationSection>

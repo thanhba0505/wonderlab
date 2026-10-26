@@ -32,8 +32,10 @@ import { Button } from '@/components/ui/button';
 import { FileSpreadsheet, FileJson, Copy, Check, Database, Sparkles, Activity } from 'lucide-react';
 
 export function DoubleSlitSimulation() {
-  const { locale } = useTranslation();
-  const isEn = locale === 'en';
+  const { locale, dict } = useTranslation();
+  const dsDict = dict.sim_double_slit;
+  const exp = dict.simulations.export;
+  const tel = dict.simulations.telemetry;
   const meta = useSimulationMeta('double-slit');
   const [params, setParams] = React.useState<QuantumParameters>(DEFAULT_QUANTUM_PARAMS);
   const [hits, setHits] = React.useState<number[]>([]);
@@ -199,15 +201,7 @@ export function DoubleSlitSimulation() {
       <hr className="border-slate-200/80 -mt-2" />
 
       {/* 1. TITLE CÂU HỎI & CÂU HỎI TRỰC GIÁC */}
-      <SimulationSection
-        dotColor="amber"
-        title={isEn ? 'Pre-experiment Intuition Survey' : 'Khảo Sát Trực Giác Trước Thực Nghiệm'}
-        subtitle={
-          isEn
-            ? 'Make a personal prediction to measure the gap between naive intuition and probability'
-            : 'Đưa ra dự đoán cá nhân để đo lường khoảng cách giữa trực giác thông thường và toán học xác suất'
-        }
-      >
+      <SimulationSection dotColor="amber" title={dsDict.survey_title} subtitle={dsDict.survey_desc}>
         {meta?.hypothesis && (
           <IntuitionChallengeCard
             challenge={meta.hypothesis}
@@ -220,85 +214,61 @@ export function DoubleSlitSimulation() {
       </SimulationSection>
 
       {/* 2. TITLE CHỖ THÍ NGHIỆM & BLOCK THÍ NGHIỆM HỢP NHẤT */}
-      <SimulationSection
-        dotColor="blue"
-        title={isEn ? 'Laboratory & Visual Simulation' : 'Buồng Thí Nghiệm & Mô Phỏng Trực Quan'}
-        subtitle={
-          isEn
-            ? 'Photon interference screen, slit observer detector, and optical intensity density'
-            : 'Màn hứng giao thoa photon, máy đo quan sát khe hẹp và biểu đồ mật độ quang học'
-        }
-      >
+      <SimulationSection dotColor="blue" title={dsDict.sim_title} subtitle={dsDict.sim_desc}>
         <SimulationWorkbenchCard
           metricsBar={
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 pb-5 border-b border-slate-200/80">
               <div className="space-y-1">
                 <div className="text-xs font-semibold tracking-wider text-slate-500 uppercase">
-                  {isEn ? 'Total photons fired' : 'Tổng hạt đã bắn'}
+                  {dsDict.total_photons_fired}
                 </div>
                 <div className="font-mono text-2xl sm:text-3xl font-bold text-slate-900 tabular-nums">
-                  {hits.length.toLocaleString(isEn ? 'en-US' : 'vi-VN')}
+                  {hits.length.toLocaleString(locale === 'en' ? 'en-US' : 'vi-VN')}
                 </div>
                 <div className="text-xs text-slate-500 font-mono">
-                  {isStreaming
-                    ? isEn
-                      ? 'Streaming continuously...'
-                      : 'Đang bắn liên tục...'
-                    : isEn
-                      ? 'Ready to fire'
-                      : 'Sẵn sàng bắn'}
+                  {isStreaming ? dsDict.fire_stream : dsDict.fire_particle}
                 </div>
               </div>
 
               <div className="space-y-1 sm:border-l sm:border-slate-200/80 sm:pl-4">
                 <div className="text-xs font-semibold tracking-wider text-slate-500 uppercase">
-                  {isEn ? 'Observer State' : 'Trạng thái quan sát'}
+                  {dsDict.observer_state}
                 </div>
                 <div className="font-mono text-xl sm:text-2xl font-bold pt-0.5 text-slate-900">
                   {params.isObserverActive ? (
-                    <span className="text-rose-600">
-                      {isEn ? 'ON (Classical particle)' : 'BẬT (Hạt cổ điển)'}
-                    </span>
+                    <span className="text-rose-600">{dsDict.observer_on}</span>
                   ) : (
-                    <span className="text-blue-600">
-                      {isEn ? 'OFF (Wave interference)' : 'TẮT (Giao thoa sóng)'}
-                    </span>
+                    <span className="text-blue-600">{dsDict.observer_off}</span>
                   )}
                 </div>
                 <div className="text-xs text-slate-500 font-sans">
-                  {params.isObserverActive
-                    ? isEn
-                      ? 'Wave function collapsed'
-                      : 'Hàm sóng đã sụp đổ'
-                    : isEn
-                      ? 'Double-slit superposition'
-                      : 'Chồng chập 2 khe'}
+                  {params.isObserverActive ? dsDict.observer_desc_on : dsDict.observer_desc_off}
                 </div>
               </div>
 
               <div className="space-y-1 border-t sm:border-t-0 pt-3 sm:pt-0 sm:border-l sm:border-slate-200/80 sm:pl-4">
                 <div className="text-xs font-semibold tracking-wider text-slate-500 uppercase">
-                  {isEn ? 'Wavelength (λ)' : 'Bước sóng ánh sáng (λ)'}
+                  {dsDict.wavelength_label}
                 </div>
                 <div className="font-mono text-2xl sm:text-3xl font-bold text-slate-900 tabular-nums">
                   {Math.round(params.wavelength * 1e9)}{' '}
                   <span className="text-xs font-sans text-slate-400">nm</span>
                 </div>
                 <div className="text-xs text-slate-500 font-mono">
-                  D = {params.screenDistance} {isEn ? 'm to screen' : 'm tới màn'}
+                  D = {params.screenDistance} {dsDict.m_to_screen}
                 </div>
               </div>
 
               <div className="space-y-1 border-t sm:border-t-0 pt-3 sm:pt-0 sm:border-l sm:border-slate-200/80 sm:pl-4">
                 <div className="text-xs font-semibold tracking-wider text-slate-500 uppercase">
-                  {isEn ? 'Slit distance (d)' : 'Khoảng cách 2 khe (d)'}
+                  {dsDict.slit_distance_label}
                 </div>
                 <div className="font-mono text-2xl sm:text-3xl font-bold text-slate-900 tabular-nums">
                   {Math.round(params.slitDistance * 1e6)}{' '}
                   <span className="text-xs font-sans text-slate-400">&micro;m</span>
                 </div>
                 <div className="text-xs text-blue-700 font-mono">
-                  {isEn ? 'Fringe spacing i =' : 'Khoảng vân i ='}{' '}
+                  {dsDict.fringe_spacing}{' '}
                   {(
                     (params.wavelength * params.screenDistance * 1000) /
                     params.slitDistance
@@ -315,39 +285,37 @@ export function DoubleSlitSimulation() {
                 size="sm"
                 onClick={handleExportCsv}
                 className="h-7 gap-1.5 border-slate-300 bg-white font-mono text-xs text-slate-700 hover:bg-slate-50 hover:text-slate-900"
-                title={isEn ? 'Export CSV Spreadsheet' : 'Tải tệp bảng tính CSV'}
+                title={exp.csv_title}
               >
                 <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-600" />
-                {isEn ? 'Export CSV' : 'Xuất CSV'}
+                {exp.csv}
               </Button>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleExportJson}
                 className="h-7 gap-1.5 border-slate-300 bg-white font-mono text-xs text-slate-700 hover:bg-slate-50 hover:text-slate-900"
-                title={isEn ? 'Export JSON Data' : 'Tải tệp JSON dữ liệu'}
+                title={exp.json_title}
               >
                 <FileJson className="h-3.5 w-3.5 text-blue-600" />
-                {isEn ? 'Export JSON' : 'Xuất JSON'}
+                {exp.json}
               </Button>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleCopyReport}
                 className="h-7 gap-1.5 border-slate-300 bg-white font-mono text-xs text-slate-700 hover:bg-slate-50 hover:text-slate-900"
-                title={isEn ? 'Copy Markdown Report' : 'Sao chép báo cáo Markdown'}
+                title={exp.report_title}
               >
                 {copiedType === 'report' ? (
                   <>
                     <Check className="h-3.5 w-3.5 text-emerald-600" />
-                    <span className="text-emerald-700 font-semibold">
-                      {isEn ? 'Copied!' : 'Đã chép!'}
-                    </span>
+                    <span className="text-emerald-700 font-semibold">{exp.copied}</span>
                   </>
                 ) : (
                   <>
                     <Copy className="h-3.5 w-3.5 text-slate-500" />
-                    {isEn ? 'Copy Report' : 'Chép Báo cáo'}
+                    {exp.report}
                   </>
                 )}
               </Button>
@@ -361,23 +329,23 @@ export function DoubleSlitSimulation() {
                 <div className="flex items-center gap-1 text-slate-700">
                   <Database className="h-3.5 w-3.5 text-blue-600" />
                   <span className="font-bold text-blue-700 tabular-nums">
-                    {globalStats.totalTrials.toLocaleString(isEn ? 'en-US' : 'vi-VN')}
+                    {globalStats.totalTrials.toLocaleString(locale === 'en' ? 'en-US' : 'vi-VN')}
                   </span>
-                  <span className="text-slate-400">{isEn ? 'photons' : 'hạt'}</span>
+                  <span className="text-slate-400">{tel.trials}</span>
                 </div>
                 <span className="text-slate-300">•</span>
                 <div className="flex items-center gap-1 text-slate-600">
                   <Sparkles className="h-3.5 w-3.5 text-amber-500" />
                   <span className="font-bold text-slate-800 tabular-nums">
-                    {globalStats.totalRuns.toLocaleString(isEn ? 'en-US' : 'vi-VN')}
+                    {globalStats.totalRuns.toLocaleString(locale === 'en' ? 'en-US' : 'vi-VN')}
                   </span>
-                  <span className="text-slate-400">{isEn ? 'runs' : 'lượt'}</span>
+                  <span className="text-slate-400">{tel.runs}</span>
                 </div>
               </div>
             ) : (
               <div className="flex items-center gap-2 text-xs text-slate-500">
                 <Activity className="h-3.5 w-3.5 text-blue-600 animate-pulse" />
-                <span>{isEn ? 'Ready for telemetry' : 'Sẵn sàng thu thập telemetry'}</span>
+                <span>{tel.ready}</span>
               </div>
             )
           }
@@ -410,12 +378,8 @@ export function DoubleSlitSimulation() {
       {/* 3. TITLE NHẬT KÝ & NHẬT KÝ THỰC NGHIỆM */}
       <SimulationSection
         dotColor="emerald"
-        title={isEn ? 'Experimental Log' : 'Nhật Ký Thực Nghiệm'}
-        subtitle={
-          isEn
-            ? 'Detailed trial history and experiment logs recorded during this session'
-            : 'Bảng lưu trữ chi tiết các lượt bắn và kết quả thực nghiệm trong phiên nghiên cứu'
-        }
+        title={dict.simulations.history.title}
+        subtitle={dict.simulations.history.auto_synced}
       >
         <SimulationHistoryTable runs={history} isLoading={false} />
       </SimulationSection>
@@ -423,16 +387,8 @@ export function DoubleSlitSimulation() {
       {/* 4. TITLE GIẢI THÍCH & GIẢI THÍCH KHOA HỌC */}
       <SimulationSection
         dotColor="blue"
-        title={
-          isEn
-            ? 'Scientific Explanation & Mathematical Foundation'
-            : 'Giải Thích Khoa Học & Bản Chất Toán Học'
-        }
-        subtitle={
-          isEn
-            ? 'Measurement paradox, wave-particle duality, and quantum wave function collapse'
-            : 'Giải mã nghịch lý đo lường, tính lưỡng tính sóng - hạt và sự sụp đổ hàm sóng lượng tử'
-        }
+        title={dict.simulations.explanation}
+        subtitle={dsDict.sim_desc}
       >
         <SimulationExplainerCard>
           <QuantumExplainer />

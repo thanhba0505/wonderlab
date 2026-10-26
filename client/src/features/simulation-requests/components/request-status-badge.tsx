@@ -12,7 +12,7 @@ interface RequestStatusBadgeProps {
 }
 
 export function RequestStatusBadge({ status, size = 'sm' }: RequestStatusBadgeProps) {
-  const { locale, dict } = useTranslation();
+  const { dict } = useTranslation();
   const config = STATUS_CONFIG[status] || STATUS_CONFIG.PENDING;
 
   const label = React.useMemo(() => {
@@ -28,11 +28,11 @@ export function RequestStatusBadge({ status, size = 'sm' }: RequestStatusBadgePr
       case 'COMPLETED':
         return dict.requests.status_completed;
       case 'REJECTED':
-        return locale === 'en' ? 'Declined' : 'Chưa khả thi';
+        return dict.requests.status_declined;
       default:
         return config.label;
     }
-  }, [status, dict.requests, locale, config.label]);
+  }, [status, dict.requests, config.label]);
 
   return (
     <AppTag variant={config.variant} size={size}>

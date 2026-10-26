@@ -10,8 +10,7 @@ import { FlaskConical, Compass, BookOpen, Atom } from 'lucide-react';
 import { useTranslation } from '@/i18n';
 
 export default function HomePage() {
-  const { locale } = useTranslation();
-  const isEn = locale === 'en';
+  const { dict } = useTranslation();
 
   return (
     <div className="flex flex-col gap-24 pb-28">
@@ -28,35 +27,18 @@ export default function HomePage() {
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-500 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-600"></span>
                 </span>
-                <span>
-                  {isEn
-                    ? 'Interactive Laboratory • Wonderlab 2026'
-                    : 'Phòng Thí Nghiệm Trực Quan • Wonderlab 2026'}
-                </span>
+                <span>{dict.home.hero_badge}</span>
               </div>
 
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-heading font-extrabold tracking-tight text-slate-900 leading-[1.12]">
-                {isEn ? (
-                  <>
-                    Where paradoxes become{' '}
-                    <span className="bg-gradient-to-r from-blue-700 via-indigo-600 to-sky-600 bg-clip-text text-transparent">
-                      intuitive experiences.
-                    </span>
-                  </>
-                ) : (
-                  <>
-                    Nơi những nghịch lý biến thành{' '}
-                    <span className="bg-gradient-to-r from-blue-700 via-indigo-600 to-sky-600 bg-clip-text text-transparent">
-                      trải nghiệm trực giác.
-                    </span>
-                  </>
-                )}
+                {dict.home.hero_title_lead}
+                <span className="bg-gradient-to-r from-blue-700 via-indigo-600 to-sky-600 bg-clip-text text-transparent">
+                  {dict.home.hero_title_accent}
+                </span>
               </h1>
 
               <p className="max-w-2xl text-base sm:text-lg text-slate-600 leading-relaxed font-sans font-normal">
-                {isEn
-                  ? 'Why does probability mislead human intuition? What happens when light passes through double slits? Wonderlab transforms abstract mathematics, science, and logic into interactive simulations you can test yourself.'
-                  : 'Tại sao xác suất lại đánh lừa bộ não? Điều gì xảy ra khi ánh sáng đi qua hai khe hẹp? Wonderlab biến các câu hỏi toán học, khoa học và tư duy logic trừu tượng thành các mô hình tương tác sống động để bạn tự tay thử nghiệm.'}
+                {dict.home.hero_desc}
               </p>
 
               {/* Action buttons */}
@@ -64,7 +46,7 @@ export default function HomePage() {
                 <a href="#featured">
                   <Button size="lg" className="shadow-md shadow-blue-500/20 font-bold px-7">
                     <FlaskConical className="h-5 w-5 mr-2" />
-                    {isEn ? 'Try Monty Hall' : 'Thử nghiệm Monty Hall'}
+                    {dict.home.hero_primary_cta}
                   </Button>
                 </a>
                 <a href="#explore">
@@ -74,7 +56,7 @@ export default function HomePage() {
                     className="border-slate-300 font-semibold px-7"
                   >
                     <Compass className="h-5 w-5 mr-2 text-blue-600" />
-                    {isEn ? 'Explore Topics' : 'Duyệt các chủ đề'}
+                    {dict.home.hero_secondary_cta}
                   </Button>
                 </a>
               </div>
@@ -83,15 +65,15 @@ export default function HomePage() {
               <div className="pt-5 border-t border-slate-200 flex flex-wrap gap-4 text-xs font-mono text-slate-700">
                 <span className="flex items-center gap-2 bg-white px-2.5 py-1 rounded-md border border-slate-200 shadow-2xs">
                   <span className="h-2 w-2 rounded-full bg-blue-600" />
-                  {isEn ? 'Live Monte Carlo Engine' : 'Mô phỏng Monte Carlo trực tiếp'}
+                  {dict.home.hero_feature_1}
                 </span>
                 <span className="flex items-center gap-2 bg-white px-2.5 py-1 rounded-md border border-slate-200 shadow-2xs">
                   <span className="h-2 w-2 rounded-full bg-violet-600" />
-                  {isEn ? 'Zero Faux Numbers' : 'Không số liệu giả'}
+                  {dict.home.hero_feature_2}
                 </span>
                 <span className="flex items-center gap-2 bg-white px-2.5 py-1 rounded-md border border-slate-200 shadow-2xs">
                   <span className="h-2 w-2 rounded-full bg-emerald-600" />
-                  {isEn ? 'Scientific Rigor' : 'Khoa học chính xác'}
+                  {dict.home.hero_feature_3}
                 </span>
               </div>
             </div>
@@ -113,18 +95,14 @@ export default function HomePage() {
             <div className="flex items-center gap-2">
               <FlaskConical className="h-5 w-5 text-blue-600" />
               <h2 className="text-xs font-mono font-bold tracking-widest text-blue-700 uppercase">
-                {isEn ? 'Featured Experiment' : 'Trải nghiệm tiêu biểu'}
+                {dict.home.featured_badge}
               </h2>
             </div>
             <h3 className="text-2xl sm:text-3xl lg:text-4xl font-heading font-extrabold text-slate-900 tracking-tight">
-              {isEn
-                ? 'Hands-on with Mathematical Paradoxes'
-                : 'Thực hành trực tiếp với nghịch lý toán học'}
+              {dict.home.featured_title}
             </h3>
             <p className="text-sm sm:text-base text-slate-600 max-w-2xl font-sans">
-              {isEn
-                ? 'Manipulate parameters, observe empirical convergence governed by the Law of Large Numbers, and discover truth.'
-                : 'Tương tác với các tham số, quan sát kết quả thực nghiệm hội tụ theo Luật số lớn và tự mình tìm ra chân lý.'}
+              {dict.home.featured_desc}
             </p>
           </div>
 
@@ -141,18 +119,14 @@ export default function HomePage() {
             <div className="flex items-center gap-2">
               <Compass className="h-5 w-5 text-violet-600" />
               <h2 className="text-xs font-mono font-bold tracking-widest text-violet-700 uppercase">
-                {isEn ? 'Knowledge Domains' : 'Phân loại tri thức'}
+                {dict.home.topics_badge}
               </h2>
             </div>
             <h3 className="text-2xl sm:text-3xl lg:text-4xl font-heading font-extrabold text-slate-900 tracking-tight">
-              {isEn
-                ? 'Explore Cognitive Domains at Wonderlab'
-                : 'Khám phá các miền tư duy tại Wonderlab'}
+              {dict.home.topics_title}
             </h3>
             <p className="text-sm sm:text-base text-slate-600 max-w-2xl font-sans">
-              {isEn
-                ? 'From quantum mechanics and probability to game theory and cognitive branching trees.'
-                : 'Từ lượng tử, xác suất cho đến lý thuyết trò chơi và các câu đố phân nhánh nhận thức.'}
+              {dict.home.topics_desc}
             </p>
           </div>
 
@@ -169,18 +143,14 @@ export default function HomePage() {
             <div className="flex items-center gap-2">
               <Atom className="h-5 w-5 text-amber-600" />
               <h2 className="text-xs font-mono font-bold tracking-widest text-amber-700 uppercase">
-                {isEn ? 'Curated Experiments' : 'Danh mục tuyển chọn'}
+                {dict.home.curated_badge}
               </h2>
             </div>
             <h3 className="text-2xl sm:text-3xl lg:text-4xl font-heading font-extrabold text-slate-900 tracking-tight">
-              {isEn
-                ? 'Notable Visual Experiments & Thought Models'
-                : 'Các bài học & thí nghiệm trực quan đáng chú ý'}
+              {dict.home.curated_title}
             </h3>
             <p className="text-sm sm:text-base text-slate-600 max-w-2xl font-sans">
-              {isEn
-                ? 'Classic counter-intuitive experiments from the history of science and human inquiry.'
-                : 'Những bài thí nghiệm phản trực giác kinh điển trong lịch sử tri thức nhân loại.'}
+              {dict.home.curated_desc}
             </p>
           </div>
 
@@ -197,18 +167,14 @@ export default function HomePage() {
             <div className="flex items-center gap-2">
               <BookOpen className="h-5 w-5 text-emerald-600" />
               <h2 className="text-xs font-mono font-bold tracking-widest text-emerald-700 uppercase">
-                {isEn ? 'Editorial Journal & Essays' : 'Góc tiểu luận & suy ngẫm'}
+                {dict.home.editorial_badge}
               </h2>
             </div>
             <h3 className="text-2xl sm:text-3xl lg:text-4xl font-heading font-extrabold text-slate-900 tracking-tight">
-              {isEn
-                ? 'Open Questions in Nature and Cognition'
-                : 'Những câu hỏi mở về tự nhiên và nhận thức'}
+              {dict.home.editorial_title}
             </h3>
             <p className="text-sm sm:text-base text-slate-600 max-w-2xl font-sans">
-              {isEn
-                ? 'Scholarly perspectives connecting philosophy, mathematics, and the boundaries of perception.'
-                : 'Góc nhìn chuyên sâu kết nối triết học, toán học và các ranh giới nhận thức của con người.'}
+              {dict.home.editorial_desc}
             </p>
           </div>
 

@@ -1,48 +1,50 @@
 'use client';
 
 import * as React from 'react';
-import { FileSpreadsheet, FileJson, Copy, Share2, Check } from 'lucide-react';
+import { Share2, Copy, Check, FileJson, FileSpreadsheet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { exportToCsv, exportToJson, copyToClipboard } from '../utils/export-data';
 import { useTranslation } from '@/i18n';
 import { getAppBaseUrl } from '@/lib/utils';
 
 interface ExportSuitePanelProps {
-  simulationTitle: string;
   simulationSlug: string;
+  simulationTitle: string;
   parameters: Record<string, unknown>;
   results: Record<string, unknown>;
-  historyRows?: (string | number | boolean | null | undefined)[][];
-  csvHeaders?: string[];
 }
 
 export function ExportSuitePanel({
-  simulationTitle,
   simulationSlug,
+  simulationTitle,
   parameters,
   results,
-  historyRows,
-  csvHeaders,
 }: ExportSuitePanelProps) {
-  const { locale } = useTranslation();
-  const isEn = locale === 'en';
-
+  const { locale, dict } = useTranslation();
   const [copiedType, setCopiedType] = React.useState<'report' | 'url' | null>(null);
 
   const handleExportCsv = () => {
-    const defaultHeaders = csvHeaders || ['Parameter_Key', 'Parameter_Value'];
-    const defaultRows = historyRows || Object.entries(parameters).map(([k, v]) => [k, String(v)]);
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
-    exportToCsv(`wonderlab-${simulationSlug}-${timestamp}`, defaultHeaders, defaultRows);
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const flatRecord: Record<string, string | number | boolean | null | undefined> = {
+      timestamp: new Date().toISOString(),
+      simulation: simulationSlug,
+      ...(parameters as Record<string, string | number | boolean | null | undefined>),
+      ...(results as Record<string, string | number | boolean | null | undefined>),
+    };
+    const headers = Object.keys(flatRecord);
+    const rows = [headers.map(h => flatRecord[h])];
+    exportToCsv(`wonderlab-${simulationSlug}-${timestamp}`, headers, rows);
   };
 
   const handleExportJson = () => {
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     const exportPayload = {
-      platform: 'Wonderlab Open Science Platform',
-      title: simulationTitle,
-      slug: simulationSlug,
-      exportedAt: new Date().toISOString(),
+      meta: {
+        platform: 'Wonderlab',
+        simulation: simulationSlug,
+        title: simulationTitle,
+        exportedAt: new Date().toISOString(),
+      },
       parameters,
       results,
     };
@@ -50,29 +52,24 @@ export function ExportSuitePanel({
   };
 
   const handleCopyReport = async () => {
+    const exp = dict.simulations.export;
+    const dateLocale = locale === 'en' ? 'en-US' : 'vi-VN';
     const markdown = [
-      isEn
-        ? `# Experiment Report: ${simulationTitle}`
-        : `# Báo cáo Thực nghiệm: ${simulationTitle}`,
-      isEn
-        ? `- **Platform**: Wonderlab Interactive Science Platform`
-        : `- **Nền tảng**: Wonderlab Interactive Science Platform`,
-      isEn
-        ? `- **Timestamp**: ${new Date().toLocaleString('en-US')}`
-        : `- **Thời điểm**: ${new Date().toLocaleString('vi-VN')}`,
-      isEn
-        ? `- **Experiment Slug**: \`${simulationSlug}\``
-        : `- **Mã thí nghiệm**: \`${simulationSlug}\``,
+      `# ${exp.report_title}: ${simulationTitle}`,
+      `- **${exp.report_system}**: Wonderlab Interactive Science Platform`,
+      `- **${exp.report_timestamp}**: ${new Date().toLocaleString(dateLocale)}`,
+      `- **ID**: \`${simulationSlug}\``,
       '',
-      isEn ? `## Input Parameters:` : `## Tham số đầu vào:`,
+      exp.report_input_params,
       ...Object.entries(parameters).map(([k, v]) => `- **${k}**: \`${String(v)}\``),
       '',
-      isEn ? `## Experimental Results:` : `## Kết quả thực nghiệm:`,
+      exp.report_results,
       ...Object.entries(results).map(([k, v]) => `- **${k}**: \`${String(v)}\``),
       '',
-      isEn
-        ? `> Extracted from Wonderlab (${typeof window !== 'undefined' ? window.location.origin : getAppBaseUrl()}/simulations/${simulationSlug})`
-        : `> Trích xuất từ Wonderlab (${typeof window !== 'undefined' ? window.location.origin : getAppBaseUrl()}/simulations/${simulationSlug})`,
+      exp.extracted_from.replace(
+        '{url}',
+        `${typeof window !== 'undefined' ? window.location.origin : getAppBaseUrl()}/simulations/${simulationSlug}`,
+      ),
     ].join('\n');
 
     const ok = await copyToClipboard(markdown);
@@ -96,11 +93,13 @@ export function ExportSuitePanel({
     }
   };
 
+  const exp = dict.simulations.export;
+
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-300/85 bg-white p-3 shadow-xs">
       <div className="flex items-center gap-2">
         <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500">
-          {isEn ? 'Research Toolkit:' : 'Bộ công cụ Nghiên cứu:'}
+          {exp.toolkit_title}
         </span>
       </div>
 
@@ -110,10 +109,10 @@ export function ExportSuitePanel({
           size="sm"
           onClick={handleExportCsv}
           className="h-8 gap-1.5 border-slate-300 bg-white font-mono text-xs text-slate-700 hover:bg-slate-50 hover:text-slate-900"
-          title={isEn ? 'Export CSV Spreadsheet' : 'Tải tệp bảng tính CSV'}
+          title={exp.export_csv_tooltip}
         >
           <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-600" />
-          {isEn ? 'Export CSV' : 'Xuất CSV'}
+          {exp.export_csv}
         </Button>
 
         <Button
@@ -121,10 +120,10 @@ export function ExportSuitePanel({
           size="sm"
           onClick={handleExportJson}
           className="h-8 gap-1.5 border-slate-300 bg-white font-mono text-xs text-slate-700 hover:bg-slate-50 hover:text-slate-900"
-          title={isEn ? 'Export JSON Data' : 'Tải tệp JSON dữ liệu'}
+          title={exp.export_json_tooltip}
         >
           <FileJson className="h-3.5 w-3.5 text-blue-600" />
-          {isEn ? 'Export JSON' : 'Xuất JSON'}
+          {exp.export_json}
         </Button>
 
         <Button
@@ -132,19 +131,17 @@ export function ExportSuitePanel({
           size="sm"
           onClick={handleCopyReport}
           className="h-8 gap-1.5 border-slate-300 bg-white font-mono text-xs text-slate-700 hover:bg-slate-50 hover:text-slate-900"
-          title={isEn ? 'Copy Markdown Report' : 'Sao chép báo cáo Markdown'}
+          title={exp.copy_markdown_tooltip}
         >
           {copiedType === 'report' ? (
             <>
               <Check className="h-3.5 w-3.5 text-emerald-600" />
-              <span className="text-emerald-700 font-semibold">
-                {isEn ? 'Markdown Copied!' : 'Đã chép Markdown!'}
-              </span>
+              <span className="text-emerald-700 font-semibold">{exp.markdown_copied}</span>
             </>
           ) : (
             <>
               <Copy className="h-3.5 w-3.5 text-slate-500" />
-              {isEn ? 'Copy Report' : 'Chép Báo cáo'}
+              {exp.copy_markdown}
             </>
           )}
         </Button>
@@ -154,19 +151,17 @@ export function ExportSuitePanel({
           size="sm"
           onClick={handleShareUrl}
           className="h-8 gap-1.5 border-slate-300 bg-white font-mono text-xs text-slate-700 hover:bg-slate-50 hover:text-slate-900"
-          title={isEn ? 'Copy Parameter Share Link' : 'Sao chép liên kết chia sẻ tham số'}
+          title={exp.share_url_tooltip}
         >
           {copiedType === 'url' ? (
             <>
               <Check className="h-3.5 w-3.5 text-emerald-600" />
-              <span className="text-emerald-700 font-semibold">
-                {isEn ? 'Link Copied!' : 'Đã chép Link!'}
-              </span>
+              <span className="text-emerald-700 font-semibold">{exp.url_copied}</span>
             </>
           ) : (
             <>
               <Share2 className="h-3.5 w-3.5 text-violet-600" />
-              {isEn ? 'Share URL' : 'Chia sẻ URL'}
+              {exp.share_url}
             </>
           )}
         </Button>

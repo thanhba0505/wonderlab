@@ -148,7 +148,7 @@ export const CURATED_LIST: CuratedExperience[] = LOCALIZED_CURATED_LIST.map(item
 }));
 
 export function CuratedList() {
-  const { locale } = useTranslation();
+  const { locale, dict } = useTranslation();
 
   const getBadgeVariant = (category: string) => {
     switch (category) {
@@ -187,8 +187,7 @@ export function CuratedList() {
                   <div className="flex items-center gap-1.5 text-xs text-slate-500 font-mono">
                     <Clock className="h-3.5 w-3.5 text-slate-400" />
                     <span>
-                      ~{item.estimatedMinutes}{' '}
-                      {locale === 'en' ? 'min experience' : 'phút tương tác'}
+                      ~{item.estimatedMinutes} {dict.home.min_experience}
                     </span>
                   </div>
                 </div>
@@ -211,7 +210,7 @@ export function CuratedList() {
                   className="group/btn inline-flex items-center justify-center font-bold text-xs gap-1.5 h-9 px-3.5 rounded-lg border border-slate-300 bg-white text-slate-700 shadow-xs hover:border-blue-600 hover:bg-blue-600 hover:text-white active:scale-[0.98] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 cursor-pointer"
                 >
                   <Compass className="h-4 w-4 text-blue-600 group-hover/btn:text-white transition-colors" />
-                  <span>{locale === 'en' ? 'Enter Lab' : 'Vào phòng lab'}</span>
+                  <span>{dict.home.enter_lab}</span>
                   <ChevronRight className="h-4 w-4 transition-transform group-hover/btn:translate-x-1" />
                 </Link>
               </div>
@@ -227,11 +226,7 @@ export function CuratedList() {
           className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 hover:text-blue-700 text-xs font-mono font-bold transition shadow-xs group"
         >
           <FlaskConical className="h-4 w-4 text-blue-600" />
-          <span>
-            {locale === 'en'
-              ? 'Explore Full Laboratory Catalog'
-              : 'Khám phá toàn bộ Thư viện Thực nghiệm'}
-          </span>
+          <span>{dict.home.explore_catalog}</span>
           <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
         </Link>
       </div>

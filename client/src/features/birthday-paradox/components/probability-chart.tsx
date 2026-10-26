@@ -15,8 +15,8 @@ export const ProbabilityChart: React.FC<ProbabilityChartProps> = ({
   currentN,
   monteCarloResult,
 }) => {
-  const { locale } = useTranslation();
-  const isEn = locale === 'en';
+  const { dict } = useTranslation();
+  const bDict = dict.sim_birthday;
 
   const width = 500;
   const height = 240;
@@ -61,16 +61,14 @@ export const ProbabilityChart: React.FC<ProbabilityChartProps> = ({
         <div className="flex items-center gap-2">
           <LineChart className="h-4 w-4 text-blue-600" />
           <h4 className="text-xs font-bold uppercase tracking-wider text-slate-800 font-heading">
-            {isEn
-              ? 'Probability Curve: Theory vs Empirical'
-              : 'Đồ thị Xác suất Lý thuyết vs Thực nghiệm'}
+            {bDict.probability_chart}
           </h4>
         </div>
         <div className="flex items-center gap-3 text-xs font-mono">
           <span className="flex items-center gap-1.5 text-blue-700">
             <span className="h-2 w-2 rounded-full bg-blue-600" />
             <span>
-              {isEn ? 'Theory: ' : 'Lý thuyết: '}
+              {bDict.theory_label}
               {(currentCoord.p * 100).toFixed(1)}%
             </span>
           </span>
@@ -78,7 +76,7 @@ export const ProbabilityChart: React.FC<ProbabilityChartProps> = ({
             <span className="flex items-center gap-1.5 text-emerald-700">
               <span className="h-2 w-2 rounded-full bg-emerald-600" />
               <span>
-                {isEn ? 'Empirical: ' : 'Thực nghiệm: '}
+                {bDict.empirical_label}
                 {(monteCarloCoord.p * 100).toFixed(1)}%
               </span>
             </span>
@@ -192,7 +190,7 @@ export const ProbabilityChart: React.FC<ProbabilityChartProps> = ({
             textAnchor="middle"
             className="fill-slate-600 text-xs font-medium"
           >
-            {isEn ? 'Room population (n)' : 'Số người trong phòng (n)'}
+            {bDict.room_population}
           </text>
         </svg>
       </div>

@@ -17,7 +17,6 @@ import { useTranslation } from '@/i18n';
 
 export function RequestListView() {
   const { locale, dict } = useTranslation();
-  const isEn = locale === 'en';
 
   const [requests, setRequests] = React.useState<SimulationRequestItem[]>([]);
   const [total, setTotal] = React.useState<number>(0);
@@ -157,9 +156,7 @@ export function RequestListView() {
         <div className="max-w-3xl">
           <div className="inline-flex items-center gap-2 rounded-lg bg-blue-50 border border-blue-200/60 px-3 py-1 font-mono text-xs font-semibold text-blue-700 uppercase tracking-wider mb-4">
             <FlaskConical className="h-3.5 w-3.5 text-blue-600" />
-            <span>
-              {isEn ? 'Wonderlab Experimental Community' : 'Cộng đồng Thực nghiệm Wonderlab'}
-            </span>
+            <span>{dict.requests.community_badge}</span>
           </div>
           <h1 className="font-heading text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900">
             {dict.requests.title}
@@ -179,8 +176,8 @@ export function RequestListView() {
               <span>{dict.requests.submit_new}</span>
             </AppButton>
             <span className="text-xs text-slate-500 font-mono">
-              {isEn ? 'Total' : 'Tổng cộng'} <strong className="text-slate-800">{total}</strong>{' '}
-              {isEn ? 'community proposals' : 'đề xuất từ cộng đồng'}
+              {dict.requests.total_proposals} <strong className="text-slate-800">{total}</strong>{' '}
+              {dict.requests.community_proposals_label}
             </span>
           </div>
         </div>
@@ -272,9 +269,7 @@ export function RequestListView() {
             aria-live="polite"
           >
             <Loader2 className="h-3.5 w-3.5 animate-spin text-blue-600 shrink-0" />
-            <span className="font-sans">
-              {isEn ? 'Updating proposals...' : 'Đang cập nhật danh sách...'}
-            </span>
+            <span className="font-sans">{dict.requests.updating_list}</span>
           </div>
         )}
 

@@ -25,8 +25,7 @@ interface SimulationViewProps {
 }
 
 export function SimulationView({ slug, initialSim }: SimulationViewProps) {
-  const { locale, dict } = useTranslation();
-  const isEn = locale === 'en';
+  const { dict } = useTranslation();
   const meta = useSimulationMeta(slug) ?? initialSim;
 
   const difficultyLabel = React.useMemo(() => {
@@ -49,11 +48,11 @@ export function SimulationView({ slug, initialSim }: SimulationViewProps) {
         <div className="flex items-center gap-2 text-xs font-mono text-slate-500">
           <Link href="/" className="flex items-center gap-1 hover:text-slate-800">
             <ArrowLeft className="h-3.5 w-3.5" />
-            {isEn ? 'Home' : 'Trang chủ'}
+            {dict.nav.home}
           </Link>
           <span>/</span>
           <Link href="/simulations" className="hover:text-slate-800">
-            {isEn ? 'Laboratory' : 'Phòng Thí nghiệm'}
+            {dict.nav.simulations}
           </Link>
           <span>/</span>
           <span className="font-semibold text-slate-800 truncate">{meta.title}</span>
@@ -68,11 +67,11 @@ export function SimulationView({ slug, initialSim }: SimulationViewProps) {
               {meta.status === 'active' ? (
                 <Badge className="bg-emerald-100 text-emerald-800 border-emerald-300">
                   <Sparkles className="mr-1 h-3 w-3" />
-                  {isEn ? 'Interactive Lab' : 'Sẵn sàng tương tác'}
+                  {dict.simulations.active_badge}
                 </Badge>
               ) : (
                 <Badge variant="outline" className="text-slate-500 border-slate-300">
-                  {isEn ? 'In Development' : 'Đang phát triển'}
+                  {dict.simulations.upcoming_badge}
                 </Badge>
               )}
             </div>
@@ -81,10 +80,10 @@ export function SimulationView({ slug, initialSim }: SimulationViewProps) {
 
           <div className="flex flex-wrap items-center gap-3 font-mono text-xs text-slate-500">
             <span className="flex items-center gap-1 bg-slate-100 px-2 py-1 rounded">
-              <Clock className="h-3.5 w-3.5" />~{meta.estimatedMinutes} {isEn ? 'min' : 'phút'}
+              <Clock className="h-3.5 w-3.5" />~{meta.estimatedMinutes} {dict.simulations.min_unit}
             </span>
             <span className="bg-slate-100 px-2 py-1 rounded capitalize">
-              {isEn ? 'Difficulty:' : 'Độ khó:'} {difficultyLabel}
+              {dict.simulations.difficulty} {difficultyLabel}
             </span>
           </div>
         </div>
@@ -111,7 +110,7 @@ export function SimulationView({ slug, initialSim }: SimulationViewProps) {
             <FlaskConical className="h-7 w-7 text-blue-600" />
           </div>
           <h3 className="font-heading text-lg font-bold text-slate-900">
-            {isEn ? 'Laboratory Under Construction' : 'Phòng Thí nghiệm Đang Được Thiết lập'}
+            {dict.simulations.under_construction_title}
           </h3>
           <p className="mx-auto mt-2 max-w-lg text-sm text-slate-600 leading-relaxed">
             {meta.description}
@@ -119,12 +118,12 @@ export function SimulationView({ slug, initialSim }: SimulationViewProps) {
           <div className="mt-6 flex justify-center gap-3">
             <Link href="/simulations/birthday-paradox">
               <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-                {isEn ? 'Explore Birthday Paradox' : 'Trải nghiệm Nghịch lý Ngày sinh'}
+                {dict.simulations.explore_birthday}
               </Button>
             </Link>
             <Link href="/simulations/monty-hall">
               <Button variant="outline" className="border-slate-300">
-                {isEn ? 'Try Monty Hall' : 'Thử nghiệm Monty Hall'}
+                {dict.simulations.try_monty_hall}
               </Button>
             </Link>
           </div>
@@ -137,12 +136,8 @@ export function SimulationView({ slug, initialSim }: SimulationViewProps) {
       {/* Title Bình Luận & Thảo Luận */}
       <SimulationSection
         dotColor="indigo"
-        title={isEn ? 'Scientific Discussion & Peer Review' : 'Góc Thảo Luận & Bình Luận Khoa Học'}
-        subtitle={
-          isEn
-            ? 'Open academic dialogue, community intuition sharing, and multi-dimensional analysis'
-            : 'Không gian trao đổi đa chiều, chia sẻ trực giác và phản biện cùng cộng đồng nghiên cứu'
-        }
+        title={dict.simulations.scientific_discussion}
+        subtitle={dict.simulations.discussion_guideline}
       >
         <CommentSection simulationSlug={meta.slug} />
       </SimulationSection>

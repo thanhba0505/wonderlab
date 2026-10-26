@@ -8,8 +8,7 @@ import { ESSAYS } from './essays-data';
 import { useTranslation } from '@/i18n';
 
 export function EditorialSection() {
-  const { locale } = useTranslation();
-  const isEn = locale === 'en';
+  const { dict } = useTranslation();
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 xl:gap-8">
@@ -32,11 +31,11 @@ export function EditorialSection() {
                 <div className="flex items-center justify-between text-xs text-slate-500">
                   <span className="flex items-center gap-1.5 font-mono text-blue-700 font-bold">
                     <Atom className="h-3.5 w-3.5" />
-                    {isEn ? 'Essay #' : 'Tiểu luận #'}
+                    {dict.essays.essay_prefix}
                     {article.issueNumber || `0${idx + 1}`}
                   </span>
                   <span className="font-mono text-slate-400">
-                    {article.readTimeMinutes} {isEn ? 'min read' : 'phút đọc'}
+                    {article.readTimeMinutes} {dict.essays.min_read}
                   </span>
                 </div>
 
@@ -60,7 +59,7 @@ export function EditorialSection() {
                   </div>
 
                   <div className="flex items-center text-xs font-bold text-slate-600 group-hover:text-blue-700 transition-colors">
-                    <span>{isEn ? 'Read full essay' : 'Đọc toàn bộ tiểu luận'}</span>
+                    <span>{dict.essays.read_more}</span>
                     <ArrowUpRight className="h-3.5 w-3.5 ml-1 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                   </div>
                 </div>

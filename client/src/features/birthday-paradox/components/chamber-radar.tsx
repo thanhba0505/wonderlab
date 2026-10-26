@@ -17,8 +17,8 @@ export const ChamberRadar: React.FC<ChamberRadarProps> = ({
   selectedPersonId,
   onSelectPerson,
 }) => {
-  const { locale } = useTranslation();
-  const isEn = locale === 'en';
+  const { dict } = useTranslation();
+  const bDict = dict.sim_birthday;
   const size = 380;
   const radius = 150;
   const center = size / 2;
@@ -183,13 +183,13 @@ export const ChamberRadar: React.FC<ChamberRadarProps> = ({
         <span className="flex items-center gap-1.5">
           <span className="h-2 w-2 rounded-full bg-blue-600" />
           <span>
-            {isEn ? 'People' : 'Đối tượng'} ({people.length})
+            {bDict.people} ({people.length})
           </span>
         </span>
         <span className="flex items-center gap-1.5">
           <span className="h-2 w-2 rounded-full bg-amber-600" />
           <span>
-            {isEn ? 'Collision' : 'Va chạm'} ({collisionPairs.length} {isEn ? 'pairs' : 'cặp'})
+            {bDict.collision} ({collisionPairs.length} {bDict.collision_pairs})
           </span>
         </span>
       </div>
