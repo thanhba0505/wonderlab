@@ -5,6 +5,7 @@ import { FileSpreadsheet, FileJson, Copy, Share2, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { exportToCsv, exportToJson, copyToClipboard } from '../utils/export-data';
 import { useTranslation } from '@/i18n';
+import { getAppBaseUrl } from '@/lib/utils';
 
 interface ExportSuitePanelProps {
   simulationTitle: string;
@@ -70,8 +71,8 @@ export function ExportSuitePanel({
       ...Object.entries(results).map(([k, v]) => `- **${k}**: \`${String(v)}\``),
       '',
       isEn
-        ? `> Extracted from Wonderlab (https://wonderlab.vn/simulations/${simulationSlug})`
-        : `> Trích xuất từ Wonderlab (https://wonderlab.vn/simulations/${simulationSlug})`,
+        ? `> Extracted from Wonderlab (${typeof window !== 'undefined' ? window.location.origin : getAppBaseUrl()}/simulations/${simulationSlug})`
+        : `> Trích xuất từ Wonderlab (${typeof window !== 'undefined' ? window.location.origin : getAppBaseUrl()}/simulations/${simulationSlug})`,
     ].join('\n');
 
     const ok = await copyToClipboard(markdown);

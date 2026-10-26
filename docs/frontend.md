@@ -149,7 +149,7 @@ Nhằm tối ưu hóa khả năng thu thập dữ liệu công cụ tìm kiếm 
   - `sitemap.ts`: Đồng bộ trực tiếp từ `SIMULATIONS_REGISTRY` và `ESSAYS`, tạo URL chuẩn xác với chu kỳ cập nhật và trọng số khoa học (Trang chủ `1.0`, Mô phỏng `0.9`, Tiểu luận & Đề xuất `0.8`).
   - `robots.ts`: Quy định rõ quyền truy cập cho bot tìm kiếm, bảo vệ vùng quản trị `/admin`, `/my-account`, và các endpoint nội bộ `/api/`.
 - **Cấu hình Metadata Toàn cục & Chuẩn hóa Canonical (`layout.tsx`)**:
-  - Sử dụng `metadataBase` với biến môi trường `NEXT_PUBLIC_APP_URL` (fallback `https://wonderlab.vn`).
+  - Sử dụng `metadataBase` với biến môi trường `NEXT_PUBLIC_APP_URL` (fallback `http://localhost:4100`).
   - Chuẩn hóa Title Template: `%s | Wonderlab` giúp tiêu đề mọi trang con luôn đồng bộ và chuyên nghiệp.
   - Tự động gán `alternates.canonical` và các thẻ Open Graph, Twitter Cards (`summary_large_image`) tương ứng.
 - **Rich Snippets Schema.org JSON-LD**:

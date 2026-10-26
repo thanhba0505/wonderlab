@@ -65,7 +65,7 @@ describe('SEO & Metadata Infrastructure', () => {
 
   it('renders valid Schema.org JSON-LD for simulation with LearningResource, WebApplication, and Breadcrumbs', async () => {
     const sim = SIMULATIONS_REGISTRY[0]!;
-    const baseUrl = 'https://wonderlab.vn';
+    const baseUrl = 'http://localhost:4100';
     const url = `${baseUrl}/simulations/${sim.slug}`;
 
     await act(async () => {
@@ -98,7 +98,7 @@ describe('SEO & Metadata Infrastructure', () => {
 
   it('renders valid Schema.org JSON-LD for essay with TechArticle and Breadcrumbs', async () => {
     const essay = ESSAYS[0]!;
-    const baseUrl = 'https://wonderlab.vn';
+    const baseUrl = 'http://localhost:4100';
     const url = `${baseUrl}/essays/${essay.slug || essay.id}`;
 
     await act(async () => {
@@ -142,9 +142,9 @@ describe('SEO & Metadata Infrastructure', () => {
       delete process.env.NEXT_PUBLIC_APP_URL;
       expect(getAppBaseUrl()).toBe('https://wonderlab-client.onrender.com');
 
-      // 3. Falls back to wonderlab.vn if neither is set
+      // 3. Falls back to http://localhost:4100 if neither is set
       delete process.env.RENDER_EXTERNAL_URL;
-      expect(getAppBaseUrl()).toBe('https://wonderlab.vn');
+      expect(getAppBaseUrl()).toBe('http://localhost:4100');
     } finally {
       process.env.NEXT_PUBLIC_APP_URL = originalAppUrl;
       process.env.RENDER_EXTERNAL_URL = originalRenderUrl;

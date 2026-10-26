@@ -192,7 +192,7 @@ describe('AppForm & AppFormField Components', () => {
     act(() => {
       root.render(
         <AppForm
-          initialValues={{ email: 'researcher@wonderlab.vn', username: 'researcher' }}
+          initialValues={{ email: 'researcher@wonderlab.local', username: 'researcher' }}
           onSubmit={handleSubmit}
         >
           <AppFormField name="email" label="Email" rules={[{ required: true }, { email: true }]} />
@@ -211,7 +211,7 @@ describe('AppForm & AppFormField Components', () => {
     expect(handleSubmit).toHaveBeenCalledTimes(1);
     expect(handleSubmit).toHaveBeenCalledWith(
       {
-        email: 'researcher@wonderlab.vn',
+        email: 'researcher@wonderlab.local',
         username: 'researcher',
       },
       expect.anything(),
