@@ -24,7 +24,8 @@ export interface SimulationHypothesisChallenge {
     | 'classical-mechanics-bias'
     | 'zero-sum-fallacy'
     | 'infinite-sum-fallacy'
-    | 'convexity-illusion';
+    | 'convexity-illusion'
+    | 'independence-fallacy';
   biasName: string;
   biasDescription: string;
 }

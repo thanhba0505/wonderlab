@@ -349,6 +349,73 @@ export const SIMULATIONS_REGISTRY: SimulationMeta[] = [
         'Xu hướng tâm lý đánh giá thấp số góc chết trong không gian đa giác lõm phức tạp, hoặc ngược lại đánh giá quá cao số người cần vì không nhận ra mỗi người có thể nhìn thấy nhiều tam giác cùng lúc.',
     },
   },
+  {
+    slug: 'prisoners-hats',
+    title: 'Bài toán Đội mũ & Bit Chẵn lẻ (Prisoners Hat Puzzle)',
+    subtitle: 'Lý thuyết thông tin, mã sửa sai và chiến thuật suy luận hợp tác',
+    category: 'logic',
+    difficulty: 'intermediate',
+    estimatedMinutes: 4,
+    formula:
+      'P(\\text{Sống sót}) \\ge \\frac{n-1}{n}, \\quad c_k = \\left(p - \\sum_{j < k} c_j\\right) \\pmod K',
+    summary:
+      'Với 10 người đội mũ 2 màu đứng thành hàng, bằng cách hy sinh người cuối cùng phát tín hiệu Parity bit, 9 người còn lại được bảo đảm chắc chắn 100% đoán đúng màu mũ của mình.',
+    description:
+      'Bài toán kinh điển minh họa sức mạnh của lý thuyết thông tin và mã kiểm tra chẵn lẻ (Parity Bit). Khi chuyển hóa các phán đoán độc lập thành hệ phương trình đồng dư trên trường nhị phân F2, thông tin được trừ lùi tuần tự giúp giải cứu đồng đội.',
+    tags: [
+      'Lý thuyết thông tin',
+      'Parity Bit',
+      'Mã sửa sai',
+      'Logic hợp tác',
+      'XOR',
+      'Monte Carlo',
+    ],
+    status: 'active',
+    accentColor: 'blue',
+    hypothesis: {
+      question:
+        'Trong bài toán 10 người đội mũ 2 màu (mỗi người chỉ thấy người trước mặt, nghe người sau hô), chiến thuật tối ưu nhất có thể bảo đảm chắc chắn bao nhiêu người đoán đúng?',
+      context:
+        '10 người xếp hàng dọc, mũ Đen/Trắng ngẫu nhiên 50/50. Người thứ 10 hô trước tiên, chỉ được nói một từ màu mũ.',
+      options: [
+        {
+          id: 'opt-a',
+          label: 'Khoảng 5 người (~ 50% vì mũ ngẫu nhiên độc lập)',
+          value: 0.5,
+          explanation:
+            'Bẫy tư duy ngộ nhận tính độc lập: cho rằng không thấy mũ mình thì chỉ có thể đoán mò 50/50.',
+        },
+        {
+          id: 'opt-b',
+          label: 'Khoảng 7-8 người nếu ghi nhớ tốt',
+          value: 0.75,
+          explanation:
+            'Đoán dựa trên cảm tính xác suất nhưng chưa nhận ra cấu trúc đại số của mã chẵn lẻ.',
+        },
+        {
+          id: 'opt-c',
+          label: 'Chắc chắn đúng 9 người (người cuối cùng hy sinh làm bit kiểm tra)',
+          value: 0.9,
+          explanation:
+            'Chính xác xuất sắc! Người thứ 10 dùng lượt hô để phát đi tính chẵn lẻ của 9 người phía trước, giúp 9 người còn lại giải mã hoàn hảo 100%.',
+        },
+        {
+          id: 'opt-d',
+          label: 'Có thể cứu được cả 10 người 100%',
+          value: 1.0,
+          explanation:
+            'Không thể bảo đảm 10 người vì người thứ 10 không nhận được bất kỳ thông tin nào về chiếc mũ của chính mình.',
+        },
+      ],
+      theoreticalTruth: 0.9,
+      truthExplanation:
+        'Người thứ 10 không có thông tin về mũ của mình nên chỉ có 50% cơ hội đúng, nhưng lời hô của người này đóng vai trò là một Parity Checksum. Nhờ đó, toàn bộ 9 người còn lại đều suy ra chính xác 100% màu mũ của mình.',
+      biasType: 'independence-fallacy',
+      biasName: 'Ảo Tưởng Tính Độc Lập Biến Cố (Independence Fallacy)',
+      biasDescription:
+        'Xu hướng mặc định rằng vì các chiếc mũ được đội ngẫu nhiên độc lập nên xác suất đoán đúng của mỗi cá nhân cũng hoàn toàn độc lập, bỏ qua khả năng truyền tin và mã hóa thông tin hợp tác.',
+    },
+  },
 ];
 
 export function getSimulationBySlug(slug: string): SimulationMeta | undefined {

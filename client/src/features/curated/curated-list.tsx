@@ -63,6 +63,17 @@ export const CURATED_LIST: CuratedExperience[] = [
     concept: 'g(n) = \\lfloor n/3 \\rfloor',
     href: '/simulations/art-gallery',
   },
+  {
+    id: 'prisoners-hats',
+    title: 'Bài toán Đội mũ & Bit Chẵn lẻ (Prisoners Hat Puzzle)',
+    summary:
+      'Làm thế nào để 10 người đội mũ 2 màu ngẫu nhiên chắc chắn đoán đúng màu mũ của ít nhất 9 người? Khám phá chiến thuật Parity Checksum và lý thuyết thông tin.',
+    category: 'mind-games',
+    estimatedMinutes: 4,
+    highlightTag: 'Lý thuyết thông tin & Logic',
+    concept: 'P \\ge (n-1)/n, \\quad c_k = (p - \\sum c_{j}) \\pmod K',
+    href: '/simulations/prisoners-hats',
+  },
 ];
 
 export function CuratedList() {

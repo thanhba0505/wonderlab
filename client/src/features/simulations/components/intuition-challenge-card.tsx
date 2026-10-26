@@ -436,6 +436,18 @@ export function IntuitionChallengeCard({
                         </span>
                       </div>
                     )}
+
+                    {simulationSlug === 'prisoners-hats' && (
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="font-bold text-blue-900">P(Đoán đúng)</span>
+                        <span>&ge;</span>
+                        <MathFraction numerator="n &minus; 1" denominator="n" className="text-xs" />
+                        <span>=</span>
+                        <span className="font-bold text-emerald-700">
+                          Bảo đảm chắc chắn 9 / 10 người (90% - 95%)
+                        </span>
+                      </div>
+                    )}
                   </div>
 
                   <p className="font-sans text-slate-500 text-xs">

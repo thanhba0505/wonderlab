@@ -94,6 +94,14 @@ export function Footer() {
               </li>
               <li>
                 <Link
+                  href="/simulations/prisoners-hats"
+                  className="text-slate-600 hover:text-slate-900 transition-colors"
+                >
+                  Bài toán Đội mũ &amp; Bit Chẵn lẻ
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/essays"
                   className="text-slate-600 hover:text-slate-900 transition-colors"
                 >

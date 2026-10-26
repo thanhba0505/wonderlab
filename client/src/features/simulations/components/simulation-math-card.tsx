@@ -273,6 +273,36 @@ export const SimulationMathCard: React.FC<SimulationMathCardProps> = ({ slug, su
             </div>
           </div>
         )}
+
+        {/* BÀI TOÁN ĐỘI MŨ & BIT CHẴN LẺ (PRISONERS HAT PUZZLE) */}
+        {slug === 'prisoners-hats' && (
+          <div className="space-y-3 text-xs text-slate-800">
+            <div className="flex flex-wrap items-center gap-4 bg-slate-50/80 p-3 rounded-lg">
+              <div className="flex items-center gap-1.5">
+                <span className="text-slate-500 font-sans">Bảo đảm sống sót:</span>
+                <span className="font-bold text-slate-900">P &ge;</span>
+                <MathFraction numerator="n &minus; 1" denominator="n" />
+                <span className="text-slate-500 font-sans">&bull;</span>
+                <span className="text-slate-500 font-sans">Kỳ vọng với n=10:</span>
+                <span className="font-bold text-emerald-700">95.0%</span>
+              </div>
+              <span className="text-slate-300">|</span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-slate-500 font-sans">Tín hiệu Parity:</span>
+                <span className="font-bold text-blue-700">
+                  p = &sum; c<sub>j</sub> (mod K)
+                </span>
+              </div>
+              <span className="text-slate-300">|</span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-slate-500 font-sans">Giải mã trừ lùi:</span>
+                <span className="font-bold text-indigo-700">
+                  c<sub>k</sub> = (p<sub>k</sub> &minus; &sum; c<sub>trước</sub>) mod K
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
