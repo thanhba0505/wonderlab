@@ -8,6 +8,20 @@ export const SIMULATION_CATEGORIES = [
   'Khác',
 ] as const;
 
+export const CATEGORY_LOCALIZATIONS: Record<string, { vi: string; en: string }> = {
+  'Toán học & Xác suất': { vi: 'Toán học & Xác suất', en: 'Mathematics & Probability' },
+  'Vật lý & Lượng tử': { vi: 'Vật lý & Lượng tử', en: 'Physics & Quantum Mechanics' },
+  'Nghịch lý Logic & Triết học': {
+    vi: 'Nghịch lý Logic & Triết học',
+    en: 'Logic Paradoxes & Philosophy',
+  },
+  'Lý thuyết Trò chơi & Nhận thức': {
+    vi: 'Lý thuyết Trò chơi & Nhận thức',
+    en: 'Game Theory & Cognition',
+  },
+  Khác: { vi: 'Khác', en: 'Other' },
+};
+
 export interface StatusConfig {
   label: string;
   variant: 'default' | 'outline' | 'violet' | 'amber' | 'emerald' | 'blue' | 'red';

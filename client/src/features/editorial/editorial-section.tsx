@@ -32,7 +32,8 @@ export function EditorialSection() {
                 <div className="flex items-center justify-between text-xs text-slate-500">
                   <span className="flex items-center gap-1.5 font-mono text-blue-700 font-bold">
                     <Atom className="h-3.5 w-3.5" />
-                    {isEn ? 'Essay #' : 'Tiểu luận #'}{article.issueNumber || `0${idx + 1}`}
+                    {isEn ? 'Essay #' : 'Tiểu luận #'}
+                    {article.issueNumber || `0${idx + 1}`}
                   </span>
                   <span className="font-mono text-slate-400">
                     {article.readTimeMinutes} {isEn ? 'min read' : 'phút đọc'}

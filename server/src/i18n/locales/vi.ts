@@ -16,8 +16,7 @@ export const viTranslations: ServerDictionary = {
       'Đặt lại mật khẩu thành công! Bạn có thể sử dụng mật khẩu mới để đăng nhập.',
     password_changed_success: 'Đổi mật khẩu thành công.',
     old_password_incorrect: 'Mật khẩu hiện tại không chính xác.',
-    password_already_set:
-      'Tài khoản đã có mật khẩu. Vui lòng sử dụng tính năng Đổi mật khẩu.',
+    password_already_set: 'Tài khoản đã có mật khẩu. Vui lòng sử dụng tính năng Đổi mật khẩu.',
     password_set_success: 'Thiết lập mật khẩu thành công.',
     unauthorized: 'Bạn chưa đăng nhập hoặc phiên làm việc đã hết hạn.',
     forbidden: 'Bạn không có quyền thực hiện hành động này.',

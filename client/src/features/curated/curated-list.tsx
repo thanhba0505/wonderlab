@@ -117,12 +117,20 @@ export const LOCALIZED_CURATED_LIST: LocalizedItem[] = [
   },
   {
     id: 'prisoners-hats',
-    title: 'Bài toán Đội mũ & Bit Chẵn lẻ (Prisoners Hat Puzzle)',
-    summary:
-      'Làm thế nào để 10 người đội mũ 2 màu ngẫu nhiên chắc chắn đoán đúng màu mũ của ít nhất 9 người? Khám phá chiến thuật Parity Checksum và lý thuyết thông tin.',
+    title: {
+      vi: 'Bài toán Đội mũ & Bit Chẵn lẻ (Prisoners Hat Puzzle)',
+      en: 'Prisoners & Hats Puzzle (Parity Checksum)',
+    },
+    summary: {
+      vi: 'Làm thế nào để 10 người đội mũ 2 màu ngẫu nhiên chắc chắn đoán đúng màu mũ của ít nhất 9 người? Khám phá chiến thuật Parity Checksum và lý thuyết thông tin.',
+      en: 'How can 10 prisoners wearing random colored hats guarantee at least 9 correct guesses? Explore parity checksums and information theory.',
+    },
     category: 'mind-games',
     estimatedMinutes: 4,
-    highlightTag: 'Lý thuyết thông tin & Logic',
+    highlightTag: {
+      vi: 'Lý thuyết thông tin & Logic',
+      en: 'Information Theory & Logic',
+    },
     concept: 'P \\ge (n-1)/n, \\quad c_k = (p - \\sum c_{j}) \\pmod K',
     href: '/simulations/prisoners-hats',
   },
@@ -140,7 +148,7 @@ export const CURATED_LIST: CuratedExperience[] = LOCALIZED_CURATED_LIST.map(item
 }));
 
 export function CuratedList() {
-  const { locale, dict } = useTranslation();
+  const { locale } = useTranslation();
 
   const getBadgeVariant = (category: string) => {
     switch (category) {
@@ -178,7 +186,10 @@ export function CuratedList() {
                   </Badge>
                   <div className="flex items-center gap-1.5 text-xs text-slate-500 font-mono">
                     <Clock className="h-3.5 w-3.5 text-slate-400" />
-                    <span>~{item.estimatedMinutes} {locale === 'en' ? 'min experience' : 'phút tương tác'}</span>
+                    <span>
+                      ~{item.estimatedMinutes}{' '}
+                      {locale === 'en' ? 'min experience' : 'phút tương tác'}
+                    </span>
                   </div>
                 </div>
 
@@ -216,7 +227,11 @@ export function CuratedList() {
           className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 hover:text-blue-700 text-xs font-mono font-bold transition shadow-xs group"
         >
           <FlaskConical className="h-4 w-4 text-blue-600" />
-          <span>{locale === 'en' ? 'Explore Full Laboratory Catalog' : 'Khám phá toàn bộ Thư viện Thực nghiệm'}</span>
+          <span>
+            {locale === 'en'
+              ? 'Explore Full Laboratory Catalog'
+              : 'Khám phá toàn bộ Thư viện Thực nghiệm'}
+          </span>
           <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
         </Link>
       </div>

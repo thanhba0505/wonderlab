@@ -22,7 +22,7 @@ export function AuthModal() {
     forgotPassword,
     resetPassword,
   } = useAuth();
-  const { dict, locale } = useTranslation();
+  const { dict } = useTranslation();
 
   const [mode, setMode] = React.useState<AuthModalView>(authModalMode);
   const [email, setEmail] = React.useState<string>('');

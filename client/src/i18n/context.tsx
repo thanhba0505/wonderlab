@@ -67,12 +67,10 @@ export interface I18nProviderProps {
 
 export function I18nProvider({ children, initialLocale }: I18nProviderProps) {
   const [locale, setLocaleState] = React.useState<Locale>(initialLocale || DEFAULT_LOCALE);
-  const [hasMounted, setHasMounted] = React.useState(false);
 
   React.useEffect(() => {
     const detected = initialLocale || resolveInitialLocale();
     setLocaleState(detected);
-    setHasMounted(true);
     document.documentElement.lang = detected;
   }, [initialLocale]);
 

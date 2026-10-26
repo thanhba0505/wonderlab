@@ -1,10 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import {
-  DEFAULT_LOCALE,
-  SUPPORTED_LOCALES,
-  ServerDictionary,
-  SupportedLocale,
-} from './i18n.types';
+import { DEFAULT_LOCALE, SUPPORTED_LOCALES, ServerDictionary, SupportedLocale } from './i18n.types';
 import { viTranslations } from './locales/vi';
 import { enTranslations } from './locales/en';
 
@@ -58,11 +53,7 @@ export class I18nService {
    * Translates a dot-notated key (e.g. 'auth.invalid_credentials')
    * with optional parameter interpolation {name}.
    */
-  t(
-    key: string,
-    locale?: string | null,
-    params?: Record<string, string | number>,
-  ): string {
+  t(key: string, locale?: string | null, params?: Record<string, string | number>): string {
     const resolvedLocale = this.resolveLocale(locale);
     const dict = this.getDictionary(resolvedLocale);
 

@@ -59,7 +59,9 @@ export function CategoryGrid() {
                   {isEn ? 'Experimental Physics & Optics' : 'Khoa học Thực nghiệm & Quang học'}
                 </CardTitle>
                 <p className="text-xs font-mono text-blue-700/80 mt-0.5 font-medium">
-                  {isEn ? 'Quantum mechanics, wave interference & light' : 'Vật lý lượng tử, sóng & dao động'}
+                  {isEn
+                    ? 'Quantum mechanics, wave interference & light'
+                    : 'Vật lý lượng tử, sóng & dao động'}
                 </p>
               </div>
             </div>
@@ -79,7 +81,9 @@ export function CategoryGrid() {
             <div className="flex items-center justify-between text-xs">
               <span className="font-mono text-slate-800 flex items-center gap-1.5 font-bold">
                 <Sparkles className="h-3.5 w-3.5 text-blue-600" />
-                {isEn ? 'Double Slit Model (Young Experiment):' : 'Mô hình Giao thoa Khe đôi (Young Experiment):'}
+                {isEn
+                  ? 'Double Slit Model (Young Experiment):'
+                  : 'Mô hình Giao thoa Khe đôi (Young Experiment):'}
               </span>
               <div className="flex items-center gap-2">
                 <button
@@ -150,7 +154,9 @@ export function CategoryGrid() {
             href="/simulations/double-slit"
             className="flex items-center text-xs font-bold text-blue-600 group-hover:text-blue-700 transition-colors"
           >
-            <span>{isEn ? 'Explore Optics Laboratory' : 'Khám phá phòng thí nghiệm quang học'}</span>
+            <span>
+              {isEn ? 'Explore Optics Laboratory' : 'Khám phá phòng thí nghiệm quang học'}
+            </span>
             <ArrowRight className="h-4 w-4 ml-1.5 transition-transform group-hover:translate-x-1" />
           </Link>
         </CardContent>
@@ -273,7 +279,9 @@ export function CategoryGrid() {
               <div className="text-slate-600 text-xs leading-relaxed">
                 {isEn ? 'Distance: 100m → 50m → 25m → ...' : 'Khoảng cách: 100m → 50m → 25m → ...'}
                 <br />
-                {isEn ? 'Infinite series: Σ (1/2)^n = 1 (Finite convergence)' : 'Chuỗi vô hạn: Σ (1/2)^n = 1 (Hội tụ hữu hạn)'}
+                {isEn
+                  ? 'Infinite series: Σ (1/2)^n = 1 (Finite convergence)'
+                  : 'Chuỗi vô hạn: Σ (1/2)^n = 1 (Hội tụ hữu hạn)'}
               </div>
             </div>
           </CardContent>
@@ -311,7 +319,9 @@ export function CategoryGrid() {
                 </p>
               </div>
             </div>
-            <Badge variant="emerald">{isEn ? '3 INTERACTIVE SCENARIOS' : '3 TÌNH HUỐNG TƯƠNG TÁC'}</Badge>
+            <Badge variant="emerald">
+              {isEn ? '3 INTERACTIVE SCENARIOS' : '3 TÌNH HUỐNG TƯƠNG TÁC'}
+            </Badge>
           </div>
         </CardHeader>
 
@@ -326,7 +336,9 @@ export function CategoryGrid() {
           <div className="rounded-xl bg-slate-100/70 p-4 space-y-3">
             <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
               <span className="font-mono text-slate-800 font-bold">
-                {isEn ? "Select your move in Prisoner's Dilemma:" : 'Chọn nước đi của bạn trong Song đề Tù nhân:'}
+                {isEn
+                  ? "Select your move in Prisoner's Dilemma:"
+                  : 'Chọn nước đi của bạn trong Song đề Tù nhân:'}
               </span>
               <div className="flex gap-2">
                 <button
@@ -412,7 +424,9 @@ export function CategoryGrid() {
             href="/simulations/prisoners-dilemma"
             className="flex items-center text-xs font-bold text-emerald-700 group-hover:text-emerald-800 transition-colors"
           >
-            <span>{isEn ? 'Explore Game Theory Simulations' : 'Khám phá các thế cờ lý thuyết trò chơi'}</span>
+            <span>
+              {isEn ? 'Explore Game Theory Simulations' : 'Khám phá các thế cờ lý thuyết trò chơi'}
+            </span>
             <ArrowRight className="h-4 w-4 ml-1.5 transition-transform group-hover:translate-x-1" />
           </Link>
         </CardContent>

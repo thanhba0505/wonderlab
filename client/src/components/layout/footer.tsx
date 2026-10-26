@@ -90,7 +90,7 @@ export function Footer() {
                   href="/simulations/prisoners-hats"
                   className="text-slate-600 hover:text-slate-900 transition-colors"
                 >
-                  Bài toán Đội mũ &amp; Bit Chẵn lẻ
+                  {locale === 'en' ? 'Prisoners & Hats Riddle' : 'Bài toán Đội mũ & Bit Chẵn lẻ'}
                 </Link>
               </li>
               <li>
@@ -160,9 +160,16 @@ export function Footer() {
         </div>
 
         <div className="mt-8 border-t border-slate-200 pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500">
-          <p>© 2026 Wonderlab. {locale === 'en' ? 'Open scientific laboratory platform.' : 'Nền tảng thí nghiệm khoa học mở.'}</p>
+          <p>
+            © 2026 Wonderlab.{' '}
+            {locale === 'en'
+              ? 'Open scientific laboratory platform.'
+              : 'Nền tảng thí nghiệm khoa học mở.'}
+          </p>
           <p className="mt-2 sm:mt-0 font-sans text-slate-500">
-            {locale === 'en' ? 'Experimental Science & Liberal Education' : 'Khoa học thực nghiệm & Giáo dục khai phóng'}
+            {locale === 'en'
+              ? 'Experimental Science & Liberal Education'
+              : 'Khoa học thực nghiệm & Giáo dục khai phóng'}
           </p>
         </div>
       </div>

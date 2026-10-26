@@ -136,7 +136,9 @@ export function SimulationsCatalog({ initialSimulations }: SimulationsCatalogPro
                 <div className="mt-6 flex items-center justify-between border-t border-slate-100 pt-3">
                   <div className="flex items-center gap-1 font-mono text-xs text-slate-500">
                     <Clock className="h-3 w-3" />
-                    <span>~{sim.estimatedMinutes} {isEn ? 'min' : 'phút'}</span>
+                    <span>
+                      ~{sim.estimatedMinutes} {isEn ? 'min' : 'phút'}
+                    </span>
                   </div>
 
                   <Link href={`/simulations/${sim.slug}`}>

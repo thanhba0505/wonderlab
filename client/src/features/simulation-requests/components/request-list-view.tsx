@@ -11,25 +11,14 @@ import {
 import { RequestCard } from './request-card';
 import { RequestModal } from './request-modal';
 import { AppButton, AppInput, AppSelect, AppPagination } from '@/components/ui';
-import { SIMULATION_CATEGORIES } from '../constants';
+import { SIMULATION_CATEGORIES, CATEGORY_LOCALIZATIONS } from '../constants';
 import { cn } from '@/lib/utils';
-
-const STATUS_TABS: Array<{ id: string; label: string; status?: SimulationRequestStatus }> = [
-  { id: 'all', label: 'Tất cả' },
-  { id: 'PENDING', label: 'Chờ xem xét', status: 'PENDING' },
-  { id: 'UNDER_REVIEW', label: 'Đang thẩm định', status: 'UNDER_REVIEW' },
-  { id: 'PLANNED', label: 'Đã lên lịch', status: 'PLANNED' },
-  { id: 'IN_DEVELOPMENT', label: 'Đang phát triển', status: 'IN_DEVELOPMENT' },
-  { id: 'COMPLETED', label: 'Đã hoàn thành', status: 'COMPLETED' },
-];
-
-const SORT_OPTIONS = [
-  { value: 'votes', label: 'Nhiều bình chọn nhất' },
-  { value: 'newest', label: 'Mới gửi gần đây' },
-  { value: 'oldest', label: 'Gửi sớm nhất' },
-];
+import { useTranslation } from '@/i18n';
 
 export function RequestListView() {
+  const { locale, dict } = useTranslation();
+  const isEn = locale === 'en';
+
   const [requests, setRequests] = React.useState<SimulationRequestItem[]>([]);
   const [total, setTotal] = React.useState<number>(0);
   const [page, setPage] = React.useState<number>(1);
@@ -40,6 +29,28 @@ export function RequestListView() {
   const [searchQuery, setSearchQuery] = React.useState<string>('');
   const [debouncedSearch, setDebouncedSearch] = React.useState<string>('');
   const [sortBy, setSortBy] = React.useState<'votes' | 'newest' | 'oldest'>('votes');
+
+  const statusTabs: Array<{ id: string; label: string; status?: SimulationRequestStatus }> =
+    React.useMemo(
+      () => [
+        { id: 'all', label: dict.requests.status_all },
+        { id: 'PENDING', label: dict.requests.status_pending, status: 'PENDING' },
+        { id: 'UNDER_REVIEW', label: dict.requests.status_under_review, status: 'UNDER_REVIEW' },
+        { id: 'PLANNED', label: dict.requests.status_planned, status: 'PLANNED' },
+        { id: 'IN_DEVELOPMENT', label: dict.requests.status_in_progress, status: 'IN_DEVELOPMENT' },
+        { id: 'COMPLETED', label: dict.requests.status_completed, status: 'COMPLETED' },
+      ],
+      [dict.requests],
+    );
+
+  const sortOptions = React.useMemo(
+    () => [
+      { value: 'votes', label: dict.requests.sort_votes },
+      { value: 'newest', label: dict.requests.sort_newest },
+      { value: 'oldest', label: dict.requests.sort_oldest },
+    ],
+    [dict.requests],
+  );
 
   // Track initial load vs background refetching to eliminate screen flashing
   const hasLoadedOnceRef = React.useRef<boolean>(false);
@@ -66,7 +77,7 @@ export function RequestListView() {
     }
 
     try {
-      const currentTabObj = STATUS_TABS.find(t => t.id === activeTab);
+      const currentTabObj = statusTabs.find(t => t.id === activeTab);
       const res = await fetchSimulationRequests({
         page,
         limit,
@@ -85,7 +96,7 @@ export function RequestListView() {
       setIsFetching(false);
       hasLoadedOnceRef.current = true;
     }
-  }, [page, limit, activeTab, selectedCategory, debouncedSearch, sortBy]);
+  }, [page, limit, activeTab, selectedCategory, debouncedSearch, sortBy, statusTabs]);
 
   React.useEffect(() => {
     loadRequests();
@@ -131,10 +142,13 @@ export function RequestListView() {
 
   const categoryOptions = React.useMemo(() => {
     return [
-      { value: 'all', label: 'Tất cả lĩnh vực' },
-      ...SIMULATION_CATEGORIES.map(c => ({ value: c, label: c })),
+      { value: 'all', label: dict.requests.all_categories },
+      ...SIMULATION_CATEGORIES.map(c => ({
+        value: c,
+        label: CATEGORY_LOCALIZATIONS[c]?.[locale] || c,
+      })),
     ];
-  }, []);
+  }, [dict.requests.all_categories, locale]);
 
   return (
     <div className="flex flex-col gap-8 pb-12">
@@ -143,15 +157,15 @@ export function RequestListView() {
         <div className="max-w-3xl">
           <div className="inline-flex items-center gap-2 rounded-lg bg-blue-50 border border-blue-200/60 px-3 py-1 font-mono text-xs font-semibold text-blue-700 uppercase tracking-wider mb-4">
             <FlaskConical className="h-3.5 w-3.5 text-blue-600" />
-            <span>Cộng đồng Thực nghiệm Wonderlab</span>
+            <span>
+              {isEn ? 'Wonderlab Experimental Community' : 'Cộng đồng Thực nghiệm Wonderlab'}
+            </span>
           </div>
           <h1 className="font-heading text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900">
-            Đề xuất Bài toán & Lộ trình Thí nghiệm
+            {dict.requests.title}
           </h1>
           <p className="mt-3 text-sm sm:text-base text-slate-600 leading-relaxed">
-            Bạn muốn thấy nghịch lý xác suất, bài toán toán học hay hiện tượng vật lý lượng tử nào
-            được trực quan hóa tiếp theo? Hãy gửi đề xuất hoặc bình chọn để cùng định hình các mô
-            phỏng ra mắt trong Phòng Lab!
+            {dict.requests.subtitle}
           </p>
 
           <div className="mt-6 flex flex-wrap items-center gap-3">
@@ -162,10 +176,11 @@ export function RequestListView() {
               className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
             >
               <Plus className="mr-1.5 h-4 w-4" />
-              <span>Đề xuất bài toán mới</span>
+              <span>{dict.requests.submit_new}</span>
             </AppButton>
             <span className="text-xs text-slate-500 font-mono">
-              Tổng cộng <strong className="text-slate-800">{total}</strong> đề xuất từ cộng đồng
+              {isEn ? 'Total' : 'Tổng cộng'} <strong className="text-slate-800">{total}</strong>{' '}
+              {isEn ? 'community proposals' : 'đề xuất từ cộng đồng'}
             </span>
           </div>
         </div>
@@ -175,7 +190,7 @@ export function RequestListView() {
       <div className="flex flex-col gap-4">
         {/* Status Tabs */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none border-b border-slate-200 text-sm">
-          {STATUS_TABS.map(tab => {
+          {statusTabs.map(tab => {
             const isActive = activeTab === tab.id;
             return (
               <button
@@ -207,7 +222,7 @@ export function RequestListView() {
             <AppInput
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              placeholder="Tìm kiếm bài toán, nghịch lý hoặc từ khóa..."
+              placeholder={dict.requests.search_placeholder}
               className="pl-9"
             />
           </div>
@@ -232,7 +247,7 @@ export function RequestListView() {
                 setSortBy(e.target.value as 'votes' | 'newest' | 'oldest');
                 setPage(1);
               }}
-              options={SORT_OPTIONS}
+              options={sortOptions}
             />
           </div>
         </div>
@@ -257,7 +272,9 @@ export function RequestListView() {
             aria-live="polite"
           >
             <Loader2 className="h-3.5 w-3.5 animate-spin text-blue-600 shrink-0" />
-            <span className="font-sans">Đang cập nhật danh sách...</span>
+            <span className="font-sans">
+              {isEn ? 'Updating proposals...' : 'Đang cập nhật danh sách...'}
+            </span>
           </div>
         )}
 
@@ -299,13 +316,13 @@ export function RequestListView() {
             </div>
 
             <h3 className="font-heading text-lg font-bold text-slate-900">
-              {hasActiveFilters ? 'Chưa tìm thấy đề xuất phù hợp' : 'Chưa có đề xuất bài toán nào'}
+              {hasActiveFilters
+                ? dict.requests.empty_filtered_title
+                : dict.requests.empty_all_title}
             </h3>
 
             <p className="mt-1.5 text-xs sm:text-sm text-slate-600 max-w-md leading-relaxed">
-              {hasActiveFilters
-                ? 'Không có đề xuất nào khớp với bộ lọc hiện tại. Bạn có thể đặt lại bộ lọc để xem toàn bộ danh sách hoặc gửi đề xuất mới.'
-                : 'Hãy là người tiên phong chia sẻ nghịch lý hoặc bài toán khoa học thú vị bạn muốn Wonderlab trực quan hóa!'}
+              {hasActiveFilters ? dict.requests.empty_filtered_desc : dict.requests.empty_all_desc}
             </p>
 
             <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
@@ -318,7 +335,7 @@ export function RequestListView() {
                   className="text-xs"
                 >
                   <RotateCcw className="mr-1.5 h-3.5 w-3.5 text-slate-500" />
-                  <span>Đặt lại bộ lọc</span>
+                  <span>{dict.requests.reset_filter}</span>
                 </AppButton>
               )}
               <AppButton
@@ -328,7 +345,7 @@ export function RequestListView() {
                 className="bg-blue-600 hover:bg-blue-700 text-white text-xs"
               >
                 <Plus className="mr-1.5 h-4 w-4" />
-                <span>Gửi đề xuất bài toán</span>
+                <span>{dict.requests.submit_new}</span>
               </AppButton>
             </div>
           </div>

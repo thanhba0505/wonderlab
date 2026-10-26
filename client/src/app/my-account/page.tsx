@@ -18,9 +18,12 @@ import { useAuth } from '@/lib/auth-context';
 import { AppButton, AppTag } from '@/components/ui';
 import { SIMULATIONS_REGISTRY } from '@/features/simulations/registry';
 import { ESSAYS } from '@/features/editorial/essays-data';
+import { useTranslation } from '@/i18n';
 
 export default function MyAccountPage() {
   const { user } = useAuth();
+  const { locale, dict } = useTranslation();
+  const isEn = locale === 'en';
 
   if (!user) return null;
 
@@ -38,17 +41,14 @@ export default function MyAccountPage() {
           <span>/</span>
           <span className="text-slate-800 font-semibold">Console</span>
           <span>/</span>
-          <span className="text-slate-800 font-semibold">Tổng quan Cá nhân</span>
+          <span className="text-slate-800 font-semibold">{dict.account.overview_title}</span>
         </div>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="font-heading text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
-              Tổng quan Cá nhân
+              {dict.account.overview_title}
             </h1>
-            <p className="text-xs text-slate-600 mt-1">
-              Trung tâm lưu trữ thực nghiệm, ghi chép tư duy và theo dõi tiến trình khám phá của
-              bạn.
-            </p>
+            <p className="text-xs text-slate-600 mt-1">{dict.account.overview_subtitle}</p>
           </div>
 
           <div className="flex items-center gap-2.5">
@@ -59,7 +59,7 @@ export default function MyAccountPage() {
                 leftIcon={<Settings className="h-3.5 w-3.5" />}
                 className="text-xs"
               >
-                Hồ sơ & Mật khẩu
+                {dict.account.profile_btn}
               </AppButton>
             </Link>
 
@@ -71,7 +71,7 @@ export default function MyAccountPage() {
                   leftIcon={<ShieldCheck className="h-3.5 w-3.5" />}
                   className="bg-amber-600 hover:bg-amber-700 text-white border-amber-700 text-xs shadow-xs"
                 >
-                  Quản trị hệ thống
+                  {dict.account.admin_btn}
                 </AppButton>
               </Link>
             )}
@@ -88,11 +88,14 @@ export default function MyAccountPage() {
             </div>
             <div>
               <div className="text-xs font-bold text-amber-950 font-mono uppercase tracking-wider">
-                Đặc quyền Quản trị viên (Admin Console)
+                {isEn
+                  ? 'Administrator Privileges (Admin Console)'
+                  : 'Đặc quyền Quản trị viên (Admin Console)'}
               </div>
               <p className="text-xs text-amber-900 mt-0.5">
-                Bạn đang đăng nhập với quyền Quản trị tối cao. Bạn có thể truy cập trang Quản trị
-                toàn sàn.
+                {isEn
+                  ? 'You are logged in with administrative privileges. You can access the system management portal.'
+                  : 'Bạn đang đăng nhập với quyền Quản trị tối cao. Bạn có thể truy cập trang Quản trị toàn sàn.'}
               </p>
             </div>
           </div>
@@ -102,7 +105,7 @@ export default function MyAccountPage() {
               size="sm"
               className="bg-white border-amber-300 text-amber-900 hover:bg-amber-100 text-xs font-bold"
             >
-              Mở Admin Console
+              {isEn ? 'Open Admin Console' : 'Mở Admin Console'}
             </AppButton>
           </Link>
         </div>
@@ -127,7 +130,8 @@ export default function MyAccountPage() {
                 </AppTag>
               </div>
               <p className="text-xs text-slate-500 mt-1 font-mono">
-                {user.email || 'Chưa cung cấp email cá nhân'}
+                {user.email ||
+                  (isEn ? 'No personal email provided' : 'Chưa cung cấp email cá nhân')}
               </p>
             </div>
           </div>
@@ -135,11 +139,11 @@ export default function MyAccountPage() {
           <div className="flex items-center gap-3 sm:border-l sm:border-slate-200 sm:pl-6">
             <div className="text-left">
               <span className="text-xs font-mono text-slate-500 block uppercase tracking-wider">
-                Trạng thái tài khoản
+                {dict.account.status_label}
               </span>
               <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 mt-0.5 font-mono">
                 <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
-                Hoạt động tiêu chuẩn
+                {dict.account.status_active}
               </span>
             </div>
           </div>
@@ -155,14 +159,14 @@ export default function MyAccountPage() {
               <div className="flex items-center gap-2">
                 <FlaskConical className="h-4 w-4 text-blue-600" />
                 <h2 className="font-heading text-base font-bold text-slate-900">
-                  Lịch sử Thí nghiệm & Tương tác Lab
+                  {dict.account.experiments_history}
                 </h2>
               </div>
               <Link
                 href="/simulations"
                 className="text-xs font-semibold text-blue-700 hover:text-blue-800 flex items-center gap-1"
               >
-                Tất cả phòng Lab
+                {dict.account.all_labs}
                 <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </div>
@@ -180,7 +184,8 @@ export default function MyAccountPage() {
                       </span>
                       <span className="text-slate-300">•</span>
                       <span className="text-xs text-slate-500 font-mono flex items-center gap-1">
-                        <Clock className="h-3 w-3" /> ~{sim.estimatedMinutes} phút
+                        <Clock className="h-3 w-3" /> ~{sim.estimatedMinutes}{' '}
+                        {isEn ? 'min' : 'phút'}
                       </span>
                     </div>
                     <Link
@@ -198,7 +203,7 @@ export default function MyAccountPage() {
                       size="sm"
                       className="text-xs text-slate-700 hover:text-blue-600 group-hover:border-blue-300"
                     >
-                      Thực nghiệm
+                      {isEn ? 'Experiment' : 'Thực nghiệm'}
                     </AppButton>
                   </Link>
                 </div>
@@ -212,14 +217,14 @@ export default function MyAccountPage() {
               <div className="flex items-center gap-2">
                 <BookOpen className="h-4 w-4 text-emerald-600" />
                 <h2 className="font-heading text-base font-bold text-slate-900">
-                  Bài viết & Góc tư duy Gần đây
+                  {dict.account.essays_history}
                 </h2>
               </div>
               <Link
                 href="/essays"
                 className="text-xs font-semibold text-emerald-700 hover:text-emerald-800 flex items-center gap-1"
               >
-                Đọc tất cả bài luận
+                {dict.account.all_essays}
                 <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </div>
@@ -233,7 +238,9 @@ export default function MyAccountPage() {
                   <div className="flex items-center gap-2 text-xs font-mono text-emerald-700 font-semibold uppercase">
                     <span>{essay.categoryLabel}</span>
                     <span className="text-slate-300">•</span>
-                    <span>{essay.readTimeMinutes} phút đọc</span>
+                    <span>
+                      {essay.readTimeMinutes} {isEn ? 'min read' : 'phút đọc'}
+                    </span>
                   </div>
                   <Link
                     href={`/essays/${essay.slug}`}
@@ -257,25 +264,29 @@ export default function MyAccountPage() {
             <div className="flex items-center gap-2 border-b border-slate-200/80 pb-3">
               <Sparkles className="h-4 w-4 text-amber-600" />
               <h2 className="font-heading text-sm font-bold text-slate-900">
-                Chỉ số Nhà nghiên cứu
+                {dict.account.metrics_title}
               </h2>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div className="p-3 rounded-lg border border-slate-200 bg-slate-50/60">
-                <span className="text-xs font-mono text-slate-500 uppercase">Thí nghiệm</span>
+                <span className="text-xs font-mono text-slate-500 uppercase">
+                  {dict.account.metrics_experiments}
+                </span>
                 <div className="text-xl font-heading font-extrabold text-blue-700 mt-1 font-mono tabular-nums">
                   {recentSimulations.length}
                 </div>
-                <span className="text-xs text-slate-500">Đã tham gia</span>
+                <span className="text-xs text-slate-500">{dict.account.metrics_participated}</span>
               </div>
 
               <div className="p-3 rounded-lg border border-slate-200 bg-slate-50/60">
-                <span className="text-xs font-mono text-slate-500 uppercase">Tiểu luận</span>
+                <span className="text-xs font-mono text-slate-500 uppercase">
+                  {dict.account.metrics_essays}
+                </span>
                 <div className="text-xl font-heading font-extrabold text-emerald-700 mt-1 font-mono tabular-nums">
                   {recentEssays.length}
                 </div>
-                <span className="text-xs text-slate-500">Đã đọc</span>
+                <span className="text-xs text-slate-500">{dict.account.metrics_read}</span>
               </div>
             </div>
           </div>
@@ -283,7 +294,7 @@ export default function MyAccountPage() {
           {/* Quick Shortcuts */}
           <div className="rounded-xl border border-slate-300/85 bg-white p-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.06)] space-y-3">
             <h2 className="font-heading text-sm font-bold text-slate-900 border-b border-slate-200/80 pb-3">
-              Quản lý Tài khoản
+              {dict.account.management_title}
             </h2>
 
             <div className="space-y-2">
@@ -295,10 +306,10 @@ export default function MyAccountPage() {
                   <Lock className="h-4 w-4 text-slate-500 group-hover:text-blue-600" />
                   <div>
                     <span className="text-xs font-bold text-slate-800 block">
-                      Đổi mật khẩu & Bảo mật
+                      {dict.account.change_password_title}
                     </span>
                     <span className="text-xs text-slate-500 block">
-                      Cập nhật phương thức đăng nhập
+                      {dict.account.change_password_desc}
                     </span>
                   </div>
                 </div>
@@ -313,10 +324,10 @@ export default function MyAccountPage() {
                   <Compass className="h-4 w-4 text-slate-500 group-hover:text-blue-600" />
                   <div>
                     <span className="text-xs font-bold text-slate-800 block">
-                      Khám phá Nghịch lý mới
+                      {dict.account.explore_paradoxes_title}
                     </span>
                     <span className="text-xs text-slate-500 block">
-                      Toán học, Lượng tử, Trò chơi
+                      {dict.account.explore_paradoxes_desc}
                     </span>
                   </div>
                 </div>

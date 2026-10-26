@@ -77,10 +77,7 @@ export class AuthController {
     status: HttpStatus.CREATED,
     description: 'Đăng ký thành công, mã OTP đã gửi đến email',
   })
-  async register(
-    @Body() dto: RegisterDto,
-    @Headers('accept-language') acceptLanguage?: string,
-  ) {
+  async register(@Body() dto: RegisterDto, @Headers('accept-language') acceptLanguage?: string) {
     return this.authService.register(dto, acceptLanguage);
   }
 
@@ -115,10 +112,7 @@ export class AuthController {
     summary: 'Gửi lại mã OTP (Giới hạn giãn cách 60 giây)',
     description: 'Tạo và gửi mã OTP mới nếu đã quá 60s kể từ lần gửi trước',
   })
-  async resendOtp(
-    @Body() dto: ResendOtpDto,
-    @Headers('accept-language') acceptLanguage?: string,
-  ) {
+  async resendOtp(@Body() dto: ResendOtpDto, @Headers('accept-language') acceptLanguage?: string) {
     return this.authService.resendOtp(dto.email, dto.type, acceptLanguage);
   }
 
