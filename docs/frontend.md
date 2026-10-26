@@ -138,3 +138,25 @@ Nhằm nâng cao tính khoa học và thực nghiệm có thể tái lặp (repr
   - Phân tích cội nguồn tiến hóa của các cạm bẫy tư duy (Bẫy Tư duy Tuyến tính $O(n^2)$, Ảo tưởng Xác suất Đồng đều $50/50$, v.v.).
 - **Tích hợp Telemetry**:
   - Tự động gắn kèm `userPrediction` và `intuitionGap` vào lượt chạy Monte Carlo để lưu trữ và tổng hợp trên hệ thống.
+
+---
+
+## 7. SEO, Schema.org Structured Data & Dynamic Open Graph Architecture
+
+Nhằm tối ưu hóa khả năng thu thập dữ liệu công cụ tìm kiếm và nâng tầm trải nghiệm chia sẻ trực quan trên mạng xã hội, giao diện được trang bị hệ thống SEO hiện đại theo chuẩn Next.js 15:
+
+- **Chỉ mục Tự động (`sitemap.ts` & `robots.ts`)**:
+  - `sitemap.ts`: Đồng bộ trực tiếp từ `SIMULATIONS_REGISTRY` và `ESSAYS`, tạo URL chuẩn xác với chu kỳ cập nhật và trọng số khoa học (Trang chủ `1.0`, Mô phỏng `0.9`, Tiểu luận & Đề xuất `0.8`).
+  - `robots.ts`: Quy định rõ quyền truy cập cho bot tìm kiếm, bảo vệ vùng quản trị `/admin`, `/my-account`, và các endpoint nội bộ `/api/`.
+- **Cấu hình Metadata Toàn cục & Chuẩn hóa Canonical (`layout.tsx`)**:
+  - Sử dụng `metadataBase` với biến môi trường `NEXT_PUBLIC_APP_URL` (fallback `https://wonderlab.vn`).
+  - Chuẩn hóa Title Template: `%s | Wonderlab` giúp tiêu đề mọi trang con luôn đồng bộ và chuyên nghiệp.
+  - Tự động gán `alternates.canonical` và các thẻ Open Graph, Twitter Cards (`summary_large_image`) tương ứng.
+- **Rich Snippets Schema.org JSON-LD**:
+  - **Mô phỏng Khoa học (`SimulationJsonLd`)**: Nhúng đồ thị thực thể học tập tương tác `@type: ["LearningResource", "WebApplication"]` và đường dẫn điều hướng `BreadcrumbList` (Trang chủ $\to$ Mô phỏng $\to$ [Tên bài toán]).
+  - **Bài viết Chuyên sâu (`EssayJsonLd`)**: Nhúng thực thể `@type: "TechArticle"` và `BreadcrumbList` (Trang chủ $\to$ Tiểu luận $\to$ [Tiêu đề]).
+  - **Bảo mật & Chuẩn hóa**: Khử mã độc XSS với `JSON.stringify(...).replace(/</g, '\\u003c')` và đảm bảo Zero-`any` thông qua `schema-dts`.
+- **Dynamic Open Graph Image Generator (`opengraph-image.tsx`)**:
+  - Sinh ảnh 1200x630 thời gian thực (hỗ trợ SSG prerender qua `generateStaticParams`) bằng `ImageResponse` từ `next/og`.
+  - Tuân thủ phong cách **"Clean Paper & Lab Editorial"**: canvas Slate-100 với lưới tọa độ kỹ thuật, thẻ trắng với hairline viền sắc nét, badge danh mục phân màu ngữ nghĩa, dấu chứng nhận "Interactive Science Simulation".
+  - Đóng gói cục bộ font chữ `Be Vietnam Pro` (Bold & Regular) trong `client/src/assets/fonts/` đảm bảo hiển thị 100% tiếng Việt có dấu hoàn hảo mà không bị gãy phông hoặc phụ thuộc mạng ngoài lúc build.

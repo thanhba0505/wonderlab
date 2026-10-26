@@ -251,3 +251,28 @@ pnpm check          # Runs all verification steps in sequence
 12. **Autonomous Knowledge Persistence & Continuous Rule Codification Protocol**: Whenever the user establishes a rule, constraint, or preference requiring sustained long-term compliance, or whenever an ongoing technical/domain standard is identified or adopted (e.g., SEO guidelines when introduced, state management patterns, UI/UX constraints, security policies, API contracts, deployment checks):
     - The agent MUST **autonomously codify and record it into `AGENTS.md` and the appropriate documentation under `docs/` (or `.agents/skills/`) within the very same task**.
     - Never treat permanent rules or long-term directives as ephemeral conversational memory. Do not wait for the user to explicitly remind you to document them. If a standard or constraint must be obeyed in future tasks and sessions, it must be committed directly to repository memory (`AGENTS.md` and `docs/`) so all future agents immediately inherit and enforce it.
+13. **Mandatory SEO, Schema.org Structured Data & Dynamic Open Graph Protocol**: Every newly introduced public interactive simulation or editorial essay must be registered in the dynamic sitemap (`sitemap.ts`), configured with explicit canonical URL metadata, equipped with Schema.org JSON-LD structured data (`LearningResource` / `TechArticle` + `BreadcrumbList`) rendered via typed server components with XSS sanitization, and paired with a dynamic 1200x630 Open Graph Image (`opengraph-image.tsx`) adhering to Clean Paper & Lab Editorial standards and local font bundling for Vietnamese diacritics.
+
+---
+
+## 10. SEO, Structured Data (Schema.org) & Dynamic Open Graph Standards
+
+- **Dynamic Sitemap (`src/app/sitemap.ts`) & Robots (`src/app/robots.ts`)**:
+  - Automatically indexes all routes from registries (`SIMULATIONS_REGISTRY`, `ESSAYS`).
+  - Sets calibrated change frequencies and priorities: `/` (1.0, weekly), `/simulations` (0.9, daily), `/simulations/[slug]` (0.9, weekly), `/essays` (0.8, monthly), `/essays/[slug]` (0.8, monthly, actual `publishedDate`), `/requests` (0.8, daily).
+  - Sanitizes `process.env.NEXT_PUBLIC_APP_URL` (fallback `https://wonderlab.vn`).
+  - `robots.ts` allows public routes and disallows private paths (`/admin`, `/my-account`, `/api/`).
+- **Global Metadata & Title Templates (`src/app/layout.tsx`)**:
+  - `metadataBase: new URL(...)` configured at root.
+  - Title template: `{ default: 'Wonderlab — Khám phá Khoa học, Xác suất & Nghịch lý Trực quan', template: '%s | Wonderlab' }`.
+  - Subpages define base titles without trailing suffix to prevent repetitive duplication (`Title | Wonderlab`).
+- **Schema.org Structured Data (JSON-LD)**:
+  - Strongly typed contracts via `schema-dts`. Zero `any` tolerance.
+  - Multi-type entities and breadcrumbs aggregated via `@graph` notation.
+  - Simulations: `@type: ["LearningResource", "WebApplication"]` with `applicationCategory: "EducationalApplication"`, `operatingSystem: "All"`, `educationalLevel: "All"`, `inLanguage: "vi"`, and `BreadcrumbList`.
+  - Essays: `@type: "TechArticle"` with `headline`, `author`, `publisher`, `datePublished`, and `BreadcrumbList`.
+  - Security: All JSON-LD scripts must sanitize HTML tags (`JSON.stringify(...).replace(/</g, '\\u003c')`) to prevent XSS injection.
+- **Dynamic Open Graph Images (`opengraph-image.tsx`)**:
+  - Standard resolution: 1200x630 (`next/og` ImageResponse).
+  - Aesthetics: "Clean Paper & Lab Editorial" with Slate-100 technical coordinate grid, hairline white plate, semantic category badges, and physical verification stamps.
+  - Font Bundling: Always load bundled `Be Vietnam Pro` TTF fonts from `client/src/assets/fonts/` via `fs.readFile` to guarantee 100% complete Vietnamese diacritic rendering without network dependency during builds.
