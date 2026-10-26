@@ -12,6 +12,7 @@ import { PrisonersDilemmaSimulation } from '@/features/prisoners-dilemma/prisone
 import { ZenoSimulation } from '@/features/zeno-paradox/zeno-simulation';
 import { ArtGallerySimulation } from '@/features/art-gallery/art-gallery-simulation';
 import { PrisonersHatsSimulation } from '@/features/prisoners-hats/prisoners-hats-simulation';
+import { BodyguardSimulation } from '@/features/bodyguard-problem/bodyguard-simulation';
 import { CommentSection } from '@/features/simulations/components/comment-section';
 import { SimulationMathCard } from '@/features/simulations/components/simulation-math-card';
 import { SimulationSection } from '@/features/simulations/components/simulation-section';
@@ -102,6 +103,7 @@ export function SimulationView({ slug, initialSim }: SimulationViewProps) {
       {meta.slug === 'zeno-paradox' && <ZenoSimulation />}
       {meta.slug === 'art-gallery' && <ArtGallerySimulation />}
       {meta.slug === 'prisoners-hats' && <PrisonersHatsSimulation />}
+      {meta.slug === 'bodyguard-problem' && <BodyguardSimulation />}
 
       {/* Hiển thị cho các mô phỏng đang phát triển */}
       {meta.status === 'in-development' && (
