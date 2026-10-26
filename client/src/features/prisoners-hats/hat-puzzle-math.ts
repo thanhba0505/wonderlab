@@ -118,6 +118,18 @@ export interface SimulationSolveResult {
   sacrificeGuessedRight: boolean;
 }
 
+export const DEFAULT_PRESET_HATS: number[] = [1, 0, 1, 1, 0, 0, 1, 0, 1, 0];
+export const DEFAULT_PRESET_HATS_3_COLORS: number[] = [2, 0, 1, 2, 0, 1, 2, 0, 1, 0];
+
+/**
+ * Deterministic initial preset to ensure 100% hydration matching between SSR and client
+ */
+export function getInitialHats(n: number, colorCount: 2 | 3): number[] {
+  const base = colorCount === 2 ? DEFAULT_PRESET_HATS : DEFAULT_PRESET_HATS_3_COLORS;
+  const clampedN = Math.max(2, Math.min(10, Math.floor(n)));
+  return base.slice(0, clampedN);
+}
+
 /**
  * Generate random hat configuration
  */

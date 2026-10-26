@@ -3,6 +3,7 @@
 import * as React from 'react';
 import {
   generateRandomHats,
+  getInitialHats,
   solveHatPuzzle,
   SimulationSolveResult,
   PrisonerState,
@@ -35,8 +36,8 @@ export function PrisonersHatsSimulation() {
   const [playbackSpeed, setPlaybackSpeed] = React.useState<number>(1);
   const [mode, setMode] = React.useState<'auto' | 'roleplay'>('auto');
 
-  // Simulation Data & State
-  const [actualHats, setActualHats] = React.useState<number[]>(() => generateRandomHats(10, 2));
+  // Simulation Data & State (deterministic initial preset avoids SSR hydration mismatch)
+  const [actualHats, setActualHats] = React.useState<number[]>(() => getInitialHats(10, 2));
   const [currentStepIndex, setCurrentStepIndex] = React.useState<number>(-1);
   const [isPlaying, setIsPlaying] = React.useState<boolean>(false);
 

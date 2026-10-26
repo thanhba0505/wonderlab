@@ -13,9 +13,14 @@ interface MonteCarloPanelProps {
 
 export function MonteCarloPanel({ n, colorCount, onRunFinished }: MonteCarloPanelProps) {
   const [isRunning, setIsRunning] = React.useState<boolean>(false);
-  const [summary, setSummary] = React.useState<MonteCarloSummary | null>(() => {
-    return runMonteCarloSimulations(n, colorCount, 1000);
-  });
+  // Initial state is null to ensure SSR and client hydration output 100% identical markup
+  const [summary, setSummary] = React.useState<MonteCarloSummary | null>(null);
+
+  // Run initial Monte Carlo on client mount
+  React.useEffect(() => {
+    const result = runMonteCarloSimulations(n, colorCount, 1000);
+    setSummary(result);
+  }, [n, colorCount]);
 
   const handleRun = (trials: number) => {
     setIsRunning(true);
@@ -80,7 +85,7 @@ export function MonteCarloPanel({ n, colorCount, onRunFinished }: MonteCarloPane
         </div>
       </div>
 
-      {summary && (
+      {summary ? (
         <div className="space-y-4">
           {/* Key Metric Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -162,6 +167,10 @@ export function MonteCarloPanel({ n, colorCount, onRunFinished }: MonteCarloPane
               {colorCount}.
             </p>
           </div>
+        </div>
+      ) : (
+        <div className="rounded-lg border border-slate-200 bg-slate-50/60 p-6 text-center text-xs text-slate-500 font-sans">
+          Đang khởi tạo mẫu kiểm định Monte Carlo...
         </div>
       )}
     </div>
