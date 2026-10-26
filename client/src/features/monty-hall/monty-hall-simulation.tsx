@@ -31,7 +31,8 @@ import {
   IntuitionChallengeCard,
   MathFraction,
 } from '@/features/simulations/components';
-import { getSimulationBySlug } from '@/features/simulations/registry';
+import { useSimulationMeta } from '@/features/simulations/hooks';
+import { useTranslation } from '@/i18n';
 import { HypothesisOption } from '@/features/simulations/types';
 import {
   exportToCsv,
@@ -53,7 +54,9 @@ export interface MontyHallSimulationProps {
 }
 
 export function MontyHallSimulation({ showHistory = true }: MontyHallSimulationProps = {}) {
-  const meta = getSimulationBySlug('monty-hall');
+  const { locale } = useTranslation();
+  const isEn = locale === 'en';
+  const meta = useSimulationMeta('monty-hall');
   const [userPrediction, setUserPrediction] = React.useState<{
     option: HypothesisOption;
     gap: number;
@@ -331,8 +334,12 @@ export function MontyHallSimulation({ showHistory = true }: MontyHallSimulationP
       {/* 1. TITLE CÂU HỎI & CÂU HỎI TRỰC GIÁC */}
       <SimulationSection
         dotColor="amber"
-        title="Khảo Sát Trực Giác Trước Thực Nghiệm"
-        subtitle="Đưa ra dự đoán cá nhân để đo lường khoảng cách giữa trực giác thông thường và toán học xác suất"
+        title={isEn ? 'Pre-experiment Intuition Survey' : 'Khảo Sát Trực Giác Trước Thực Nghiệm'}
+        subtitle={
+          isEn
+            ? 'Make a personal prediction to measure the gap between naive intuition and probability'
+            : 'Đưa ra dự đoán cá nhân để đo lường khoảng cách giữa trực giác thông thường và toán học xác suất'
+        }
       >
         {meta?.hypothesis && (
           <IntuitionChallengeCard
@@ -346,69 +353,88 @@ export function MontyHallSimulation({ showHistory = true }: MontyHallSimulationP
       {/* 2. TITLE CHỖ THÍ NGHIỆM & BLOCK THÍ NGHIỆM HỢP NHẤT */}
       <SimulationSection
         dotColor="blue"
-        title="Buồng Thí Nghiệm & Mô Phỏng Trực Quan"
-        subtitle="Không gian tương tác 3 cánh cửa Monty Hall, thử nghiệm chiến lược Đổi vs Giữ và mô phỏng Monte Carlo"
+        title={isEn ? 'Laboratory & Visual Simulation' : 'Buồng Thí Nghiệm & Mô Phỏng Trực Quan'}
+        subtitle={
+          isEn
+            ? 'Interactive 3-door Monty Hall chamber, Switch vs Stay strategy testing, and Monte Carlo engine'
+            : 'Không gian tương tác 3 cánh cửa Monty Hall, thử nghiệm chiến lược Đổi vs Giữ và mô phỏng Monte Carlo'
+        }
       >
         <SimulationWorkbenchCard
           metricsBar={
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 sm:gap-6 pb-6 border-b border-slate-200/80">
               <div className="space-y-1.5">
                 <div className="text-xs font-semibold tracking-wider text-slate-500 uppercase">
-                  Tổng ván đã chơi
+                  {isEn ? 'Total games played' : 'Tổng ván đã chơi'}
                 </div>
                 <div className="font-mono text-2xl sm:text-3xl font-bold text-slate-900 tabular-nums">
                   {totalGames}
                 </div>
                 <div className="text-xs text-slate-500 font-mono">
-                  {stats.switchPlays} đổi / {stats.stayPlays} giữ
+                  {stats.switchPlays} {isEn ? 'switch' : 'đổi'} / {stats.stayPlays}{' '}
+                  {isEn ? 'stay' : 'giữ'}
                 </div>
               </div>
 
               <div className="space-y-1.5 sm:border-l sm:border-slate-200/80 sm:pl-6">
                 <div className="text-xs font-semibold tracking-wider text-slate-500 uppercase flex flex-wrap items-center justify-between gap-1">
-                  <span>Chiến lược Đổi Cửa</span>
+                  <span>{isEn ? 'Switch Strategy' : 'Chiến lược Đổi Cửa'}</span>
                   <span className="font-mono text-xs text-blue-700 font-bold bg-blue-50 px-2 py-0.5 rounded">
-                    Lý thuyết 66.7%
+                    {isEn ? 'Theory 66.7%' : 'Lý thuyết 66.7%'}
                   </span>
                 </div>
                 <div className="font-mono text-2xl sm:text-3xl font-bold text-blue-700 tabular-nums">
                   {switchRate !== null ? `${switchRate}%` : '—'}
                 </div>
                 <div className="text-xs text-slate-500 font-sans">
-                  {stats.switchWins} thắng / {stats.switchPlays} ván
+                  {stats.switchWins} {isEn ? 'wins' : 'thắng'} / {stats.switchPlays}{' '}
+                  {isEn ? 'games' : 'ván'}
                 </div>
               </div>
 
               <div className="space-y-1.5 border-t sm:border-t-0 pt-3 sm:pt-0 sm:border-l sm:border-slate-200/80 sm:pl-6">
                 <div className="text-xs font-semibold tracking-wider text-slate-500 uppercase flex flex-wrap items-center justify-between gap-1">
-                  <span>Chiến lược Giữ Cửa</span>
+                  <span>{isEn ? 'Stay Strategy' : 'Chiến lược Giữ Cửa'}</span>
                   <span className="font-mono text-xs text-violet-700 font-bold bg-violet-50 px-2 py-0.5 rounded">
-                    Lý thuyết 33.3%
+                    {isEn ? 'Theory 33.3%' : 'Lý thuyết 33.3%'}
                   </span>
                 </div>
                 <div className="font-mono text-2xl sm:text-3xl font-bold text-violet-700 tabular-nums">
                   {stayRate !== null ? `${stayRate}%` : '—'}
                 </div>
                 <div className="text-xs text-slate-500 font-sans">
-                  {stats.stayWins} thắng / {stats.stayPlays} ván
+                  {stats.stayWins} {isEn ? 'wins' : 'thắng'} / {stats.stayPlays}{' '}
+                  {isEn ? 'games' : 'ván'}
                 </div>
               </div>
 
               <div className="space-y-1.5 border-t sm:border-t-0 pt-3 sm:pt-0 sm:border-l sm:border-slate-200/80 sm:pl-6">
                 <div className="text-xs font-semibold tracking-wider text-slate-500 uppercase">
-                  Tiến trình lượt chơi
+                  {isEn ? 'Game Progress' : 'Tiến trình lượt chơi'}
                 </div>
                 <div className="font-mono text-xl sm:text-2xl font-bold pt-0.5 text-slate-900 truncate">
-                  {step === 'pick' && 'Chọn 1 cánh cửa'}
-                  {step === 'revealed' && 'Đổi hay Giữ?'}
+                  {step === 'pick' && (isEn ? 'Pick a door' : 'Chọn 1 cánh cửa')}
+                  {step === 'revealed' && (isEn ? 'Switch or Stay?' : 'Đổi hay Giữ?')}
                   {step === 'result' &&
-                    (finalDoor === carDoor ? '🎉 Thắng Xe Thể Thao' : '🐐 Vào Dê Cỏ')}
+                    (finalDoor === carDoor
+                      ? isEn
+                        ? '🎉 Won Sports Car'
+                        : '🎉 Thắng Xe Thể Thao'
+                      : isEn
+                        ? '🐐 Got a Goat'
+                        : '🐐 Vào Dê Cỏ')}
                 </div>
                 <div className="text-xs text-slate-500 font-sans">
-                  {step === 'pick' && 'Bắt đầu lượt chơi mới'}
-                  {step === 'revealed' && 'MC đã mở 1 cửa Dê'}
+                  {step === 'pick' && (isEn ? 'Start a new round' : 'Bắt đầu lượt chơi mới')}
+                  {step === 'revealed' && (isEn ? 'Host opened a Goat door' : 'MC đã mở 1 cửa Dê')}
                   {step === 'result' &&
-                    (didSwitch ? 'Chiến lược Đổi Cửa' : 'Chiến lược Giữ Nguyên')}
+                    (didSwitch
+                      ? isEn
+                        ? 'Switch Strategy'
+                        : 'Chiến lược Đổi Cửa'
+                      : isEn
+                        ? 'Stay Strategy'
+                        : 'Chiến lược Giữ Nguyên')}
                 </div>
               </div>
             </div>
@@ -420,37 +446,39 @@ export function MontyHallSimulation({ showHistory = true }: MontyHallSimulationP
                 size="sm"
                 onClick={handleExportCsv}
                 className="h-7 gap-1.5 border-slate-300 bg-white font-mono text-xs text-slate-700 hover:bg-slate-50 hover:text-slate-900"
-                title="Tải tệp bảng tính CSV"
+                title={isEn ? 'Export CSV Spreadsheet' : 'Tải tệp bảng tính CSV'}
               >
                 <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-600" />
-                Xuất CSV
+                {isEn ? 'Export CSV' : 'Xuất CSV'}
               </Button>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleExportJson}
                 className="h-7 gap-1.5 border-slate-300 bg-white font-mono text-xs text-slate-700 hover:bg-slate-50 hover:text-slate-900"
-                title="Tải tệp JSON dữ liệu"
+                title={isEn ? 'Export JSON Data' : 'Tải tệp JSON dữ liệu'}
               >
                 <FileJson className="h-3.5 w-3.5 text-blue-600" />
-                Xuất JSON
+                {isEn ? 'Export JSON' : 'Xuất JSON'}
               </Button>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleCopyReport}
                 className="h-7 gap-1.5 border-slate-300 bg-white font-mono text-xs text-slate-700 hover:bg-slate-50 hover:text-slate-900"
-                title="Sao chép báo cáo Markdown"
+                title={isEn ? 'Copy Markdown Report' : 'Sao chép báo cáo Markdown'}
               >
                 {copiedType === 'report' ? (
                   <>
                     <Check className="h-3.5 w-3.5 text-emerald-600" />
-                    <span className="text-emerald-700 font-semibold">Đã chép!</span>
+                    <span className="text-emerald-700 font-semibold">
+                      {isEn ? 'Copied!' : 'Đã chép!'}
+                    </span>
                   </>
                 ) : (
                   <>
                     <Copy className="h-3.5 w-3.5 text-slate-500" />
-                    Chép Báo cáo
+                    {isEn ? 'Copy Report' : 'Chép Báo cáo'}
                   </>
                 )}
               </Button>
@@ -464,23 +492,23 @@ export function MontyHallSimulation({ showHistory = true }: MontyHallSimulationP
                 <div className="flex items-center gap-1 text-slate-700">
                   <Database className="h-3.5 w-3.5 text-blue-600" />
                   <span className="font-bold text-blue-700 tabular-nums">
-                    {globalStats.totalTrials.toLocaleString('vi-VN')}
+                    {globalStats.totalTrials.toLocaleString(isEn ? 'en-US' : 'vi-VN')}
                   </span>
-                  <span className="text-slate-400">ván</span>
+                  <span className="text-slate-400">{isEn ? 'games' : 'ván'}</span>
                 </div>
                 <span className="text-slate-300">•</span>
                 <div className="flex items-center gap-1 text-slate-600">
                   <Sparkles className="h-3.5 w-3.5 text-amber-500" />
                   <span className="font-bold text-slate-800 tabular-nums">
-                    {globalStats.totalRuns.toLocaleString('vi-VN')}
+                    {globalStats.totalRuns.toLocaleString(isEn ? 'en-US' : 'vi-VN')}
                   </span>
-                  <span className="text-slate-400">lượt</span>
+                  <span className="text-slate-400">{isEn ? 'runs' : 'lượt'}</span>
                 </div>
               </div>
             ) : (
               <div className="flex items-center gap-2 text-xs text-slate-500">
                 <Activity className="h-3.5 w-3.5 text-blue-600 animate-pulse" />
-                <span>Sẵn sàng thu thập telemetry</span>
+                <span>{isEn ? 'Ready for telemetry' : 'Sẵn sàng thu thập telemetry'}</span>
               </div>
             )
           }
@@ -492,16 +520,20 @@ export function MontyHallSimulation({ showHistory = true }: MontyHallSimulationP
                 {step === 'pick' && (
                   <span className="flex items-center gap-2.5">
                     <span className="flex h-2.5 w-2.5 rounded-full bg-blue-600 animate-pulse shrink-0" />
-                    <span>Hãy chọn một trong 3 cánh cửa bên dưới để đưa ra lựa chọn ban đầu.</span>
+                    <span>
+                      {isEn
+                        ? 'Choose one of the 3 doors below to make your initial selection.'
+                        : 'Hãy chọn một trong 3 cánh cửa bên dưới để đưa ra lựa chọn ban đầu.'}
+                    </span>
                   </span>
                 )}
                 {step === 'revealed' && (
                   <span className="flex items-center gap-2.5">
                     <span className="flex h-2.5 w-2.5 rounded-full bg-amber-500 animate-pulse shrink-0" />
                     <span>
-                      MC đã mở Cửa #{Number(revealedGoatDoor ?? 0) + 1} (chứa Dê). Bạn muốn Giữ Cửa
-                      #{Number(selectedDoor ?? 0) + 1} hay Đổi sang Cửa #
-                      {Number(remainingSwitchDoor ?? 0) + 1}?
+                      {isEn
+                        ? `Host opened Door #${Number(revealedGoatDoor ?? 0) + 1} (Goat). Do you want to Stay with Door #${Number(selectedDoor ?? 0) + 1} or Switch to Door #${Number(remainingSwitchDoor ?? 0) + 1}?`
+                        : `MC đã mở Cửa #${Number(revealedGoatDoor ?? 0) + 1} (chứa Dê). Bạn muốn Giữ Cửa #${Number(selectedDoor ?? 0) + 1} hay Đổi sang Cửa #${Number(remainingSwitchDoor ?? 0) + 1}?`}
                     </span>
                   </span>
                 )}
@@ -510,17 +542,38 @@ export function MontyHallSimulation({ showHistory = true }: MontyHallSimulationP
                     {finalDoor === carDoor ? (
                       <span className="text-emerald-800 flex items-center gap-2 font-bold text-sm">
                         <Trophy className="h-4 w-4 text-emerald-600 shrink-0" />
-                        Chiến thắng! Bạn đã nhận Ô tô thể thao với{' '}
-                        <span className="underline decoration-emerald-500">
-                          {didSwitch ? 'Chiến lược Đổi Cửa' : 'Chiến lược Giữ Nguyên'}
-                        </span>
-                        !
+                        {isEn ? (
+                          <>
+                            Victory! You won the Sports Car using{' '}
+                            <span className="underline decoration-emerald-500">
+                              {didSwitch ? 'Switch Strategy' : 'Stay Strategy'}
+                            </span>
+                            !
+                          </>
+                        ) : (
+                          <>
+                            Chiến thắng! Bạn đã nhận Ô tô thể thao với{' '}
+                            <span className="underline decoration-emerald-500">
+                              {didSwitch ? 'Chiến lược Đổi Cửa' : 'Chiến lược Giữ Nguyên'}
+                            </span>
+                            !
+                          </>
+                        )}
                       </span>
                     ) : (
                       <span className="text-slate-700 flex items-center gap-2 text-sm">
                         <XCircle className="h-4 w-4 text-red-500 shrink-0" />
-                        Rất tiếc! Đằng sau là Dê cỏ (
-                        {didSwitch ? 'Chiến lược Đổi Cửa' : 'Chiến lược Giữ Nguyên'}).
+                        {isEn ? (
+                          <>
+                            Hard luck! Behind is a Goat (
+                            {didSwitch ? 'Switch Strategy' : 'Stay Strategy'}).
+                          </>
+                        ) : (
+                          <>
+                            Rất tiếc! Đằng sau là Dê cỏ (
+                            {didSwitch ? 'Chiến lược Đổi Cửa' : 'Chiến lược Giữ Nguyên'}).
+                          </>
+                        )}
                       </span>
                     )}
                   </span>
@@ -534,7 +587,7 @@ export function MontyHallSimulation({ showHistory = true }: MontyHallSimulationP
                   className="text-xs font-bold shrink-0 shadow-xs h-8"
                 >
                   <RotateCcw className="h-3.5 w-3.5 mr-1" />
-                  Vòng mới
+                  {isEn ? 'New Round' : 'Vòng mới'}
                 </Button>
               ) : (
                 <Button
@@ -544,7 +597,7 @@ export function MontyHallSimulation({ showHistory = true }: MontyHallSimulationP
                   className="text-xs font-semibold shrink-0 border-slate-300 text-slate-700 hover:bg-slate-50 h-8"
                 >
                   <RotateCcw className="h-3.5 w-3.5 mr-1" />
-                  Làm mới
+                  {isEn ? 'Reset' : 'Làm mới'}
                 </Button>
               )}
             </div>
@@ -608,36 +661,36 @@ export function MontyHallSimulation({ showHistory = true }: MontyHallSimulationP
                   >
                     <div className="w-full flex items-center justify-between gap-2 pb-3 border-b border-slate-200/50">
                       <span className="font-mono text-xs font-bold px-2.5 py-1 rounded-md bg-slate-200/70 text-slate-700">
-                        CỬA #{doorIndex + 1}
+                        {isEn ? 'DOOR' : 'CỬA'} #{doorIndex + 1}
                       </span>
 
                       {isSelected && step !== 'result' && (
                         <Badge variant="cyan" className="text-xs">
-                          LỰA CHỌN BAN ĐẦU
+                          {isEn ? 'INITIAL CHOICE' : 'LỰA CHỌN BAN ĐẦU'}
                         </Badge>
                       )}
 
                       {isRevealedGoat && (
                         <Badge variant="amber" className="text-xs">
-                          MC ĐÃ MỞ (DÊ)
+                          {isEn ? 'HOST OPENED (GOAT)' : 'MC ĐÃ MỞ (DÊ)'}
                         </Badge>
                       )}
 
                       {step === 'revealed' && !isSelected && !isRevealedGoat && (
                         <Badge variant="violet" className="text-xs font-bold">
-                          CỬA CÓ THỂ ĐỔI
+                          {isEn ? 'AVAILABLE TO SWITCH' : 'CỬA CÓ THỂ ĐỔI'}
                         </Badge>
                       )}
 
                       {step === 'result' && hasCar && (
                         <Badge variant="emerald" className="text-xs font-bold">
-                          TRÚNG Ô TÔ 🏎️
+                          {isEn ? 'WON CAR 🏎️' : 'TRÚNG Ô TÔ 🏎️'}
                         </Badge>
                       )}
 
                       {step === 'result' && !hasCar && isFinalChoice && (
                         <Badge variant="destructive" className="text-xs">
-                          VÀO DÊ 🐐
+                          {isEn ? 'GOT GOAT 🐐' : 'VÀO DÊ 🐐'}
                         </Badge>
                       )}
                     </div>
@@ -648,14 +701,14 @@ export function MontyHallSimulation({ showHistory = true }: MontyHallSimulationP
                           <div className="space-y-1.5 animate-in zoom-in-75">
                             <div className="text-5xl filter drop-shadow-md">🏎️</div>
                             <div className="font-heading font-extrabold text-xs text-emerald-700 uppercase tracking-wider">
-                              Ô Tô Thể Thao
+                              {isEn ? 'Sports Car' : 'Ô Tô Thể Thao'}
                             </div>
                           </div>
                         ) : (
                           <div className="space-y-1.5 animate-in zoom-in-75">
                             <div className="text-5xl">🐐</div>
                             <div className="font-heading font-medium text-xs text-slate-500 uppercase tracking-wider">
-                              Dê Cỏ
+                              {isEn ? 'Goat' : 'Dê Cỏ'}
                             </div>
                           </div>
                         )
@@ -663,7 +716,7 @@ export function MontyHallSimulation({ showHistory = true }: MontyHallSimulationP
                         <div className="space-y-1.5 animate-in fade-in">
                           <div className="text-5xl">🐐</div>
                           <div className="font-heading font-semibold text-xs text-amber-700 uppercase tracking-wider">
-                            Đằng sau là Dê!
+                            {isEn ? 'Behind is a Goat!' : 'Đằng sau là Dê!'}
                           </div>
                         </div>
                       ) : (
@@ -683,7 +736,7 @@ export function MontyHallSimulation({ showHistory = true }: MontyHallSimulationP
                       {step === 'pick' && (
                         <div className="w-full text-center py-1">
                           <span className="text-xs font-semibold text-slate-500 group-hover:text-blue-700 transition-colors">
-                            Nhấp để chọn cửa
+                            {isEn ? 'Click to select door' : 'Nhấp để chọn cửa'}
                           </span>
                         </div>
                       )}
@@ -700,7 +753,9 @@ export function MontyHallSimulation({ showHistory = true }: MontyHallSimulationP
                             }}
                             className="w-full text-xs font-bold border border-blue-200 hover:bg-blue-100 text-blue-900 h-9"
                           >
-                            Giữ cửa #{doorIndex + 1} (33.3%)
+                            {isEn
+                              ? `Stay with door #${doorIndex + 1} (33.3%)`
+                              : `Giữ cửa #${doorIndex + 1} (33.3%)`}
                           </Button>
                         ) : (
                           <Button
@@ -713,14 +768,22 @@ export function MontyHallSimulation({ showHistory = true }: MontyHallSimulationP
                             className="w-full text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm bg-violet-600 hover:bg-violet-700 text-white h-9"
                           >
                             <ArrowRightLeft className="h-3.5 w-3.5" />
-                            Đổi sang cửa #{doorIndex + 1} (66.7%)
+                            {isEn
+                              ? `Switch to door #${doorIndex + 1} (66.7%)`
+                              : `Đổi sang cửa #${doorIndex + 1} (66.7%)`}
                           </Button>
                         ))}
 
                       {step === 'result' && (
                         <div className="w-full text-center py-1">
                           <span className="text-xs font-mono text-slate-500">
-                            {hasCar ? 'Phần thưởng lớn nhất' : 'Không có phần thưởng'}
+                            {hasCar
+                              ? isEn
+                                ? 'Grand Prize'
+                                : 'Phần thưởng lớn nhất'
+                              : isEn
+                                ? 'No prize'
+                                : 'Không có phần thưởng'}
                           </span>
                         </div>
                       )}
@@ -730,16 +793,19 @@ export function MontyHallSimulation({ showHistory = true }: MontyHallSimulationP
               })}
             </div>
 
-            {/* Mô Phỏng Monte Carlo & So Sánh Phân Bổ (Không lồng khung, không lặp số liệu) */}
+            {/* Mô Phỏng Monte Carlo & So Sánh Phân Bổ */}
             <div className="pt-7 border-t border-slate-200/80 space-y-5">
               <div className="flex flex-wrap items-center justify-between gap-4">
                 <div className="space-y-1">
                   <h4 className="font-heading text-sm font-bold text-slate-900">
-                    Mô Phỏng Hàng Loạt Monte Carlo & Kiểm Chứng Định Lý Xác Suất
+                    {isEn
+                      ? 'Monte Carlo Batch Simulation & Empirical Verification'
+                      : 'Mô Phỏng Hàng Loạt Monte Carlo & Kiểm Chứng Định Lý Xác Suất'}
                   </h4>
                   <p className="text-xs text-slate-500 font-sans">
-                    Chạy ngẫu nhiên số lượng lớn ván chơi để kiểm chứng quy luật xác suất hội tụ về
-                    66.7% và 33.3%
+                    {isEn
+                      ? 'Simulate massive trial volumes to verify probabilistic convergence toward 66.7% and 33.3%.'
+                      : 'Chạy ngẫu nhiên số lượng lớn ván chơi để kiểm chứng quy luật xác suất hội tụ về 66.7% và 33.3%'}
                   </p>
                 </div>
 
@@ -753,7 +819,7 @@ export function MontyHallSimulation({ showHistory = true }: MontyHallSimulationP
                       className="h-8 text-xs font-semibold border-red-300 bg-red-50 text-red-700 hover:bg-red-100 hover:text-red-800 shadow-2xs active:scale-[0.98]"
                     >
                       <Square className="h-3.5 w-3.5 mr-1.5 fill-current text-red-600" />
-                      Hủy / Dừng lại
+                      {isEn ? 'Stop / Cancel' : 'Hủy / Dừng lại'}
                     </Button>
                   ) : (
                     <>
@@ -764,7 +830,7 @@ export function MontyHallSimulation({ showHistory = true }: MontyHallSimulationP
                         className="h-8 text-xs font-semibold border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 shadow-2xs active:scale-[0.98]"
                       >
                         <Play className="h-3.5 w-3.5 mr-1" />
-                        +1.000 Ván
+                        +1,000 {isEn ? 'Games' : 'Ván'}
                       </Button>
                       <Button
                         variant="outline"
@@ -773,7 +839,7 @@ export function MontyHallSimulation({ showHistory = true }: MontyHallSimulationP
                         className="h-8 text-xs font-semibold border-amber-200 bg-amber-50 text-amber-800 hover:bg-amber-100 shadow-2xs active:scale-[0.98]"
                       >
                         <Flame className="h-3.5 w-3.5 mr-1 text-amber-600" />
-                        +10.000 Ván
+                        +10,000 {isEn ? 'Games' : 'Ván'}
                       </Button>
                       <Button
                         variant="outline"
@@ -782,7 +848,7 @@ export function MontyHallSimulation({ showHistory = true }: MontyHallSimulationP
                         className="h-8 text-xs font-semibold border-slate-300 bg-white text-slate-700 hover:bg-slate-50 shadow-2xs active:scale-[0.98]"
                       >
                         <Sparkles className="h-3.5 w-3.5 mr-1 text-violet-600" />
-                        +50.000 Ván
+                        +50,000 {isEn ? 'Games' : 'Ván'}
                       </Button>
                       <Button
                         variant="outline"
@@ -791,7 +857,7 @@ export function MontyHallSimulation({ showHistory = true }: MontyHallSimulationP
                         className="h-8 text-xs font-semibold border-emerald-200 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 shadow-2xs active:scale-[0.98]"
                       >
                         <Play className="h-3.5 w-3.5 mr-1 text-emerald-600" />
-                        +100.000 Ván
+                        +100,000 {isEn ? 'Games' : 'Ván'}
                       </Button>
                       <Button
                         variant="outline"
@@ -800,7 +866,7 @@ export function MontyHallSimulation({ showHistory = true }: MontyHallSimulationP
                         className="h-8 text-xs font-semibold border-purple-200 bg-purple-50 text-purple-800 hover:bg-purple-100 shadow-2xs active:scale-[0.98]"
                       >
                         <Sparkles className="h-3.5 w-3.5 mr-1 text-purple-600" />
-                        +200.000 Ván
+                        +200,000 {isEn ? 'Games' : 'Ván'}
                       </Button>
                     </>
                   )}
@@ -811,7 +877,7 @@ export function MontyHallSimulation({ showHistory = true }: MontyHallSimulationP
                       onClick={resetStats}
                       className="h-8 text-xs text-slate-500 hover:text-slate-900 px-2 font-mono"
                     >
-                      Đặt lại
+                      {isEn ? 'Reset' : 'Đặt lại'}
                     </Button>
                   )}
                 </div>
@@ -823,14 +889,19 @@ export function MontyHallSimulation({ showHistory = true }: MontyHallSimulationP
                   <div className="flex items-center justify-between text-xs">
                     <div className="flex items-center gap-1.5 font-medium text-slate-800">
                       <Activity className="h-4 w-4 animate-pulse text-blue-600" />
-                      <span>Tiến độ mô phỏng Monte Carlo:</span>
+                      <span>
+                        {isEn ? 'Monte Carlo batch progress:' : 'Tiến độ mô phỏng Monte Carlo:'}
+                      </span>
                     </div>
                     <div className="flex items-center gap-2 font-mono text-xs tabular-nums text-slate-700">
                       <span className="font-bold text-blue-700">{workerProgress}%</span>
                       <span>•</span>
                       <span>
-                        {(workerPartial?.completedTrials ?? 0).toLocaleString('vi-VN')} /{' '}
-                        {targetBatchCount.toLocaleString('vi-VN')} ván
+                        {(workerPartial?.completedTrials ?? 0).toLocaleString(
+                          isEn ? 'en-US' : 'vi-VN',
+                        )}{' '}
+                        / {targetBatchCount.toLocaleString(isEn ? 'en-US' : 'vi-VN')}{' '}
+                        {isEn ? 'games' : 'ván'}
                       </span>
                     </div>
                   </div>
@@ -843,25 +914,37 @@ export function MontyHallSimulation({ showHistory = true }: MontyHallSimulationP
                 </div>
               )}
 
-              {/* Thanh Phổ Đối Sánh Phân Bổ (Phẳng, không lồng card) */}
+              {/* Thanh Phổ Đối Sánh Phân Bổ */}
               <div className="rounded-xl bg-slate-100/70 p-5 space-y-4">
                 <div className="flex flex-wrap items-center justify-between text-xs gap-3">
                   <div className="flex items-center gap-2 font-medium">
                     <span className="h-2.5 w-2.5 rounded-full bg-blue-600 shrink-0" />
-                    <span className="font-bold text-blue-900">Chiến lược Đổi Cửa:</span>
-                    <span className="font-mono font-bold text-blue-700 tabular-nums">
-                      {switchRate !== null ? `${switchRate}%` : 'Chưa có dữ liệu'}
+                    <span className="font-bold text-blue-900">
+                      {isEn ? 'Switch Strategy:' : 'Chiến lược Đổi Cửa:'}
                     </span>
-                    <span className="text-slate-500 font-mono">(Mục tiêu lý thuyết: 66.7%)</span>
+                    <span className="font-mono font-bold text-blue-700 tabular-nums">
+                      {switchRate !== null
+                        ? `${switchRate}%`
+                        : isEn
+                          ? 'No data'
+                          : 'Chưa có dữ liệu'}
+                    </span>
+                    <span className="text-slate-500 font-mono">
+                      {isEn ? '(Theoretical: 66.7%)' : '(Mục tiêu lý thuyết: 66.7%)'}
+                    </span>
                   </div>
 
                   <div className="flex items-center gap-2 font-medium">
                     <span className="h-2.5 w-2.5 rounded-full bg-violet-600 shrink-0" />
-                    <span className="font-bold text-violet-900">Chiến lược Giữ Nguyên:</span>
-                    <span className="font-mono font-bold text-violet-700 tabular-nums">
-                      {stayRate !== null ? `${stayRate}%` : 'Chưa có dữ liệu'}
+                    <span className="font-bold text-violet-900">
+                      {isEn ? 'Stay Strategy:' : 'Chiến lược Giữ Nguyên:'}
                     </span>
-                    <span className="text-slate-500 font-mono">(Mục tiêu lý thuyết: 33.3%)</span>
+                    <span className="font-mono font-bold text-violet-700 tabular-nums">
+                      {stayRate !== null ? `${stayRate}%` : isEn ? 'No data' : 'Chưa có dữ liệu'}
+                    </span>
+                    <span className="text-slate-500 font-mono">
+                      {isEn ? '(Theoretical: 33.3%)' : '(Mục tiêu lý thuyết: 33.3%)'}
+                    </span>
                   </div>
                 </div>
 
@@ -870,31 +953,33 @@ export function MontyHallSimulation({ showHistory = true }: MontyHallSimulationP
                   <div
                     className="bg-blue-600 h-full transition-all duration-300"
                     style={{ width: `${switchRate ?? 0}%` }}
-                    title={`Đổi cửa: ${switchRate ?? 0}%`}
+                    title={`${isEn ? 'Switch' : 'Đổi cửa'}: ${switchRate ?? 0}%`}
                   />
                   <div
                     className="bg-violet-600 h-full transition-all duration-300 ml-auto"
                     style={{ width: `${stayRate ?? 0}%` }}
-                    title={`Giữ cửa: ${stayRate ?? 0}%`}
+                    title={`${isEn ? 'Stay' : 'Giữ cửa'}: ${stayRate ?? 0}%`}
                   />
                   {/* Vạch mốc lý thuyết 66.7% cho Đổi */}
                   <div
                     className="absolute top-0 bottom-0 w-0.5 bg-blue-950 z-10"
                     style={{ left: '66.7%' }}
-                    title="Mốc lý thuyết Đổi Cửa: 66.7%"
+                    title={isEn ? 'Theoretical Switch: 66.7%' : 'Mốc lý thuyết Đổi Cửa: 66.7%'}
                   />
                   {/* Vạch mốc lý thuyết 33.3% */}
                   <div
                     className="absolute top-0 bottom-0 w-0.5 bg-violet-950 z-10"
                     style={{ left: '33.3%' }}
-                    title="Mốc lý thuyết Giữ Nguyên: 33.3%"
+                    title={isEn ? 'Theoretical Stay: 33.3%' : 'Mốc lý thuyết Giữ Nguyên: 33.3%'}
                   />
                 </div>
 
                 <div className="flex items-center justify-between text-xs text-slate-500 font-sans pt-1">
                   <span>0%</span>
                   <span className="italic">
-                    Đường mốc lý thuyết: 33.3% (Giữ nguyên) và 66.7% (Đổi cửa)
+                    {isEn
+                      ? 'Theoretical targets: 33.3% (Stay) and 66.7% (Switch)'
+                      : 'Đường mốc lý thuyết: 33.3% (Giữ nguyên) và 66.7% (Đổi cửa)'}
                   </span>
                   <span>100%</span>
                 </div>
@@ -908,8 +993,12 @@ export function MontyHallSimulation({ showHistory = true }: MontyHallSimulationP
       {showHistory && (
         <SimulationSection
           dotColor="emerald"
-          title="Nhật Ký Thực Nghiệm"
-          subtitle="Bảng lưu trữ chi tiết các lượt chơi và kết quả thực nghiệm trong phiên nghiên cứu"
+          title={isEn ? 'Experimental Log' : 'Nhật Ký Thực Nghiệm'}
+          subtitle={
+            isEn
+              ? 'Detailed trial history and experiment logs recorded during this session'
+              : 'Bảng lưu trữ chi tiết các lượt chơi và kết quả thực nghiệm trong phiên nghiên cứu'
+          }
         >
           <SimulationHistoryTable runs={history} />
         </SimulationSection>
@@ -918,19 +1007,29 @@ export function MontyHallSimulation({ showHistory = true }: MontyHallSimulationP
       {/* 4. TITLE GIẢI THÍCH & GIẢI THÍCH KHOA HỌC */}
       <SimulationSection
         dotColor="blue"
-        title="Giải Thích Khoa Học & Bản Chất Toán Học"
-        subtitle="Bóc tách nghịch lý xác suất điều kiện và hiệu ứng dồn xác suất về cánh cửa còn lại"
+        title={
+          isEn
+            ? 'Scientific Explanation & Mathematical Foundation'
+            : 'Giải Thích Khoa Học & Bản Chất Toán Học'
+        }
+        subtitle={
+          isEn
+            ? 'Deconstructing conditional probability and probability concentration on the unopened door'
+            : 'Bóc tách nghịch lý xác suất điều kiện và hiệu ứng dồn xác suất về cánh cửa còn lại'
+        }
       >
         <SimulationExplainerCard>
           <div className="space-y-6">
             <div className="space-y-1 border-b border-slate-200/80 pb-4">
               <h3 className="font-heading text-base font-bold text-slate-900">
-                Tại sao Trực giác thường ngộ nhận cơ hội là 50/50?
+                {isEn
+                  ? 'Why Does Naive Intuition Mistakenly Assume 50/50?'
+                  : 'Tại sao Trực giác thường ngộ nhận cơ hội là 50/50?'}
               </h3>
               <p className="text-xs text-slate-600 font-sans leading-relaxed">
-                Khi chỉ còn lại 2 cánh cửa đóng kín, não bộ tự động giả định tính đối xứng ngẫu
-                nhiên giữa 2 lựa chọn. Tuy nhiên, thông tin mở cửa của người dẫn chương trình hoàn
-                toàn không mang tính ngẫu nhiên.
+                {isEn
+                  ? 'With only 2 unopened doors remaining, the brain automatically presumes symmetric 50/50 odds. However, the host door opening action contains asymmetric deliberate information.'
+                  : 'Khi chỉ còn lại 2 cánh cửa đóng kín, não bộ tự động giả định tính đối xứng ngẫu nhiên giữa 2 lựa chọn. Tuy nhiên, thông tin mở cửa của người dẫn chương trình hoàn toàn không mang tính ngẫu nhiên.'}
               </p>
             </div>
 
@@ -939,23 +1038,28 @@ export function MontyHallSimulation({ showHistory = true }: MontyHallSimulationP
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="font-mono text-xs font-bold text-slate-700 uppercase tracking-wide">
-                    Trực giác Tự nhiên (Ngộ nhận)
+                    {isEn ? 'Naive Intuition (Fallacy)' : 'Trực giác Tự nhiên (Ngộ nhận)'}
                   </span>
                   <span className="rounded bg-slate-100 px-2 py-0.5 font-mono text-xs text-slate-600 font-semibold">
-                    Giả định 2 cửa đối xứng
+                    {isEn ? 'Assumed 2 symmetric doors' : 'Giả định 2 cửa đối xứng'}
                   </span>
                 </div>
 
                 <p className="text-xs leading-relaxed text-slate-700">
-                  Sau khi 1 cửa có dê bị loại bỏ, trực giác cho rằng cánh cửa bạn đang giữ và cánh
-                  cửa còn lại có vai trò ngang nhau, dẫn tới ảo tưởng xác suất mỗi bên là 50%.
+                  {isEn
+                    ? 'After 1 goat door is eliminated, naive intuition considers the remaining closed door and your held door equally likely, triggering the illusion that each has a 50% probability.'
+                    : 'Sau khi 1 cửa có dê bị loại bỏ, trực giác cho rằng cánh cửa bạn đang giữ và cánh cửa còn lại có vai trò ngang nhau, dẫn tới ảo tưởng xác suất mỗi bên là 50%.'}
                 </p>
 
-                <SimulationFormulaBox title="Ngộ nhận trực giác thông thường:">
+                <SimulationFormulaBox
+                  title={
+                    isEn ? 'Common intuitive misconception:' : 'Ngộ nhận trực giác thông thường:'
+                  }
+                >
                   <div className="flex items-center flex-wrap gap-2 text-sm text-slate-900">
-                    <span className="font-bold">P(Đổi)</span>
+                    <span className="font-bold">{isEn ? 'P(Switch)' : 'P(Đổi)'}</span>
                     <span>=</span>
-                    <span className="font-bold">P(Giữ)</span>
+                    <span className="font-bold">{isEn ? 'P(Stay)' : 'P(Giữ)'}</span>
                     <span>=</span>
                     <MathFraction numerator="1" denominator="2" />
                     <span>= 50.0%</span>
@@ -963,8 +1067,9 @@ export function MontyHallSimulation({ showHistory = true }: MontyHallSimulationP
                 </SimulationFormulaBox>
 
                 <p className="text-xs text-slate-500 italic">
-                  Sai lầm ở chỗ: Bạn đã chọn cửa từ lúc có 3 cánh cửa (1/3), chứ không phải lúc chỉ
-                  còn 2 cánh cửa.
+                  {isEn
+                    ? 'The flaw: You picked your initial door when there were 3 candidates (1/3), not after the goat door was revealed.'
+                    : 'Sai lầm ở chỗ: Bạn đã chọn cửa từ lúc có 3 cánh cửa (1/3), chứ không phải lúc chỉ còn 2 cánh cửa.'}
                 </p>
               </div>
 
@@ -972,30 +1077,55 @@ export function MontyHallSimulation({ showHistory = true }: MontyHallSimulationP
               <div className="space-y-3 md:border-l md:border-slate-200/90 md:pl-6">
                 <div className="flex items-center justify-between">
                   <span className="font-mono text-xs font-bold text-blue-900 uppercase tracking-wide">
-                    Bản chất Toán học Khách quan
+                    {isEn ? 'Objective Mathematical Truth' : 'Bản chất Toán học Khách quan'}
                   </span>
                   <span className="rounded bg-blue-100/70 px-2 py-0.5 font-mono text-xs font-bold text-blue-800">
-                    Định lý Bayes (2/3)
+                    {isEn ? 'Bayes Theorem (2/3)' : 'Định lý Bayes (2/3)'}
                   </span>
                 </div>
 
                 <p className="text-xs leading-relaxed text-slate-700">
-                  Tại thời điểm chọn đầu tiên, xác suất chọn trúng ô tô chỉ là{' '}
-                  <span className="font-mono font-bold text-blue-900">
-                    <MathFraction numerator="1" denominator="3" className="text-xs" />
-                  </span>
-                  , nghĩa là{' '}
-                  <span className="font-mono font-bold text-blue-900">
-                    <MathFraction numerator="2" denominator="3" className="text-xs" />
-                  </span>{' '}
-                  xe nằm ở 2 cánh cửa còn lại. Vì MC luôn mở cửa có Dê, toàn bộ 2/3 xác suất dồn vào
-                  cánh cửa chưa mở.
+                  {isEn ? (
+                    <>
+                      At your initial pick, the probability of selecting the car was only{' '}
+                      <span className="font-mono font-bold text-blue-900">
+                        <MathFraction numerator="1" denominator="3" className="text-xs" />
+                      </span>
+                      , which means there was a{' '}
+                      <span className="font-mono font-bold text-blue-900">
+                        <MathFraction numerator="2" denominator="3" className="text-xs" />
+                      </span>{' '}
+                      chance the car was in the other two doors. Because the host always eliminates
+                      a goat, that entire 2/3 probability shifts onto the single remaining door.
+                    </>
+                  ) : (
+                    <>
+                      Tại thời điểm chọn đầu tiên, xác suất chọn trúng ô tô chỉ là{' '}
+                      <span className="font-mono font-bold text-blue-900">
+                        <MathFraction numerator="1" denominator="3" className="text-xs" />
+                      </span>
+                      , nghĩa là{' '}
+                      <span className="font-mono font-bold text-blue-900">
+                        <MathFraction numerator="2" denominator="3" className="text-xs" />
+                      </span>{' '}
+                      xe nằm ở 2 cánh cửa còn lại. Vì MC luôn mở cửa có Dê, toàn bộ 2/3 xác suất dồn
+                      vào cánh cửa chưa mở.
+                    </>
+                  )}
                 </p>
 
-                <SimulationFormulaBox title="Xác suất điều kiện & Định lý Bayes:">
+                <SimulationFormulaBox
+                  title={
+                    isEn
+                      ? 'Conditional Probability & Bayes Theorem:'
+                      : 'Xác suất điều kiện & Định lý Bayes:'
+                  }
+                >
                   <div className="space-y-2 text-xs text-slate-900">
                     <div className="flex items-center flex-wrap gap-2 text-sm">
-                      <span className="font-bold text-blue-900">P(Thắng | Đổi)</span>
+                      <span className="font-bold text-blue-900">
+                        {isEn ? 'P(Win | Switch)' : 'P(Thắng | Đổi)'}
+                      </span>
                       <span>=</span>
                       <span>1 &minus;</span>
                       <MathFraction numerator="1" denominator="3" />
@@ -1009,7 +1139,7 @@ export function MontyHallSimulation({ showHistory = true }: MontyHallSimulationP
                       <span className="font-bold text-blue-700">66.7%</span>
                     </div>
                     <div className="flex items-center flex-wrap gap-2 text-slate-600">
-                      <span>P(Thắng | Giữ)</span>
+                      <span>{isEn ? 'P(Win | Stay)' : 'P(Thắng | Giữ)'}</span>
                       <span>=</span>
                       <MathFraction numerator="1" denominator="3" />
                       <span className="text-slate-400">&asymp;</span>
@@ -1019,7 +1149,9 @@ export function MontyHallSimulation({ showHistory = true }: MontyHallSimulationP
                 </SimulationFormulaBox>
 
                 <p className="text-xs text-slate-600">
-                  Do đó, đổi cửa nhân đôi cơ hội chiến thắng của bạn từ 33.3% lên 66.7%!
+                  {isEn
+                    ? 'Consequently, switching doors doubles your chances of winning from 33.3% to 66.7%!'
+                    : 'Do đó, đổi cửa nhân đôi cơ hội chiến thắng của bạn từ 33.3% lên 66.7%!'}
                 </p>
               </div>
             </div>

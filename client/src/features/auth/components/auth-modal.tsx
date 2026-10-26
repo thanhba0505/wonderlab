@@ -287,7 +287,7 @@ export function AuthModal() {
     // Prompt user for local dev simulation or real email
     const simulatedEmail = window.prompt(
       'Mô phỏng Đăng nhập Google: Nhập email Google của bạn (hoặc giữ nguyên để dùng tài khoản nghiên cứu):',
-      'researcher@wonderlab.vn',
+      'researcher@wonderlab.local',
     );
 
     if (!simulatedEmail) {

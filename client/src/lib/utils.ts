@@ -11,6 +11,6 @@ export function getApiBaseUrl(): string {
 
 export function getAppBaseUrl(): string {
   const rawUrl =
-    process.env.NEXT_PUBLIC_APP_URL || process.env.RENDER_EXTERNAL_URL || 'https://wonderlab.vn';
+    process.env.NEXT_PUBLIC_APP_URL || process.env.RENDER_EXTERNAL_URL || 'http://localhost:4100';
   return rawUrl.replace(/\/$/, '');
 }

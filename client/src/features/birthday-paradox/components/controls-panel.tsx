@@ -3,6 +3,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Activity, Dices, Play, RotateCcw, Sparkles, Square } from 'lucide-react';
+import { useTranslation } from '@/i18n';
 
 interface ControlsPanelProps {
   n: number;
@@ -29,6 +30,9 @@ export const ControlsPanel: React.FC<ControlsPanelProps> = ({
   completedTrials = 0,
   targetTrials = 0,
 }) => {
+  const { locale } = useTranslation();
+  const isEn = locale === 'en';
+
   return (
     <div className="flex flex-col gap-4">
       {/* Thanh trượt tham số n */}
@@ -38,7 +42,7 @@ export const ControlsPanel: React.FC<ControlsPanelProps> = ({
             htmlFor="room-size-slider"
             className="text-xs font-bold tracking-wider text-slate-700 uppercase"
           >
-            Số người trong phòng (n):{' '}
+            {isEn ? 'Room population (n): ' : 'Số người trong phòng (n): '}
             <span className="font-mono text-base font-bold text-blue-600">{n}</span>
           </label>
 
@@ -73,10 +77,12 @@ export const ControlsPanel: React.FC<ControlsPanelProps> = ({
         />
 
         <div className="flex justify-between font-mono text-xs text-slate-600">
-          <span>2 người</span>
-          <span className="text-amber-600 font-bold">23 người (50%)</span>
-          <span>50 người (97%)</span>
-          <span>100 người (&gt;99.9%)</span>
+          <span>{isEn ? '2 people' : '2 người'}</span>
+          <span className="text-amber-600 font-bold">
+            {isEn ? '23 people (50%)' : '23 người (50%)'}
+          </span>
+          <span>{isEn ? '50 people (97%)' : '50 người (97%)'}</span>
+          <span>{isEn ? '100 people (>99.9%)' : '100 người (>99.9%)'}</span>
         </div>
       </div>
 
@@ -88,7 +94,7 @@ export const ControlsPanel: React.FC<ControlsPanelProps> = ({
           className="bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white"
         >
           <Dices className="mr-1.5 h-4 w-4" />
-          Sinh phòng mới
+          {isEn ? 'New Random Room' : 'Sinh phòng mới'}
         </Button>
 
         {isSimulatingBatch ? (
@@ -98,7 +104,7 @@ export const ControlsPanel: React.FC<ControlsPanelProps> = ({
             className="border-red-300 bg-red-50 text-red-700 hover:bg-red-100 hover:text-red-800 active:scale-[0.98]"
           >
             <Square className="mr-1.5 h-3.5 w-3.5 fill-current text-red-600" />
-            Hủy / Dừng lại
+            {isEn ? 'Stop / Cancel' : 'Hủy / Dừng lại'}
           </Button>
         ) : (
           <>
@@ -108,7 +114,7 @@ export const ControlsPanel: React.FC<ControlsPanelProps> = ({
               className="border-slate-300 hover:bg-slate-100 active:scale-[0.98]"
             >
               <Play className="mr-1.5 h-3.5 w-3.5 text-blue-600" />
-              Chạy 10.000 phòng
+              {isEn ? 'Run 10,000 rooms' : 'Chạy 10.000 phòng'}
             </Button>
 
             <Button
@@ -117,7 +123,7 @@ export const ControlsPanel: React.FC<ControlsPanelProps> = ({
               className="border-slate-300 hover:bg-slate-100 active:scale-[0.98]"
             >
               <Play className="mr-1.5 h-3.5 w-3.5 text-amber-600" />
-              Chạy 50.000 phòng
+              {isEn ? 'Run 50,000 rooms' : 'Chạy 50.000 phòng'}
             </Button>
 
             <Button
@@ -126,7 +132,7 @@ export const ControlsPanel: React.FC<ControlsPanelProps> = ({
               className="border-slate-300 hover:bg-slate-100 active:scale-[0.98]"
             >
               <Play className="mr-1.5 h-3.5 w-3.5 text-emerald-600" />
-              Chạy 100.000 phòng
+              {isEn ? 'Run 100,000 rooms' : 'Chạy 100.000 phòng'}
             </Button>
 
             <Button
@@ -135,7 +141,7 @@ export const ControlsPanel: React.FC<ControlsPanelProps> = ({
               className="border-slate-300 hover:bg-slate-100 active:scale-[0.98]"
             >
               <Sparkles className="mr-1.5 h-3.5 w-3.5 text-purple-600" />
-              Chạy 200.000 phòng
+              {isEn ? 'Run 200,000 rooms' : 'Chạy 200.000 phòng'}
             </Button>
           </>
         )}
@@ -147,7 +153,7 @@ export const ControlsPanel: React.FC<ControlsPanelProps> = ({
           className="ml-auto text-slate-500 hover:text-slate-800"
         >
           <RotateCcw className="mr-1 h-3.5 w-3.5" />
-          Đặt lại
+          {isEn ? 'Reset' : 'Đặt lại'}
         </Button>
       </div>
 
@@ -157,11 +163,11 @@ export const ControlsPanel: React.FC<ControlsPanelProps> = ({
           <div className="flex items-center justify-between text-xs">
             <span className="font-medium text-slate-800 flex items-center gap-1.5">
               <Activity className="h-3.5 w-3.5 animate-pulse text-blue-600" />
-              Tiến độ mô phỏng Monte Carlo:
+              {isEn ? 'Monte Carlo batch progress:' : 'Tiến độ mô phỏng Monte Carlo:'}
             </span>
             <span className="font-mono tabular-nums font-bold text-blue-700">
-              {batchProgress}% ({completedTrials.toLocaleString('vi-VN')} /{' '}
-              {targetTrials.toLocaleString('vi-VN')} phòng)
+              {batchProgress}% ({completedTrials.toLocaleString(isEn ? 'en-US' : 'vi-VN')} /{' '}
+              {targetTrials.toLocaleString(isEn ? 'en-US' : 'vi-VN')} {isEn ? 'rooms' : 'phòng'})
             </span>
           </div>
           <div className="h-2 w-full bg-blue-100 rounded-full overflow-hidden">

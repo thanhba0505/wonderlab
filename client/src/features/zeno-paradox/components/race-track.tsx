@@ -4,6 +4,7 @@ import * as React from 'react';
 import { Play, Pause, RotateCcw, ZoomIn, Compass, Sparkles, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { useTranslation } from '@/i18n';
 import {
   ZenoParameters,
   ZenoStep,
@@ -30,6 +31,8 @@ export function RaceTrack({
   perspective,
   onPerspectiveChange,
 }: RaceTrackProps) {
+  const { locale } = useTranslation();
+  const isEn = locale === 'en';
   const analytical = calculateOvertakePoint(params);
 
   // Real-time animation states for continuous mode
@@ -91,11 +94,14 @@ export function RaceTrack({
           </div>
           <div>
             <h3 className="font-heading text-base font-bold text-slate-900">
-              Đường Chạy Tương Tác: Achilles vs Rùa
+              {isEn
+                ? 'Interactive Racetrack: Achilles vs Tortoise'
+                : 'Đường Chạy Tương Tác: Achilles vs Rùa'}
             </h3>
             <p className="text-xs text-slate-500">
-              Đối chiếu trực quan giữa góc nhìn phân chia vô hạn của Zeno và vật lý chuyển động thực
-              tế
+              {isEn
+                ? 'Visual comparison between Zeno’s infinite subdivision paradox and continuous real-world physics'
+                : 'Đối chiếu trực quan giữa góc nhìn phân chia vô hạn của Zeno và vật lý chuyển động thực tế'}
             </p>
           </div>
         </div>
@@ -117,7 +123,7 @@ export function RaceTrack({
             }`}
           >
             <ZoomIn className="h-3.5 w-3.5 mr-1 text-violet-600" />
-            1. Góc nhìn Zeno (Thu phóng vô hạn)
+            {isEn ? '1. Zeno Perspective (Infinite Zoom)' : '1. Góc nhìn Zeno (Thu phóng vô hạn)'}
           </Button>
 
           <Button
@@ -132,7 +138,7 @@ export function RaceTrack({
             }`}
           >
             <Sparkles className="h-3.5 w-3.5 mr-1 text-blue-600" />
-            2. Vật lý Thực tế (Thời gian liên tục)
+            {isEn ? '2. Continuous Physics (Real Time)' : '2. Vật lý Thực tế (Thời gian liên tục)'}
           </Button>
         </div>
       </div>
@@ -144,18 +150,24 @@ export function RaceTrack({
           <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-violet-50/70 border border-violet-200/80 p-3 text-xs">
             <div className="flex items-center gap-2">
               <Badge className="bg-violet-700 text-white font-mono text-xs">
-                CHẶNG PHÂN CHIA #{currentStep.step}
+                {isEn
+                  ? `SUBDIVISION STEP #${currentStep.step}`
+                  : `CHẶNG PHÂN CHIA #${currentStep.step}`}
               </Badge>
               <span className="font-semibold text-violet-950 font-sans">
-                Achilles đuổi tới vị trí cũ của Rùa ({currentStep.achillesEnd.toFixed(2)}m)
+                {isEn
+                  ? `Achilles reaches previous tortoise position (${currentStep.achillesEnd.toFixed(2)}m)`
+                  : `Achilles đuổi tới vị trí cũ của Rùa (${currentStep.achillesEnd.toFixed(2)}m)`}
               </span>
             </div>
             <div className="flex items-center gap-3 font-mono text-violet-800 text-xs">
               <span>
-                Khoảng cách còn lại: <strong>{currentStep.remainingGap.toFixed(4)}m</strong>
+                {isEn ? 'Remaining gap: ' : 'Khoảng cách còn lại: '}
+                <strong>{currentStep.remainingGap.toFixed(4)}m</strong>
               </span>
               <span>
-                Thời gian chặng: <strong>+{currentStep.deltaTime.toFixed(4)}s</strong>
+                {isEn ? 'Step duration: ' : 'Thời gian chặng: '}
+                <strong>+{currentStep.deltaTime.toFixed(4)}s</strong>
               </span>
             </div>
           </div>
@@ -202,7 +214,9 @@ export function RaceTrack({
                   <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-600 text-white font-bold shadow-md shadow-emerald-500/30 text-xs">
                     🐢
                   </div>
-                  <span className="mt-1 font-mono text-xs font-bold text-emerald-300">Rùa</span>
+                  <span className="mt-1 font-mono text-xs font-bold text-emerald-300">
+                    {isEn ? 'Tortoise' : 'Rùa'}
+                  </span>
                 </div>
 
                 {/* Arrow from Achilles old pos to new pos */}
@@ -214,25 +228,33 @@ export function RaceTrack({
               {/* Step Summary Stats */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-slate-800 text-center font-mono">
                 <div className="bg-slate-800/80 p-2 rounded-lg">
-                  <span className="text-xs text-slate-400 block">Achilles chạy được</span>
+                  <span className="text-xs text-slate-400 block">
+                    {isEn ? 'Achilles covered' : 'Achilles chạy được'}
+                  </span>
                   <span className="text-xs font-bold text-amber-400 tabular-nums">
                     {(currentStep.achillesEnd - currentStep.achillesStart).toFixed(4)}m
                   </span>
                 </div>
                 <div className="bg-slate-800/80 p-2 rounded-lg">
-                  <span className="text-xs text-slate-400 block">Rùa nhích thêm</span>
+                  <span className="text-xs text-slate-400 block">
+                    {isEn ? 'Tortoise crept' : 'Rùa nhích thêm'}
+                  </span>
                   <span className="text-xs font-bold text-emerald-400 tabular-nums">
                     {(currentStep.tortoiseEnd - currentStep.tortoiseStart).toFixed(4)}m
                   </span>
                 </div>
                 <div className="bg-slate-800/80 p-2 rounded-lg">
-                  <span className="text-xs text-slate-400 block">Thời gian tích lũy</span>
+                  <span className="text-xs text-slate-400 block">
+                    {isEn ? 'Cumulative time' : 'Thời gian tích lũy'}
+                  </span>
                   <span className="text-xs font-bold text-blue-400 tabular-nums">
                     {currentStep.cumulativeTime.toFixed(4)}s
                   </span>
                 </div>
                 <div className="bg-slate-800/80 p-2 rounded-lg">
-                  <span className="text-xs text-slate-400 block">Tiến độ tới điểm bắt kịp</span>
+                  <span className="text-xs text-slate-400 block">
+                    {isEn ? 'Progress to overtake' : 'Tiến độ tới điểm bắt kịp'}
+                  </span>
                   <span className="text-xs font-bold text-violet-400 tabular-nums">
                     {currentStep.fractionOfTotalTime.toFixed(2)}%
                   </span>
@@ -251,7 +273,7 @@ export function RaceTrack({
                 onClick={() => onStepChange(Math.max(0, currentStepIndex - 1))}
                 className="text-xs border-slate-300"
               >
-                ← Chặng trước
+                {isEn ? '← Previous step' : '← Chặng trước'}
               </Button>
               <Button
                 variant="outline"
@@ -260,7 +282,7 @@ export function RaceTrack({
                 onClick={() => onStepChange(Math.min(steps.length - 1, currentStepIndex + 1))}
                 className="text-xs border-slate-300 bg-violet-50 text-violet-700 font-semibold hover:bg-violet-100"
               >
-                Chặng tiếp theo (Thu phóng) →
+                {isEn ? 'Next step (Zoom in) →' : 'Chặng tiếp theo (Thu phóng) →'}
               </Button>
               <Button
                 variant="ghost"
@@ -269,7 +291,7 @@ export function RaceTrack({
                 className="text-xs text-slate-500 hover:text-slate-800"
               >
                 <RotateCcw className="h-3 w-3 mr-1" />
-                Về ban đầu
+                {isEn ? 'Reset' : 'Về ban đầu'}
               </Button>
             </div>
 
@@ -306,10 +328,16 @@ export function RaceTrack({
                     : 'bg-blue-600 text-white font-mono text-xs'
                 }
               >
-                {currentContinuous.isOvertaken ? 'ĐÃ VƯỢT QUA' : 'ĐANG ĐUỔI THEO'}
+                {currentContinuous.isOvertaken
+                  ? isEn
+                    ? 'OVERTAKEN'
+                    : 'ĐÃ VƯỢT QUA'
+                  : isEn
+                    ? 'CHASING'
+                    : 'ĐANG ĐUỔI THEO'}
               </Badge>
               <span className="font-semibold text-blue-950 font-sans">
-                Thời gian thực nghiệm:{' '}
+                {isEn ? 'Experiment elapsed time: ' : 'Thời gian thực nghiệm: '}
                 <strong className="font-mono">{currentTime.toFixed(2)}s</strong> /{' '}
                 {analytical.overtakeTime.toFixed(2)}s
               </span>
@@ -319,12 +347,14 @@ export function RaceTrack({
               {currentContinuous.isOvertaken ? (
                 <span className="flex items-center gap-1 font-semibold text-emerald-700">
                   <CheckCircle2 className="h-3.5 w-3.5" />
-                  Achilles đã vượt trước Rùa{' '}
-                  {(currentContinuous.achillesPos - currentContinuous.tortoisePos).toFixed(2)}m!
+                  {isEn
+                    ? `Achilles passed Tortoise by ${(currentContinuous.achillesPos - currentContinuous.tortoisePos).toFixed(2)}m!`
+                    : `Achilles đã vượt trước Rùa ${(currentContinuous.achillesPos - currentContinuous.tortoisePos).toFixed(2)}m!`}
                 </span>
               ) : (
                 <span>
-                  Khoảng cách còn: <strong>{currentContinuous.gap.toFixed(2)}m</strong>
+                  {isEn ? 'Remaining gap: ' : 'Khoảng cách còn: '}
+                  <strong>{currentContinuous.gap.toFixed(2)}m</strong>
                 </span>
               )}
             </div>
@@ -335,7 +365,7 @@ export function RaceTrack({
             {/* Start line */}
             <div className="absolute top-4 bottom-4 left-6 border-l-2 border-slate-600">
               <span className="absolute -top-3 left-1 text-xs font-mono text-slate-400">
-                Vạch xuất phát (0m)
+                {isEn ? 'Start line (0m)' : 'Vạch xuất phát (0m)'}
               </span>
             </div>
 
@@ -346,7 +376,9 @@ export function RaceTrack({
                 style={{ left: `${getContinuousXPercent(analytical.overtakeDistance)}%` }}
               >
                 <span className="absolute -top-3 left-1 text-xs font-mono text-rose-400 font-bold">
-                  Bắt kịp ({analytical.overtakeDistance.toFixed(1)}m)
+                  {isEn
+                    ? `Overtake (${analytical.overtakeDistance.toFixed(1)}m)`
+                    : `Bắt kịp (${analytical.overtakeDistance.toFixed(1)}m)`}
                 </span>
               </div>
             )}
@@ -391,7 +423,13 @@ export function RaceTrack({
                 className="h-8 gap-1.5 px-3 text-xs bg-blue-600 hover:bg-blue-700 text-white font-semibold"
               >
                 {isPlaying ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5" />}
-                {isPlaying ? 'Tạm dừng' : 'Chạy thử nghiệm'}
+                {isPlaying
+                  ? isEn
+                    ? 'Pause'
+                    : 'Tạm dừng'
+                  : isEn
+                    ? 'Run experiment'
+                    : 'Chạy thử nghiệm'}
               </Button>
 
               <Button
@@ -401,13 +439,13 @@ export function RaceTrack({
                 className="h-8 text-xs border-slate-300"
               >
                 <RotateCcw className="h-3.5 w-3.5 mr-1" />
-                Làm lại
+                {isEn ? 'Reset' : 'Làm lại'}
               </Button>
             </div>
 
             {/* Speed Multiplier */}
             <div className="flex items-center gap-1.5 text-xs font-mono text-slate-500">
-              <span>Tốc độ:</span>
+              <span>{isEn ? 'Speed:' : 'Tốc độ:'}</span>
               {[0.5, 1, 2, 4].map(spd => (
                 <button
                   key={spd}

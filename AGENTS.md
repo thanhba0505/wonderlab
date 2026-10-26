@@ -260,7 +260,7 @@ pnpm check          # Runs all verification steps in sequence
 - **Dynamic Sitemap (`src/app/sitemap.ts`) & Robots (`src/app/robots.ts`)**:
   - Automatically indexes all routes from registries (`SIMULATIONS_REGISTRY`, `ESSAYS`).
   - Sets calibrated change frequencies and priorities: `/` (1.0, weekly), `/simulations` (0.9, daily), `/simulations/[slug]` (0.9, weekly), `/essays` (0.8, monthly), `/essays/[slug]` (0.8, monthly, actual `publishedDate`), `/requests` (0.8, daily).
-  - Sanitizes `process.env.NEXT_PUBLIC_APP_URL` (fallback `https://wonderlab.vn`).
+  - Sanitizes `process.env.NEXT_PUBLIC_APP_URL` (fallback `http://localhost:4100`).
   - `robots.ts` allows public routes and disallows private paths (`/admin`, `/my-account`, `/api/`).
 - **Global Metadata & Title Templates (`src/app/layout.tsx`)**:
   - `metadataBase: new URL(...)` configured at root.

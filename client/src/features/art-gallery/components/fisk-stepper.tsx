@@ -4,6 +4,7 @@ import * as React from 'react';
 import { FiskProofResult } from '../art-gallery-math';
 import { Button } from '@/components/ui/button';
 import { ChevronRight, ChevronLeft, CheckCircle2, Sparkles } from 'lucide-react';
+import { useTranslation } from '@/i18n';
 
 export interface FiskStepperProps {
   currentStep: number;
@@ -18,7 +19,7 @@ interface StepInfo {
   description: string;
 }
 
-const STEPS: StepInfo[] = [
+const STEPS_VI: StepInfo[] = [
   {
     title: 'Bước 0: Khảo sát căn phòng ban đầu',
     subtitle: 'Đa giác đơn n đỉnh với các góc lồi và lõm',
@@ -51,14 +52,50 @@ const STEPS: StepInfo[] = [
   },
 ];
 
+const STEPS_EN: StepInfo[] = [
+  {
+    title: 'Step 0: Initial Room Survey',
+    subtitle: 'Simple n-gon polygon with convex and reflex vertices',
+    description:
+      'The room may be intricate with many occluded alcoves. Chvátal’s Theorem guarantees that at most ⌊n/3⌋ vertex guards are ever required.',
+  },
+  {
+    title: 'Step 1: Triangulation (Ear Clipping)',
+    subtitle: 'Decomposing polygon into n - 2 triangles',
+    description:
+      'Connect vertices with non-crossing internal diagonals to partition the gallery into triangles. Every triangle is a convex set.',
+  },
+  {
+    title: 'Step 2: 3-Coloring Vertices (Steve Fisk)',
+    subtitle: 'Dual graph is a tree -> Always 3-colorable',
+    description:
+      'Assign 3 colors (Amber, Emerald, Indigo) to all vertices so that every triangle has vertices of 3 distinct colors.',
+  },
+  {
+    title: 'Step 3: Pigeonhole Principle & Guard Placement',
+    subtitle: 'Pick the least frequent color class (≤ ⌊n/3⌋)',
+    description:
+      'By the Pigeonhole Principle, at least one color appears at most ⌊n/3⌋ times. Place guards at all vertices of this color!',
+  },
+  {
+    title: 'Step 4: 100% Comprehensive Coverage Verification',
+    subtitle: 'Every triangle is covered by at least 1 guard',
+    description:
+      'Because every triangle contains one vertex of the selected color and triangles are convex, every triangle is fully illuminated -> 100% of the room is covered!',
+  },
+];
+
 export const FiskStepper: React.FC<FiskStepperProps> = ({
   currentStep,
   onStepChange,
   fiskProof,
   numVertices,
 }) => {
+  const { locale } = useTranslation();
+  const isEn = locale === 'en';
+  const steps = isEn ? STEPS_EN : STEPS_VI;
   const chvatalBound = Math.floor(numVertices / 3);
-  const activeStep = STEPS[currentStep] ?? STEPS[0]!;
+  const activeStep = steps[currentStep] ?? steps[0]!;
 
   return (
     <div className="flex flex-col gap-4 rounded-xl border border-slate-300/85 bg-white p-5 shadow-xs">
@@ -70,24 +107,30 @@ export const FiskStepper: React.FC<FiskStepperProps> = ({
           </div>
           <div>
             <h3 className="font-heading text-xs font-bold uppercase tracking-wider text-slate-800">
-              Trình Diễn Chứng Minh Steve Fisk (1978)
+              {isEn
+                ? 'Steve Fisk Proof Demonstration (1978)'
+                : 'Trình Diễn Chứng Minh Steve Fisk (1978)'}
             </h3>
             <p className="text-xs text-slate-500 font-sans">
-              Lời giải hình học đẹp nhất trong cuốn sách kinh điển &quot;Proofs from THE BOOK&quot;
+              {isEn
+                ? 'The most beautiful geometric proof in "Proofs from THE BOOK"'
+                : 'Lời giải hình học đẹp nhất trong cuốn sách kinh điển "Proofs from THE BOOK"'}
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-1 font-mono text-xs">
-          <span className="font-bold text-slate-800">Bước {currentStep + 1}</span>
+          <span className="font-bold text-slate-800">
+            {isEn ? `Step ${currentStep + 1}` : `Bước ${currentStep + 1}`}
+          </span>
           <span className="text-slate-400">/</span>
-          <span className="text-slate-500">{STEPS.length}</span>
+          <span className="text-slate-500">{steps.length}</span>
         </div>
       </div>
 
       {/* Step Indicators Bar */}
       <div className="grid grid-cols-5 gap-1.5">
-        {STEPS.map((step, idx) => {
+        {steps.map((step, idx) => {
           const isDone = idx < currentStep;
           const isCurrent = idx === currentStep;
           return (
@@ -105,14 +148,22 @@ export const FiskStepper: React.FC<FiskStepperProps> = ({
               <span className="font-mono text-xs">{idx}</span>
               <span className="text-[12px] font-sans truncate max-w-full hidden sm:inline">
                 {idx === 0
-                  ? 'Khảo sát'
+                  ? isEn
+                    ? 'Survey'
+                    : 'Khảo sát'
                   : idx === 1
-                    ? 'Tam giác'
+                    ? isEn
+                      ? 'Triangles'
+                      : 'Tam giác'
                     : idx === 2
-                      ? 'Tô 3 màu'
+                      ? isEn
+                        ? '3-Color'
+                        : 'Tô 3 màu'
                       : idx === 3
                         ? 'Dirichlet'
-                        : 'Bao quát'}
+                        : isEn
+                          ? 'Covered'
+                          : 'Bao quát'}
               </span>
             </button>
           );
@@ -128,7 +179,7 @@ export const FiskStepper: React.FC<FiskStepperProps> = ({
           {currentStep === 4 && (
             <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 bg-emerald-100/80 border border-emerald-300 px-2 py-0.5 rounded">
               <CheckCircle2 className="h-3.5 w-3.5" />
-              100% Bao Phủ
+              {isEn ? '100% Coverage' : '100% Bao Phủ'}
             </span>
           )}
         </div>
@@ -139,12 +190,13 @@ export const FiskStepper: React.FC<FiskStepperProps> = ({
         {currentStep === 1 && (
           <div className="pt-2 flex flex-wrap gap-4 text-xs font-mono text-slate-600 border-t border-slate-200/60">
             <span>
-              Số tam giác: <strong>{fiskProof.triangles.length}</strong> (n - 2 = {numVertices - 2})
+              {isEn ? 'Triangles: ' : 'Số tam giác: '}
+              <strong>{fiskProof.triangles.length}</strong> (n - 2 = {numVertices - 2})
             </span>
             <span>&bull;</span>
             <span>
-              Đường chéo nội vi: <strong>{fiskProof.diagonals.length}</strong> (n - 3 ={' '}
-              {numVertices - 3})
+              {isEn ? 'Internal diagonals: ' : 'Đường chéo nội vi: '}
+              <strong>{fiskProof.diagonals.length}</strong> (n - 3 = {numVertices - 3})
             </span>
           </div>
         )}
@@ -152,15 +204,18 @@ export const FiskStepper: React.FC<FiskStepperProps> = ({
         {currentStep === 2 && (
           <div className="pt-2 flex flex-wrap gap-4 text-xs font-mono text-slate-600 border-t border-slate-200/60">
             <span>
-              Màu A: <strong>{fiskProof.colorCounts[0]}</strong> đỉnh
+              {isEn ? 'Color A: ' : 'Màu A: '}
+              <strong>{fiskProof.colorCounts[0]}</strong> {isEn ? 'vertices' : 'đỉnh'}
             </span>
             <span>&bull;</span>
             <span>
-              Màu B: <strong>{fiskProof.colorCounts[1]}</strong> đỉnh
+              {isEn ? 'Color B: ' : 'Màu B: '}
+              <strong>{fiskProof.colorCounts[1]}</strong> {isEn ? 'vertices' : 'đỉnh'}
             </span>
             <span>&bull;</span>
             <span>
-              Màu C: <strong>{fiskProof.colorCounts[2]}</strong> đỉnh
+              {isEn ? 'Color C: ' : 'Màu C: '}
+              <strong>{fiskProof.colorCounts[2]}</strong> {isEn ? 'vertices' : 'đỉnh'}
             </span>
           </div>
         )}
@@ -168,12 +223,25 @@ export const FiskStepper: React.FC<FiskStepperProps> = ({
         {currentStep === 3 && (
           <div className="pt-2 flex flex-wrap gap-3 text-xs font-sans text-slate-700 border-t border-slate-200/60">
             <span>
-              Màu tối ưu được chọn có{' '}
-              <strong className="font-mono text-emerald-700">
-                {fiskProof.guardVertexIndices.length}
-              </strong>{' '}
-              lính gác &le; cận Chvátal &lfloor;{numVertices}/3&rfloor; ={' '}
-              <strong className="font-mono">{chvatalBound}</strong> lính.
+              {isEn ? (
+                <>
+                  Selected optimal color has{' '}
+                  <strong className="font-mono text-emerald-700">
+                    {fiskProof.guardVertexIndices.length}
+                  </strong>{' '}
+                  guards &le; Chvátal bound &lfloor;{numVertices}/3&rfloor; ={' '}
+                  <strong className="font-mono">{chvatalBound}</strong> guards.
+                </>
+              ) : (
+                <>
+                  Màu tối ưu được chọn có{' '}
+                  <strong className="font-mono text-emerald-700">
+                    {fiskProof.guardVertexIndices.length}
+                  </strong>{' '}
+                  lính gác &le; cận Chvátal &lfloor;{numVertices}/3&rfloor; ={' '}
+                  <strong className="font-mono">{chvatalBound}</strong> lính.
+                </>
+              )}
             </span>
           </div>
         )}
@@ -188,15 +256,15 @@ export const FiskStepper: React.FC<FiskStepperProps> = ({
           className="border-slate-300 text-xs flex items-center gap-1 active:scale-[0.98]"
         >
           <ChevronLeft className="h-4 w-4" />
-          <span>Bước trước</span>
+          <span>{isEn ? 'Previous step' : 'Bước trước'}</span>
         </Button>
 
         <Button
-          disabled={currentStep === STEPS.length - 1}
-          onClick={() => onStepChange(Math.min(STEPS.length - 1, currentStep + 1))}
+          disabled={currentStep === steps.length - 1}
+          onClick={() => onStepChange(Math.min(steps.length - 1, currentStep + 1))}
           className="bg-blue-600 hover:bg-blue-700 text-white text-xs flex items-center gap-1 active:scale-[0.98]"
         >
-          <span>Bước kế tiếp</span>
+          <span>{isEn ? 'Next step' : 'Bước kế tiếp'}</span>
           <ChevronRight className="h-4 w-4" />
         </Button>
       </div>

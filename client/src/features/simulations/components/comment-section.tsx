@@ -22,6 +22,7 @@ import {
   Loader2,
 } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
+import { useTranslation } from '@/i18n';
 import {
   SimulationComment,
   fetchSimulationComments,
@@ -35,31 +36,36 @@ interface CommentSectionProps {
   title?: string;
 }
 
-function formatRelativeTime(dateString: string): string {
+function formatRelativeTime(dateString: string, isEn: boolean): string {
   try {
     const date = new Date(dateString);
     const now = new Date();
     const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
-    if (diffInSeconds < 60) return 'Vừa xong';
+    if (diffInSeconds < 60) return isEn ? 'Just now' : 'Vừa xong';
     const diffInMinutes = Math.floor(diffInSeconds / 60);
-    if (diffInMinutes < 60) return `${diffInMinutes} phút trước`;
+    if (diffInMinutes < 60) return isEn ? `${diffInMinutes}m ago` : `${diffInMinutes} phút trước`;
     const diffInHours = Math.floor(diffInMinutes / 60);
-    if (diffInHours < 24) return `${diffInHours} giờ trước`;
+    if (diffInHours < 24) return isEn ? `${diffInHours}h ago` : `${diffInHours} giờ trước`;
     const diffInDays = Math.floor(diffInHours / 24);
-    if (diffInDays < 30) return `${diffInDays} ngày trước`;
-    return date.toLocaleDateString('vi-VN');
+    if (diffInDays < 30) return isEn ? `${diffInDays}d ago` : `${diffInDays} ngày trước`;
+    return date.toLocaleDateString(isEn ? 'en-US' : 'vi-VN');
   } catch {
     return dateString;
   }
 }
 
-export function CommentSection({
-  simulationSlug,
-  placeholderText = 'Viết nhận định, câu hỏi hoặc góc nhìn khoa học của bạn về thí nghiệm này...',
-  title,
-}: CommentSectionProps) {
+export function CommentSection({ simulationSlug, placeholderText, title }: CommentSectionProps) {
   const { user, login } = useAuth();
+  const { locale } = useTranslation();
+  const isEn = locale === 'en';
+
+  const defaultPlaceholder = isEn
+    ? 'Share your scientific insights, questions, or analysis of this simulation...'
+    : 'Viết nhận định, câu hỏi hoặc góc nhìn khoa học của bạn về thí nghiệm này...';
+
+  const activePlaceholder = placeholderText ?? defaultPlaceholder;
+
   const [comments, setComments] = React.useState<SimulationComment[]>([]);
   const [isLoading, setIsLoading] = React.useState<boolean>(true);
   const [submittingReplyId, setSubmittingReplyId] = React.useState<string | null>(null);
@@ -99,20 +105,19 @@ export function CommentSection({
 
   // Total comment count (Level 1 + Level 2)
   const totalCommentsCount = React.useMemo(() => {
-    return comments.reduce((acc, c) => acc + 1 + (c.replies ? c.replies.length : 0), 0);
+    return comments.reduce((sum, c) => sum + 1 + (c.replies ? c.replies.length : 0), 0);
   }, [comments]);
 
-  // Handle Reply Submit (Level 2)
+  // Handle Reply Submit
   const handleReplySubmit = async (parentId: string) => {
-    const content = replyContent.trim();
-    if (!content || submittingReplyId) return;
+    const trimmed = replyContent.trim();
+    if (!trimmed) return;
 
     setSubmittingReplyId(parentId);
-
-    const res = await postSimulationComment(simulationSlug, content, parentId);
+    const res = await postSimulationComment(simulationSlug, trimmed, parentId);
     if (res.success) {
-      setReplyContent('');
       setReplyingToId(null);
+      setReplyContent('');
       if (res.comment) {
         const newReply = res.comment;
         setComments(prev =>
@@ -130,7 +135,7 @@ export function CommentSection({
         await loadComments(true);
       }
     } else {
-      alert(res.error || 'Không thể gửi phản hồi');
+      alert(res.error || (isEn ? 'Failed to post reply' : 'Không thể gửi phản hồi'));
     }
     setSubmittingReplyId(null);
   };
@@ -147,7 +152,6 @@ export function CommentSection({
     setDeletingCommentId(commentId);
     const res = await deleteSimulationComment(commentId);
     if (res.success) {
-      // Immediate state update
       setComments(prev =>
         prev
           .filter(c => c.id !== commentId)
@@ -157,7 +161,7 @@ export function CommentSection({
           })),
       );
     } else {
-      alert(res.error || 'Không thể xóa bình luận');
+      alert(res.error || (isEn ? 'Failed to delete comment' : 'Không thể xóa bình luận'));
     }
     setDeletingCommentId(null);
     setDeleteConfirmCommentId(null);
@@ -170,14 +174,18 @@ export function CommentSection({
           <div className="flex items-center gap-2.5">
             <MessageSquare className="h-4 w-4 text-indigo-600" />
             <span className="font-mono text-xs font-bold text-slate-800 uppercase tracking-wide">
-              {title ? `${title} (${totalCommentsCount})` : `${totalCommentsCount} bình luận`}
+              {title
+                ? `${title} (${totalCommentsCount})`
+                : `${totalCommentsCount} ${isEn ? (totalCommentsCount === 1 ? 'comment' : 'comments') : 'bình luận'}`}
             </span>
           </div>
 
           {user && (
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-xs">
               <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-slate-600 font-sans">Đang đăng nhập:</span>
+              <span className="text-slate-600 font-sans">
+                {isEn ? 'Signed in as:' : 'Đang đăng nhập:'}
+              </span>
               <strong className="font-mono text-slate-900">{user.username}</strong>
               <span className="text-xs font-mono px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 font-semibold">
                 {user.role}
@@ -195,7 +203,10 @@ export function CommentSection({
             onSubmit={async (values, helpers) => {
               const content = String(values.content || '').trim();
               if (!content) {
-                helpers.setFieldError('content', 'Vui lòng nhập nội dung bình luận');
+                helpers.setFieldError(
+                  'content',
+                  isEn ? 'Please enter a comment' : 'Vui lòng nhập nội dung bình luận',
+                );
                 return;
               }
               const res = await postSimulationComment(simulationSlug, content);
@@ -210,7 +221,10 @@ export function CommentSection({
                 if (res.errors) {
                   helpers.setErrors(res.errors);
                 } else {
-                  helpers.setFieldError('content', res.error || 'Không thể đăng bình luận');
+                  helpers.setFieldError(
+                    'content',
+                    res.error || (isEn ? 'Failed to post comment' : 'Không thể đăng bình luận'),
+                  );
                 }
               }
             }}
@@ -222,7 +236,7 @@ export function CommentSection({
               rows={3}
               maxLength={2000}
               showCount
-              placeholder={placeholderText}
+              placeholder={activePlaceholder}
             />
 
             <div className="flex justify-end items-center">
@@ -231,7 +245,7 @@ export function CommentSection({
                 leftIcon={<Send className="h-3.5 w-3.5 mr-1.5" />}
                 className="text-xs font-semibold shadow-sm"
               >
-                Gửi bình luận
+                {isEn ? 'Post Comment' : 'Gửi bình luận'}
               </AppFormSubmit>
             </div>
           </AppForm>
@@ -241,11 +255,12 @@ export function CommentSection({
             <div className="space-y-1">
               <div className="text-sm font-bold text-slate-900 flex items-center gap-2">
                 <LogIn className="h-4 w-4 text-blue-600" />
-                Đăng nhập để tham gia thảo luận
+                {isEn ? 'Sign in to join the discussion' : 'Đăng nhập để tham gia thảo luận'}
               </div>
               <p className="text-xs text-slate-600 font-sans">
-                Bạn cần đăng nhập tài khoản để gửi bình luận hoặc phản hồi các giả thuyết nghiên
-                cứu.
+                {isEn
+                  ? 'Sign in to share scientific observations or debate hypotheses with the research community.'
+                  : 'Bạn cần đăng nhập tài khoản để gửi bình luận hoặc phản hồi các giả thuyết nghiên cứu.'}
               </p>
             </div>
 
@@ -256,7 +271,13 @@ export function CommentSection({
               className="text-xs font-semibold border-blue-300 bg-white text-blue-700 hover:bg-blue-50"
             >
               <LogIn className="h-3.5 w-3.5 mr-1.5" />
-              {showQuickLogin ? 'Đóng đăng nhập' : 'Đăng nhập ngay'}
+              {showQuickLogin
+                ? isEn
+                  ? 'Close'
+                  : 'Đóng đăng nhập'
+                : isEn
+                  ? 'Sign in'
+                  : 'Đăng nhập ngay'}
             </Button>
           </div>
         )}
@@ -278,7 +299,10 @@ export function CommentSection({
                 } else {
                   helpers.setFieldError(
                     'password',
-                    result.error || 'Tên đăng nhập hoặc mật khẩu không chính xác',
+                    result.error ||
+                      (isEn
+                        ? 'Invalid username or password'
+                        : 'Tên đăng nhập hoặc mật khẩu không chính xác'),
                   );
                 }
               }
@@ -286,26 +310,26 @@ export function CommentSection({
             className="p-4 rounded-xl border border-blue-200 bg-blue-50/40 space-y-3"
           >
             <div className="text-xs font-bold text-blue-900 uppercase tracking-wide">
-              Đăng nhập tài khoản Wonderlab
+              {isEn ? 'Sign in to Wonderlab' : 'Đăng nhập tài khoản Wonderlab'}
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <AppFormField
                 name="username"
-                label="Tên đăng nhập"
-                required="Vui lòng nhập tên đăng nhập"
+                label={isEn ? 'Username' : 'Tên đăng nhập'}
+                required={isEn ? 'Please enter your username' : 'Vui lòng nhập tên đăng nhập'}
                 size="sm"
-                placeholder="Nhập username hoặc email"
+                placeholder={isEn ? 'Username or email' : 'Nhập username hoặc email'}
               />
 
               <AppFormField
                 name="password"
                 type="password"
                 showPasswordToggle
-                label="Mật khẩu"
-                required="Vui lòng nhập mật khẩu"
+                label={isEn ? 'Password' : 'Mật khẩu'}
+                required={isEn ? 'Please enter your password' : 'Vui lòng nhập mật khẩu'}
                 size="sm"
-                placeholder="Nhập mật khẩu..."
+                placeholder={isEn ? 'Password...' : 'Nhập mật khẩu...'}
               />
             </div>
 
@@ -317,10 +341,10 @@ export function CommentSection({
                 onClick={() => setShowQuickLogin(false)}
                 className="text-xs text-slate-600 cursor-pointer"
               >
-                Hủy
+                {isEn ? 'Cancel' : 'Hủy'}
               </Button>
               <AppFormSubmit size="sm" className="text-xs font-semibold shadow-xs">
-                Xác thực & Bình luận
+                {isEn ? 'Sign In & Comment' : 'Xác thực & Bình luận'}
               </AppFormSubmit>
             </div>
           </AppForm>
@@ -331,12 +355,13 @@ export function CommentSection({
           {isLoading ? (
             <div className="py-8 text-center text-xs text-slate-500 flex items-center justify-center gap-2">
               <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
-              Đang tải danh sách thảo luận...
+              {isEn ? 'Loading discussions...' : 'Đang tải danh sách thảo luận...'}
             </div>
           ) : comments.length === 0 ? (
             <div className="py-8 text-center text-xs text-slate-500 font-sans border border-dashed border-slate-200 rounded-xl">
-              Chưa có bình luận nào cho thí nghiệm này. Hãy là người đầu tiên đặt câu hỏi hoặc đưa
-              ra nhận định!
+              {isEn
+                ? 'No discussions yet for this simulation. Be the first to share your hypothesis or insight!'
+                : 'Chưa có bình luận nào cho thí nghiệm này. Hãy là người đầu tiên đặt câu hỏi hoặc đưa ra nhận định!'}
             </div>
           ) : (
             comments.map(rootComment => {
@@ -347,7 +372,7 @@ export function CommentSection({
 
               return (
                 <div key={rootComment.id} className="space-y-2.5">
-                  {/* Khung bình luận gốc: mỗi bình luận 1 khung, màu nền nhẹ */}
+                  {/* Khung bình luận gốc */}
                   <div className="rounded-xl border border-slate-200/90 bg-slate-50/80 p-4 sm:p-5 space-y-3 shadow-2xs hover:bg-slate-100/50 hover:border-slate-300 transition-all">
                     {/* Header bình luận gốc */}
                     <div className="flex items-center justify-between">
@@ -373,12 +398,12 @@ export function CommentSection({
                             )}
                           </div>
                           <div className="text-xs font-mono text-slate-400">
-                            {formatRelativeTime(rootComment.createdAt)}
+                            {formatRelativeTime(rootComment.createdAt, isEn)}
                           </div>
                         </div>
                       </div>
 
-                      {/* Root Action: Delete (author or admin) */}
+                      {/* Root Action: Delete */}
                       {canDeleteRoot && (
                         <Button
                           variant="ghost"
@@ -386,7 +411,7 @@ export function CommentSection({
                           onClick={() => handleDelete(rootComment.id)}
                           disabled={deletingCommentId === rootComment.id}
                           className="h-7 w-7 p-0 text-slate-400 hover:text-rose-600 hover:bg-rose-50"
-                          title="Xóa bình luận này"
+                          title={isEn ? 'Delete this comment' : 'Xóa bình luận này'}
                         >
                           {deletingCommentId === rootComment.id ? (
                             <Loader2 className="h-3.5 w-3.5 animate-spin text-slate-500" />
@@ -424,27 +449,33 @@ export function CommentSection({
                           }`}
                         >
                           <Reply className="h-3.5 w-3.5 mr-1" />
-                          {isReplying ? 'Hủy trả lời' : 'Trả lời'}
+                          {isReplying
+                            ? isEn
+                              ? 'Cancel'
+                              : 'Hủy trả lời'
+                            : isEn
+                              ? 'Reply'
+                              : 'Trả lời'}
                         </Button>
                       ) : (
                         <button
                           type="button"
                           onClick={() => setShowQuickLogin(true)}
-                          className="text-xs text-slate-500 hover:text-blue-700 font-sans"
+                          className="text-xs text-slate-500 hover:text-blue-700 font-sans cursor-pointer"
                         >
-                          Đăng nhập để trả lời
+                          {isEn ? 'Sign in to reply' : 'Đăng nhập để trả lời'}
                         </button>
                       )}
                     </div>
                   </div>
 
-                  {/* Form gửi câu trả lời Cấp 2: Khung riêng, thụt lề trái, width ngắn hơn, màu nhẹ */}
+                  {/* Form gửi câu trả lời Cấp 2 */}
                   {isReplying && user && (
                     <div className="ml-6 sm:ml-12 rounded-xl border border-blue-200 bg-blue-50/50 border-l-4 border-l-blue-500 p-4 space-y-3 shadow-2xs transition-all">
                       <div className="text-xs font-semibold text-blue-900 flex items-center gap-1.5">
                         <CornerDownRight className="h-3.5 w-3.5 text-blue-600 shrink-0" />
                         <span>
-                          Trả lời{' '}
+                          {isEn ? 'Reply to' : 'Trả lời'}{' '}
                           <strong className="font-mono text-blue-950 font-bold">
                             @{rootComment.user.username}
                           </strong>
@@ -455,7 +486,11 @@ export function CommentSection({
                         size="sm"
                         value={replyContent}
                         onChange={e => setReplyContent(e.target.value)}
-                        placeholder={`Viết phản hồi cho ${rootComment.user.username}...`}
+                        placeholder={
+                          isEn
+                            ? `Write a reply to ${rootComment.user.username}...`
+                            : `Viết phản hồi cho ${rootComment.user.username}...`
+                        }
                         rows={2}
                         maxLength={2000}
                         showCount
@@ -471,7 +506,7 @@ export function CommentSection({
                           }}
                           className="text-xs text-slate-600 hover:text-slate-900 h-7 px-2.5"
                         >
-                          Hủy
+                          {isEn ? 'Cancel' : 'Hủy'}
                         </Button>
                         <Button
                           type="button"
@@ -485,13 +520,13 @@ export function CommentSection({
                           ) : (
                             <Send className="h-3 w-3 mr-1" />
                           )}
-                          Gửi phản hồi
+                          {isEn ? 'Post Reply' : 'Gửi phản hồi'}
                         </Button>
                       </div>
                     </div>
                   )}
 
-                  {/* Danh sách các câu trả lời Cấp 2: Mỗi câu trả lời 1 khung, thụt lề trái, width ngắn hơn, màu nhẹ */}
+                  {/* Danh sách các câu trả lời Cấp 2 */}
                   {hasReplies && (
                     <div className="space-y-2.5 ml-6 sm:ml-12">
                       {rootComment.replies!.map(reply => {
@@ -521,7 +556,7 @@ export function CommentSection({
                                   </span>
                                 )}
                                 <span className="text-xs font-mono text-slate-400">
-                                  {formatRelativeTime(reply.createdAt)}
+                                  {formatRelativeTime(reply.createdAt, isEn)}
                                 </span>
                               </div>
 
@@ -533,7 +568,7 @@ export function CommentSection({
                                   onClick={() => handleDelete(reply.id)}
                                   disabled={deletingCommentId === reply.id}
                                   className="h-6 w-6 p-0 text-slate-400 hover:text-rose-600 hover:bg-rose-50"
-                                  title="Xóa phản hồi này"
+                                  title={isEn ? 'Delete this reply' : 'Xóa phản hồi này'}
                                 >
                                   {deletingCommentId === reply.id ? (
                                     <Loader2 className="h-3 w-3 animate-spin text-slate-500" />
@@ -564,9 +599,13 @@ export function CommentSection({
         isOpen={Boolean(deleteConfirmCommentId)}
         onClose={() => setDeleteConfirmCommentId(null)}
         onConfirm={handleConfirmDelete}
-        title="Xóa thảo luận"
-        message="Bạn có chắc chắn muốn xóa bình luận này khỏi phiên nghiên cứu mô phỏng?"
-        confirmText="Xóa thảo luận"
+        title={isEn ? 'Delete Discussion' : 'Xóa thảo luận'}
+        message={
+          isEn
+            ? 'Are you sure you want to remove this comment from the simulation session?'
+            : 'Bạn có chắc chắn muốn xóa bình luận này khỏi phiên nghiên cứu mô phỏng?'
+        }
+        confirmText={isEn ? 'Delete' : 'Xóa thảo luận'}
         variant="danger"
         isLoading={Boolean(deletingCommentId)}
       />

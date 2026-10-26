@@ -32,7 +32,7 @@ describe('AdminSidebar (Role-based Console Navigation)', () => {
     const regularUser: AuthUser = {
       id: 'user-1',
       username: 'einstein',
-      email: 'einstein@wonderlab.vn',
+      email: 'einstein@wonderlab.local',
       role: 'USER',
       createdAt: '2026-10-24T12:00:00.000Z',
       updatedAt: '2026-10-24T12:00:00.000Z',
@@ -60,7 +60,7 @@ describe('AdminSidebar (Role-based Console Navigation)', () => {
     const adminUser: AuthUser = {
       id: 'admin-1',
       username: 'admin',
-      email: 'admin@wonderlab.vn',
+      email: 'admin@wonderlab.local',
       role: 'ADMIN',
       createdAt: '2026-10-24T12:00:00.000Z',
       updatedAt: '2026-10-24T12:00:00.000Z',

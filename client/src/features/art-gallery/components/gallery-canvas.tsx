@@ -9,6 +9,7 @@ import {
   VertexColor,
 } from '../art-gallery-math';
 import { Eye, Trash2, Sparkles, MapPin } from 'lucide-react';
+import { useTranslation } from '@/i18n';
 
 export interface GalleryCanvasProps {
   polygon: Point[];
@@ -21,27 +22,53 @@ export interface GalleryCanvasProps {
   isVertexOnlyMode: boolean;
 }
 
-const COLOR_MAP: Record<VertexColor, { label: string; fill: string; ring: string; badge: string }> =
-  {
-    0: {
-      label: 'Màu A (Hổ phách)',
-      fill: 'fill-amber-500',
-      ring: 'stroke-amber-500',
-      badge: 'bg-amber-100 text-amber-800 border-amber-300',
-    },
-    1: {
-      label: 'Màu B (Ngọc bích)',
-      fill: 'fill-emerald-500',
-      ring: 'stroke-emerald-500',
-      badge: 'bg-emerald-100 text-emerald-800 border-emerald-300',
-    },
-    2: {
-      label: 'Màu C (Tím lam)',
-      fill: 'fill-indigo-500',
-      ring: 'stroke-indigo-500',
-      badge: 'bg-indigo-100 text-indigo-800 border-indigo-300',
-    },
-  };
+const COLOR_MAP_VI: Record<
+  VertexColor,
+  { label: string; fill: string; ring: string; badge: string }
+> = {
+  0: {
+    label: 'Màu A (Hổ phách)',
+    fill: 'fill-amber-500',
+    ring: 'stroke-amber-500',
+    badge: 'bg-amber-100 text-amber-800 border-amber-300',
+  },
+  1: {
+    label: 'Màu B (Ngọc bích)',
+    fill: 'fill-emerald-500',
+    ring: 'stroke-emerald-500',
+    badge: 'bg-emerald-100 text-emerald-800 border-emerald-300',
+  },
+  2: {
+    label: 'Màu C (Tím lam)',
+    fill: 'fill-indigo-500',
+    ring: 'stroke-indigo-500',
+    badge: 'bg-indigo-100 text-indigo-800 border-indigo-300',
+  },
+};
+
+const COLOR_MAP_EN: Record<
+  VertexColor,
+  { label: string; fill: string; ring: string; badge: string }
+> = {
+  0: {
+    label: 'Color A (Amber)',
+    fill: 'fill-amber-500',
+    ring: 'stroke-amber-500',
+    badge: 'bg-amber-100 text-amber-800 border-amber-300',
+  },
+  1: {
+    label: 'Color B (Emerald)',
+    fill: 'fill-emerald-500',
+    ring: 'stroke-emerald-500',
+    badge: 'bg-emerald-100 text-emerald-800 border-emerald-300',
+  },
+  2: {
+    label: 'Color C (Indigo)',
+    fill: 'fill-indigo-500',
+    ring: 'stroke-indigo-500',
+    badge: 'bg-indigo-100 text-indigo-800 border-indigo-300',
+  },
+};
 
 export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
   polygon,
@@ -53,6 +80,9 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
   fiskProof,
   isVertexOnlyMode,
 }) => {
+  const { locale } = useTranslation();
+  const isEn = locale === 'en';
+  const colorMap = isEn ? COLOR_MAP_EN : COLOR_MAP_VI;
   const svgRef = React.useRef<SVGSVGElement | null>(null);
   const [hoveredVertexIdx, setHoveredVertexIdx] = React.useState<number | null>(null);
 
@@ -105,20 +135,33 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200/80 px-4 py-2.5 bg-slate-50/70 text-xs text-slate-600 font-sans">
         <div className="flex items-center gap-2">
           <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-          <span className="font-semibold text-slate-800">Bản Vẽ Phòng & Không Gian Tầm Nhìn</span>
+          <span className="font-semibold text-slate-800">
+            {isEn ? 'Floor Plan & Visibility Field' : 'Bản Vẽ Phòng & Không Gian Tầm Nhìn'}
+          </span>
           <span className="text-slate-400">|</span>
           <span className="text-slate-500">
-            {isVertexOnlyMode ? 'Chế độ: Đặt tại đỉnh phòng' : 'Chế độ: Tự do trong phòng'}
+            {isVertexOnlyMode
+              ? isEn
+                ? 'Mode: Vertex Placement'
+                : 'Chế độ: Đặt tại đỉnh phòng'
+              : isEn
+                ? 'Mode: Free Placement'
+                : 'Chế độ: Tự do trong phòng'}
           </span>
         </div>
 
         <div className="flex items-center gap-3 font-mono text-xs text-slate-500">
-          <span>{polygon.length} Đỉnh</span>
+          <span>
+            {polygon.length} {isEn ? 'Vertices' : 'Đỉnh'}
+          </span>
           <span>&bull;</span>
-          <span>{guards.length} Người gác</span>
+          <span>
+            {guards.length} {isEn ? 'Guards' : 'Người gác'}
+          </span>
           <span>&bull;</span>
           <span className="text-amber-700 font-semibold">
-            Cận Chvátal: &lfloor;{polygon.length}/3&rfloor; = {Math.floor(polygon.length / 3)}
+            {isEn ? 'Chvátal Bound: ' : 'Cận Chvátal: '}&lfloor;{polygon.length}/3&rfloor; ={' '}
+            {Math.floor(polygon.length / 3)}
           </span>
         </div>
       </div>
@@ -337,8 +380,12 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
               <Eye className="h-4 w-4 text-amber-600 animate-pulse" />
               <span>
                 {isVertexOnlyMode
-                  ? 'Bấm vào một đỉnh bất kỳ (chấm tròn) để đặt lính gác quan sát'
-                  : 'Bấm vào bất kỳ đâu trong căn phòng hoặc tại đỉnh để bố trí lính gác'}
+                  ? isEn
+                    ? 'Click on any vertex (circle) to place a guard'
+                    : 'Bấm vào một đỉnh bất kỳ (chấm tròn) để đặt lính gác quan sát'
+                  : isEn
+                    ? 'Click anywhere inside the room or on vertices to place guards'
+                    : 'Bấm vào bất kỳ đâu trong căn phòng hoặc tại đỉnh để bố trí lính gác'}
               </span>
             </div>
           </div>
@@ -350,14 +397,16 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200/80 px-4 py-2.5 bg-slate-50/80 text-xs">
           <div className="flex items-center gap-2 font-medium text-slate-700">
             <Sparkles className="h-4 w-4 text-emerald-600" />
-            <span>Tô 3 màu theo định lý Steve Fisk:</span>
+            <span>
+              {isEn ? '3-Coloring by Steve Fisk Theorem:' : 'Tô 3 màu theo định lý Steve Fisk:'}
+            </span>
           </div>
 
           <div className="flex flex-wrap items-center gap-3 font-mono text-xs">
             {([0, 1, 2] as VertexColor[]).map(c => {
               const count = fiskProof.colorCounts[c];
               const isOptimal = c === fiskProof.optimalColor;
-              const meta = COLOR_MAP[c];
+              const meta = colorMap[c];
               return (
                 <div
                   key={`color-badge-${c}`}
@@ -373,11 +422,12 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
                     }`}
                   />
                   <span>
-                    {meta.label}: <strong className="font-mono">{count}</strong> đỉnh
+                    {meta.label}: <strong className="font-mono">{count}</strong>{' '}
+                    {isEn ? 'vertices' : 'đỉnh'}
                   </span>
                   {isOptimal && (
                     <span className="text-xs uppercase tracking-wide bg-emerald-600 text-white px-1.5 py-0.5 rounded font-mono">
-                      Cực tiểu &le; &lfloor;n/3&rfloor;
+                      {isEn ? 'Minimal ≤ ⌊n/3⌋' : 'Cực tiểu ≤ ⌊n/3⌋'}
                     </span>
                   )}
                 </div>
@@ -391,7 +441,11 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
       <div className="flex flex-wrap items-center justify-between gap-2 border-t border-slate-200/80 px-4 py-2 bg-white text-xs text-slate-500">
         <div className="flex items-center gap-2">
           <MapPin className="h-3.5 w-3.5 text-blue-600" />
-          <span>Click lính gác đã đặt để xóa | Click đỉnh để bật/tắt lính</span>
+          <span>
+            {isEn
+              ? 'Click placed guard to remove | Click vertex to toggle guard'
+              : 'Click lính gác đã đặt để xóa | Click đỉnh để bật/tắt lính'}
+          </span>
         </div>
         {guards.length > 0 && (
           <button
@@ -399,7 +453,7 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
             className="inline-flex items-center gap-1 text-xs text-rose-600 hover:text-rose-700 font-medium transition-colors"
           >
             <Trash2 className="h-3.5 w-3.5" />
-            <span>Xóa toàn bộ lính</span>
+            <span>{isEn ? 'Clear all guards' : 'Xóa toàn bộ lính'}</span>
           </button>
         )}
       </div>

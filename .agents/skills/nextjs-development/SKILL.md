@@ -47,7 +47,7 @@ description: Next.js App Router engineering standards for Wonderlab. Covers rout
 - **Dynamic Sitemap & Robots (`src/app/sitemap.ts`, `src/app/robots.ts`)**:
   - Always export typed `MetadataRoute.Sitemap` and `MetadataRoute.Robots`.
   - Dynamically read entities from their source of truth (`SIMULATIONS_REGISTRY`, `ESSAYS`).
-  - Read `process.env.NEXT_PUBLIC_APP_URL` with a secure fallback (`https://wonderlab.vn`) and strip trailing slashes.
+  - Read `process.env.NEXT_PUBLIC_APP_URL` with a secure fallback (`http://localhost:4100`) and strip trailing slashes.
   - Set meaningful `priority` (1.0 for home, 0.9 for simulations, 0.8 for essays/requests) and `changeFrequency`.
   - Disallow indexing on `/admin`, `/my-account`, and `/api/`.
 - **Global & Route Metadata**:

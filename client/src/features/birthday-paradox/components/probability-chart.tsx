@@ -2,7 +2,9 @@
 
 import React, { useMemo } from 'react';
 import { LineChart } from 'lucide-react';
-import { calculateTheoreticalProbability, MonteCarloBatchResult } from '../birthday-math';
+import { calculateTheoreticalProbability } from '../birthday-math';
+import { MonteCarloBatchResult } from '../birthday-math';
+import { useTranslation } from '@/i18n';
 
 interface ProbabilityChartProps {
   currentN: number;
@@ -13,14 +15,17 @@ export const ProbabilityChart: React.FC<ProbabilityChartProps> = ({
   currentN,
   monteCarloResult,
 }) => {
+  const { locale } = useTranslation();
+  const isEn = locale === 'en';
+
   const width = 500;
   const height = 240;
-  const padding = { top: 20, right: 30, bottom: 35, left: 45 };
+  const padding = { top: 20, right: 30, bottom: 40, left: 45 };
 
   const plotWidth = width - padding.left - padding.right;
   const plotHeight = height - padding.top - padding.bottom;
 
-  // Tính toán các điểm tọa độ đường cong lý thuyết từ n = 2 đến n = 100
+  // Tính các điểm trên đường cong xác suất lý thuyết (n từ 2 đến 100)
   const theoreticalPath = useMemo(() => {
     const points: string[] = [];
     for (let n = 2; n <= 100; n++) {
@@ -30,32 +35,24 @@ export const ProbabilityChart: React.FC<ProbabilityChartProps> = ({
       points.push(`${n === 2 ? 'M' : 'L'} ${x.toFixed(1)} ${y.toFixed(1)}`);
     }
     return points.join(' ');
-  }, [padding.left, padding.top, plotWidth, plotHeight]);
+  }, [plotWidth, plotHeight, padding.left, padding.top]);
 
-  // Tọa độ điểm hiện tại n trên đường cong
+  // Tọa độ điểm hiện tại của n
   const currentCoord = useMemo(() => {
     const p = calculateTheoreticalProbability(currentN);
-    const clampedN = Math.max(2, Math.min(100, currentN));
-    const x = padding.left + ((clampedN - 2) / 98) * plotWidth;
+    const x = padding.left + ((currentN - 2) / 98) * plotWidth;
     const y = padding.top + (1 - p) * plotHeight;
     return { x, y, p };
-  }, [currentN, padding.left, padding.top, plotWidth, plotHeight]);
+  }, [currentN, plotWidth, plotHeight, padding.left, padding.top]);
 
-  // Tọa độ điểm thực nghiệm Monte Carlo nếu có
+  // Tọa độ điểm Monte Carlo nếu có
   const monteCarloCoord = useMemo(() => {
     if (!monteCarloResult) return null;
     const clampedN = Math.max(2, Math.min(100, currentN));
     const x = padding.left + ((clampedN - 2) / 98) * plotWidth;
     const y = padding.top + (1 - monteCarloResult.empiricalRate) * plotHeight;
     return { x, y, p: monteCarloResult.empiricalRate };
-  }, [monteCarloResult, currentN, padding.left, padding.top, plotWidth, plotHeight]);
-
-  // Tọa độ điểm mốc 23 người (50%)
-  const milestone23Coord = useMemo(() => {
-    const x = padding.left + ((23 - 2) / 98) * plotWidth;
-    const y = padding.top + 0.5 * plotHeight;
-    return { x, y };
-  }, [padding.left, padding.top, plotWidth, plotHeight]);
+  }, [monteCarloResult, currentN, plotWidth, plotHeight, padding.left, padding.top]);
 
   return (
     <div className="flex flex-col gap-3">
@@ -64,18 +61,26 @@ export const ProbabilityChart: React.FC<ProbabilityChartProps> = ({
         <div className="flex items-center gap-2">
           <LineChart className="h-4 w-4 text-blue-600" />
           <h4 className="text-xs font-bold uppercase tracking-wider text-slate-800 font-heading">
-            Đồ thị Xác suất Lý thuyết vs Thực nghiệm
+            {isEn
+              ? 'Probability Curve: Theory vs Empirical'
+              : 'Đồ thị Xác suất Lý thuyết vs Thực nghiệm'}
           </h4>
         </div>
         <div className="flex items-center gap-3 text-xs font-mono">
           <span className="flex items-center gap-1.5 text-blue-700">
             <span className="h-2 w-2 rounded-full bg-blue-600" />
-            <span>Lý thuyết: {(currentCoord.p * 100).toFixed(1)}%</span>
+            <span>
+              {isEn ? 'Theory: ' : 'Lý thuyết: '}
+              {(currentCoord.p * 100).toFixed(1)}%
+            </span>
           </span>
           {monteCarloCoord && (
             <span className="flex items-center gap-1.5 text-emerald-700">
               <span className="h-2 w-2 rounded-full bg-emerald-600" />
-              <span>Thực nghiệm: {(monteCarloCoord.p * 100).toFixed(1)}%</span>
+              <span>
+                {isEn ? 'Empirical: ' : 'Thực nghiệm: '}
+                {(monteCarloCoord.p * 100).toFixed(1)}%
+              </span>
             </span>
           )}
         </div>
@@ -89,11 +94,11 @@ export const ProbabilityChart: React.FC<ProbabilityChartProps> = ({
             const is50Percent = level === 0.5;
 
             return (
-              <g key={`y-grid-${level}`}>
+              <g key={level}>
                 <line
                   x1={padding.left}
                   y1={y}
-                  x2={padding.left + plotWidth}
+                  x2={width - padding.right}
                   y2={y}
                   stroke={is50Percent ? '#f59e0b' : '#e2e8f0'}
                   strokeWidth={is50Percent ? '1.5' : '1'}
@@ -101,7 +106,7 @@ export const ProbabilityChart: React.FC<ProbabilityChartProps> = ({
                 />
                 <text
                   x={padding.left - 8}
-                  y={y + 3.5}
+                  y={y + 3}
                   textAnchor="end"
                   className={`font-mono text-xs ${
                     is50Percent ? 'fill-amber-600 font-bold' : 'fill-slate-500'
@@ -113,51 +118,35 @@ export const ProbabilityChart: React.FC<ProbabilityChartProps> = ({
             );
           })}
 
-          {/* Lưới tọa độ dọc (n = 20, 23, 40, 60, 80, 100) */}
-          {[20, 40, 60, 80, 100].map(nVal => {
-            const x = padding.left + ((nVal - 2) / 98) * plotWidth;
+          {/* Lưới tọa độ đứng (các mốc n: 23, 50, 70, 100) */}
+          {[23, 50, 70, 100].map(val => {
+            const x = padding.left + ((val - 2) / 98) * plotWidth;
+            const is23 = val === 23;
+
             return (
-              <g key={`x-grid-${nVal}`}>
+              <g key={val}>
                 <line
                   x1={x}
                   y1={padding.top}
                   x2={x}
-                  y2={padding.top + plotHeight}
-                  stroke="#f1f5f9"
-                  strokeWidth="1"
+                  y2={height - padding.bottom}
+                  stroke={is23 ? '#f59e0b' : '#f1f5f9'}
+                  strokeWidth={is23 ? '1.5' : '1'}
+                  strokeDasharray={is23 ? '4 3' : undefined}
                 />
                 <text
                   x={x}
-                  y={padding.top + plotHeight + 16}
+                  y={height - padding.bottom + 15}
                   textAnchor="middle"
                   className="fill-slate-500 font-mono text-xs"
                 >
-                  {nVal}
+                  {val}
                 </text>
               </g>
             );
           })}
 
-          {/* Trục X nhãn n = 23 (vạch đặc biệt) */}
-          <line
-            x1={milestone23Coord.x}
-            y1={padding.top}
-            x2={milestone23Coord.x}
-            y2={padding.top + plotHeight}
-            stroke="#f59e0b"
-            strokeWidth="1"
-            strokeDasharray="2 2"
-          />
-          <text
-            x={milestone23Coord.x}
-            y={padding.top + plotHeight + 16}
-            textAnchor="middle"
-            className="fill-amber-700 font-mono text-xs font-bold"
-          >
-            23★
-          </text>
-
-          {/* Đường cong xác suất lý thuyết */}
+          {/* Đường cong xác suất lý thuyết P(n) */}
           <path
             d={theoreticalPath}
             fill="none"
@@ -166,18 +155,7 @@ export const ProbabilityChart: React.FC<ProbabilityChartProps> = ({
             strokeLinecap="round"
           />
 
-          {/* Chỉ báo n hiện tại (đường dóng dọc) */}
-          <line
-            x1={currentCoord.x}
-            y1={padding.top}
-            x2={currentCoord.x}
-            y2={padding.top + plotHeight}
-            stroke="#3b82f6"
-            strokeWidth="1"
-            strokeOpacity="0.4"
-          />
-
-          {/* Điểm hiện tại trên đường cong lý thuyết */}
+          {/* Điểm hiện tại của n */}
           <circle
             cx={currentCoord.x}
             cy={currentCoord.y}
@@ -185,6 +163,14 @@ export const ProbabilityChart: React.FC<ProbabilityChartProps> = ({
             fill="#2563eb"
             stroke="#ffffff"
             strokeWidth="2"
+          />
+
+          {/* Điểm mốc n = 23 (50.7%) */}
+          <circle
+            cx={padding.left + ((23 - 2) / 98) * plotWidth}
+            cy={padding.top + (1 - 0.5073) * plotHeight}
+            r="4"
+            fill="#d97706"
           />
 
           {/* Điểm thực nghiệm Monte Carlo */}
@@ -206,7 +192,7 @@ export const ProbabilityChart: React.FC<ProbabilityChartProps> = ({
             textAnchor="middle"
             className="fill-slate-600 text-xs font-medium"
           >
-            Số người trong phòng (n)
+            {isEn ? 'Room population (n)' : 'Số người trong phòng (n)'}
           </text>
         </svg>
       </div>

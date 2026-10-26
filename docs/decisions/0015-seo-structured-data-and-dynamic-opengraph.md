@@ -28,7 +28,7 @@ Wonderlab là nền tảng trực quan hóa các nghịch lý khoa học, toán 
    - `robots.ts`: Cho phép `User-agent: *` truy cập toàn bộ các trang nội dung, chặn các đường dẫn nhạy cảm (`/admin`, `/my-account`, `/api/`), và chỉ định vị trí tệp sitemap.
 
 2. **Metadata Base & Title Template (`client/src/app/layout.tsx`)**:
-   - Thiết lập `metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://wonderlab.vn')`.
+   - Thiết lập `metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:4100')`.
    - Chuẩn hóa Title Template: `{ default: 'Wonderlab — Khám phá Khoa học, Xác suất & Nghịch lý Trực quan', template: '%s | Wonderlab' }`.
    - Cung cấp các giá trị mặc định cho `alternates.canonical`, `openGraph` (locale `vi_VN`), và `twitter: { card: 'summary_large_image' }`.
 

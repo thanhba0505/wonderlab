@@ -64,7 +64,7 @@ describe('validation-helpers', () => {
 
     it('should reject password with less than 8 characters', () => {
       const dto = new SampleDevDto();
-      dto.email = 'user@wonderlab.vn';
+      dto.email = 'user@wonderlab.local';
       dto.password = '12345';
       dto.username = 'valid_user';
 
@@ -76,7 +76,7 @@ describe('validation-helpers', () => {
 
     it('should accept valid email and strong password in production', () => {
       const dto = new SampleDevDto();
-      dto.email = 'scientist@wonderlab.vn';
+      dto.email = 'scientist@wonderlab.local';
       dto.password = 'SecureLabPassword2026!';
       dto.username = 'scientist_2026';
 

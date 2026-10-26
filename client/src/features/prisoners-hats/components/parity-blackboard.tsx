@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { SimulationStep, PrisonerState, getColorMeta, getPalette } from '../hat-puzzle-math';
 import { Binary, Check, X, ArrowRight, Lightbulb } from 'lucide-react';
+import { useTranslation } from '@/i18n';
 
 interface ParityBlackboardProps {
   steps: SimulationStep[];
@@ -17,6 +18,8 @@ export function ParityBlackboard({
   prisoners,
   colorCount,
 }: ParityBlackboardProps) {
+  const { locale } = useTranslation();
+  const isEn = locale === 'en';
   const currentStep = steps[currentStepIndex] ?? null;
   const initialStep = steps[0] ?? null;
   const palette = getPalette(colorCount);
@@ -31,10 +34,14 @@ export function ParityBlackboard({
           </div>
           <div>
             <h3 className="font-heading text-sm font-bold text-slate-900">
-              Bảng Giải Mã Parity & Chuỗi Trừ Lùi Modulo
+              {isEn
+                ? 'Parity Decoding Blackboard & Modulo Subtraction'
+                : 'Bảng Giải Mã Parity & Chuỗi Trừ Lùi Modulo'}
             </h3>
             <p className="text-xs text-slate-500 font-sans">
-              Theo dõi trực tiếp sự suy giảm entropy thông tin qua từng lượt phát biểu
+              {isEn
+                ? 'Observe real-time reduction in information entropy across each spoken turn'
+                : 'Theo dõi trực tiếp sự suy giảm entropy thông tin qua từng lượt phát biểu'}
             </p>
           </div>
         </div>
@@ -42,7 +49,9 @@ export function ParityBlackboard({
         {initialStep && (
           <div className="font-mono text-xs bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg text-slate-700">
             <span className="text-slate-500 font-sans">
-              Tín hiệu gốc Người #{initialStep.prisonerId}:{' '}
+              {isEn
+                ? `Root signal Person #${initialStep.prisonerId}: `
+                : `Tín hiệu gốc Người #${initialStep.prisonerId}: `}
             </span>
             <span className="font-bold text-blue-700">
               {palette[initialStep.spokenColor]?.label} ({initialStep.spokenColor})
@@ -57,15 +66,19 @@ export function ParityBlackboard({
           <div className="flex items-center justify-between text-xs font-semibold text-blue-900">
             <span className="flex items-center gap-1.5">
               <Lightbulb className="h-4 w-4 text-amber-500" />
-              Lượt hiện tại: Người #{currentStep.prisonerId}
+              {isEn
+                ? `Current turn: Person #${currentStep.prisonerId}`
+                : `Lượt hiện tại: Người #${currentStep.prisonerId}`}
             </span>
             <span className="font-mono text-blue-700 bg-white/80 px-2 py-0.5 rounded border border-blue-200">
-              Bước {currentStepIndex + 1} / {steps.length}
+              {isEn
+                ? `Step ${currentStepIndex + 1} / ${steps.length}`
+                : `Bước ${currentStepIndex + 1} / ${steps.length}`}
             </span>
           </div>
 
           <div className="font-mono text-xs sm:text-sm text-slate-800 bg-white p-2.5 rounded-md border border-blue-100 flex flex-wrap items-center gap-2">
-            <span className="text-slate-500 font-sans">Công thức:</span>
+            <span className="text-slate-500 font-sans">{isEn ? 'Formula:' : 'Công thức:'}</span>
             <span className="font-bold text-blue-700">{currentStep.formulaString}</span>
           </div>
 
@@ -75,8 +88,9 @@ export function ParityBlackboard({
         </div>
       ) : (
         <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-center text-xs text-slate-500">
-          Bấm &quot;Phát tự động&quot; hoặc &quot;Bước tiếp&quot; để theo dõi quá trình giải mã từng
-          bước.
+          {isEn
+            ? 'Click "Auto-play" or "Step next" to trace the deduction step-by-step.'
+            : 'Bấm "Phát tự động" hoặc "Bước tiếp" để theo dõi quá trình giải mã từng bước.'}
         </div>
       )}
 
@@ -85,13 +99,13 @@ export function ParityBlackboard({
         <table className="w-full text-left text-xs font-sans">
           <thead className="bg-slate-50 text-slate-600 border-b border-slate-200 font-semibold font-mono">
             <tr>
-              <th className="py-2.5 px-3">Lượt</th>
-              <th className="py-2.5 px-3">Vị trí</th>
-              <th className="py-2.5 px-3">Mũ thật</th>
-              <th className="py-2.5 px-3">Thấy phía trước</th>
-              <th className="py-2.5 px-3">Parity kỳ vọng</th>
-              <th className="py-2.5 px-3">Hô màu</th>
-              <th className="py-2.5 px-3 text-center">Kết quả</th>
+              <th className="py-2.5 px-3">{isEn ? 'Turn' : 'Lượt'}</th>
+              <th className="py-2.5 px-3">{isEn ? 'Position' : 'Vị trí'}</th>
+              <th className="py-2.5 px-3">{isEn ? 'Actual Hat' : 'Mũ thật'}</th>
+              <th className="py-2.5 px-3">{isEn ? 'Seen Ahead' : 'Thấy phía trước'}</th>
+              <th className="py-2.5 px-3">{isEn ? 'Expected Parity' : 'Parity kỳ vọng'}</th>
+              <th className="py-2.5 px-3">{isEn ? 'Spoken Color' : 'Hô màu'}</th>
+              <th className="py-2.5 px-3 text-center">{isEn ? 'Result' : 'Kết quả'}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 font-mono">
@@ -117,9 +131,11 @@ export function ParityBlackboard({
                 >
                   <td className="py-2 px-3 font-semibold text-slate-500">#{idx + 1}</td>
                   <td className="py-2 px-3">
-                    Người #{step.prisonerId}
+                    {isEn ? `Person #${step.prisonerId}` : `Người #${step.prisonerId}`}
                     {prisoner?.isSacrifice && (
-                      <span className="ml-1 text-amber-600 font-sans text-xs">(Hy sinh)</span>
+                      <span className="ml-1 text-amber-600 font-sans text-xs">
+                        {isEn ? '(Sacrifice)' : '(Hy sinh)'}
+                      </span>
                     )}
                   </td>
                   <td className="py-2 px-3">
@@ -156,15 +172,15 @@ export function ParityBlackboard({
                     {isPast ? (
                       step.isCorrect ? (
                         <span className="inline-flex items-center gap-1 text-emerald-600 font-bold">
-                          <Check className="h-3.5 w-3.5" /> Đúng
+                          <Check className="h-3.5 w-3.5" /> {isEn ? 'Correct' : 'Đúng'}
                         </span>
                       ) : (
                         <span className="inline-flex items-center gap-1 text-rose-600 font-bold">
-                          <X className="h-3.5 w-3.5" /> Sai
+                          <X className="h-3.5 w-3.5" /> {isEn ? 'Wrong' : 'Sai'}
                         </span>
                       )
                     ) : (
-                      <span className="text-slate-400">Chờ</span>
+                      <span className="text-slate-400">{isEn ? 'Waiting' : 'Chờ'}</span>
                     )}
                   </td>
                 </tr>
@@ -178,10 +194,22 @@ export function ParityBlackboard({
       <div className="flex items-start gap-2 text-xs text-slate-500 font-sans bg-slate-50 p-2.5 rounded-md border border-slate-200">
         <ArrowRight className="h-4 w-4 text-blue-600 shrink-0 mt-0.5" />
         <span>
-          <strong>Quy luật trừ lùi:</strong> Sau mỗi lượt đoán chính xác của người phía sau, Parity
-          kỳ vọng cho lượt tiếp theo được trừ đi đúng giá trị màu vừa hô:{' '}
-          <code className="text-blue-700 font-bold">{'P_{k-1} = (P_k - c_k) mod K'}</code>. Chuỗi
-          này giúp bảo đảm 100% người còn lại luôn có đủ thông tin.
+          <strong>{isEn ? 'Backward Subtraction Rule:' : 'Quy luật trừ lùi:'}</strong>{' '}
+          {isEn ? (
+            <>
+              After each correct call by the prisoner behind, the expected parity for the next turn
+              is decremented by the announced color:{' '}
+              <code className="text-blue-700 font-bold">{'P_{k-1} = (P_k - c_k) mod K'}</code>. This
+              guarantees that all remaining prisoners retain complete information.
+            </>
+          ) : (
+            <>
+              Sau mỗi lượt đoán chính xác của người phía sau, Parity kỳ vọng cho lượt tiếp theo được
+              trừ đi đúng giá trị màu vừa hô:{' '}
+              <code className="text-blue-700 font-bold">{'P_{k-1} = (P_k - c_k) mod K'}</code>.
+              Chuỗi này giúp bảo đảm 100% người còn lại luôn có đủ thông tin.
+            </>
+          )}
         </span>
       </div>
     </div>
