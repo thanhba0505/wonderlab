@@ -1,6 +1,7 @@
 // Design System Core Components
 export * from './app-button';
 export * from './app-input';
+export * from './app-textarea';
 export * from './app-form';
 export * from './app-form-field';
 export * from './app-select';

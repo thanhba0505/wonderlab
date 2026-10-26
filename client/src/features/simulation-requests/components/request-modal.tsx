@@ -14,7 +14,6 @@ import {
 import { useAuth } from '@/lib/auth-context';
 import { createSimulationRequest, SimulationRequestItem } from '@/lib/simulation-requests-api';
 import { SIMULATION_CATEGORIES } from '../constants';
-import { cn } from '@/lib/utils';
 
 interface RequestModalProps {
   isOpen: boolean;
@@ -193,6 +192,12 @@ export function RequestModal({ isOpen, onClose, onSuccess }: RequestModalProps) 
             name="description"
             label="Mô tả nội dung bài toán / hiện tượng"
             required="Mô tả không được để trống"
+            multiline
+            rows={4}
+            placeholder="Giải thích ngắn gọn tiền đề, câu hỏi cốt lõi và mâu thuẫn cần giải quyết..."
+            maxLength={3000}
+            showCount
+            helperText="Tối thiểu 20 ký tự để ban biên tập thẩm định."
             rules={[
               { required: true, message: 'Mô tả nội dung bài toán không được để trống' },
               {
@@ -201,34 +206,7 @@ export function RequestModal({ isOpen, onClose, onSuccess }: RequestModalProps) 
               },
               { maxLength: 3000, message: 'Mô tả tối đa không quá 3000 ký tự' },
             ]}
-          >
-            {({ value, onChange, onBlur, disabled, hasError }) => {
-              const currentLength = String(value || '').length;
-              return (
-                <div>
-                  <textarea
-                    value={String(value || '')}
-                    onChange={onChange}
-                    onBlur={onBlur}
-                    rows={4}
-                    placeholder="Giải thích ngắn gọn tiền đề, câu hỏi cốt lõi và mâu thuẫn cần giải quyết..."
-                    maxLength={3000}
-                    disabled={disabled}
-                    className={cn(
-                      'w-full rounded-xl border bg-white px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 disabled:bg-slate-50 transition-colors',
-                      hasError
-                        ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20'
-                        : 'border-slate-300/85 focus:border-blue-600 focus:ring-blue-500/20',
-                    )}
-                  />
-                  <div className="mt-1 flex justify-between text-xs text-slate-500 font-sans">
-                    <span>Tối thiểu 20 ký tự.</span>
-                    <span className="font-mono">{currentLength}/3000</span>
-                  </div>
-                </div>
-              );
-            }}
-          </AppFormField>
+          />
 
           {/* Điểm phản trực giác */}
           <AppFormField
@@ -240,26 +218,13 @@ export function RequestModal({ isOpen, onClose, onSuccess }: RequestModalProps) 
                 <span className="text-slate-400 font-normal">(tùy chọn)</span>
               </span>
             }
+            multiline
+            rows={2}
+            placeholder="VD: Kết quả thực nghiệm hoàn toàn trái ngược với suy đoán ban đầu của trực giác thông thường..."
+            maxLength={2000}
+            showCount
             rules={[{ maxLength: 2000, message: 'Tối đa 2000 ký tự' }]}
-          >
-            {({ value, onChange, onBlur, disabled, hasError }) => (
-              <textarea
-                value={String(value || '')}
-                onChange={onChange}
-                onBlur={onBlur}
-                rows={2}
-                placeholder="VD: Kết quả thực nghiệm hoàn toàn trái ngược với suy đoán ban đầu của trực giác thông thường..."
-                maxLength={2000}
-                disabled={disabled}
-                className={cn(
-                  'w-full rounded-xl border bg-white px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 disabled:bg-slate-50 transition-colors',
-                  hasError
-                    ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20'
-                    : 'border-slate-300/85 focus:border-blue-600 focus:ring-blue-500/20',
-                )}
-              />
-            )}
-          </AppFormField>
+          />
 
           {/* Ý tưởng tham số điều khiển */}
           <AppFormField
@@ -270,8 +235,11 @@ export function RequestModal({ isOpen, onClose, onSuccess }: RequestModalProps) 
                 <span className="text-slate-400 font-normal">(tùy chọn)</span>
               </span>
             }
+            multiline
+            rows={2}
             placeholder="VD: Thanh trượt số lượng mẫu thử, công tắc bật/tắt máy đo quan sát..."
             maxLength={2000}
+            showCount
             rules={[{ maxLength: 2000, message: 'Tối đa 2000 ký tự' }]}
           />
 

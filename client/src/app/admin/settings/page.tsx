@@ -9,6 +9,7 @@ import {
   CardContent,
   AppButton,
   AppSelect,
+  AppTextArea,
 } from '@/components/ui';
 import { Wrench, Bell, Gauge, CheckCircle2 } from 'lucide-react';
 
@@ -183,19 +184,16 @@ export default function AdminGeneralSettingsPage() {
             </div>
 
             {enableBanner && (
-              <div className="space-y-2">
-                <label htmlFor="banner-text" className="font-bold text-slate-900 block">
-                  Nội dung thông báo hiển thị
-                </label>
-                <textarea
-                  id="banner-text"
-                  rows={2}
-                  value={bannerText}
-                  onChange={e => setBannerText(e.target.value)}
-                  placeholder="Nhập nội dung thông điệp gửi tới cộng đồng nghiên cứu..."
-                  className="w-full px-3.5 py-2 text-xs rounded-lg border border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 font-sans shadow-2xs"
-                />
-              </div>
+              <AppTextArea
+                id="banner-text"
+                label="Nội dung thông báo hiển thị"
+                rows={2}
+                value={bannerText}
+                onChange={e => setBannerText(e.target.value)}
+                placeholder="Nhập nội dung thông điệp gửi tới cộng đồng nghiên cứu..."
+                showCount
+                maxLength={500}
+              />
             )}
 
             <div className="pt-2 flex justify-end">

@@ -3,7 +3,13 @@
 import * as React from 'react';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { AppConfirmModal, AppForm, AppFormField, AppFormSubmit } from '@/components/ui';
+import {
+  AppConfirmModal,
+  AppForm,
+  AppFormField,
+  AppFormSubmit,
+  AppTextArea,
+} from '@/components/ui';
 import {
   MessageSquare,
   Reply,
@@ -15,7 +21,6 @@ import {
   CornerDownRight,
   Loader2,
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { useAuth } from '@/lib/auth-context';
 import {
   SimulationComment,
@@ -211,28 +216,14 @@ export function CommentSection({
             }}
             className="space-y-3"
           >
-            <AppFormField name="content">
-              {({ value, onChange, hasError }) => (
-                <div className="relative">
-                  <textarea
-                    value={String(value || '')}
-                    onChange={onChange}
-                    placeholder={placeholderText}
-                    rows={3}
-                    maxLength={2000}
-                    className={cn(
-                      'w-full rounded-xl border p-3.5 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:border-transparent transition-all resize-y min-h-[90px]',
-                      hasError
-                        ? 'border-red-500 focus:ring-red-500'
-                        : 'border-slate-300 focus:ring-blue-500',
-                    )}
-                  />
-                  <span className="absolute bottom-2.5 right-3 text-xs font-mono text-slate-400">
-                    {String(value || '').length}/2000
-                  </span>
-                </div>
-              )}
-            </AppFormField>
+            <AppFormField
+              name="content"
+              multiline
+              rows={3}
+              maxLength={2000}
+              showCount
+              placeholder={placeholderText}
+            />
 
             <div className="flex justify-end items-center">
               <AppFormSubmit
@@ -460,13 +451,14 @@ export function CommentSection({
                           :
                         </span>
                       </div>
-                      <textarea
+                      <AppTextArea
+                        size="sm"
                         value={replyContent}
                         onChange={e => setReplyContent(e.target.value)}
                         placeholder={`Viết phản hồi cho ${rootComment.user.username}...`}
                         rows={2}
                         maxLength={2000}
-                        className="w-full rounded-lg border border-blue-200 bg-white p-2.5 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y min-h-[65px]"
+                        showCount
                       />
                       <div className="flex justify-end items-center gap-2">
                         <Button

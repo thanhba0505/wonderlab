@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { cn } from '@/lib/utils';
 import { AppInput } from './app-input';
+import { AppTextArea } from './app-textarea';
 import {
   useOptionalAppFormContext,
   validateFieldWithRules,
@@ -55,6 +56,11 @@ export interface AppFormFieldProps extends Omit<
   showPasswordToggle?: boolean;
   clearable?: boolean;
   onClear?: () => void;
+  multiline?: boolean;
+  rows?: number;
+  autoResize?: boolean;
+  showCount?: boolean;
+  resize?: 'none' | 'vertical' | 'horizontal' | 'both';
   value?: unknown;
   onChange?: (e: React.ChangeEvent<HTMLInputElement> | unknown) => void;
   onBlur?: (e: React.FocusEvent<HTMLInputElement> | unknown) => void;
@@ -82,6 +88,11 @@ export const AppFormField: React.FC<AppFormFieldProps> = ({
   showPasswordToggle,
   clearable,
   onClear,
+  multiline,
+  rows,
+  autoResize,
+  showCount,
+  resize,
   size = 'md',
   disabled: propDisabled,
   value: controlledValue,
@@ -286,6 +297,32 @@ export const AppFormField: React.FC<AppFormFieldProps> = ({
               ? `${fieldId}-helper`
               : undefined,
         })
+      ) : multiline || rows !== undefined ? (
+        <AppTextArea
+          id={fieldId}
+          name={name}
+          value={String(fieldValue ?? '')}
+          onChange={handleInputChange}
+          onBlur={handleInputBlur}
+          disabled={isDisabled}
+          placeholder={placeholder}
+          clearable={clearable}
+          onClear={handleClear}
+          size={size}
+          hasError={hasErrors}
+          error={false}
+          rows={rows}
+          autoResize={autoResize}
+          resize={resize}
+          showCount={false}
+          maxLength={inputProps.maxLength}
+          className={inputClassName}
+          aria-required={isRequired ? 'true' : undefined}
+          aria-invalid={hasErrors ? 'true' : undefined}
+          aria-describedby={
+            hasErrors ? `${fieldId}-errors` : helperText ? `${fieldId}-helper` : undefined
+          }
+        />
       ) : (
         <AppInput
           id={fieldId}
@@ -314,25 +351,48 @@ export const AppFormField: React.FC<AppFormFieldProps> = ({
         />
       )}
 
-      {/* Error List display or Helper Text */}
-      {hasErrors ? (
-        <ul
-          id={`${fieldId}-errors`}
-          className={cn('mt-1.5 space-y-1 text-xs text-red-600 font-sans', errorClassName)}
-          role="alert"
-          aria-live="polite"
-        >
-          {visibleErrors.map((errMsg, index) => (
-            <li key={index} className="flex items-start gap-1.5">
-              <span className="text-red-500 font-bold shrink-0 leading-tight select-none">•</span>
-              <span className="leading-tight">{errMsg}</span>
-            </li>
-          ))}
-        </ul>
-      ) : helperText ? (
-        <p id={`${fieldId}-helper`} className="mt-1.5 text-xs text-slate-500 font-sans">
-          {helperText}
-        </p>
+      {/* Error List display, Helper Text, or Character Counter */}
+      {hasErrors || helperText || showCount ? (
+        <div className="mt-1.5 flex items-start justify-between gap-2 text-xs font-sans">
+          <div className="flex-1">
+            {hasErrors ? (
+              <ul
+                id={`${fieldId}-errors`}
+                className={cn('space-y-1 text-xs text-red-600 font-sans', errorClassName)}
+                role="alert"
+                aria-live="polite"
+              >
+                {visibleErrors.map((errMsg, index) => (
+                  <li key={index} className="flex items-start gap-1.5">
+                    <span className="text-red-500 font-bold shrink-0 leading-tight select-none">
+                      •
+                    </span>
+                    <span className="leading-tight">{errMsg}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : helperText ? (
+              <p id={`${fieldId}-helper`} className="text-slate-500 font-sans">
+                {helperText}
+              </p>
+            ) : null}
+          </div>
+
+          {showCount ? (
+            <span
+              className={cn(
+                'font-mono tabular-nums text-slate-400 shrink-0 select-none ml-auto text-xs',
+                inputProps.maxLength !== undefined &&
+                  String(fieldValue ?? '').length > inputProps.maxLength &&
+                  'text-red-500 font-semibold',
+              )}
+              aria-live="polite"
+            >
+              {String(fieldValue ?? '').length}
+              {inputProps.maxLength !== undefined ? `/${inputProps.maxLength}` : ''}
+            </span>
+          ) : null}
+        </div>
       ) : null}
     </div>
   );

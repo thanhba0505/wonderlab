@@ -16,7 +16,6 @@ import {
   type AppFilterField,
   type AppActiveFilter,
 } from '@/components/ui';
-import { cn } from '@/lib/utils';
 import {
   fetchAdminSimulationRequests,
   updateAdminSimulationRequestStatus,
@@ -468,26 +467,13 @@ export function RequestsView() {
               name="adminNotes"
               label="Ghi chú & Phản hồi chuyên môn của Ban Biên tập"
               helperText="Ghi chú này sẽ hiển thị công khai trên thẻ đề xuất để người gửi và cộng đồng theo dõi."
+              multiline
+              rows={3}
+              placeholder="VD: Đề xuất rất thú vị. Ban biên tập đang xây dựng mô hình trực quan Monte Carlo và dự kiến ra mắt trong tháng tới..."
+              maxLength={2000}
+              showCount
               rules={[{ maxLength: 2000, message: 'Tối đa 2000 ký tự' }]}
-            >
-              {({ value, onChange, onBlur, disabled, hasError }) => (
-                <textarea
-                  value={String(value || '')}
-                  onChange={onChange}
-                  onBlur={onBlur}
-                  rows={3}
-                  placeholder="VD: Đề xuất rất thú vị. Ban biên tập đang xây dựng mô hình trực quan Monte Carlo và dự kiến ra mắt trong tháng tới..."
-                  maxLength={2000}
-                  disabled={disabled}
-                  className={cn(
-                    'w-full rounded-xl border bg-white px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 disabled:bg-slate-50 transition-colors',
-                    hasError
-                      ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20'
-                      : 'border-slate-300/85 focus:border-blue-600 focus:ring-blue-500/20',
-                  )}
-                />
-              )}
-            </AppFormField>
+            />
 
             {/* Modal Actions */}
             <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-200">
