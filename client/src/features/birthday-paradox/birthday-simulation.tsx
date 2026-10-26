@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, useTransition } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -8,9 +8,9 @@ import {
   calculateTheoreticalProbability,
   MonteCarloBatchResult,
   RoomSimulationResult,
-  runMonteCarloBatch,
   simulateRoom,
 } from './birthday-math';
+import { useBirthdayWorker } from '@/features/simulations/hooks';
 import { ChamberRadar } from './components/chamber-radar';
 import { CalendarHeatmap } from './components/calendar-heatmap';
 import { ProbabilityChart } from './components/probability-chart';
@@ -63,7 +63,6 @@ export const BirthdaySimulation: React.FC = () => {
   );
   const [selectedPersonId, setSelectedPersonId] = useState<number | null>(null);
   const [monteCarloResult, setMonteCarloResult] = useState<MonteCarloBatchResult | null>(null);
-  const [isPending, startTransition] = useTransition();
 
   // Export clipboard feedback
   const [copiedType, setCopiedType] = useState<'report' | 'url' | null>(null);
@@ -76,6 +75,86 @@ export const BirthdaySimulation: React.FC = () => {
   const [sessionCollisionCount, setSessionCollisionCount] = useState<number>(
     room.hasCollision ? 1 : 0,
   );
+
+  const startTimeRef = useRef<number>(0);
+  const [targetTrials, setTargetTrials] = useState<number>(0);
+
+  const theoreticalP = calculateTheoreticalProbability(n);
+  const totalPairs = calculateComparisonPairs(n);
+
+  const {
+    isRunning: isSimulatingBatch,
+    progress: batchProgress,
+    partialResult: workerPartial,
+    run: runWorkerBirthday,
+    abort: abortWorkerBirthday,
+  } = useBirthdayWorker({
+    onProgress: (_prog, partial) => {
+      if (partial && typeof partial.empiricalRate === 'number') {
+        const completed = partial.completedTrials ?? 0;
+        setMonteCarloResult({
+          trials: completed,
+          collisions: partial.collisions ?? 0,
+          empiricalRate: partial.empiricalRate,
+          theoreticalRate: partial.theoreticalRate ?? theoreticalP,
+        });
+      }
+    },
+    onComplete: finalRes => {
+      const duration = Math.round(performance.now() - startTimeRef.current);
+      const result: MonteCarloBatchResult = {
+        trials: finalRes.trials,
+        collisions: finalRes.collisions,
+        empiricalRate: finalRes.empiricalRate,
+        theoreticalRate: finalRes.theoreticalRate,
+      };
+      setMonteCarloResult(result);
+
+      recordRun(
+        {
+          groupSize: n,
+          userPrediction: userPrediction?.option.value,
+        },
+        {
+          collisions: result.collisions,
+          empiricalProbability: result.empiricalRate,
+          theoreticalProbability: theoreticalP,
+          intuitionGap: userPrediction?.gap,
+        },
+        finalRes.trials,
+        duration,
+      );
+    },
+    onAborted: partial => {
+      if (partial && (partial.completedTrials ?? 0) > 0) {
+        const completed = partial.completedTrials ?? 0;
+        const collisions = partial.collisions ?? 0;
+        const duration = Math.round(performance.now() - startTimeRef.current);
+        const result: MonteCarloBatchResult = {
+          trials: completed,
+          collisions,
+          empiricalRate: collisions / completed,
+          theoreticalRate: partial.theoreticalRate ?? theoreticalP,
+        };
+        setMonteCarloResult(result);
+
+        recordRun(
+          {
+            groupSize: n,
+            userPrediction: userPrediction?.option.value,
+          },
+          {
+            collisions: result.collisions,
+            empiricalProbability: result.empiricalRate,
+            theoreticalProbability: theoreticalP,
+            intuitionGap: userPrediction?.gap,
+          },
+          completed,
+          duration,
+        );
+      }
+    },
+  });
 
   // Synchronize initial n from URL query params
   useEffect(() => {
@@ -105,6 +184,9 @@ export const BirthdaySimulation: React.FC = () => {
 
   // Đổi số người trong phòng
   const handleNChange = (newN: number) => {
+    if (isSimulatingBatch) {
+      abortWorkerBirthday();
+    }
     setN(newN);
     updateUrlParam(newN);
     const newRoom = simulateRoom(newN);
@@ -130,37 +212,18 @@ export const BirthdaySimulation: React.FC = () => {
     }
   };
 
-  const theoreticalP = calculateTheoreticalProbability(n);
-  const totalPairs = calculateComparisonPairs(n);
-
-  // Chạy mô phỏng hàng nghìn phòng (Monte Carlo)
+  // Chạy mô phỏng hàng nghìn phòng (Monte Carlo) qua Web Worker
   const handleRunBatch = (trials: number) => {
-    const startTime = performance.now();
-    startTransition(() => {
-      const result = runMonteCarloBatch(n, trials);
-      const duration = Math.round(performance.now() - startTime);
-      setMonteCarloResult(result);
-
-      // Lưu trữ lượt chạy lên telemetry API
-      recordRun(
-        {
-          groupSize: n,
-          userPrediction: userPrediction?.option.value,
-        },
-        {
-          collisions: result.collisions,
-          empiricalProbability: result.empiricalRate,
-          theoreticalProbability: theoreticalP,
-          intuitionGap: userPrediction?.gap,
-        },
-        trials,
-        duration,
-      );
-    });
+    startTimeRef.current = performance.now();
+    setTargetTrials(trials);
+    runWorkerBirthday({ n, trials, daysInYear: 365 });
   };
 
   // Đặt lại về trạng thái mặc định ban đầu
   const handleReset = () => {
+    if (isSimulatingBatch) {
+      abortWorkerBirthday();
+    }
     setN(23);
     updateUrlParam(23);
     const newRoom = simulateRoom(23);
@@ -379,8 +442,12 @@ export const BirthdaySimulation: React.FC = () => {
                   onChangeN={handleNChange}
                   onRandomizeRoom={handleRandomizeRoom}
                   onRunBatch={handleRunBatch}
+                  onAbortBatch={abortWorkerBirthday}
                   onReset={handleReset}
-                  isSimulatingBatch={isPending}
+                  isSimulatingBatch={isSimulatingBatch}
+                  batchProgress={batchProgress}
+                  completedTrials={workerPartial?.completedTrials}
+                  targetTrials={targetTrials}
                 />
               </div>
 
