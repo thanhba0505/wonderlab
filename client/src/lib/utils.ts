@@ -8,3 +8,9 @@ export function cn(...inputs: ClassValue[]): string {
 export function getApiBaseUrl(): string {
   return process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4101/api/v1';
 }
+
+export function getAppBaseUrl(): string {
+  const rawUrl =
+    process.env.NEXT_PUBLIC_APP_URL || process.env.RENDER_EXTERNAL_URL || 'https://wonderlab.vn';
+  return rawUrl.replace(/\/$/, '');
+}

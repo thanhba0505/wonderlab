@@ -13,6 +13,7 @@ import { CommentSection } from '@/features/simulations/components/comment-sectio
 import { SimulationMathCard } from '@/features/simulations/components/simulation-math-card';
 import { SimulationSection } from '@/features/simulations/components/simulation-section';
 import { SimulationJsonLd } from './SimulationJsonLd';
+import { getAppBaseUrl } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Clock, FlaskConical, Sparkles } from 'lucide-react';
@@ -71,8 +72,7 @@ export default async function SimulationPage({ params }: SimulationPageProps) {
     notFound();
   }
 
-  const rawBaseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://wonderlab.vn';
-  const baseUrl = rawBaseUrl.replace(/\/$/, '');
+  const baseUrl = getAppBaseUrl();
   const canonicalUrl = `${baseUrl}/simulations/${slug}`;
 
   return (
