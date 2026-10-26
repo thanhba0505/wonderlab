@@ -1,3 +1,5 @@
+import { Locale } from '@/i18n';
+import { SIMULATION_LOCALES } from './locales';
 import { SimulationMeta } from './types';
 
 export const SIMULATIONS_REGISTRY: SimulationMeta[] = [
@@ -418,14 +420,55 @@ export const SIMULATIONS_REGISTRY: SimulationMeta[] = [
   },
 ];
 
-export function getSimulationBySlug(slug: string): SimulationMeta | undefined {
-  return SIMULATIONS_REGISTRY.find(sim => sim.slug === slug);
+export function localizeSimulation(sim: SimulationMeta, locale: Locale = 'vi'): SimulationMeta {
+  const loc = SIMULATION_LOCALES[sim.slug]?.[locale];
+  if (!loc) return sim;
+
+  return {
+    ...sim,
+    title: loc.title ?? sim.title,
+    subtitle: loc.subtitle ?? sim.subtitle,
+    summary: loc.summary ?? sim.summary,
+    description: loc.description ?? sim.description,
+    tags: loc.tags ?? sim.tags,
+    hypothesis: sim.hypothesis
+      ? {
+          ...sim.hypothesis,
+          question: loc.hypothesis?.question ?? sim.hypothesis.question,
+          context: loc.hypothesis?.context ?? sim.hypothesis.context,
+          truthExplanation: loc.hypothesis?.truthExplanation ?? sim.hypothesis.truthExplanation,
+          biasName: loc.hypothesis?.biasName ?? sim.hypothesis.biasName,
+          biasDescription: loc.hypothesis?.biasDescription ?? sim.hypothesis.biasDescription,
+          options: sim.hypothesis.options.map(opt => {
+            const locOpt = loc.hypothesis?.options.find(o => o.id === opt.id);
+            return locOpt
+              ? {
+                  ...opt,
+                  label: locOpt.label,
+                  explanation: locOpt.explanation,
+                }
+              : opt;
+          }),
+        }
+      : undefined,
+  };
 }
 
-export function getAllSimulations(): SimulationMeta[] {
-  return SIMULATIONS_REGISTRY;
+export function getSimulationBySlug(
+  slug: string,
+  locale: Locale = 'vi',
+): SimulationMeta | undefined {
+  const sim = SIMULATIONS_REGISTRY.find(item => item.slug === slug);
+  if (!sim) return undefined;
+  return localizeSimulation(sim, locale);
 }
 
-export function getActiveSimulations(): SimulationMeta[] {
-  return SIMULATIONS_REGISTRY.filter(sim => sim.status === 'active');
+export function getAllSimulations(locale: Locale = 'vi'): SimulationMeta[] {
+  return SIMULATIONS_REGISTRY.map(sim => localizeSimulation(sim, locale));
+}
+
+export function getActiveSimulations(locale: Locale = 'vi'): SimulationMeta[] {
+  return SIMULATIONS_REGISTRY.filter(sim => sim.status === 'active').map(sim =>
+    localizeSimulation(sim, locale),
+  );
 }

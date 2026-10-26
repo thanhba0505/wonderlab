@@ -4,6 +4,7 @@ import * as React from 'react';
 import { Sliders, RotateCcw, Sparkles, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { useTranslation } from '@/i18n';
 import { ZenoParameters, calculateOvertakePoint, findPlanckStep } from '../zeno-math';
 
 interface ControlsPanelProps {
@@ -13,6 +14,8 @@ interface ControlsPanelProps {
 }
 
 export function ControlsPanel({ params, onParamsChange, onReset }: ControlsPanelProps) {
+  const { locale } = useTranslation();
+  const isEn = locale === 'en';
   const analytical = calculateOvertakePoint(params);
   const planckStep = findPlanckStep(params);
 
@@ -31,7 +34,7 @@ export function ControlsPanel({ params, onParamsChange, onReset }: ControlsPanel
         <div className="flex items-center gap-2">
           <Sliders className="h-4 w-4 text-violet-600" />
           <h4 className="font-heading text-sm font-bold text-slate-900">
-            Bảng Điều Khiển Tham Số Thí Nghiệm
+            {isEn ? 'Experiment Parameters Control Panel' : 'Bảng Điều Khiển Tham Số Thí Nghiệm'}
           </h4>
         </div>
 
@@ -42,7 +45,7 @@ export function ControlsPanel({ params, onParamsChange, onReset }: ControlsPanel
           className="h-7 text-xs text-slate-500 hover:text-slate-800"
         >
           <RotateCcw className="h-3 w-3 mr-1" />
-          Mặc định
+          {isEn ? 'Reset' : 'Mặc định'}
         </Button>
       </div>
 
@@ -51,7 +54,9 @@ export function ControlsPanel({ params, onParamsChange, onReset }: ControlsPanel
         {/* Achilles Speed */}
         <div className="space-y-1.5 rounded-xl border border-slate-200 bg-slate-50/60 p-3">
           <div className="flex items-center justify-between text-xs">
-            <span className="font-semibold text-slate-700">Vận tốc Achilles (vA):</span>
+            <span className="font-semibold text-slate-700">
+              {isEn ? 'Achilles Speed (vA):' : 'Vận tốc Achilles (vA):'}
+            </span>
             <span className="font-mono font-bold text-amber-600 tabular-nums">
               {params.achillesSpeed} m/s
             </span>
@@ -76,7 +81,9 @@ export function ControlsPanel({ params, onParamsChange, onReset }: ControlsPanel
         {/* Tortoise Speed */}
         <div className="space-y-1.5 rounded-xl border border-slate-200 bg-slate-50/60 p-3">
           <div className="flex items-center justify-between text-xs">
-            <span className="font-semibold text-slate-700">Vận tốc Rùa (vT):</span>
+            <span className="font-semibold text-slate-700">
+              {isEn ? 'Tortoise Speed (vT):' : 'Vận tốc Rùa (vT):'}
+            </span>
             <span className="font-mono font-bold text-emerald-600 tabular-nums">
               {params.tortoiseSpeed} m/s
             </span>
@@ -101,7 +108,9 @@ export function ControlsPanel({ params, onParamsChange, onReset }: ControlsPanel
         {/* Head Start */}
         <div className="space-y-1.5 rounded-xl border border-slate-200 bg-slate-50/60 p-3">
           <div className="flex items-center justify-between text-xs">
-            <span className="font-semibold text-slate-700">Khoảng cách chấp (d0):</span>
+            <span className="font-semibold text-slate-700">
+              {isEn ? 'Head start (d0):' : 'Khoảng cách chấp (d0):'}
+            </span>
             <span className="font-mono font-bold text-blue-600 tabular-nums">
               {params.headStart} m
             </span>
@@ -128,21 +137,27 @@ export function ControlsPanel({ params, onParamsChange, onReset }: ControlsPanel
           {analytical.isOvertakePossible ? (
             <>
               <div className="flex items-center gap-1.5">
-                <span className="text-slate-400">Thời gian bắt kịp T*:</span>
+                <span className="text-slate-400">
+                  {isEn ? 'Overtake time T*:' : 'Thời gian bắt kịp T*:'}
+                </span>
                 <span className="font-bold text-slate-900">
                   {analytical.overtakeTime.toFixed(3)}s
                 </span>
               </div>
               <span className="text-slate-300">•</span>
               <div className="flex items-center gap-1.5">
-                <span className="text-slate-400">Vị trí bắt kịp X*:</span>
+                <span className="text-slate-400">
+                  {isEn ? 'Overtake position X*:' : 'Vị trí bắt kịp X*:'}
+                </span>
                 <span className="font-bold text-slate-900">
                   {analytical.overtakeDistance.toFixed(2)}m
                 </span>
               </div>
               <span className="text-slate-300">•</span>
               <div className="flex items-center gap-1.5">
-                <span className="text-slate-400">Tỷ số công bội (r):</span>
+                <span className="text-slate-400">
+                  {isEn ? 'Common ratio (r):' : 'Tỷ số công bội (r):'}
+                </span>
                 <span className="font-bold text-violet-700">
                   {analytical.speedRatio.toFixed(3)}
                 </span>
@@ -151,7 +166,9 @@ export function ControlsPanel({ params, onParamsChange, onReset }: ControlsPanel
           ) : (
             <div className="flex items-center gap-1 text-rose-600 font-bold">
               <AlertTriangle className="h-4 w-4" />
-              Achilles chạy chậm hơn hoặc bằng Rùa — Không bao giờ bắt kịp!
+              {isEn
+                ? 'Achilles is slower than or equal to Tortoise — Never overtakes!'
+                : 'Achilles chạy chậm hơn hoặc bằng Rùa — Không bao giờ bắt kịp!'}
             </div>
           )}
         </div>
@@ -159,14 +176,16 @@ export function ControlsPanel({ params, onParamsChange, onReset }: ControlsPanel
         {analytical.isOvertakePossible && Number.isFinite(planckStep) && (
           <Badge variant="outline" className="text-xs font-mono text-violet-700 border-violet-200">
             <Sparkles className="mr-1 h-3 w-3" />
-            Giới hạn Planck: Chặng #{planckStep}
+            {isEn ? `Planck limit: Step #${planckStep}` : `Giới hạn Planck: Chặng #${planckStep}`}
           </Badge>
         )}
       </div>
 
       {/* 4. Scenario Presets */}
       <div className="flex flex-wrap items-center gap-2 pt-1 text-xs">
-        <span className="font-semibold text-slate-500">Kịch bản thử nghiệm:</span>
+        <span className="font-semibold text-slate-500">
+          {isEn ? 'Preset scenarios:' : 'Kịch bản thử nghiệm:'}
+        </span>
         <button
           type="button"
           onClick={() =>
@@ -178,7 +197,7 @@ export function ControlsPanel({ params, onParamsChange, onReset }: ControlsPanel
           }
           className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50 shadow-2xs"
         >
-          🏛️ Zeno Hy Lạp (10m/s vs 1m/s, 100m)
+          {isEn ? '🏛️ Greek Zeno (10m/s vs 1m/s, 100m)' : '🏛️ Zeno Hy Lạp (10m/s vs 1m/s, 100m)'}
         </button>
 
         <button
@@ -192,7 +211,9 @@ export function ControlsPanel({ params, onParamsChange, onReset }: ControlsPanel
           }
           className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50 shadow-2xs"
         >
-          ⚡ Rượt đuổi nghẹt thở (12m/s vs 10m/s, 20m)
+          {isEn
+            ? '⚡ Close Chase (12m/s vs 10m/s, 20m)'
+            : '⚡ Rượt đuổi nghẹt thở (12m/s vs 10m/s, 20m)'}
         </button>
 
         <button
@@ -206,7 +227,9 @@ export function ControlsPanel({ params, onParamsChange, onReset }: ControlsPanel
           }
           className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50 shadow-2xs"
         >
-          🏃 Chạy đường dài (15m/s vs 2m/s, 150m)
+          {isEn
+            ? '🏃 Long Distance (15m/s vs 2m/s, 150m)'
+            : '🏃 Chạy đường dài (15m/s vs 2m/s, 150m)'}
         </button>
       </div>
     </div>

@@ -3,6 +3,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { SimulationMeta } from '../types';
+import { getAllSimulations } from '../registry';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Clock, FlaskConical, Sparkles, Search } from 'lucide-react';
@@ -27,8 +28,15 @@ export function SimulationsCatalog({ initialSimulations }: SimulationsCatalogPro
     { id: 'paradox', label: dict.simulations.category_paradox },
   ];
 
+  const localizedSimulations = React.useMemo(() => {
+    if (initialSimulations && locale === 'vi') {
+      return initialSimulations;
+    }
+    return getAllSimulations(locale);
+  }, [initialSimulations, locale]);
+
   const filteredSimulations = React.useMemo(() => {
-    return initialSimulations.filter(sim => {
+    return localizedSimulations.filter(sim => {
       const matchesCategory = selectedCategory === 'all' || sim.category === selectedCategory;
       const q = search.toLowerCase().trim();
       const matchesSearch =
@@ -40,7 +48,7 @@ export function SimulationsCatalog({ initialSimulations }: SimulationsCatalogPro
 
       return matchesCategory && matchesSearch;
     });
-  }, [initialSimulations, selectedCategory, search]);
+  }, [localizedSimulations, selectedCategory, search]);
 
   return (
     <div className="flex flex-col gap-8">

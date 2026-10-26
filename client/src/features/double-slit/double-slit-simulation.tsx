@@ -20,7 +20,8 @@ import {
   IntuitionChallengeCard,
 } from '@/features/simulations/components';
 import { useSimulationTelemetry } from '@/lib/hooks/use-simulation-telemetry';
-import { getSimulationBySlug } from '@/features/simulations/registry';
+import { useSimulationMeta } from '@/features/simulations/hooks';
+import { useTranslation } from '@/i18n';
 import { HypothesisOption } from '@/features/simulations/types';
 import {
   exportToCsv,
@@ -31,7 +32,9 @@ import { Button } from '@/components/ui/button';
 import { FileSpreadsheet, FileJson, Copy, Check, Database, Sparkles, Activity } from 'lucide-react';
 
 export function DoubleSlitSimulation() {
-  const meta = getSimulationBySlug('double-slit');
+  const { locale } = useTranslation();
+  const isEn = locale === 'en';
+  const meta = useSimulationMeta('double-slit');
   const [params, setParams] = React.useState<QuantumParameters>(DEFAULT_QUANTUM_PARAMS);
   const [hits, setHits] = React.useState<number[]>([]);
   const [lastHitY, setLastHitY] = React.useState<number | null>(null);
@@ -198,8 +201,12 @@ export function DoubleSlitSimulation() {
       {/* 1. TITLE CÂU HỎI & CÂU HỎI TRỰC GIÁC */}
       <SimulationSection
         dotColor="amber"
-        title="Khảo Sát Trực Giác Trước Thực Nghiệm"
-        subtitle="Đưa ra dự đoán cá nhân để đo lường khoảng cách giữa trực giác thông thường và toán học xác suất"
+        title={isEn ? 'Pre-experiment Intuition Survey' : 'Khảo Sát Trực Giác Trước Thực Nghiệm'}
+        subtitle={
+          isEn
+            ? 'Make a personal prediction to measure the gap between naive intuition and probability'
+            : 'Đưa ra dự đoán cá nhân để đo lường khoảng cách giữa trực giác thông thường và toán học xác suất'
+        }
       >
         {meta?.hypothesis && (
           <IntuitionChallengeCard
@@ -215,63 +222,83 @@ export function DoubleSlitSimulation() {
       {/* 2. TITLE CHỖ THÍ NGHIỆM & BLOCK THÍ NGHIỆM HỢP NHẤT */}
       <SimulationSection
         dotColor="blue"
-        title="Buồng Thí Nghiệm & Mô Phỏng Trực Quan"
-        subtitle="Màn hứng giao thoa photon, máy đo quan sát khe hẹp và biểu đồ mật độ quang học"
+        title={isEn ? 'Laboratory & Visual Simulation' : 'Buồng Thí Nghiệm & Mô Phỏng Trực Quan'}
+        subtitle={
+          isEn
+            ? 'Photon interference screen, slit observer detector, and optical intensity density'
+            : 'Màn hứng giao thoa photon, máy đo quan sát khe hẹp và biểu đồ mật độ quang học'
+        }
       >
         <SimulationWorkbenchCard
           metricsBar={
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 pb-5 border-b border-slate-200/80">
               <div className="space-y-1">
                 <div className="text-xs font-semibold tracking-wider text-slate-500 uppercase">
-                  Tổng hạt đã bắn
+                  {isEn ? 'Total photons fired' : 'Tổng hạt đã bắn'}
                 </div>
                 <div className="font-mono text-2xl sm:text-3xl font-bold text-slate-900 tabular-nums">
-                  {hits.length.toLocaleString('vi-VN')}
+                  {hits.length.toLocaleString(isEn ? 'en-US' : 'vi-VN')}
                 </div>
                 <div className="text-xs text-slate-500 font-mono">
-                  {isStreaming ? 'Đang bắn liên tục...' : 'Sẵn sàng bắn'}
+                  {isStreaming
+                    ? isEn
+                      ? 'Streaming continuously...'
+                      : 'Đang bắn liên tục...'
+                    : isEn
+                      ? 'Ready to fire'
+                      : 'Sẵn sàng bắn'}
                 </div>
               </div>
 
               <div className="space-y-1 sm:border-l sm:border-slate-200/80 sm:pl-4">
                 <div className="text-xs font-semibold tracking-wider text-slate-500 uppercase">
-                  Trạng thái quan sát
+                  {isEn ? 'Observer State' : 'Trạng thái quan sát'}
                 </div>
                 <div className="font-mono text-xl sm:text-2xl font-bold pt-0.5 text-slate-900">
                   {params.isObserverActive ? (
-                    <span className="text-rose-600">BẬT (Hạt cổ điển)</span>
+                    <span className="text-rose-600">
+                      {isEn ? 'ON (Classical particle)' : 'BẬT (Hạt cổ điển)'}
+                    </span>
                   ) : (
-                    <span className="text-blue-600">TẮT (Giao thoa sóng)</span>
+                    <span className="text-blue-600">
+                      {isEn ? 'OFF (Wave interference)' : 'TẮT (Giao thoa sóng)'}
+                    </span>
                   )}
                 </div>
                 <div className="text-xs text-slate-500 font-sans">
-                  {params.isObserverActive ? 'Hàm sóng đã sụp đổ' : 'Chồng chập 2 khe'}
+                  {params.isObserverActive
+                    ? isEn
+                      ? 'Wave function collapsed'
+                      : 'Hàm sóng đã sụp đổ'
+                    : isEn
+                      ? 'Double-slit superposition'
+                      : 'Chồng chập 2 khe'}
                 </div>
               </div>
 
               <div className="space-y-1 border-t sm:border-t-0 pt-3 sm:pt-0 sm:border-l sm:border-slate-200/80 sm:pl-4">
                 <div className="text-xs font-semibold tracking-wider text-slate-500 uppercase">
-                  Bước sóng ánh sáng (&lambda;)
+                  {isEn ? 'Wavelength (λ)' : 'Bước sóng ánh sáng (λ)'}
                 </div>
                 <div className="font-mono text-2xl sm:text-3xl font-bold text-slate-900 tabular-nums">
                   {Math.round(params.wavelength * 1e9)}{' '}
                   <span className="text-xs font-sans text-slate-400">nm</span>
                 </div>
                 <div className="text-xs text-slate-500 font-mono">
-                  D = {params.screenDistance} m tới màn
+                  D = {params.screenDistance} {isEn ? 'm to screen' : 'm tới màn'}
                 </div>
               </div>
 
               <div className="space-y-1 border-t sm:border-t-0 pt-3 sm:pt-0 sm:border-l sm:border-slate-200/80 sm:pl-4">
                 <div className="text-xs font-semibold tracking-wider text-slate-500 uppercase">
-                  Khoảng cách 2 khe (d)
+                  {isEn ? 'Slit distance (d)' : 'Khoảng cách 2 khe (d)'}
                 </div>
                 <div className="font-mono text-2xl sm:text-3xl font-bold text-slate-900 tabular-nums">
                   {Math.round(params.slitDistance * 1e6)}{' '}
                   <span className="text-xs font-sans text-slate-400">&micro;m</span>
                 </div>
                 <div className="text-xs text-blue-700 font-mono">
-                  Khoảng vân i ={' '}
+                  {isEn ? 'Fringe spacing i =' : 'Khoảng vân i ='}{' '}
                   {(
                     (params.wavelength * params.screenDistance * 1000) /
                     params.slitDistance
@@ -288,37 +315,39 @@ export function DoubleSlitSimulation() {
                 size="sm"
                 onClick={handleExportCsv}
                 className="h-7 gap-1.5 border-slate-300 bg-white font-mono text-xs text-slate-700 hover:bg-slate-50 hover:text-slate-900"
-                title="Tải tệp bảng tính CSV"
+                title={isEn ? 'Export CSV Spreadsheet' : 'Tải tệp bảng tính CSV'}
               >
                 <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-600" />
-                Xuất CSV
+                {isEn ? 'Export CSV' : 'Xuất CSV'}
               </Button>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleExportJson}
                 className="h-7 gap-1.5 border-slate-300 bg-white font-mono text-xs text-slate-700 hover:bg-slate-50 hover:text-slate-900"
-                title="Tải tệp JSON dữ liệu"
+                title={isEn ? 'Export JSON Data' : 'Tải tệp JSON dữ liệu'}
               >
                 <FileJson className="h-3.5 w-3.5 text-blue-600" />
-                Xuất JSON
+                {isEn ? 'Export JSON' : 'Xuất JSON'}
               </Button>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleCopyReport}
                 className="h-7 gap-1.5 border-slate-300 bg-white font-mono text-xs text-slate-700 hover:bg-slate-50 hover:text-slate-900"
-                title="Sao chép báo cáo Markdown"
+                title={isEn ? 'Copy Markdown Report' : 'Sao chép báo cáo Markdown'}
               >
                 {copiedType === 'report' ? (
                   <>
                     <Check className="h-3.5 w-3.5 text-emerald-600" />
-                    <span className="text-emerald-700 font-semibold">Đã chép!</span>
+                    <span className="text-emerald-700 font-semibold">
+                      {isEn ? 'Copied!' : 'Đã chép!'}
+                    </span>
                   </>
                 ) : (
                   <>
                     <Copy className="h-3.5 w-3.5 text-slate-500" />
-                    Chép Báo cáo
+                    {isEn ? 'Copy Report' : 'Chép Báo cáo'}
                   </>
                 )}
               </Button>
@@ -332,23 +361,23 @@ export function DoubleSlitSimulation() {
                 <div className="flex items-center gap-1 text-slate-700">
                   <Database className="h-3.5 w-3.5 text-blue-600" />
                   <span className="font-bold text-blue-700 tabular-nums">
-                    {globalStats.totalTrials.toLocaleString('vi-VN')}
+                    {globalStats.totalTrials.toLocaleString(isEn ? 'en-US' : 'vi-VN')}
                   </span>
-                  <span className="text-slate-400">hạt</span>
+                  <span className="text-slate-400">{isEn ? 'photons' : 'hạt'}</span>
                 </div>
                 <span className="text-slate-300">•</span>
                 <div className="flex items-center gap-1 text-slate-600">
                   <Sparkles className="h-3.5 w-3.5 text-amber-500" />
                   <span className="font-bold text-slate-800 tabular-nums">
-                    {globalStats.totalRuns.toLocaleString('vi-VN')}
+                    {globalStats.totalRuns.toLocaleString(isEn ? 'en-US' : 'vi-VN')}
                   </span>
-                  <span className="text-slate-400">lượt</span>
+                  <span className="text-slate-400">{isEn ? 'runs' : 'lượt'}</span>
                 </div>
               </div>
             ) : (
               <div className="flex items-center gap-2 text-xs text-slate-500">
                 <Activity className="h-3.5 w-3.5 text-blue-600 animate-pulse" />
-                <span>Sẵn sàng thu thập telemetry</span>
+                <span>{isEn ? 'Ready for telemetry' : 'Sẵn sàng thu thập telemetry'}</span>
               </div>
             )
           }
@@ -381,8 +410,12 @@ export function DoubleSlitSimulation() {
       {/* 3. TITLE NHẬT KÝ & NHẬT KÝ THỰC NGHIỆM */}
       <SimulationSection
         dotColor="emerald"
-        title="Nhật Ký Thực Nghiệm"
-        subtitle="Bảng lưu trữ chi tiết các lượt bắn và kết quả thực nghiệm trong phiên nghiên cứu"
+        title={isEn ? 'Experimental Log' : 'Nhật Ký Thực Nghiệm'}
+        subtitle={
+          isEn
+            ? 'Detailed trial history and experiment logs recorded during this session'
+            : 'Bảng lưu trữ chi tiết các lượt bắn và kết quả thực nghiệm trong phiên nghiên cứu'
+        }
       >
         <SimulationHistoryTable runs={history} isLoading={false} />
       </SimulationSection>
@@ -390,8 +423,16 @@ export function DoubleSlitSimulation() {
       {/* 4. TITLE GIẢI THÍCH & GIẢI THÍCH KHOA HỌC */}
       <SimulationSection
         dotColor="blue"
-        title="Giải Thích Khoa Học & Bản Chất Toán Học"
-        subtitle="Giải mã nghịch lý đo lường, tính lưỡng tính sóng - hạt và sự sụp đổ hàm sóng lượng tử"
+        title={
+          isEn
+            ? 'Scientific Explanation & Mathematical Foundation'
+            : 'Giải Thích Khoa Học & Bản Chất Toán Học'
+        }
+        subtitle={
+          isEn
+            ? 'Measurement paradox, wave-particle duality, and quantum wave function collapse'
+            : 'Giải mã nghịch lý đo lường, tính lưỡng tính sóng - hạt và sự sụp đổ hàm sóng lượng tử'
+        }
       >
         <SimulationExplainerCard>
           <QuantumExplainer />

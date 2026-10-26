@@ -15,6 +15,7 @@ import { Badge } from '@/components/ui/badge';
 import { SimulationHypothesisChallenge, HypothesisOption } from '../types';
 import { calculateIntuitionGap, getIntuitionRating } from '../utils/intuition-math';
 import { MathFraction } from './simulation-math-fraction';
+import { useTranslation } from '@/i18n';
 
 interface IntuitionChallengeCardProps {
   challenge: SimulationHypothesisChallenge;
@@ -31,6 +32,9 @@ export function IntuitionChallengeCard({
   onStatusChange,
   className = '',
 }: IntuitionChallengeCardProps) {
+  const { locale } = useTranslation();
+  const isEn = locale === 'en';
+
   const [selectedOption, setSelectedOption] = React.useState<HypothesisOption | null>(null);
   const [hasSubmitted, setHasSubmitted] = React.useState<boolean>(false);
   const [isSkipped, setIsSkipped] = React.useState<boolean>(false);
@@ -108,7 +112,7 @@ export function IntuitionChallengeCard({
     ? calculateIntuitionGap(selectedOption.value, challenge.theoreticalTruth)
     : 0;
   const gapPercentage = gap * 100;
-  const rating = getIntuitionRating(gap);
+  const rating = getIntuitionRating(gap, locale);
 
   const isCardActive = !hasSubmitted && !isSkipped;
 
@@ -124,7 +128,9 @@ export function IntuitionChallengeCard({
           </div>
           <div>
             <h3 className="font-heading text-sm font-extrabold text-slate-900 tracking-tight flex items-center gap-1.5">
-              Thử thách Dự đoán Trực giác (Intuition Challenge)
+              {isEn
+                ? 'Intuition Prediction Challenge'
+                : 'Thử thách Dự đoán Trực giác (Intuition Challenge)'}
             </h3>
           </div>
         </div>
@@ -136,10 +142,10 @@ export function IntuitionChallengeCard({
               size="sm"
               onClick={handleSkip}
               className="h-7 px-2.5 text-xs font-mono text-slate-600 hover:text-slate-900 border-slate-300 bg-white hover:bg-slate-50 gap-1"
-              title="Bỏ qua phần khảo sát trực giác"
+              title={isEn ? 'Skip intuition survey' : 'Bỏ qua phần khảo sát trực giác'}
             >
               <FastForward className="h-3.5 w-3.5 text-slate-400" />
-              Bỏ qua thử thách
+              {isEn ? 'Skip challenge' : 'Bỏ qua thử thách'}
             </Button>
           )}
 
@@ -147,7 +153,17 @@ export function IntuitionChallengeCard({
             variant={hasSubmitted ? 'emerald' : isSkipped ? 'outline' : 'amber'}
             className="text-xs font-mono"
           >
-            {hasSubmitted ? 'Đã dự đoán' : isSkipped ? 'Đã bỏ qua' : 'Khảo sát trước thực nghiệm'}
+            {hasSubmitted
+              ? isEn
+                ? 'Predicted'
+                : 'Đã dự đoán'
+              : isSkipped
+                ? isEn
+                  ? 'Skipped'
+                  : 'Đã bỏ qua'
+                : isEn
+                  ? 'Pre-experiment Survey'
+                  : 'Khảo sát trước thực nghiệm'}
           </Badge>
 
           {(hasSubmitted || isSkipped) && (
@@ -158,7 +174,7 @@ export function IntuitionChallengeCard({
               className="h-6 px-2 text-xs text-slate-500 hover:text-slate-900 font-mono gap-1"
             >
               <RotateCcw className="h-3 w-3" />
-              Đoán lại
+              {isEn ? 'Guess again' : 'Đoán lại'}
             </Button>
           )}
         </div>
@@ -171,8 +187,9 @@ export function IntuitionChallengeCard({
             <div className="flex items-center gap-2">
               <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
               <span>
-                Bạn đã bỏ qua phần khảo sát trực giác. Bạn có thể tự do thao tác các thông số và
-                khảo sát dữ liệu trên buồng thí nghiệm.
+                {isEn
+                  ? 'You skipped the intuition survey. You can freely adjust parameters and observe simulation outcomes in the laboratory.'
+                  : 'Bạn đã bỏ qua phần khảo sát trực giác. Bạn có thể tự do thao tác các thông số và khảo sát dữ liệu trên buồng thí nghiệm.'}
               </span>
             </div>
             <Button
@@ -182,7 +199,7 @@ export function IntuitionChallengeCard({
               className="h-7 text-xs font-mono border-slate-300 bg-white hover:bg-slate-50 text-slate-700 whitespace-nowrap"
             >
               <RotateCcw className="h-3 w-3 mr-1" />
-              Thử làm lại thử thách
+              {isEn ? 'Retry challenge' : 'Thử làm lại thử thách'}
             </Button>
           </div>
         ) : (
@@ -228,7 +245,9 @@ export function IntuitionChallengeCard({
                 <div className="space-y-3 pt-1">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <span className="text-xs font-mono uppercase tracking-wider text-slate-500 font-bold">
-                      Thước đo Độ lệch Trực giác (Intuition Gap Meter)
+                      {isEn
+                        ? 'Intuition Gap Meter'
+                        : 'Thước đo Độ lệch Trực giác (Intuition Gap Meter)'}
                     </span>
                     <Badge variant={rating.badgeVariant} className="gap-1 font-mono text-xs">
                       {rating.tier === 'master' ? (
@@ -246,7 +265,7 @@ export function IntuitionChallengeCard({
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                     <div className="rounded-lg bg-blue-50/60 p-3 border border-blue-200/70 shadow-2xs">
                       <span className="text-xs font-mono text-blue-800 uppercase block font-semibold">
-                        Bạn đã dự đoán:
+                        {isEn ? 'Your Prediction:' : 'Bạn đã dự đoán:'}
                       </span>
                       <div className="flex items-baseline justify-between mt-1">
                         <span className="font-mono text-xl font-extrabold text-blue-700 tabular-nums">
@@ -260,14 +279,14 @@ export function IntuitionChallengeCard({
 
                     <div className="rounded-lg bg-blue-50/60 p-3 border border-blue-200/70 shadow-2xs">
                       <span className="text-xs font-mono text-blue-800 uppercase block font-semibold">
-                        Định lý Toán học Khách quan:
+                        {isEn ? 'Objective Mathematical Truth:' : 'Định lý Toán học Khách quan:'}
                       </span>
                       <div className="flex items-baseline justify-between mt-1">
                         <span className="font-mono text-xl font-extrabold text-blue-700 tabular-nums">
                           {(challenge.theoreticalTruth * 100).toFixed(1)}%
                         </span>
                         <span className="text-xs text-blue-700 font-semibold font-mono">
-                          Chuẩn xác
+                          {isEn ? 'Exact' : 'Chuẩn xác'}
                         </span>
                       </div>
                     </div>
@@ -278,7 +297,8 @@ export function IntuitionChallengeCard({
                     <div className="flex justify-between text-xs font-mono text-slate-500">
                       <span>0%</span>
                       <span className="text-slate-900 font-bold">
-                        Khoảng cách sai lệch: Δ {gapPercentage.toFixed(1)}%
+                        {isEn ? 'Deviation gap: Δ' : 'Khoảng cách sai lệch: Δ'}{' '}
+                        {gapPercentage.toFixed(1)}%
                       </span>
                       <span>100%</span>
                     </div>
@@ -297,7 +317,7 @@ export function IntuitionChallengeCard({
                       <div
                         className="absolute top-0 bottom-0 w-1 bg-blue-900 z-10"
                         style={{ left: `${challenge.theoreticalTruth * 100}%` }}
-                        title={`Định lý: ${(challenge.theoreticalTruth * 100).toFixed(1)}%`}
+                        title={`${isEn ? 'Truth' : 'Định lý'}: ${(challenge.theoreticalTruth * 100).toFixed(1)}%`}
                       />
                     </div>
                   </div>
@@ -307,7 +327,8 @@ export function IntuitionChallengeCard({
                 <div className="border-t border-slate-200/80 pt-4 text-xs text-slate-700 space-y-2.5">
                   <div className="font-heading font-bold text-sm text-slate-900 flex items-center gap-2">
                     <CheckCircle2 className="h-4 w-4 text-amber-600" />
-                    Giải mã Tâm lý Nhận thức: {challenge.biasName}
+                    {isEn ? 'Cognitive Bias Breakdown: ' : 'Giải mã Tâm lý Nhận thức: '}
+                    {challenge.biasName}
                   </div>
                   <p className="font-sans leading-relaxed">{challenge.truthExplanation}</p>
 
@@ -315,7 +336,9 @@ export function IntuitionChallengeCard({
                   <div className="rounded-lg bg-amber-50/30 border border-amber-200/50 p-2.5 font-mono text-xs text-slate-800">
                     {simulationSlug === 'birthday-paradox' && (
                       <div className="flex flex-wrap items-center gap-1.5">
-                        <span className="font-bold text-amber-900">P(Trùng)</span>
+                        <span className="font-bold text-amber-900">
+                          {isEn ? 'P(Collision)' : 'P(Trùng)'}
+                        </span>
                         <span>=</span>
                         <span>1 &minus;</span>
                         <span className="inline-flex items-center">
@@ -330,14 +353,18 @@ export function IntuitionChallengeCard({
                         <span>&asymp;</span>
                         <span className="font-bold text-blue-700">50.73%</span>
                         <span className="text-slate-500 font-sans text-xs ml-1">
-                          (tại n = 23, có 253 cặp đối sánh)
+                          {isEn
+                            ? '(at n = 23, 253 pairwise comparisons)'
+                            : '(tại n = 23, có 253 cặp đối sánh)'}
                         </span>
                       </div>
                     )}
 
                     {simulationSlug === 'monty-hall' && (
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="font-bold text-blue-900">P(Thắng | Đổi)</span>
+                        <span className="font-bold text-blue-900">
+                          {isEn ? 'P(Win | Switch)' : 'P(Thắng | Đổi)'}
+                        </span>
                         <span>=</span>
                         <span>1 &minus;</span>
                         <MathFraction numerator="1" denominator="3" className="text-xs" />
@@ -350,7 +377,9 @@ export function IntuitionChallengeCard({
                         <span className="text-slate-400">&asymp;</span>
                         <span className="font-bold text-blue-700">66.67%</span>
                         <span className="text-slate-300">|</span>
-                        <span className="text-slate-600">P(Thắng | Giữ) =</span>
+                        <span className="text-slate-600">
+                          {isEn ? 'P(Win | Stay) =' : 'P(Thắng | Giữ) ='}
+                        </span>
                         <MathFraction numerator="1" denominator="3" className="text-xs" />
                         <span className="text-slate-400">&asymp; 33.33%</span>
                       </div>
@@ -361,7 +390,7 @@ export function IntuitionChallengeCard({
                         <span className="font-bold text-blue-900">|&Psi;&rang;</span>
                         <span>=</span>
                         <MathFraction numerator="1" denominator="&radic;2" className="text-xs" />
-                        <span>(|Khe 1&rang; + |Khe 2&rang;)</span>
+                        <span>{isEn ? '(|Slit 1⟩ + |Slit 2⟩)' : '(|Khe 1⟩ + |Khe 2⟩)'}</span>
                         <span className="text-slate-300">|</span>
                         <span className="font-bold text-blue-900">i = &Delta;y</span>
                         <span>=</span>
@@ -432,26 +461,31 @@ export function IntuitionChallengeCard({
                         <span className="font-bold text-emerald-700">&rfloor;</span>
                         <span>=</span>
                         <span className="font-bold text-emerald-700">
-                          Tối đa &lfloor;n/3&rfloor; lính gác
+                          {isEn ? 'At most ⌊n/3⌋ guards' : 'Tối đa ⌊n/3⌋ lính gác'}
                         </span>
                       </div>
                     )}
 
                     {simulationSlug === 'prisoners-hats' && (
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="font-bold text-blue-900">P(Đoán đúng)</span>
+                        <span className="font-bold text-blue-900">
+                          {isEn ? 'P(Correct)' : 'P(Đoán đúng)'}
+                        </span>
                         <span>&ge;</span>
                         <MathFraction numerator="n &minus; 1" denominator="n" className="text-xs" />
                         <span>=</span>
                         <span className="font-bold text-emerald-700">
-                          Bảo đảm chắc chắn 9 / 10 người (90% - 95%)
+                          {isEn
+                            ? 'Guaranteed 9 / 10 prisoners (90% - 95%)'
+                            : 'Bảo đảm chắc chắn 9 / 10 người (90% - 95%)'}
                         </span>
                       </div>
                     )}
                   </div>
 
                   <p className="font-sans text-slate-500 text-xs">
-                    <strong>Bản chất cạm bẫy:</strong> {challenge.biasDescription}
+                    <strong>{isEn ? 'Cognitive Bias Nature:' : 'Bản chất cạm bẫy:'}</strong>{' '}
+                    {challenge.biasDescription}
                   </p>
                 </div>
               </div>

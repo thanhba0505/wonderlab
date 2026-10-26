@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { TrendingUp, Infinity as InfinityIcon, ShieldCheck } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { useTranslation } from '@/i18n';
 import { ZenoParameters, ZenoStep, calculateOvertakePoint } from '../zeno-math';
 
 interface GeometricSeriesChartProps {
@@ -18,6 +19,8 @@ export function GeometricSeriesChart({
   currentStepIndex,
   onStepSelect,
 }: GeometricSeriesChartProps) {
+  const { locale } = useTranslation();
+  const isEn = locale === 'en';
   const analytical = calculateOvertakePoint(params);
   const targetT = analytical.overtakeTime;
 
@@ -58,11 +61,14 @@ export function GeometricSeriesChart({
           </div>
           <div>
             <h3 className="font-heading text-base font-bold text-slate-900">
-              Chuỗi Hội Tụ Hình Học: Tổng Vô Hạn = Đại Lượng Hữu Hạn
+              {isEn
+                ? 'Geometric Convergence Series: Infinite Sum = Finite Quantity'
+                : 'Chuỗi Hội Tụ Hình Học: Tổng Vô Hạn = Đại Lượng Hữu Hạn'}
             </h3>
             <p className="text-xs text-slate-500">
-              Minh chứng toán học: Tổng của vô hạn số hạng nhỏ dần hội tụ chính xác về giới hạn{' '}
-              {targetT.toFixed(3)}s
+              {isEn
+                ? `Mathematical proof: The sum of infinitely many shrinking terms converges precisely to ${targetT.toFixed(3)}s`
+                : `Minh chứng toán học: Tổng của vô hạn số hạng nhỏ dần hội tụ chính xác về giới hạn ${targetT.toFixed(3)}s`}
             </p>
           </div>
         </div>
@@ -168,11 +174,17 @@ export function GeometricSeriesChart({
         <table className="w-full border-collapse text-left font-mono text-xs">
           <thead>
             <tr className="border-b border-slate-200 bg-slate-50 text-xs text-slate-500">
-              <th className="py-2 px-3 font-semibold">Chặng (n)</th>
-              <th className="py-2 px-3 font-semibold">Thời gian chặng (Δt)</th>
-              <th className="py-2 px-3 font-semibold">Tổng tích lũy (Sn)</th>
-              <th className="py-2 px-3 font-semibold">Khoảng cách còn lại</th>
-              <th className="py-2 px-3 font-semibold">% Hội tụ</th>
+              <th className="py-2 px-3 font-semibold">{isEn ? 'Step (n)' : 'Chặng (n)'}</th>
+              <th className="py-2 px-3 font-semibold">
+                {isEn ? 'Step time (Δt)' : 'Thời gian chặng (Δt)'}
+              </th>
+              <th className="py-2 px-3 font-semibold">
+                {isEn ? 'Cumulative total (Sn)' : 'Tổng tích lũy (Sn)'}
+              </th>
+              <th className="py-2 px-3 font-semibold">
+                {isEn ? 'Remaining gap' : 'Khoảng cách còn lại'}
+              </th>
+              <th className="py-2 px-3 font-semibold">{isEn ? '% Convergence' : '% Hội tụ'}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
@@ -226,13 +238,29 @@ export function GeometricSeriesChart({
       <div className="flex items-start gap-3 rounded-xl border border-emerald-200/80 bg-emerald-50/70 p-3.5 text-xs text-emerald-900 font-sans leading-relaxed">
         <ShieldCheck className="h-4 w-4 shrink-0 text-emerald-600 mt-0.5" />
         <div>
-          <span className="font-bold font-heading">Định lý Cấp số nhân Lùi vô hạn:</span> Với tỷ số
-          vận tốc công bội $r = v_T / v_A ={' '}
-          {(params.tortoiseSpeed / params.achillesSpeed).toFixed(2)} &lt; 1$, tổng chuỗi vô hạn $1 +
-          r + r^2 + \dots = 1 / (1 - r) = {analytical.convergenceRate.toFixed(2)}$. Do đó, dẫu Zeno
-          có thể chia nhỏ hành trình thành vô số bước toán học, toàn bộ vô số bước ấy diễn ra trọn
-          vẹn trong vỏn vẹn <strong className="font-mono">{targetT.toFixed(2)} giây</strong> ngoài
-          thực tế!
+          <span className="font-bold font-heading">
+            {isEn ? 'Infinite Geometric Series Theorem:' : 'Định lý Cấp số nhân Lùi vô hạn:'}
+          </span>{' '}
+          {isEn ? (
+            <>
+              With common ratio $r = v_T / v_A ={' '}
+              {(params.tortoiseSpeed / params.achillesSpeed).toFixed(2)} &lt; 1$, the infinite
+              series sum is $1 + r + r^2 + \dots = 1 / (1 - r) ={' '}
+              {analytical.convergenceRate.toFixed(2)}$. Thus, even though Zeno can mathematically
+              divide the journey into infinite steps, all infinitely many steps take place within
+              exactly <strong className="font-mono">{targetT.toFixed(2)} seconds</strong> in
+              physical reality!
+            </>
+          ) : (
+            <>
+              Với tỷ số vận tốc công bội $r = v_T / v_A ={' '}
+              {(params.tortoiseSpeed / params.achillesSpeed).toFixed(2)} &lt; 1$, tổng chuỗi vô hạn
+              $1 + r + r^2 + \dots = 1 / (1 - r) = {analytical.convergenceRate.toFixed(2)}$. Do đó,
+              dẫu Zeno có thể chia nhỏ hành trình thành vô số bước toán học, toàn bộ vô số bước ấy
+              diễn ra trọn vẹn trong vỏn vẹn{' '}
+              <strong className="font-mono">{targetT.toFixed(2)} giây</strong> ngoài thực tế!
+            </>
+          )}
         </div>
       </div>
     </div>

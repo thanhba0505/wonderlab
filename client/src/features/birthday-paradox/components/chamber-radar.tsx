@@ -2,6 +2,7 @@
 
 import React, { useMemo } from 'react';
 import { CollisionPair, PersonInRoom } from '../birthday-math';
+import { useTranslation } from '@/i18n';
 
 interface ChamberRadarProps {
   people: PersonInRoom[];
@@ -16,6 +17,8 @@ export const ChamberRadar: React.FC<ChamberRadarProps> = ({
   selectedPersonId,
   onSelectPerson,
 }) => {
+  const { locale } = useTranslation();
+  const isEn = locale === 'en';
   const size = 380;
   const radius = 150;
   const center = size / 2;
@@ -179,11 +182,15 @@ export const ChamberRadar: React.FC<ChamberRadarProps> = ({
       <div className="mt-2 flex items-center justify-between gap-4 text-xs font-mono text-slate-600">
         <span className="flex items-center gap-1.5">
           <span className="h-2 w-2 rounded-full bg-blue-600" />
-          <span>Đối tượng ({people.length})</span>
+          <span>
+            {isEn ? 'People' : 'Đối tượng'} ({people.length})
+          </span>
         </span>
         <span className="flex items-center gap-1.5">
           <span className="h-2 w-2 rounded-full bg-amber-600" />
-          <span>Va chạm ({collisionPairs.length} cặp)</span>
+          <span>
+            {isEn ? 'Collision' : 'Va chạm'} ({collisionPairs.length} {isEn ? 'pairs' : 'cặp'})
+          </span>
         </span>
       </div>
     </div>

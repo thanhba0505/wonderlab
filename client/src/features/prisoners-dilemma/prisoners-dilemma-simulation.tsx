@@ -26,7 +26,8 @@ import {
   IntuitionChallengeCard,
 } from '@/features/simulations/components';
 import { useSimulationTelemetry } from '@/lib/hooks/use-simulation-telemetry';
-import { getSimulationBySlug } from '@/features/simulations/registry';
+import { useSimulationMeta } from '@/features/simulations/hooks';
+import { useTranslation } from '@/i18n';
 import { HypothesisOption } from '@/features/simulations/types';
 import { Move, RoundRecord, StrategyId } from './game-theory-math';
 import {
@@ -38,7 +39,9 @@ import {
 type GameMode = 'duel' | 'tournament';
 
 export function PrisonersDilemmaSimulation() {
-  const meta = getSimulationBySlug('prisoners-dilemma');
+  const { locale } = useTranslation();
+  const isEn = locale === 'en';
+  const meta = useSimulationMeta('prisoners-dilemma');
   const [activeMode, setActiveMode] = React.useState<GameMode>('duel');
   const [lastMove1, setLastMove1] = React.useState<Move | null>(null);
   const [lastMove2, setLastMove2] = React.useState<Move | null>(null);
@@ -191,8 +194,12 @@ export function PrisonersDilemmaSimulation() {
       {/* 1. TITLE CÂU HỎI & CÂU HỎI TRỰC GIÁC */}
       <SimulationSection
         dotColor="amber"
-        title="Khảo Sát Trực Giác Trước Thực Nghiệm"
-        subtitle="Đưa ra dự đoán cá nhân để đo lường khoảng cách giữa trực giác thông thường và toán học xác suất"
+        title={isEn ? 'Pre-experiment Intuition Survey' : 'Khảo Sát Trực Giác Trước Thực Nghiệm'}
+        subtitle={
+          isEn
+            ? 'Make a personal prediction to measure the gap between naive intuition and probability'
+            : 'Đưa ra dự đoán cá nhân để đo lường khoảng cách giữa trực giác thông thường và toán học xác suất'
+        }
       >
         {meta?.hypothesis && (
           <IntuitionChallengeCard
@@ -208,51 +215,61 @@ export function PrisonersDilemmaSimulation() {
       {/* 2. TITLE CHỖ THÍ NGHIỆM & BLOCK THÍ NGHIỆM HỢP NHẤT */}
       <SimulationSection
         dotColor="blue"
-        title="Buồng Thí Nghiệm & Mô Phỏng Trực Quan"
-        subtitle="Không gian đấu trường lý thuyết trò chơi, ma trận thanh toán và giải đấu tiến hóa quần thể Axelrod"
+        title={isEn ? 'Laboratory & Visual Simulation' : 'Buồng Thí Nghiệm & Mô Phỏng Trực Quan'}
+        subtitle={
+          isEn
+            ? 'Game theory arena, payoff matrix, and Axelrod population evolutionary tournament'
+            : 'Không gian đấu trường lý thuyết trò chơi, ma trận thanh toán và giải đấu tiến hóa quần thể Axelrod'
+        }
       >
         <SimulationWorkbenchCard
           metricsBar={
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 pb-5 border-b border-slate-200/80">
               <div className="space-y-1">
                 <div className="text-xs font-semibold tracking-wider text-slate-500 uppercase">
-                  Chế độ thi đấu
+                  {isEn ? 'Game Mode' : 'Chế độ thi đấu'}
                 </div>
                 <div className="font-mono text-xl sm:text-2xl font-bold text-slate-900">
                   {activeMode === 'duel' ? '1-on-1 Duel' : 'Tournament'}
                 </div>
                 <div className="text-xs text-slate-500 font-sans">
-                  {activeMode === 'duel' ? 'Đấu tay đôi đối kháng' : 'Giải đấu tiến hóa Axelrod'}
+                  {activeMode === 'duel'
+                    ? isEn
+                      ? 'Head-to-head match'
+                      : 'Đấu tay đôi đối kháng'
+                    : isEn
+                      ? 'Axelrod evolutionary tournament'
+                      : 'Giải đấu tiến hóa Axelrod'}
                 </div>
               </div>
 
               <div className="space-y-1 sm:border-l sm:border-slate-200/80 sm:pl-4">
                 <div className="text-xs font-semibold tracking-wider text-slate-500 uppercase">
-                  Cân bằng Nash
+                  {isEn ? 'Nash Equilibrium' : 'Cân bằng Nash'}
                 </div>
                 <div className="font-mono text-xl sm:text-2xl font-bold pt-0.5 text-rose-600">
-                  (Phản bội, Phản bội)
+                  {isEn ? '(Defect, Defect)' : '(Phản bội, Phản bội)'}
                 </div>
                 <div className="text-xs text-slate-500 font-sans">
-                  Chiến lược chi phối nghiêm ngặt
+                  {isEn ? 'Strictly dominant strategy' : 'Chiến lược chi phối nghiêm ngặt'}
                 </div>
               </div>
 
               <div className="space-y-1 border-t sm:border-t-0 pt-3 sm:pt-0 sm:border-l sm:border-slate-200/80 sm:pl-4">
                 <div className="text-xs font-semibold tracking-wider text-slate-500 uppercase">
-                  Pareto Tối ưu
+                  {isEn ? 'Pareto Optimum' : 'Pareto Tối ưu'}
                 </div>
                 <div className="font-mono text-xl sm:text-2xl font-bold pt-0.5 text-emerald-600">
-                  (Hợp tác, Hợp tác)
+                  {isEn ? '(Cooperate, Cooperate)' : '(Hợp tác, Hợp tác)'}
                 </div>
                 <div className="text-xs text-slate-500 font-sans">
-                  Lợi ích tập thể cao nhất (+6 điểm)
+                  {isEn ? 'Max collective payoff (+6 pts)' : 'Lợi ích tập thể cao nhất (+6 điểm)'}
                 </div>
               </div>
 
               <div className="space-y-1 border-t sm:border-t-0 pt-3 sm:pt-0 sm:border-l sm:border-slate-200/80 sm:pl-4">
                 <div className="text-xs font-semibold tracking-wider text-slate-500 uppercase">
-                  Số hiệp đã đấu
+                  {isEn ? 'Rounds Played' : 'Số hiệp đã đấu'}
                 </div>
                 <div className="font-mono text-2xl sm:text-3xl font-bold text-slate-900 tabular-nums">
                   {recentRounds.length}
@@ -260,7 +277,9 @@ export function PrisonersDilemmaSimulation() {
                 <div className="text-xs text-slate-500 font-mono">
                   {lastMatchStats
                     ? `P1: ${lastMatchStats.userScore} | P2: ${lastMatchStats.opponentScore}`
-                    : 'Sẵn sàng đấu hiệp'}
+                    : isEn
+                      ? 'Ready for round'
+                      : 'Sẵn sàng đấu hiệp'}
                 </div>
               </div>
             </div>
@@ -272,37 +291,39 @@ export function PrisonersDilemmaSimulation() {
                 size="sm"
                 onClick={handleExportCsv}
                 className="h-7 gap-1.5 border-slate-300 bg-white font-mono text-xs text-slate-700 hover:bg-slate-50 hover:text-slate-900"
-                title="Tải tệp bảng tính CSV"
+                title={isEn ? 'Export CSV Spreadsheet' : 'Tải tệp bảng tính CSV'}
               >
                 <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-600" />
-                Xuất CSV
+                {isEn ? 'Export CSV' : 'Xuất CSV'}
               </Button>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleExportJson}
                 className="h-7 gap-1.5 border-slate-300 bg-white font-mono text-xs text-slate-700 hover:bg-slate-50 hover:text-slate-900"
-                title="Tải tệp JSON dữ liệu"
+                title={isEn ? 'Export JSON Data' : 'Tải tệp JSON dữ liệu'}
               >
                 <FileJson className="h-3.5 w-3.5 text-blue-600" />
-                Xuất JSON
+                {isEn ? 'Export JSON' : 'Xuất JSON'}
               </Button>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleCopyReport}
                 className="h-7 gap-1.5 border-slate-300 bg-white font-mono text-xs text-slate-700 hover:bg-slate-50 hover:text-slate-900"
-                title="Sao chép báo cáo Markdown"
+                title={isEn ? 'Copy Markdown Report' : 'Sao chép báo cáo Markdown'}
               >
                 {copiedType === 'report' ? (
                   <>
                     <Check className="h-3.5 w-3.5 text-emerald-600" />
-                    <span className="text-emerald-700 font-semibold">Đã chép!</span>
+                    <span className="text-emerald-700 font-semibold">
+                      {isEn ? 'Copied!' : 'Đã chép!'}
+                    </span>
                   </>
                 ) : (
                   <>
                     <Copy className="h-3.5 w-3.5 text-slate-500" />
-                    Chép Báo cáo
+                    {isEn ? 'Copy Report' : 'Chép Báo cáo'}
                   </>
                 )}
               </Button>
@@ -316,23 +337,23 @@ export function PrisonersDilemmaSimulation() {
                 <div className="flex items-center gap-1 text-slate-700">
                   <Database className="h-3.5 w-3.5 text-blue-600" />
                   <span className="font-bold text-blue-700 tabular-nums">
-                    {globalStats.totalTrials.toLocaleString('vi-VN')}
+                    {globalStats.totalTrials.toLocaleString(isEn ? 'en-US' : 'vi-VN')}
                   </span>
-                  <span className="text-slate-400">hiệp</span>
+                  <span className="text-slate-400">{isEn ? 'rounds' : 'hiệp'}</span>
                 </div>
                 <span className="text-slate-300">•</span>
                 <div className="flex items-center gap-1 text-slate-600">
                   <Sparkles className="h-3.5 w-3.5 text-amber-500" />
                   <span className="font-bold text-slate-800 tabular-nums">
-                    {globalStats.totalRuns.toLocaleString('vi-VN')}
+                    {globalStats.totalRuns.toLocaleString(isEn ? 'en-US' : 'vi-VN')}
                   </span>
-                  <span className="text-slate-400">trận</span>
+                  <span className="text-slate-400">{isEn ? 'matches' : 'trận'}</span>
                 </div>
               </div>
             ) : (
               <div className="flex items-center gap-2 text-xs text-slate-500">
                 <Activity className="h-3.5 w-3.5 text-blue-600 animate-pulse" />
-                <span>Sẵn sàng thu thập telemetry</span>
+                <span>{isEn ? 'Ready for telemetry' : 'Sẵn sàng thu thập telemetry'}</span>
               </div>
             )
           }
@@ -353,7 +374,7 @@ export function PrisonersDilemmaSimulation() {
                   }`}
                 >
                   <Swords className="h-3.5 w-3.5 text-blue-600" />
-                  1. Đấu tay đôi (1-on-1 Duel)
+                  {isEn ? '1. 1-on-1 Duel' : '1. Đấu tay đôi (1-on-1 Duel)'}
                 </Button>
                 <Button
                   type="button"
@@ -367,7 +388,9 @@ export function PrisonersDilemmaSimulation() {
                   }`}
                 >
                   <Users className="h-3.5 w-3.5 text-emerald-600" />
-                  2. Tiến hóa Quần thể (Axelrod Tournament)
+                  {isEn
+                    ? '2. Population Evolution (Axelrod)'
+                    : '2. Tiến hóa Quần thể (Axelrod Tournament)'}
                 </Button>
               </div>
 
@@ -377,7 +400,9 @@ export function PrisonersDilemmaSimulation() {
                   className="text-xs font-mono border-slate-300 text-slate-600"
                 >
                   <Sparkles className="mr-1 h-3 w-3 text-amber-500" />
-                  Cân bằng Nash: (Phản bội, Phản bội)
+                  {isEn
+                    ? 'Nash Equilibrium: (Defect, Defect)'
+                    : 'Cân bằng Nash: (Phản bội, Phản bội)'}
                 </Badge>
               </div>
             </div>
@@ -405,8 +430,12 @@ export function PrisonersDilemmaSimulation() {
       {/* 3. TITLE NHẬT KÝ & NHẬT KÝ THỰC NGHIỆM */}
       <SimulationSection
         dotColor="emerald"
-        title="Nhật Ký Thực Nghiệm"
-        subtitle="Bảng lưu trữ chi tiết các lượt chơi và kết quả thực nghiệm trong phiên nghiên cứu"
+        title={isEn ? 'Experimental Log' : 'Nhật Ký Thực Nghiệm'}
+        subtitle={
+          isEn
+            ? 'Detailed trial history and experiment logs recorded during this session'
+            : 'Bảng lưu trữ chi tiết các lượt chơi và kết quả thực nghiệm trong phiên nghiên cứu'
+        }
       >
         <SimulationHistoryTable runs={history} isLoading={false} />
       </SimulationSection>
@@ -414,8 +443,16 @@ export function PrisonersDilemmaSimulation() {
       {/* 4. TITLE GIẢI THÍCH & GIẢI THÍCH KHOA HỌC */}
       <SimulationSection
         dotColor="blue"
-        title="Giải Thích Khoa Học & Bản Chất Toán Học"
-        subtitle="Bóc tách cân bằng Nash, thế kẹt Pareto và nguồn gốc sự hợp tác trong trò chơi lặp vô hạn"
+        title={
+          isEn
+            ? 'Scientific Explanation & Mathematical Foundation'
+            : 'Giải Thích Khoa Học & Bản Chất Toán Học'
+        }
+        subtitle={
+          isEn
+            ? 'Deconstructing Nash equilibrium, Pareto dilemmas, and the emergence of cooperation in iterated games'
+            : 'Bóc tách cân bằng Nash, thế kẹt Pareto và nguồn gốc sự hợp tác trong trò chơi lặp vô hạn'
+        }
       >
         <SimulationExplainerCard>
           <StrategyExplainer />
