@@ -1,3 +1,5 @@
+import { getActiveLocale } from '@/i18n';
+
 export interface CommentAuthor {
   id: string;
   username: string;
@@ -25,6 +27,7 @@ export async function fetchSimulationComments(slug: string): Promise<SimulationC
       method: 'GET',
       headers: {
         Accept: 'application/json',
+        'Accept-Language': getActiveLocale(),
       },
       credentials: 'include',
     });
@@ -61,6 +64,7 @@ export async function postSimulationComment(
       headers: {
         'Content-Type': 'application/json',
         Accept: 'application/json',
+        'Accept-Language': getActiveLocale(),
       },
       credentials: 'include',
       body: JSON.stringify({
@@ -111,6 +115,7 @@ export async function deleteSimulationComment(
       method: 'DELETE',
       headers: {
         Accept: 'application/json',
+        'Accept-Language': getActiveLocale(),
       },
       credentials: 'include',
     });

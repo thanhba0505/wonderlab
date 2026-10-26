@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { I18nModule } from './i18n/i18n.module';
 import { HealthModule } from './health/health.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { UsersModule } from './users/users.module';
@@ -21,6 +22,7 @@ import { SimulationRequestsModule } from './simulation-requests/simulation-reque
         limit: 100,
       },
     ]),
+    I18nModule,
     PrismaModule,
     UsersModule,
     AuthModule,

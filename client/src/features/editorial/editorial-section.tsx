@@ -5,8 +5,12 @@ import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Quote, Atom, ArrowUpRight } from 'lucide-react';
 import { ESSAYS } from './essays-data';
+import { useTranslation } from '@/i18n';
 
 export function EditorialSection() {
+  const { locale } = useTranslation();
+  const isEn = locale === 'en';
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 xl:gap-8">
       {ESSAYS.map((article, idx) => {
@@ -28,10 +32,11 @@ export function EditorialSection() {
                 <div className="flex items-center justify-between text-xs text-slate-500">
                   <span className="flex items-center gap-1.5 font-mono text-blue-700 font-bold">
                     <Atom className="h-3.5 w-3.5" />
-                    Tiểu luận #{article.issueNumber || `0${idx + 1}`}
+                    {isEn ? 'Essay #' : 'Tiểu luận #'}
+                    {article.issueNumber || `0${idx + 1}`}
                   </span>
                   <span className="font-mono text-slate-400">
-                    {article.readTimeMinutes} phút đọc
+                    {article.readTimeMinutes} {isEn ? 'min read' : 'phút đọc'}
                   </span>
                 </div>
 
@@ -55,7 +60,7 @@ export function EditorialSection() {
                   </div>
 
                   <div className="flex items-center text-xs font-bold text-slate-600 group-hover:text-blue-700 transition-colors">
-                    <span>Đọc toàn bộ tiểu luận</span>
+                    <span>{isEn ? 'Read full essay' : 'Đọc toàn bộ tiểu luận'}</span>
                     <ArrowUpRight className="h-3.5 w-3.5 ml-1 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                   </div>
                 </div>

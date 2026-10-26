@@ -14,8 +14,11 @@ import {
   Sparkles,
   RefreshCw,
 } from 'lucide-react';
+import { useTranslation } from '@/i18n';
 
 export function CategoryGrid() {
+  const { locale } = useTranslation();
+  const isEn = locale === 'en';
   // Mini interactive state for Tile 1: Double-slit mode
   const [slitsMode, setSlitsMode] = React.useState<'single' | 'double'>('double');
 
@@ -53,21 +56,24 @@ export function CategoryGrid() {
               </div>
               <div>
                 <CardTitle className="text-xl font-heading font-extrabold text-slate-900 group-hover:text-blue-700 transition-colors">
-                  Khoa học Thực nghiệm & Quang học
+                  {isEn ? 'Experimental Physics & Optics' : 'Khoa học Thực nghiệm & Quang học'}
                 </CardTitle>
                 <p className="text-xs font-mono text-blue-700/80 mt-0.5 font-medium">
-                  Vật lý lượng tử, sóng & dao động
+                  {isEn
+                    ? 'Quantum mechanics, wave interference & light'
+                    : 'Vật lý lượng tử, sóng & dao động'}
                 </p>
               </div>
             </div>
-            <Badge variant="cyan">4 THÍ NGHIỆM TRỰC QUAN</Badge>
+            <Badge variant="cyan">{isEn ? '4 VISUAL EXPERIMENTS' : '4 THÍ NGHIỆM TRỰC QUAN'}</Badge>
           </div>
         </CardHeader>
 
         <CardContent className="space-y-5 relative z-10">
           <CardDescription className="text-sm text-slate-600 leading-relaxed max-w-2xl font-sans">
-            Quan sát tính chất lưỡng tính sóng - hạt của photon, hiện tượng khúc xạ ánh sáng và giao
-            thoa lượng tử khi có hoặc không có người quan sát.
+            {isEn
+              ? 'Observe wave-particle duality of photons, refraction, and quantum wave collapse with and without active measurement.'
+              : 'Quan sát tính chất lưỡng tính sóng - hạt của photon, hiện tượng khúc xạ ánh sáng và giao thoa lượng tử khi có hoặc không có người quan sát.'}
           </CardDescription>
 
           {/* Micro Interactive: Double Slit Wave Visualizer - Borderless grouping container */}
@@ -75,7 +81,9 @@ export function CategoryGrid() {
             <div className="flex items-center justify-between text-xs">
               <span className="font-mono text-slate-800 flex items-center gap-1.5 font-bold">
                 <Sparkles className="h-3.5 w-3.5 text-blue-600" />
-                Mô hình Giao thoa Khe đôi (Young Experiment):
+                {isEn
+                  ? 'Double Slit Model (Young Experiment):'
+                  : 'Mô hình Giao thoa Khe đôi (Young Experiment):'}
               </span>
               <div className="flex items-center gap-2">
                 <button
@@ -87,7 +95,7 @@ export function CategoryGrid() {
                       : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-100'
                   }`}
                 >
-                  1 Khe hẹp
+                  {isEn ? '1 Slit' : '1 Khe hẹp'}
                 </button>
                 <button
                   type="button"
@@ -98,7 +106,7 @@ export function CategoryGrid() {
                       : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-100'
                   }`}
                 >
-                  2 Khe (Giao thoa)
+                  {isEn ? '2 Slits (Interference)' : '2 Khe (Giao thoa)'}
                 </button>
               </div>
             </div>
@@ -129,11 +137,15 @@ export function CategoryGrid() {
             </div>
 
             <div className="flex items-center justify-between text-xs font-mono text-slate-500">
-              <span>Nguồn Laser λ = 532nm</span>
+              <span>{isEn ? 'Laser Source λ = 532nm' : 'Nguồn Laser λ = 532nm'}</span>
               <span className="text-blue-700 font-semibold">
                 {slitsMode === 'double'
-                  ? 'Vân giao thoa sáng/tối rõ nét (Tính chất Sóng)'
-                  : 'Vệt phân bố hạt đơn trục'}
+                  ? isEn
+                    ? 'Clear interference fringes (Wave properties)'
+                    : 'Vân giao thoa sáng/tối rõ nét (Tính chất Sóng)'
+                  : isEn
+                    ? 'Single particle distribution'
+                    : 'Vệt phân bố hạt đơn trục'}
               </span>
             </div>
           </div>
@@ -142,7 +154,9 @@ export function CategoryGrid() {
             href="/simulations/double-slit"
             className="flex items-center text-xs font-bold text-blue-600 group-hover:text-blue-700 transition-colors"
           >
-            <span>Khám phá phòng thí nghiệm quang học</span>
+            <span>
+              {isEn ? 'Explore Optics Laboratory' : 'Khám phá phòng thí nghiệm quang học'}
+            </span>
             <ArrowRight className="h-4 w-4 ml-1.5 transition-transform group-hover:translate-x-1" />
           </Link>
         </CardContent>
@@ -158,29 +172,30 @@ export function CategoryGrid() {
               <div className="p-2.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-700">
                 <Dice5 className="h-6 w-6" />
               </div>
-              <Badge variant="amber">5 MÔ PHỎNG</Badge>
+              <Badge variant="amber">{isEn ? '5 SIMULATIONS' : '5 MÔ PHỎNG'}</Badge>
             </div>
             <div>
               <CardTitle className="text-lg font-heading font-extrabold text-slate-900 group-hover:text-amber-800 transition-colors">
-                Xác suất & Thống kê
+                {isEn ? 'Probability & Statistics' : 'Xác suất & Thống kê'}
               </CardTitle>
               <p className="text-xs font-mono text-amber-700 mt-0.5 font-medium">
-                Nơi trực giác dễ bị đánh lừa
+                {isEn ? 'Where human intuition fails' : 'Nơi trực giác dễ bị đánh lừa'}
               </p>
             </div>
           </CardHeader>
 
           <CardContent className="space-y-4">
             <CardDescription className="text-sm text-slate-600 leading-relaxed font-sans">
-              Nghịch lý ngày sinh nhật, tung xúc xắc và định lý giới hạn trung tâm qua mô phỏng
-              Monte Carlo sống động.
+              {isEn
+                ? 'Birthday paradox, dice distributions, and Central Limit Theorem verified through empirical Monte Carlo trials.'
+                : 'Nghịch lý ngày sinh nhật, tung xúc xắc và định lý giới hạn trung tâm qua mô phỏng Monte Carlo sống động.'}
             </CardDescription>
 
             {/* Micro Interactive: Dice Roller - Borderless grouping container */}
             <div className="rounded-xl bg-slate-100/70 p-3.5 space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-mono text-slate-800 font-semibold">
-                  Tung 2 Xúc xắc:
+                  {isEn ? 'Roll 2 Dice:' : 'Tung 2 Xúc xắc:'}
                 </span>
                 <Button
                   size="sm"
@@ -189,7 +204,7 @@ export function CategoryGrid() {
                   className="h-7 text-xs border-amber-300 text-amber-800 hover:bg-amber-50"
                 >
                   <RefreshCw className="h-3 w-3 mr-1" />
-                  Tung ngay
+                  {isEn ? 'Roll Now' : 'Tung ngay'}
                 </Button>
               </div>
 
@@ -208,7 +223,9 @@ export function CategoryGrid() {
               </div>
 
               <div className="text-xs font-mono text-center text-slate-500">
-                Tổng 7 có xác suất xuất hiện cao nhất:{' '}
+                {isEn
+                  ? 'Sum 7 has the highest probability: '
+                  : 'Tổng 7 có xác suất xuất hiện cao nhất: '}
                 <span className="text-amber-700 font-bold">16.67% (6/36)</span>
               </div>
             </div>
@@ -220,7 +237,7 @@ export function CategoryGrid() {
             href="/simulations/birthday-paradox"
             className="flex items-center text-xs font-bold text-amber-700 group-hover:text-amber-800 transition-colors"
           >
-            <span>Trải nghiệm Nghịch lý Ngày sinh</span>
+            <span>{isEn ? 'Experience Birthday Paradox' : 'Trải nghiệm Nghịch lý Ngày sinh'}</span>
             <ArrowRight className="h-4 w-4 ml-1.5 transition-transform group-hover:translate-x-1" />
           </Link>
         </div>
@@ -236,30 +253,35 @@ export function CategoryGrid() {
               <div className="p-2.5 rounded-xl bg-violet-50 border border-violet-200 text-violet-700">
                 <InfinityIcon className="h-6 w-6" />
               </div>
-              <Badge variant="violet">6 NGHỊCH LÝ</Badge>
+              <Badge variant="violet">{isEn ? '6 PARADOXES' : '6 NGHỊCH LÝ'}</Badge>
             </div>
             <div>
               <CardTitle className="text-lg font-heading font-extrabold text-slate-900 group-hover:text-violet-700 transition-colors">
-                Nghịch lý Tư duy
+                {isEn ? 'Cognitive Paradoxes' : 'Nghịch lý Tư duy'}
               </CardTitle>
               <p className="text-xs font-mono text-violet-700 mt-0.5 font-medium">
-                Những hiện tượng phản trực giác
+                {isEn ? 'Counter-intuitive phenomena' : 'Những hiện tượng phản trực giác'}
               </p>
             </div>
           </CardHeader>
 
           <CardContent className="space-y-4">
             <CardDescription className="text-sm text-slate-600 leading-relaxed font-sans">
-              Khám phá con tàu Theseus về bản sắc, Nghịch lý Zeno về bước chân vô tận của Achilles,
-              và nghịch lý Fermi về sự im lặng của vũ trụ.
+              {isEn
+                ? "Explore the Ship of Theseus on identity, Zeno's paradox on infinite space, and the Fermi paradox on cosmic silence."
+                : 'Khám phá con tàu Theseus về bản sắc, Nghịch lý Zeno về bước chân vô tận của Achilles, và nghịch lý Fermi về sự im lặng của vũ trụ.'}
             </CardDescription>
 
             <div className="rounded-xl bg-slate-100/70 border-l-4 border-l-violet-600 p-3.5 text-xs font-mono space-y-1.5">
-              <div className="text-violet-800 font-bold">Achilles & Con Rùa (Zeno):</div>
+              <div className="text-violet-800 font-bold">
+                {isEn ? 'Achilles & the Tortoise (Zeno):' : 'Achilles & Con Rùa (Zeno):'}
+              </div>
               <div className="text-slate-600 text-xs leading-relaxed">
-                Khoảng cách: 100m → 50m → 25m → ...
+                {isEn ? 'Distance: 100m → 50m → 25m → ...' : 'Khoảng cách: 100m → 50m → 25m → ...'}
                 <br />
-                Chuỗi vô hạn: Σ (1/2)^n = 1 (Hội tụ hữu hạn)
+                {isEn
+                  ? 'Infinite series: Σ (1/2)^n = 1 (Finite convergence)'
+                  : 'Chuỗi vô hạn: Σ (1/2)^n = 1 (Hội tụ hữu hạn)'}
               </div>
             </div>
           </CardContent>
@@ -270,7 +292,7 @@ export function CategoryGrid() {
             href="/simulations/zeno-paradox"
             className="flex items-center text-xs font-bold text-violet-700 group-hover:text-violet-800 transition-colors"
           >
-            <span>Đi sâu vào các nghịch lý</span>
+            <span>{isEn ? 'Explore Deep Paradoxes' : 'Đi sâu vào các nghịch lý'}</span>
             <ArrowRight className="h-4 w-4 ml-1.5 transition-transform group-hover:translate-x-1" />
           </Link>
         </div>
@@ -288,29 +310,35 @@ export function CategoryGrid() {
               </div>
               <div>
                 <CardTitle className="text-xl font-heading font-extrabold text-slate-900 group-hover:text-emerald-700 transition-colors">
-                  Lý thuyết Trò chơi & Nhận thức
+                  {isEn ? 'Game Theory & Strategic Cognition' : 'Lý thuyết Trò chơi & Nhận thức'}
                 </CardTitle>
                 <p className="text-xs font-mono text-emerald-700 mt-0.5 font-medium">
-                  Cân bằng Nash, Song đề Tù nhân & Chiến lược tiến hóa
+                  {isEn
+                    ? "Nash equilibrium, Prisoner's Dilemma & Evolutionary Cooperation"
+                    : 'Cân bằng Nash, Song đề Tù nhân & Chiến lược tiến hóa'}
                 </p>
               </div>
             </div>
-            <Badge variant="emerald">3 TÌNH HUỐNG TƯƠNG TÁC</Badge>
+            <Badge variant="emerald">
+              {isEn ? '3 INTERACTIVE SCENARIOS' : '3 TÌNH HUỐNG TƯƠNG TÁC'}
+            </Badge>
           </div>
         </CardHeader>
 
         <CardContent className="space-y-4">
           <CardDescription className="text-sm text-slate-600 leading-relaxed max-w-2xl font-sans">
-            Tại sao hai người duy lý lại đưa ra kết quả tồi tệ cho cả hai? Khám phá ma trận trả giá
-            (payoff matrix) và cách chiến lược &ldquo;Ăn miếng trả miếng&rdquo; (Tit for Tat) tạo
-            dựng sự hợp tác.
+            {isEn
+              ? "Why do two rational agents end up with suboptimal outcomes? Explore payoff matrices and how 'Tit for Tat' cultivates robust cooperation."
+              : 'Tại sao hai người duy lý lại đưa ra kết quả tồi tệ cho cả hai? Khám phá ma trận trả giá (payoff matrix) và cách chiến lược “Ăn miếng trả miếng” (Tit for Tat) tạo dựng sự hợp tác.'}
           </CardDescription>
 
           {/* Micro Interactive: Prisoner's Dilemma - Borderless container with left-accent outcome cards */}
           <div className="rounded-xl bg-slate-100/70 p-4 space-y-3">
             <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
               <span className="font-mono text-slate-800 font-bold">
-                Chọn nước đi của bạn trong Song đề Tù nhân:
+                {isEn
+                  ? "Select your move in Prisoner's Dilemma:"
+                  : 'Chọn nước đi của bạn trong Song đề Tù nhân:'}
               </span>
               <div className="flex gap-2">
                 <button
@@ -322,7 +350,7 @@ export function CategoryGrid() {
                       : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-100'
                   }`}
                 >
-                  Hợp tác (Cooperate)
+                  {isEn ? 'Cooperate' : 'Hợp tác (Cooperate)'}
                 </button>
                 <button
                   type="button"
@@ -333,7 +361,7 @@ export function CategoryGrid() {
                       : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-100'
                   }`}
                 >
-                  Phản bội (Defect)
+                  {isEn ? 'Defect' : 'Phản bội (Defect)'}
                 </button>
               </div>
             </div>
@@ -347,15 +375,21 @@ export function CategoryGrid() {
                     : 'border-l-4 border-l-slate-300 opacity-80'
                 }`}
               >
-                <div className="font-bold text-slate-900">Nếu đối phương cũng Hợp tác:</div>
+                <div className="font-bold text-slate-900">
+                  {isEn ? 'If opponent Cooperates:' : 'Nếu đối phương cũng Hợp tác:'}
+                </div>
                 <div
                   className={`mt-1 font-semibold ${
                     prisonerChoice === 'cooperate' ? 'text-emerald-700' : 'text-slate-600'
                   }`}
                 >
                   {prisonerChoice === 'cooperate'
-                    ? 'Mỗi người ngồi tù 1 năm (Tối ưu chung)'
-                    : 'Bạn được tha bổng, đối phương 5 năm!'}
+                    ? isEn
+                      ? '1 year each (Social optimum)'
+                      : 'Mỗi người ngồi tù 1 năm (Tối ưu chung)'
+                    : isEn
+                      ? 'You walk free, opponent gets 5 years!'
+                      : 'Bạn được tha bổng, đối phương 5 năm!'}
                 </div>
               </div>
 
@@ -366,15 +400,21 @@ export function CategoryGrid() {
                     : 'border-l-4 border-l-slate-300 opacity-80'
                 }`}
               >
-                <div className="font-bold text-slate-900">Nếu đối phương Phản bội:</div>
+                <div className="font-bold text-slate-900">
+                  {isEn ? 'If opponent Defects:' : 'Nếu đối phương Phản bội:'}
+                </div>
                 <div
                   className={`mt-1 font-semibold ${
                     prisonerChoice === 'defect' ? 'text-red-700' : 'text-slate-600'
                   }`}
                 >
                   {prisonerChoice === 'defect'
-                    ? 'Mỗi người 3 năm tù (Điểm Cân bằng Nash)'
-                    : 'Bạn lãnh đủ 5 năm, đối phương được tha!'}
+                    ? isEn
+                      ? '3 years each (Nash Equilibrium)'
+                      : 'Mỗi người 3 năm tù (Điểm Cân bằng Nash)'
+                    : isEn
+                      ? 'You serve 5 years, opponent walks free!'
+                      : 'Bạn lãnh đủ 5 năm, đối phương được tha!'}
                 </div>
               </div>
             </div>
@@ -384,7 +424,9 @@ export function CategoryGrid() {
             href="/simulations/prisoners-dilemma"
             className="flex items-center text-xs font-bold text-emerald-700 group-hover:text-emerald-800 transition-colors"
           >
-            <span>Khám phá các thế cờ lý thuyết trò chơi</span>
+            <span>
+              {isEn ? 'Explore Game Theory Simulations' : 'Khám phá các thế cờ lý thuyết trò chơi'}
+            </span>
             <ArrowRight className="h-4 w-4 ml-1.5 transition-transform group-hover:translate-x-1" />
           </Link>
         </CardContent>

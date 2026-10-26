@@ -2,15 +2,19 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Dices, Play, RotateCcw } from 'lucide-react';
+import { Activity, Dices, Play, RotateCcw, Sparkles, Square } from 'lucide-react';
 
 interface ControlsPanelProps {
   n: number;
   onChangeN: (n: number) => void;
   onRandomizeRoom: () => void;
   onRunBatch: (trials: number) => void;
+  onAbortBatch?: () => void;
   onReset: () => void;
   isSimulatingBatch: boolean;
+  batchProgress?: number;
+  completedTrials?: number;
+  targetTrials?: number;
 }
 
 export const ControlsPanel: React.FC<ControlsPanelProps> = ({
@@ -18,8 +22,12 @@ export const ControlsPanel: React.FC<ControlsPanelProps> = ({
   onChangeN,
   onRandomizeRoom,
   onRunBatch,
+  onAbortBatch,
   onReset,
   isSimulatingBatch,
+  batchProgress = 0,
+  completedTrials = 0,
+  targetTrials = 0,
 }) => {
   return (
     <div className="flex flex-col gap-4">
@@ -83,25 +91,54 @@ export const ControlsPanel: React.FC<ControlsPanelProps> = ({
           Sinh phòng mới
         </Button>
 
-        <Button
-          variant="outline"
-          onClick={() => onRunBatch(1000)}
-          disabled={isSimulatingBatch}
-          className="border-slate-300 hover:bg-slate-100 active:scale-[0.98]"
-        >
-          <Play className="mr-1.5 h-3.5 w-3.5 text-emerald-600" />
-          Chạy 1.000 phòng
-        </Button>
+        {isSimulatingBatch ? (
+          <Button
+            variant="outline"
+            onClick={onAbortBatch}
+            className="border-red-300 bg-red-50 text-red-700 hover:bg-red-100 hover:text-red-800 active:scale-[0.98]"
+          >
+            <Square className="mr-1.5 h-3.5 w-3.5 fill-current text-red-600" />
+            Hủy / Dừng lại
+          </Button>
+        ) : (
+          <>
+            <Button
+              variant="outline"
+              onClick={() => onRunBatch(10000)}
+              className="border-slate-300 hover:bg-slate-100 active:scale-[0.98]"
+            >
+              <Play className="mr-1.5 h-3.5 w-3.5 text-blue-600" />
+              Chạy 10.000 phòng
+            </Button>
 
-        <Button
-          variant="outline"
-          onClick={() => onRunBatch(10000)}
-          disabled={isSimulatingBatch}
-          className="border-slate-300 hover:bg-slate-100 active:scale-[0.98]"
-        >
-          <Play className="mr-1.5 h-3.5 w-3.5 text-blue-600" />
-          Chạy 10.000 phòng
-        </Button>
+            <Button
+              variant="outline"
+              onClick={() => onRunBatch(50000)}
+              className="border-slate-300 hover:bg-slate-100 active:scale-[0.98]"
+            >
+              <Play className="mr-1.5 h-3.5 w-3.5 text-amber-600" />
+              Chạy 50.000 phòng
+            </Button>
+
+            <Button
+              variant="outline"
+              onClick={() => onRunBatch(100000)}
+              className="border-slate-300 hover:bg-slate-100 active:scale-[0.98]"
+            >
+              <Play className="mr-1.5 h-3.5 w-3.5 text-emerald-600" />
+              Chạy 100.000 phòng
+            </Button>
+
+            <Button
+              variant="outline"
+              onClick={() => onRunBatch(200000)}
+              className="border-slate-300 hover:bg-slate-100 active:scale-[0.98]"
+            >
+              <Sparkles className="mr-1.5 h-3.5 w-3.5 text-purple-600" />
+              Chạy 200.000 phòng
+            </Button>
+          </>
+        )}
 
         <Button
           variant="ghost"
@@ -113,6 +150,28 @@ export const ControlsPanel: React.FC<ControlsPanelProps> = ({
           Đặt lại
         </Button>
       </div>
+
+      {/* Lab Progress Bar */}
+      {isSimulatingBatch && (
+        <div className="flex flex-col gap-1.5 p-3 rounded-lg bg-blue-50/70 border border-blue-200/80">
+          <div className="flex items-center justify-between text-xs">
+            <span className="font-medium text-slate-800 flex items-center gap-1.5">
+              <Activity className="h-3.5 w-3.5 animate-pulse text-blue-600" />
+              Tiến độ mô phỏng Monte Carlo:
+            </span>
+            <span className="font-mono tabular-nums font-bold text-blue-700">
+              {batchProgress}% ({completedTrials.toLocaleString('vi-VN')} /{' '}
+              {targetTrials.toLocaleString('vi-VN')} phòng)
+            </span>
+          </div>
+          <div className="h-2 w-full bg-blue-100 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-blue-600 rounded-full transition-all duration-150 ease-out"
+              style={{ width: `${batchProgress}%` }}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

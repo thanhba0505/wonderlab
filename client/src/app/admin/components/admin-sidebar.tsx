@@ -24,6 +24,7 @@ import {
 import { AppButton } from '@/components/ui';
 import { BrandLogo } from '@/components/ui/brand-logo';
 import { AuthUser } from '@/types';
+import { useTranslation } from '@/i18n';
 
 export type AdminViewType = 'dashboard' | 'simulations' | 'users' | 'comments' | 'settings';
 
@@ -56,6 +57,7 @@ export interface NavGroup {
 
 export function AdminSidebar({ user, onLogout }: AdminSidebarProps) {
   const pathname = usePathname();
+  const { dict } = useTranslation();
   const [isMobileOpen, setIsMobileOpen] = React.useState(false);
   const [isCollapsed, setIsCollapsed] = React.useState(false);
   const [hoveredTooltip, setHoveredTooltip] = React.useState<{
@@ -97,13 +99,13 @@ export function AdminSidebar({ user, onLogout }: AdminSidebarProps) {
         items: [
           {
             id: 'account-overview',
-            label: 'Tổng quan Cá nhân',
+            label: dict.admin_nav.personal_overview,
             href: '/my-account',
             icon: LayoutDashboard,
           },
           {
             id: 'account-profile',
-            label: 'Hồ sơ & Bảo mật',
+            label: dict.admin_nav.personal_profile,
             href: '/my-account/profile',
             icon: KeyRound,
           },
@@ -117,43 +119,51 @@ export function AdminSidebar({ user, onLogout }: AdminSidebarProps) {
         items: [
           {
             id: 'dashboard',
-            label: 'Tổng quan Hệ thống',
+            label: dict.admin_nav.system_dashboard,
             href: '/admin',
             icon: Shield,
           },
           {
             id: 'simulations',
-            label: 'Cài đặt Thí nghiệm',
+            label: dict.admin_nav.system_simulations,
             href: '/admin/simulations',
             icon: FlaskConical,
           },
           {
             id: 'requests',
-            label: 'Đề xuất Thí nghiệm',
+            label: dict.admin_nav.system_requests,
             href: '/admin/requests',
             icon: Lightbulb,
           },
           {
             id: 'users',
-            label: 'Quản lý Người dùng',
+            label: dict.admin_nav.system_users,
             href: '/admin/users',
             icon: Users,
           },
           {
             id: 'comments',
-            label: 'Kiểm duyệt Bình luận',
+            label: dict.admin_nav.system_comments,
             href: '/admin/comments',
             icon: MessageSquare,
           },
           {
             id: 'settings',
-            label: 'Cài đặt Nền tảng',
+            label: dict.admin_nav.system_settings,
             href: '/admin/settings',
             icon: Settings,
             subItems: [
-              { label: 'Cài đặt Chung', href: '/admin/settings', icon: Sliders },
-              { label: 'Quyền Truy cập', href: '/admin/settings/access', icon: ShieldCheck },
-              { label: 'Sao lưu & Dữ liệu', href: '/admin/settings/backup', icon: Database },
+              { label: dict.admin_nav.settings_general, href: '/admin/settings', icon: Sliders },
+              {
+                label: dict.admin_nav.settings_access,
+                href: '/admin/settings/access',
+                icon: ShieldCheck,
+              },
+              {
+                label: dict.admin_nav.settings_backup,
+                href: '/admin/settings/backup',
+                icon: Database,
+              },
             ],
           },
         ],
@@ -161,7 +171,7 @@ export function AdminSidebar({ user, onLogout }: AdminSidebarProps) {
     }
 
     return groups;
-  }, [user.role]);
+  }, [user.role, dict.admin_nav]);
 
   const isRouteActive = (itemHref: string) => {
     if (itemHref === '/my-account') {
@@ -504,10 +514,10 @@ export function AdminSidebar({ user, onLogout }: AdminSidebarProps) {
           <Link href="/" className="block">
             <button
               type="button"
-              onMouseEnter={e => handleItemHover(e, 'Về Trang chủ Lab')}
+              onMouseEnter={e => handleItemHover(e, dict.admin_nav.return_to_app)}
               onMouseLeave={handleItemLeave}
               className="group flex items-center h-10 w-full rounded-xl text-xs text-slate-600 hover:text-slate-900 border border-slate-200 bg-white hover:bg-slate-50 transition-colors px-2 overflow-hidden"
-              aria-label="Về Trang chủ Lab"
+              aria-label={dict.admin_nav.return_to_app}
             >
               <div className="w-9 h-9 flex items-center justify-center shrink-0">
                 <ArrowLeft className="h-4 w-4 text-slate-500 group-hover:text-slate-900 transition-colors" />
@@ -519,7 +529,7 @@ export function AdminSidebar({ user, onLogout }: AdminSidebarProps) {
                     : 'opacity-100 max-w-[150px] translate-x-0'
                 }`}
               >
-                Về Trang chủ Lab
+                {dict.admin_nav.return_to_app}
               </span>
             </button>
           </Link>

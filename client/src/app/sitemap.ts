@@ -1,10 +1,10 @@
 import type { MetadataRoute } from 'next';
 import { SIMULATIONS_REGISTRY } from '@/features/simulations/registry';
 import { ESSAYS } from '@/features/editorial/essays-data';
+import { getAppBaseUrl } from '@/lib/utils';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const rawBaseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://wonderlab.vn';
-  const baseUrl = rawBaseUrl.replace(/\/$/, '');
+  const baseUrl = getAppBaseUrl();
   const now = new Date();
 
   const staticRoutes: MetadataRoute.Sitemap = [

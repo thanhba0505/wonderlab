@@ -37,6 +37,8 @@ services:
         value: production
       - key: NEXT_PUBLIC_APP_NAME
         value: Wonderlab
+      - key: NEXT_PUBLIC_APP_URL
+        value: https://wonderlab-client.onrender.com
       - key: NEXT_PUBLIC_API_BASE_URL
         sync: false # Set via Render dashboard to server URL, e.g. https://wonderlab-server.onrender.com/api/v1
 

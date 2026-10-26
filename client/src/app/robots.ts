@@ -1,8 +1,8 @@
 import type { MetadataRoute } from 'next';
+import { getAppBaseUrl } from '@/lib/utils';
 
 export default function robots(): MetadataRoute.Robots {
-  const rawBaseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://wonderlab.vn';
-  const baseUrl = rawBaseUrl.replace(/\/$/, '');
+  const baseUrl = getAppBaseUrl();
 
   return {
     rules: {

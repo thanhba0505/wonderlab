@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import {
   RotateCcw,
   Play,
+  Square,
   XCircle,
   Trophy,
   Sparkles,
@@ -19,6 +20,7 @@ import {
   Database,
   Activity,
 } from 'lucide-react';
+import { useMontyHallWorker } from '@/features/simulations/hooks';
 import { useSimulationTelemetry } from '@/lib/hooks/use-simulation-telemetry';
 import {
   SimulationSection,
@@ -133,72 +135,131 @@ export function MontyHallSimulation({ showHistory = true }: MontyHallSimulationP
     });
   };
 
-  // Mô phỏng hàng loạt Monte Carlo để kiểm chứng Luật Số Lớn
-  const handleSimulateBatch = (batchCount: number) => {
-    const startTime = performance.now();
-    let newSwitchPlays = 0;
-    let newSwitchWins = 0;
-    let newStayPlays = 0;
-    let newStayWins = 0;
+  const startTimeRef = React.useRef<number>(0);
+  const targetBatchCountRef = React.useRef<number>(0);
+  const [targetBatchCount, setTargetBatchCount] = React.useState<number>(0);
+  const baselineStatsRef = React.useRef<Stats>({
+    switchPlays: 0,
+    switchWins: 0,
+    stayPlays: 0,
+    stayWins: 0,
+  });
 
-    for (let i = 0; i < batchCount; i++) {
-      const simCar = Math.floor(Math.random() * 3);
-      const simPick = Math.floor(Math.random() * 3);
-      const simSwitch = Math.random() < 0.5;
-
-      const simPossibleGoats = [0, 1, 2].filter(d => d !== simPick && d !== simCar);
-      const simHost = simPossibleGoats[Math.floor(Math.random() * simPossibleGoats.length)] ?? 0;
-      const simOther = [0, 1, 2].find(d => d !== simPick && d !== simHost)!;
-
-      const simFinal = simSwitch ? simOther : simPick;
-      const won = simFinal === simCar;
-
-      if (simSwitch) {
-        newSwitchPlays++;
-        if (won) newSwitchWins++;
-      } else {
-        newStayPlays++;
-        if (won) newStayWins++;
+  const {
+    isRunning: isSimulatingBatch,
+    progress: workerProgress,
+    partialResult: workerPartial,
+    run: runWorkerMontyHall,
+    abort: abortWorkerMontyHall,
+  } = useMontyHallWorker({
+    onProgress: (_prog, partial) => {
+      if (partial) {
+        setStats({
+          switchPlays: baselineStatsRef.current.switchPlays + (partial.switchPlays ?? 0),
+          switchWins: baselineStatsRef.current.switchWins + (partial.switchWins ?? 0),
+          stayPlays: baselineStatsRef.current.stayPlays + (partial.stayPlays ?? 0),
+          stayWins: baselineStatsRef.current.stayWins + (partial.stayWins ?? 0),
+        });
       }
-    }
+    },
+    onComplete: finalRes => {
+      const duration = Math.round(performance.now() - startTimeRef.current);
+      const finalSwitchPlays = finalRes.switchPlays;
+      const finalSwitchWins = finalRes.switchWins;
+      const finalStayPlays = finalRes.stayPlays;
+      const finalStayWins = finalRes.stayWins;
 
-    const duration = Math.round(performance.now() - startTime);
+      setStats({
+        switchPlays: baselineStatsRef.current.switchPlays + finalSwitchPlays,
+        switchWins: baselineStatsRef.current.switchWins + finalSwitchWins,
+        stayPlays: baselineStatsRef.current.stayPlays + finalStayPlays,
+        stayWins: baselineStatsRef.current.stayWins + finalStayWins,
+      });
 
-    setStats(prev => ({
-      switchPlays: prev.switchPlays + newSwitchPlays,
-      switchWins: prev.switchWins + newSwitchWins,
-      stayPlays: prev.stayPlays + newStayPlays,
-      stayWins: prev.stayWins + newStayWins,
-    }));
+      const switchWinRate = finalSwitchPlays > 0 ? finalSwitchWins / finalSwitchPlays : 0;
+      recordRun(
+        {
+          doorsCount: 3,
+          strategy: 'monte-carlo-mix',
+          userPrediction: userPrediction?.option.value,
+        },
+        {
+          switchPlays: finalSwitchPlays,
+          switchWins: finalSwitchWins,
+          stayPlays: finalStayPlays,
+          stayWins: finalStayWins,
+          empiricalProbability: switchWinRate,
+          theoreticalProbability: 2 / 3,
+          intuitionGap: userPrediction?.gap,
+        },
+        finalRes.completedTrials,
+        duration,
+      );
+    },
+    onAborted: partial => {
+      if (partial && (partial.completedTrials ?? 0) > 0) {
+        const completed = partial.completedTrials ?? 0;
+        const duration = Math.round(performance.now() - startTimeRef.current);
+        const curSwitchPlays = partial.switchPlays ?? 0;
+        const curSwitchWins = partial.switchWins ?? 0;
+        const curStayPlays = partial.stayPlays ?? 0;
+        const curStayWins = partial.stayWins ?? 0;
+        const switchWinRate = curSwitchPlays > 0 ? curSwitchWins / curSwitchPlays : 0;
 
-    const switchWinRate = newSwitchPlays > 0 ? newSwitchWins / newSwitchPlays : 0;
-    recordRun(
-      {
-        doorsCount: 3,
-        strategy: 'monte-carlo-mix',
-        userPrediction: userPrediction?.option.value,
-      },
-      {
-        switchPlays: newSwitchPlays,
-        switchWins: newSwitchWins,
-        stayPlays: newStayPlays,
-        stayWins: newStayWins,
-        empiricalProbability: switchWinRate,
-        theoreticalProbability: 2 / 3,
-        intuitionGap: userPrediction?.gap,
-      },
-      batchCount,
-      duration,
-    );
+        setStats({
+          switchPlays: baselineStatsRef.current.switchPlays + curSwitchPlays,
+          switchWins: baselineStatsRef.current.switchWins + curSwitchWins,
+          stayPlays: baselineStatsRef.current.stayPlays + curStayPlays,
+          stayWins: baselineStatsRef.current.stayWins + curStayWins,
+        });
+
+        recordRun(
+          {
+            doorsCount: 3,
+            strategy: 'monte-carlo-mix',
+            userPrediction: userPrediction?.option.value,
+          },
+          {
+            switchPlays: curSwitchPlays,
+            switchWins: curSwitchWins,
+            stayPlays: curStayPlays,
+            stayWins: curStayWins,
+            empiricalProbability: switchWinRate,
+            theoreticalProbability: 2 / 3,
+            intuitionGap: userPrediction?.gap,
+          },
+          completed,
+          duration,
+        );
+      }
+    },
+  });
+
+  // Mô phỏng hàng loạt Monte Carlo qua Web Worker để kiểm chứng Luật Số Lớn
+  const handleSimulateBatch = (batchCount: number) => {
+    baselineStatsRef.current = { ...stats };
+    targetBatchCountRef.current = batchCount;
+    setTargetBatchCount(batchCount);
+    startTimeRef.current = performance.now();
+    runWorkerMontyHall({ trials: batchCount });
   };
 
   const resetStats = () => {
+    if (isSimulatingBatch) {
+      abortWorkerMontyHall();
+    }
     setStats({
       switchPlays: 0,
       switchWins: 0,
       stayPlays: 0,
       stayWins: 0,
     });
+    baselineStatsRef.current = {
+      switchPlays: 0,
+      switchWins: 0,
+      stayPlays: 0,
+      stayWins: 0,
+    };
     startNewRound();
   };
 
@@ -684,45 +745,103 @@ export function MontyHallSimulation({ showHistory = true }: MontyHallSimulationP
 
                 {/* Nút chạy mô phỏng hàng loạt */}
                 <div className="flex flex-wrap items-center gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleSimulateBatch(50)}
-                    className="h-7 text-xs font-semibold border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 shadow-2xs"
-                  >
-                    <Play className="h-3.5 w-3.5 mr-1" />
-                    +50 Ván
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleSimulateBatch(500)}
-                    className="h-7 text-xs font-semibold border-amber-200 bg-amber-50 text-amber-800 hover:bg-amber-100 shadow-2xs"
-                  >
-                    <Flame className="h-3.5 w-3.5 mr-1 text-amber-600" />
-                    +500 Ván
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleSimulateBatch(2000)}
-                    className="h-7 text-xs font-semibold border-slate-300 bg-white text-slate-700 hover:bg-slate-50 shadow-2xs"
-                  >
-                    <Sparkles className="h-3.5 w-3.5 mr-1 text-violet-600" />
-                    +2,000 Ván
-                  </Button>
-                  {totalGames > 0 && (
+                  {isSimulatingBatch ? (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={abortWorkerMontyHall}
+                      className="h-8 text-xs font-semibold border-red-300 bg-red-50 text-red-700 hover:bg-red-100 hover:text-red-800 shadow-2xs active:scale-[0.98]"
+                    >
+                      <Square className="h-3.5 w-3.5 mr-1.5 fill-current text-red-600" />
+                      Hủy / Dừng lại
+                    </Button>
+                  ) : (
+                    <>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleSimulateBatch(1000)}
+                        className="h-8 text-xs font-semibold border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 shadow-2xs active:scale-[0.98]"
+                      >
+                        <Play className="h-3.5 w-3.5 mr-1" />
+                        +1.000 Ván
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleSimulateBatch(10000)}
+                        className="h-8 text-xs font-semibold border-amber-200 bg-amber-50 text-amber-800 hover:bg-amber-100 shadow-2xs active:scale-[0.98]"
+                      >
+                        <Flame className="h-3.5 w-3.5 mr-1 text-amber-600" />
+                        +10.000 Ván
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleSimulateBatch(50000)}
+                        className="h-8 text-xs font-semibold border-slate-300 bg-white text-slate-700 hover:bg-slate-50 shadow-2xs active:scale-[0.98]"
+                      >
+                        <Sparkles className="h-3.5 w-3.5 mr-1 text-violet-600" />
+                        +50.000 Ván
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleSimulateBatch(100000)}
+                        className="h-8 text-xs font-semibold border-emerald-200 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 shadow-2xs active:scale-[0.98]"
+                      >
+                        <Play className="h-3.5 w-3.5 mr-1 text-emerald-600" />
+                        +100.000 Ván
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleSimulateBatch(200000)}
+                        className="h-8 text-xs font-semibold border-purple-200 bg-purple-50 text-purple-800 hover:bg-purple-100 shadow-2xs active:scale-[0.98]"
+                      >
+                        <Sparkles className="h-3.5 w-3.5 mr-1 text-purple-600" />
+                        +200.000 Ván
+                      </Button>
+                    </>
+                  )}
+                  {totalGames > 0 && !isSimulatingBatch && (
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={resetStats}
-                      className="h-7 text-xs text-slate-500 hover:text-slate-900 px-2 font-mono"
+                      className="h-8 text-xs text-slate-500 hover:text-slate-900 px-2 font-mono"
                     >
                       Đặt lại
                     </Button>
                   )}
                 </div>
               </div>
+
+              {/* Lab Progress Bar */}
+              {isSimulatingBatch && (
+                <div className="flex flex-col gap-2 p-3.5 rounded-xl bg-blue-50/70 border border-blue-200/80">
+                  <div className="flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-1.5 font-medium text-slate-800">
+                      <Activity className="h-4 w-4 animate-pulse text-blue-600" />
+                      <span>Tiến độ mô phỏng Monte Carlo:</span>
+                    </div>
+                    <div className="flex items-center gap-2 font-mono text-xs tabular-nums text-slate-700">
+                      <span className="font-bold text-blue-700">{workerProgress}%</span>
+                      <span>•</span>
+                      <span>
+                        {(workerPartial?.completedTrials ?? 0).toLocaleString('vi-VN')} /{' '}
+                        {targetBatchCount.toLocaleString('vi-VN')} ván
+                      </span>
+                    </div>
+                  </div>
+                  <div className="h-2 w-full bg-blue-100 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-blue-600 rounded-full transition-all duration-150 ease-out"
+                      style={{ width: `${workerProgress}%` }}
+                    />
+                  </div>
+                </div>
+              )}
 
               {/* Thanh Phổ Đối Sánh Phân Bổ (Phẳng, không lồng card) */}
               <div className="rounded-xl bg-slate-100/70 p-5 space-y-4">

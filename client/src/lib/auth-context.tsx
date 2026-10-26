@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { AuthUser } from '@/types';
+import { getActiveLocale } from '@/i18n';
 
 export type AuthModalView = 'login' | 'register' | 'otp' | 'forgot' | 'reset';
 
@@ -98,6 +99,14 @@ async function parseAuthResponse<T = Record<string, unknown>>(
   };
 }
 
+function getJsonHeaders(): HeadersInit {
+  return {
+    'Content-Type': 'application/json',
+    Accept: 'application/json',
+    'Accept-Language': getActiveLocale(),
+  };
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = React.useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = React.useState<boolean>(true);
@@ -130,7 +139,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const response = await fetch(`${API_BASE_URL}/auth/me`, {
         method: 'GET',
-        headers: { Accept: 'application/json' },
+        headers: { Accept: 'application/json', 'Accept-Language': getActiveLocale() },
         credentials: 'include',
       });
 
@@ -156,10 +165,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
+        headers: getJsonHeaders(),
         credentials: 'include',
         body: JSON.stringify({ username, password }),
       });
@@ -202,10 +208,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const response = await fetch(`${API_BASE_URL}/auth/register`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
+        headers: getJsonHeaders(),
         credentials: 'include',
         body: JSON.stringify({ username, email, password }),
       });
@@ -238,10 +241,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const response = await fetch(`${API_BASE_URL}/auth/verify-email`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
+        headers: getJsonHeaders(),
         credentials: 'include',
         body: JSON.stringify({ email, code }),
       });
@@ -276,10 +276,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const response = await fetch(`${API_BASE_URL}/auth/resend-otp`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
+        headers: getJsonHeaders(),
         credentials: 'include',
         body: JSON.stringify({ email, type }),
       });
@@ -312,10 +309,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const response = await fetch(`${API_BASE_URL}/auth/google`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
+        headers: getJsonHeaders(),
         credentials: 'include',
         body: JSON.stringify(payload),
       });
@@ -348,10 +342,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const response = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
+        headers: getJsonHeaders(),
         credentials: 'include',
         body: JSON.stringify({ email }),
       });
@@ -387,10 +378,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const response = await fetch(`${API_BASE_URL}/auth/reset-password`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
+        headers: getJsonHeaders(),
         credentials: 'include',
         body: JSON.stringify({ email, code, newPassword }),
       });
@@ -424,10 +412,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const response = await fetch(`${API_BASE_URL}/auth/change-password`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
+        headers: getJsonHeaders(),
         credentials: 'include',
         body: JSON.stringify({ currentPassword, newPassword }),
       });
@@ -458,10 +443,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const response = await fetch(`${API_BASE_URL}/auth/set-password`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
+        headers: getJsonHeaders(),
         credentials: 'include',
         body: JSON.stringify({ newPassword }),
       });
@@ -492,6 +474,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       await fetch(`${API_BASE_URL}/auth/logout`, {
         method: 'POST',
+        headers: { Accept: 'application/json', 'Accept-Language': getActiveLocale() },
         credentials: 'include',
       });
     } catch {

@@ -23,7 +23,9 @@ export interface SimulationHypothesisChallenge {
     | 'conditional-probability-fallacy'
     | 'classical-mechanics-bias'
     | 'zero-sum-fallacy'
-    | 'infinite-sum-fallacy';
+    | 'infinite-sum-fallacy'
+    | 'convexity-illusion'
+    | 'independence-fallacy';
   biasName: string;
   biasDescription: string;
 }

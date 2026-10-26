@@ -7,6 +7,7 @@ import { SIMULATIONS_REGISTRY } from '@/features/simulations/registry';
 import { ESSAYS } from '@/features/editorial/essays-data';
 import { SimulationJsonLd } from '@/app/simulations/[slug]/SimulationJsonLd';
 import { EssayJsonLd } from '@/app/(public)/essays/[slug]/EssayJsonLd';
+import { getAppBaseUrl } from '@/lib/utils';
 
 // @ts-expect-error global flag for react act
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
@@ -31,7 +32,7 @@ describe('SEO & Metadata Infrastructure', () => {
   it('generates a complete dynamic sitemap containing all registered simulations and essays', () => {
     const entries = sitemap();
     const urls = entries.map(e => e.url);
-    const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || 'https://wonderlab.vn').replace(/\/$/, '');
+    const baseUrl = getAppBaseUrl();
 
     // Root and section pages
     expect(urls).toContain(baseUrl);
@@ -125,5 +126,28 @@ describe('SEO & Metadata Infrastructure', () => {
     expect(breadcrumbNode.itemListElement[0].name).toBe('Trang chủ');
     expect(breadcrumbNode.itemListElement[1].name).toBe('Tiểu luận');
     expect(breadcrumbNode.itemListElement[2].name).toBe(essay.title);
+  });
+
+  it('correctly resolves app base URL with environment variable priority and fallback', () => {
+    const originalAppUrl = process.env.NEXT_PUBLIC_APP_URL;
+    const originalRenderUrl = process.env.RENDER_EXTERNAL_URL;
+
+    try {
+      // 1. Prioritizes NEXT_PUBLIC_APP_URL
+      process.env.NEXT_PUBLIC_APP_URL = 'https://custom-domain.com/';
+      process.env.RENDER_EXTERNAL_URL = 'https://wonderlab-client.onrender.com';
+      expect(getAppBaseUrl()).toBe('https://custom-domain.com');
+
+      // 2. Falls back to RENDER_EXTERNAL_URL if NEXT_PUBLIC_APP_URL is empty
+      delete process.env.NEXT_PUBLIC_APP_URL;
+      expect(getAppBaseUrl()).toBe('https://wonderlab-client.onrender.com');
+
+      // 3. Falls back to wonderlab.vn if neither is set
+      delete process.env.RENDER_EXTERNAL_URL;
+      expect(getAppBaseUrl()).toBe('https://wonderlab.vn');
+    } finally {
+      process.env.NEXT_PUBLIC_APP_URL = originalAppUrl;
+      process.env.RENDER_EXTERNAL_URL = originalRenderUrl;
+    }
   });
 });

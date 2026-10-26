@@ -8,6 +8,7 @@ import { AuthService } from './auth.service';
 import { UsersService } from '../users/users.service';
 import { OtpService } from './otp.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { I18nService } from '../i18n/i18n.service';
 
 describe('AuthService', () => {
   let authService: AuthService;
@@ -63,6 +64,7 @@ describe('AuthService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
+        I18nService,
         { provide: UsersService, useValue: mockUsersService },
         { provide: JwtService, useValue: mockJwtService },
         { provide: OtpService, useValue: mockOtpService },
@@ -100,15 +102,22 @@ describe('AuthService', () => {
       ).rejects.toThrow(UnauthorizedException);
     });
 
-    it('should throw UnauthorizedException with generic message when user does not exist', async () => {
+    it('should throw UnauthorizedException with localized English message when requested', async () => {
       usersService.findByIdentifierWithHash.mockResolvedValue(null);
 
       await expect(
-        authService.validateUser({
-          username: 'nonexistent',
-          password: 'AnyPassword123!',
+        authService.validateUser(
+          {
+            username: 'nonexistent',
+            password: 'AnyPassword123!',
+          },
+          'en',
+        ),
+      ).rejects.toMatchObject({
+        response: expect.objectContaining({
+          message: 'Incorrect username or password',
         }),
-      ).rejects.toThrow(UnauthorizedException);
+      });
     });
   });
 

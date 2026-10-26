@@ -7,10 +7,13 @@ import { MontyHallSimulation } from '@/features/monty-hall/monty-hall-simulation
 import { DoubleSlitSimulation } from '@/features/double-slit/double-slit-simulation';
 import { PrisonersDilemmaSimulation } from '@/features/prisoners-dilemma/prisoners-dilemma-simulation';
 import { ZenoSimulation } from '@/features/zeno-paradox/zeno-simulation';
+import { ArtGallerySimulation } from '@/features/art-gallery/art-gallery-simulation';
+import { PrisonersHatsSimulation } from '@/features/prisoners-hats/prisoners-hats-simulation';
 import { CommentSection } from '@/features/simulations/components/comment-section';
 import { SimulationMathCard } from '@/features/simulations/components/simulation-math-card';
 import { SimulationSection } from '@/features/simulations/components/simulation-section';
 import { SimulationJsonLd } from './SimulationJsonLd';
+import { getAppBaseUrl } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Clock, FlaskConical, Sparkles } from 'lucide-react';
@@ -69,8 +72,7 @@ export default async function SimulationPage({ params }: SimulationPageProps) {
     notFound();
   }
 
-  const rawBaseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://wonderlab.vn';
-  const baseUrl = rawBaseUrl.replace(/\/$/, '');
+  const baseUrl = getAppBaseUrl();
   const canonicalUrl = `${baseUrl}/simulations/${slug}`;
 
   return (
@@ -133,6 +135,8 @@ export default async function SimulationPage({ params }: SimulationPageProps) {
       {sim.slug === 'double-slit' && <DoubleSlitSimulation />}
       {sim.slug === 'prisoners-dilemma' && <PrisonersDilemmaSimulation />}
       {sim.slug === 'zeno-paradox' && <ZenoSimulation />}
+      {sim.slug === 'art-gallery' && <ArtGallerySimulation />}
+      {sim.slug === 'prisoners-hats' && <PrisonersHatsSimulation />}
 
       {/* Hiển thị cho các mô phỏng đang phát triển */}
       {sim.status === 'in-development' && (

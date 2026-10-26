@@ -1,3 +1,5 @@
+import { getActiveLocale } from '@/i18n';
+
 export interface AdminOverviewData {
   totalRuns: number;
   totalTrials: number;
@@ -91,7 +93,7 @@ export async function fetchAdminOverview(): Promise<AdminOverviewData | null> {
     const res = await fetch(`${API_BASE_URL}/simulations/admin/overview`, {
       method: 'GET',
       credentials: 'include',
-      headers: { Accept: 'application/json' },
+      headers: { Accept: 'application/json', 'Accept-Language': getActiveLocale() },
       cache: 'no-store',
     });
     if (!res.ok) return null;
@@ -121,7 +123,7 @@ export async function fetchAdminUsers(
     const res = await fetch(`${API_BASE_URL}/users?${searchParams.toString()}`, {
       method: 'GET',
       credentials: 'include',
-      headers: { Accept: 'application/json' },
+      headers: { Accept: 'application/json', 'Accept-Language': getActiveLocale() },
       cache: 'no-store',
     });
     if (!res.ok) return { data: [], total: 0, page, limit, totalPages: 1 };
@@ -174,7 +176,7 @@ export async function deleteAdminUser(
     const res = await fetch(`${API_BASE_URL}/users/${userId}`, {
       method: 'DELETE',
       credentials: 'include',
-      headers: { Accept: 'application/json' },
+      headers: { Accept: 'application/json', 'Accept-Language': getActiveLocale() },
     });
     if (!res.ok) {
       const data = await res.json();
@@ -205,7 +207,7 @@ export async function fetchAdminComments(
     const res = await fetch(`${API_BASE_URL}/admin/comments?${searchParams.toString()}`, {
       method: 'GET',
       credentials: 'include',
-      headers: { Accept: 'application/json' },
+      headers: { Accept: 'application/json', 'Accept-Language': getActiveLocale() },
       cache: 'no-store',
     });
     if (!res.ok) return { data: [], total: 0, page, limit, totalPages: 1 };
@@ -234,7 +236,7 @@ export async function deleteAdminComment(
     const res = await fetch(`${API_BASE_URL}/comments/${commentId}`, {
       method: 'DELETE',
       credentials: 'include',
-      headers: { Accept: 'application/json' },
+      headers: { Accept: 'application/json', 'Accept-Language': getActiveLocale() },
     });
     if (!res.ok) {
       const data = await res.json();

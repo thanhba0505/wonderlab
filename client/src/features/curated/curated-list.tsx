@@ -6,55 +6,150 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Clock, ChevronRight, Compass, Sparkles, FlaskConical, ArrowRight } from 'lucide-react';
 import { CuratedExperience } from '@/types';
+import { useTranslation } from '@/i18n';
 
-export const CURATED_LIST: CuratedExperience[] = [
+interface LocalizedItem {
+  id: string;
+  title: { vi: string; en: string };
+  summary: { vi: string; en: string };
+  category: string;
+  estimatedMinutes: number;
+  highlightTag: { vi: string; en: string };
+  concept: string;
+  href: string;
+}
+
+export const LOCALIZED_CURATED_LIST: LocalizedItem[] = [
   {
     id: 'birthday-paradox',
-    title: 'Nghịch lý Ngày Sinh (Birthday Paradox)',
-    summary:
-      'Chỉ cần 23 người ngẫu nhiên trong một phòng, xác suất để có ít nhất 2 người cùng ngày sinh đã vượt quá 50%. Khám phá mô phỏng tổ hợp phản trực giác.',
+    title: {
+      vi: 'Nghịch lý Ngày Sinh (Birthday Paradox)',
+      en: 'Birthday Paradox (Combinatorial Collision)',
+    },
+    summary: {
+      vi: 'Chỉ cần 23 người ngẫu nhiên trong một phòng, xác suất để có ít nhất 2 người cùng ngày sinh đã vượt quá 50%. Khám phá mô phỏng tổ hợp phản trực giác.',
+      en: 'With just 23 random people in a room, the probability of at least two sharing a birthday exceeds 50%. Explore counter-intuitive combinatorial mathematics.',
+    },
     category: 'probability',
     estimatedMinutes: 4,
-    highlightTag: 'Toán học xác suất',
+    highlightTag: {
+      vi: 'Toán học xác suất',
+      en: 'Probability & Combinatorics',
+    },
     concept: 'P(A) = 1 - (365! / ((365-n)! · 365^n))',
     href: '/simulations/birthday-paradox',
   },
   {
     id: 'zeno-paradox',
-    title: 'Nghịch lý Zeno: Achilles & Con Rùa (Zeno Paradox)',
-    summary:
-      'Chiến binh Achilles dẫu chạy nhanh gấp 10 lần con rùa nhưng theo Zeno sẽ không bao giờ đuổi kịp vì khoảng cách liên tục bị chia đôi vô tận.',
+    title: {
+      vi: 'Nghịch lý Zeno: Achilles & Con Rùa (Zeno Paradox)',
+      en: "Zeno's Paradox: Achilles & the Tortoise",
+    },
+    summary: {
+      vi: 'Chiến binh Achilles dẫu chạy nhanh gấp 10 lần con rùa nhưng theo Zeno sẽ không bao giờ đuổi kịp vì khoảng cách liên tục bị chia đôi vô tận.',
+      en: 'Achilles runs ten times faster than the tortoise, yet ancient philosopher Zeno argued he can never overtake it due to infinite division of space.',
+    },
     category: 'paradox',
     estimatedMinutes: 5,
-    highlightTag: 'Triết học & Giải tích',
+    highlightTag: {
+      vi: 'Triết học & Giải tích',
+      en: 'Philosophy & Calculus',
+    },
     concept: '\\sum_{n=1}^{\\infty} (1/2)^n = 1',
     href: '/simulations/zeno-paradox',
   },
   {
     id: 'prisoners-dilemma',
-    title: 'Song đề Tù nhân & Hợp tác Tiến hóa',
-    summary:
-      'Tại sao hai người hoàn toàn duy lý lại đưa ra kết quả bất lợi cho cả hai? Khám phá Cân bằng Nash và chiến lược hợp tác đối ứng Tit-for-Tat.',
+    title: {
+      vi: 'Song đề Tù nhân & Hợp tác Tiến hóa',
+      en: "The Prisoner's Dilemma & Evolution of Cooperation",
+    },
+    summary: {
+      vi: 'Tại sao hai người hoàn toàn duy lý lại đưa ra kết quả bất lợi cho cả hai? Khám phá Cân bằng Nash và chiến lược hợp tác đối ứng Tit-for-Tat.',
+      en: 'Why do two rational agents choose mutual betrayal over win-win cooperation? Discover Nash Equilibrium and Axelrod tournaments.',
+    },
     category: 'mind-games',
     estimatedMinutes: 5,
-    highlightTag: 'Lý thuyết trò chơi',
-    concept: 'Cân bằng Nash: ui(si*, s-i*) ≥ ui(si, s-i*)',
+    highlightTag: {
+      vi: 'Lý thuyết trò chơi',
+      en: 'Game Theory',
+    },
+    concept: 'Nash: ui(si*, s-i*) ≥ ui(si, s-i*)',
     href: '/simulations/prisoners-dilemma',
   },
   {
     id: 'double-slit',
-    title: 'Thí nghiệm Khe đôi Young & Cơ học Lượng tử',
-    summary:
-      'Quan sát tính chất lưỡng tính sóng - hạt của ánh sáng và sự sụp đổ hàm sóng kỳ bí khi có sự can thiệp của thiết bị đo lường.',
+    title: {
+      vi: 'Thí nghiệm Khe đôi Young & Cơ học Lượng tử',
+      en: 'Double-Slit Experiment & Quantum Duality',
+    },
+    summary: {
+      vi: 'Quan sát tính chất lưỡng tính sóng - hạt của ánh sáng và sự sụp đổ hàm sóng kỳ bí khi có sự can thiệp của thiết bị đo lường.',
+      en: 'Observe wave-particle duality and the mysterious collapse of the quantum wave function upon observation.',
+    },
     category: 'science',
     estimatedMinutes: 6,
-    highlightTag: 'Vật lý lượng tử',
-    concept: 'Lưỡng tính sóng - hạt |ψ⟩ = c1|1⟩ + c2|2⟩',
+    highlightTag: {
+      vi: 'Vật lý lượng tử',
+      en: 'Quantum Physics',
+    },
+    concept: 'Wave-particle: |ψ⟩ = c1|1⟩ + c2|2⟩',
     href: '/simulations/double-slit',
+  },
+  {
+    id: 'art-gallery',
+    title: {
+      vi: 'Bài toán Người gác Phòng trưng bày (Art Gallery Problem)',
+      en: 'The Art Gallery Problem (Chvátal Theorem)',
+    },
+    summary: {
+      vi: 'Trong căn phòng đa giác bất kỳ n đỉnh, cần bao nhiêu người để quan sát trọn vẹn mọi ngóc ngách? Khám phá định lý Chvátal và chứng minh Steve Fisk.',
+      en: 'In an arbitrary polygon room with n vertices, how many stationary guards are needed to see every point? Explore polygon triangulation.',
+    },
+    category: 'mind-games',
+    estimatedMinutes: 5,
+    highlightTag: {
+      vi: 'Hình học & Logic',
+      en: 'Computational Geometry',
+    },
+    concept: 'g(n) = \\lfloor n/3 \\rfloor',
+    href: '/simulations/art-gallery',
+  },
+  {
+    id: 'prisoners-hats',
+    title: {
+      vi: 'Bài toán Đội mũ & Bit Chẵn lẻ (Prisoners Hat Puzzle)',
+      en: 'Prisoners & Hats Puzzle (Parity Checksum)',
+    },
+    summary: {
+      vi: 'Làm thế nào để 10 người đội mũ 2 màu ngẫu nhiên chắc chắn đoán đúng màu mũ của ít nhất 9 người? Khám phá chiến thuật Parity Checksum và lý thuyết thông tin.',
+      en: 'How can 10 prisoners wearing random colored hats guarantee at least 9 correct guesses? Explore parity checksums and information theory.',
+    },
+    category: 'mind-games',
+    estimatedMinutes: 4,
+    highlightTag: {
+      vi: 'Lý thuyết thông tin & Logic',
+      en: 'Information Theory & Logic',
+    },
+    concept: 'P \\ge (n-1)/n, \\quad c_k = (p - \\sum c_{j}) \\pmod K',
+    href: '/simulations/prisoners-hats',
   },
 ];
 
+export const CURATED_LIST: CuratedExperience[] = LOCALIZED_CURATED_LIST.map(item => ({
+  id: item.id,
+  title: item.title.vi,
+  summary: item.summary.vi,
+  category: item.category as CuratedExperience['category'],
+  estimatedMinutes: item.estimatedMinutes,
+  highlightTag: item.highlightTag.vi,
+  concept: item.concept,
+  href: item.href,
+}));
+
 export function CuratedList() {
+  const { locale } = useTranslation();
+
   const getBadgeVariant = (category: string) => {
     switch (category) {
       case 'probability':
@@ -71,8 +166,11 @@ export function CuratedList() {
 
   return (
     <div className="space-y-4">
-      {CURATED_LIST.map((item, index) => {
+      {LOCALIZED_CURATED_LIST.map((item, index) => {
         const targetHref = item.href || `/simulations/${item.id}`;
+        const title = item.title[locale] || item.title.vi;
+        const summary = item.summary[locale] || item.summary.vi;
+        const tag = item.highlightTag[locale] || item.highlightTag.vi;
 
         return (
           <Card
@@ -84,17 +182,20 @@ export function CuratedList() {
                 <div className="flex flex-wrap items-center gap-3">
                   <span className="font-mono text-xs font-bold text-slate-500">#0{index + 1}</span>
                   <Badge variant={getBadgeVariant(item.category)} className="text-xs">
-                    {item.highlightTag}
+                    {tag}
                   </Badge>
                   <div className="flex items-center gap-1.5 text-xs text-slate-500 font-mono">
                     <Clock className="h-3.5 w-3.5 text-slate-400" />
-                    <span>~{item.estimatedMinutes} phút tương tác</span>
+                    <span>
+                      ~{item.estimatedMinutes}{' '}
+                      {locale === 'en' ? 'min experience' : 'phút tương tác'}
+                    </span>
                   </div>
                 </div>
 
-                <h4 className="text-lg font-heading font-extrabold text-slate-900">{item.title}</h4>
+                <h4 className="text-lg font-heading font-extrabold text-slate-900">{title}</h4>
 
-                <p className="text-sm text-slate-600 leading-relaxed font-sans">{item.summary}</p>
+                <p className="text-sm text-slate-600 leading-relaxed font-sans">{summary}</p>
 
                 <div className="flex items-center gap-2 pt-1">
                   <Sparkles className="h-3.5 w-3.5 text-blue-600 shrink-0" />
@@ -110,7 +211,7 @@ export function CuratedList() {
                   className="group/btn inline-flex items-center justify-center font-bold text-xs gap-1.5 h-9 px-3.5 rounded-lg border border-slate-300 bg-white text-slate-700 shadow-xs hover:border-blue-600 hover:bg-blue-600 hover:text-white active:scale-[0.98] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 cursor-pointer"
                 >
                   <Compass className="h-4 w-4 text-blue-600 group-hover/btn:text-white transition-colors" />
-                  <span>Vào phòng lab</span>
+                  <span>{locale === 'en' ? 'Enter Lab' : 'Vào phòng lab'}</span>
                   <ChevronRight className="h-4 w-4 transition-transform group-hover/btn:translate-x-1" />
                 </Link>
               </div>
@@ -126,7 +227,11 @@ export function CuratedList() {
           className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 hover:text-blue-700 text-xs font-mono font-bold transition shadow-xs group"
         >
           <FlaskConical className="h-4 w-4 text-blue-600" />
-          <span>Khám phá toàn bộ Thư viện Thực nghiệm</span>
+          <span>
+            {locale === 'en'
+              ? 'Explore Full Laboratory Catalog'
+              : 'Khám phá toàn bộ Thư viện Thực nghiệm'}
+          </span>
           <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
         </Link>
       </div>

@@ -242,6 +242,67 @@ export const SimulationMathCard: React.FC<SimulationMathCardProps> = ({ slug, su
             </div>
           </div>
         )}
+
+        {/* BÀI TOÁN PHÒNG TRƯNG BÀY TRANH (ART GALLERY PROBLEM) */}
+        {slug === 'art-gallery' && (
+          <div className="space-y-3 text-xs text-slate-800">
+            <div className="flex flex-wrap items-center gap-4 bg-slate-50/80 p-3 rounded-lg">
+              <div className="flex items-center gap-1.5">
+                <span className="text-slate-500 font-sans">Định lý Chvátal (1975):</span>
+                <span className="font-bold text-slate-900">g(n) =</span>
+                <span className="font-bold text-emerald-700">&lfloor;</span>
+                <MathFraction numerator="n" denominator="3" />
+                <span className="font-bold text-emerald-700">&rfloor;</span>
+                <span className="text-slate-500 font-sans">(luôn đủ &amp; đôi khi bắt buộc)</span>
+              </div>
+              <span className="text-slate-300">|</span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-slate-500 font-sans">Tam giác hóa:</span>
+                <span className="font-bold text-blue-700">T = n &minus; 2</span>
+                <span className="text-slate-400 font-sans">&bull;</span>
+                <span className="text-slate-500 font-sans">Đường chéo:</span>
+                <span className="font-bold text-indigo-700">D = n &minus; 3</span>
+              </div>
+              <span className="text-slate-300">|</span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-slate-500 font-sans">Phòng trực giao (Góc 90&deg;):</span>
+                <span className="font-bold text-amber-700">
+                  g<sub>ortho</sub>(n) = &lfloor;n/4&rfloor;
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* BÀI TOÁN ĐỘI MŨ & BIT CHẴN LẺ (PRISONERS HAT PUZZLE) */}
+        {slug === 'prisoners-hats' && (
+          <div className="space-y-3 text-xs text-slate-800">
+            <div className="flex flex-wrap items-center gap-4 bg-slate-50/80 p-3 rounded-lg">
+              <div className="flex items-center gap-1.5">
+                <span className="text-slate-500 font-sans">Bảo đảm sống sót:</span>
+                <span className="font-bold text-slate-900">P &ge;</span>
+                <MathFraction numerator="n &minus; 1" denominator="n" />
+                <span className="text-slate-500 font-sans">&bull;</span>
+                <span className="text-slate-500 font-sans">Kỳ vọng với n=10:</span>
+                <span className="font-bold text-emerald-700">95.0%</span>
+              </div>
+              <span className="text-slate-300">|</span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-slate-500 font-sans">Tín hiệu Parity:</span>
+                <span className="font-bold text-blue-700">
+                  p = &sum; c<sub>j</sub> (mod K)
+                </span>
+              </div>
+              <span className="text-slate-300">|</span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-slate-500 font-sans">Giải mã trừ lùi:</span>
+                <span className="font-bold text-indigo-700">
+                  c<sub>k</sub> = (p<sub>k</sub> &minus; &sum; c<sub>trước</sub>) mod K
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

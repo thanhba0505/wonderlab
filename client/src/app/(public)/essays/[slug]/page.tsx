@@ -5,6 +5,7 @@ import { getAllEssays, getEssayBySlug } from '@/features/editorial/essays-data';
 import { ReadingProgressBar } from '@/features/editorial/components/reading-progress-bar';
 import { TableOfContents } from '@/features/editorial/components/table-of-contents';
 import { EssayJsonLd } from './EssayJsonLd';
+import { getAppBaseUrl } from '@/lib/utils';
 import { SimulationBridgeCard } from '@/features/editorial/components/simulation-bridge-card';
 import { CommentSection } from '@/features/simulations/components/comment-section';
 import { Badge } from '@/components/ui/badge';
@@ -78,8 +79,7 @@ export default async function EssayPage({ params }: EssayPageProps) {
   const allEssays = getAllEssays();
   const relatedEssays = allEssays.filter(e => e.id !== essay.id);
 
-  const rawBaseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://wonderlab.vn';
-  const baseUrl = rawBaseUrl.replace(/\/$/, '');
+  const baseUrl = getAppBaseUrl();
   const canonicalUrl = `${baseUrl}/essays/${essay.slug || essay.id}`;
 
   return (
