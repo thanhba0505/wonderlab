@@ -26,13 +26,16 @@ import {
   AppDropdownHeader,
   AppDropdownGroup,
   AppTag,
+  LanguageSwitcher,
 } from '@/components/ui';
 import { useAuth } from '@/lib/auth-context';
+import { useTranslation } from '@/i18n';
 import { cn } from '@/lib/utils';
 
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
   const { user, logout, openAuthModal } = useAuth();
+  const { dict } = useTranslation();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-slate-300/80 bg-white/95 backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(15,23,42,0.06)]">
@@ -58,40 +61,42 @@ export function Header() {
             className="flex items-center gap-2 px-3 py-1.5 rounded-lg transition-colors hover:text-slate-900 hover:bg-slate-100 font-semibold text-blue-700"
           >
             <FlaskConical className="h-4 w-4 text-blue-600" />
-            Phòng Lab
+            {dict.nav.simulations}
           </Link>
           <Link
             href="/#explore"
             className="flex items-center gap-2 px-3 py-1.5 rounded-lg transition-colors hover:text-slate-900 hover:bg-slate-100"
           >
             <Compass className="h-4 w-4 text-violet-600" />
-            Khám phá
+            {dict.nav.explore}
           </Link>
           <Link
             href="/#curated"
             className="flex items-center gap-2 px-3 py-1.5 rounded-lg transition-colors hover:text-slate-900 hover:bg-slate-100"
           >
             <Sparkles className="h-4 w-4 text-amber-600" />
-            Tuyển chọn
+            {dict.nav.explore}
           </Link>
           <Link
             href="/#editorial"
             className="flex items-center gap-2 px-3 py-1.5 rounded-lg transition-colors hover:text-slate-900 hover:bg-slate-100"
           >
             <BookOpen className="h-4 w-4 text-emerald-600" />
-            Góc tư duy
+            {dict.nav.essays}
           </Link>
           <Link
             href="/requests"
             className="flex items-center gap-2 px-3 py-1.5 rounded-lg transition-colors hover:text-slate-900 hover:bg-slate-100"
           >
             <Lightbulb className="h-4 w-4 text-cyan-600" />
-            Đề xuất
+            {dict.nav.requests}
           </Link>
         </nav>
 
         {/* Header Right Actions */}
         <div className="hidden md:flex items-center gap-3">
+          <LanguageSwitcher />
+
           {user ? (
             <AppDropdown
               align="end"
@@ -166,7 +171,7 @@ export function Header() {
               {/* Navigation Items */}
               <AppDropdownGroup>
                 <AppDropdownItem href="/my-account" icon={<User className="h-4 w-4" />}>
-                  Thông tin tài khoản
+                  {dict.nav.my_account}
                 </AppDropdownItem>
 
                 {user.role === 'ADMIN' && (
@@ -179,7 +184,7 @@ export function Header() {
                       </span>
                     }
                   >
-                    Quản trị hệ thống
+                    {dict.nav.admin}
                   </AppDropdownItem>
                 )}
               </AppDropdownGroup>
@@ -193,7 +198,7 @@ export function Header() {
                   icon={<LogOut className="h-4 w-4" />}
                   onClick={() => logout()}
                 >
-                  Đăng xuất
+                  {dict.nav.logout}
                 </AppDropdownItem>
               </AppDropdownGroup>
             </AppDropdown>
@@ -204,7 +209,7 @@ export function Header() {
               className="font-semibold shadow-xs flex items-center gap-1.5"
             >
               <LogIn className="h-4 w-4" />
-              Đăng nhập
+              {dict.auth.sign_in_btn}
             </Button>
           )}
         </div>
@@ -225,13 +230,21 @@ export function Header() {
       {isMobileMenuOpen && (
         <div className="border-b border-slate-200 bg-white px-4 py-4 md:hidden animate-in fade-in slide-in-from-top-2 shadow-lg">
           <nav className="flex flex-col gap-2 text-sm font-medium">
+            {/* Language Switcher in Mobile Drawer */}
+            <div className="flex items-center justify-between pb-3 mb-1 border-b border-slate-100">
+              <span className="text-xs font-mono font-semibold uppercase tracking-wider text-slate-500">
+                {dict.header.language}
+              </span>
+              <LanguageSwitcher variant="toggle" />
+            </div>
+
             <Link
               href="/simulations"
               onClick={() => setIsMobileMenuOpen(false)}
               className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-blue-700 font-semibold hover:bg-blue-50"
             >
               <FlaskConical className="h-4 w-4 text-blue-600" />
-              Phòng Thí nghiệm
+              {dict.nav.simulations}
             </Link>
             <Link
               href="/#explore"
@@ -239,7 +252,7 @@ export function Header() {
               className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-slate-700 hover:bg-slate-100"
             >
               <Compass className="h-4 w-4 text-violet-600" />
-              Khám phá chủ đề
+              {dict.nav.explore}
             </Link>
             <Link
               href="/#curated"
@@ -247,7 +260,7 @@ export function Header() {
               className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-slate-700 hover:bg-slate-100"
             >
               <Sparkles className="h-4 w-4 text-amber-600" />
-              Tuyển chọn thực nghiệm
+              {dict.nav.explore}
             </Link>
             <Link
               href="/#editorial"
@@ -255,7 +268,7 @@ export function Header() {
               className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-slate-700 hover:bg-slate-100"
             >
               <BookOpen className="h-4 w-4 text-emerald-600" />
-              Góc tư duy
+              {dict.nav.essays}
             </Link>
             <Link
               href="/requests"
@@ -263,7 +276,7 @@ export function Header() {
               className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-slate-700 hover:bg-slate-100"
             >
               <Lightbulb className="h-4 w-4 text-cyan-600" />
-              Đề xuất bài toán
+              {dict.nav.requests}
             </Link>
 
             <div className="pt-2 border-t border-slate-100">
@@ -296,7 +309,7 @@ export function Header() {
                     className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100"
                   >
                     <User className="h-4 w-4 text-slate-500" />
-                    Thông tin tài khoản
+                    {dict.nav.my_account}
                   </Link>
 
                   {user.role === 'ADMIN' && (
@@ -306,7 +319,7 @@ export function Header() {
                       className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold text-amber-800 bg-amber-50/70 hover:bg-amber-100/60 border border-amber-200"
                     >
                       <ShieldCheck className="h-4 w-4 text-amber-600" />
-                      Quản trị hệ thống
+                      {dict.nav.admin}
                     </Link>
                   )}
 
@@ -320,7 +333,7 @@ export function Header() {
                     className="w-full text-xs text-rose-600 border-rose-200 hover:bg-rose-50"
                   >
                     <LogOut className="h-3.5 w-3.5 mr-1.5" />
-                    Đăng xuất
+                    {dict.nav.logout}
                   </Button>
                 </div>
               ) : (
@@ -332,7 +345,7 @@ export function Header() {
                   className="w-full font-bold flex items-center justify-center gap-1.5"
                 >
                   <LogIn className="h-4 w-4" />
-                  Đăng nhập tài khoản
+                  {dict.auth.sign_in_btn}
                 </Button>
               )}
             </div>

@@ -1,4 +1,14 @@
-import { Controller, Post, Get, Body, Res, HttpCode, HttpStatus, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Body,
+  Res,
+  Headers,
+  HttpCode,
+  HttpStatus,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiCookieAuth } from '@nestjs/swagger';
 import { Response } from 'express';
 import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
@@ -48,9 +58,10 @@ export class AuthController {
   async login(
     @Body() dto: LoginDto,
     @Res({ passthrough: true }) response: Response,
+    @Headers('accept-language') acceptLanguage?: string,
   ): Promise<LoginResponseDto> {
-    const user = await this.authService.validateUser(dto);
-    return this.authService.login(user, response);
+    const user = await this.authService.validateUser(dto, acceptLanguage);
+    return this.authService.login(user, response, acceptLanguage);
   }
 
   @Public()
@@ -66,8 +77,11 @@ export class AuthController {
     status: HttpStatus.CREATED,
     description: 'Đăng ký thành công, mã OTP đã gửi đến email',
   })
-  async register(@Body() dto: RegisterDto) {
-    return this.authService.register(dto);
+  async register(
+    @Body() dto: RegisterDto,
+    @Headers('accept-language') acceptLanguage?: string,
+  ) {
+    return this.authService.register(dto, acceptLanguage);
   }
 
   @Public()
@@ -87,8 +101,9 @@ export class AuthController {
   async verifyEmail(
     @Body() dto: VerifyEmailDto,
     @Res({ passthrough: true }) response: Response,
+    @Headers('accept-language') acceptLanguage?: string,
   ): Promise<LoginResponseDto> {
-    return this.authService.verifyEmail(dto, response);
+    return this.authService.verifyEmail(dto, response, acceptLanguage);
   }
 
   @Public()
@@ -100,8 +115,11 @@ export class AuthController {
     summary: 'Gửi lại mã OTP (Giới hạn giãn cách 60 giây)',
     description: 'Tạo và gửi mã OTP mới nếu đã quá 60s kể từ lần gửi trước',
   })
-  async resendOtp(@Body() dto: ResendOtpDto) {
-    return this.authService.resendOtp(dto.email, dto.type);
+  async resendOtp(
+    @Body() dto: ResendOtpDto,
+    @Headers('accept-language') acceptLanguage?: string,
+  ) {
+    return this.authService.resendOtp(dto.email, dto.type, acceptLanguage);
   }
 
   @Public()
@@ -122,8 +140,9 @@ export class AuthController {
   async googleLogin(
     @Body() dto: GoogleLoginDto,
     @Res({ passthrough: true }) response: Response,
+    @Headers('accept-language') acceptLanguage?: string,
   ): Promise<LoginResponseDto> {
-    return this.authService.loginWithGoogle(dto, response);
+    return this.authService.loginWithGoogle(dto, response, acceptLanguage);
   }
 
   @Public()
@@ -135,8 +154,11 @@ export class AuthController {
     summary: 'Quên mật khẩu (Gửi mã OTP 6 số)',
     description: 'Gửi mã xác thực đặt lại mật khẩu qua email',
   })
-  async forgotPassword(@Body() dto: ForgotPasswordDto) {
-    return this.authService.forgotPassword(dto);
+  async forgotPassword(
+    @Body() dto: ForgotPasswordDto,
+    @Headers('accept-language') acceptLanguage?: string,
+  ) {
+    return this.authService.forgotPassword(dto, acceptLanguage);
   }
 
   @Public()
@@ -148,8 +170,11 @@ export class AuthController {
     summary: 'Đặt lại mật khẩu với mã OTP 6 số',
     description: 'Xác thực mã 6 số và cập nhật mật khẩu mới',
   })
-  async resetPassword(@Body() dto: ResetPasswordDto) {
-    return this.authService.resetPassword(dto);
+  async resetPassword(
+    @Body() dto: ResetPasswordDto,
+    @Headers('accept-language') acceptLanguage?: string,
+  ) {
+    return this.authService.resetPassword(dto, acceptLanguage);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -162,8 +187,12 @@ export class AuthController {
     summary: 'Đổi mật khẩu cho người dùng hiện tại',
     description: 'Yêu cầu mật khẩu hiện tại nếu tài khoản đã có mật khẩu',
   })
-  async changePassword(@CurrentUser() user: SafeUser, @Body() dto: ChangePasswordDto) {
-    return this.authService.changePassword(user.id, dto);
+  async changePassword(
+    @CurrentUser() user: SafeUser,
+    @Body() dto: ChangePasswordDto,
+    @Headers('accept-language') acceptLanguage?: string,
+  ) {
+    return this.authService.changePassword(user.id, dto, acceptLanguage);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -176,8 +205,12 @@ export class AuthController {
     summary: 'Thiết lập mật khẩu cho tài khoản Google chưa có mật khẩu',
     description: 'Cho phép người dùng Google tạo mật khẩu để có thể đăng nhập bằng email',
   })
-  async setPassword(@CurrentUser() user: SafeUser, @Body() dto: SetPasswordDto) {
-    return this.authService.setPassword(user.id, dto);
+  async setPassword(
+    @CurrentUser() user: SafeUser,
+    @Body() dto: SetPasswordDto,
+    @Headers('accept-language') acceptLanguage?: string,
+  ) {
+    return this.authService.setPassword(user.id, dto, acceptLanguage);
   }
 
   @Public()

@@ -20,6 +20,7 @@ import { UserProfileDto } from './dto/auth-response.dto';
 import { JwtPayload } from './strategies/jwt.strategy';
 import { OtpService } from './otp.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { I18nService } from '../i18n/i18n.service';
 
 const DUMMY_HASH =
   '$argon2id$v=19$m=65536,t=3,p=4$c29tZXNhbHRmb3JkdW1teQ$AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
@@ -31,58 +32,58 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly otpService: OtpService,
     private readonly prisma: PrismaService,
+    private readonly i18nService: I18nService = new I18nService(),
   ) {}
 
   /**
    * Validate user credentials against Argon2 hash with timing attack defense
    */
-  async validateUser(dto: LoginDto): Promise<SafeUser> {
+  async validateUser(dto: LoginDto, locale?: string): Promise<SafeUser> {
     const user = await this.usersService.findByIdentifierWithHash(dto.username);
 
     // If user doesn't exist, verify against dummy hash to equalize processing time
     if (!user) {
       await argon2.verify(DUMMY_HASH, dto.password).catch(() => false);
+      const msg = this.i18nService.t('auth.invalid_credentials', locale);
       throw new UnauthorizedException({
-        message: 'Tên đăng nhập hoặc mật khẩu không chính xác',
-        errors: { password: ['Tên đăng nhập hoặc mật khẩu không chính xác'] },
+        message: msg,
+        errors: { password: [msg] },
       });
     }
 
     if (!user.passwordHash) {
+      const msg = this.i18nService.t('auth.google_account_only', locale);
       throw new UnauthorizedException({
-        message:
-          'Tài khoản này được đăng ký qua Google. Vui lòng đăng nhập bằng Google hoặc thiết lập mật khẩu.',
+        message: msg,
         errors: {
-          username: [
-            'Tài khoản này được đăng ký qua Google. Vui lòng đăng nhập bằng Google hoặc thiết lập mật khẩu.',
-          ],
+          username: [msg],
         },
       });
     }
 
     const isPasswordValid = await argon2.verify(user.passwordHash, dto.password);
     if (!isPasswordValid) {
+      const msg = this.i18nService.t('auth.invalid_credentials', locale);
       throw new UnauthorizedException({
-        message: 'Tên đăng nhập hoặc mật khẩu không chính xác',
-        errors: { password: ['Tên đăng nhập hoặc mật khẩu không chính xác'] },
+        message: msg,
+        errors: { password: [msg] },
       });
     }
 
     if (user.isDeleted) {
+      const msg = this.i18nService.t('auth.account_disabled', locale);
       throw new UnauthorizedException({
-        message: 'Tài khoản này đã bị vô hiệu hóa hoặc đã xóa.',
-        errors: { username: ['Tài khoản này đã bị vô hiệu hóa hoặc đã xóa.'] },
+        message: msg,
+        errors: { username: [msg] },
       });
     }
 
     if (!user.isEmailVerified && user.role !== Role.ADMIN) {
+      const msg = this.i18nService.t('auth.email_not_verified', locale);
       throw new UnauthorizedException({
-        message:
-          'Email của bạn chưa được xác thực. Vui lòng nhập mã OTP 6 số để kích hoạt tài khoản.',
+        message: msg,
         errors: {
-          username: [
-            'Email của bạn chưa được xác thực. Vui lòng nhập mã OTP 6 số để kích hoạt tài khoản.',
-          ],
+          username: [msg],
         },
       });
     }
@@ -97,6 +98,7 @@ export class AuthService {
   async login(
     user: SafeUser,
     response: Response,
+    locale?: string,
   ): Promise<{ message: string; user: UserProfileDto }> {
     const payload: JwtPayload = {
       sub: user.id,
@@ -118,8 +120,11 @@ export class AuthService {
 
     const detailedUser = await this.getDetailedProfile(user);
 
+    const resolvedLocale = this.i18nService.resolveLocale(locale);
+    const successMsg = resolvedLocale === 'en' ? 'Logged in successfully' : 'Đăng nhập thành công';
+
     return {
-      message: 'Đăng nhập thành công',
+      message: successMsg,
       user: detailedUser,
     };
   }
@@ -129,24 +134,27 @@ export class AuthService {
    */
   async register(
     dto: RegisterDto,
+    locale?: string,
   ): Promise<{ message: string; email: string; requireOtp: boolean }> {
     const normalizedEmail = dto.email.toLowerCase();
 
     // Kiểm tra email đã đăng ký chưa
     const existingByEmail = await this.usersService.findByEmail(normalizedEmail);
     if (existingByEmail) {
+      const msg = this.i18nService.t('auth.email_exists', locale);
       throw new BadRequestException({
-        message: 'Địa chỉ email này đã được sử dụng.',
-        errors: { email: ['Địa chỉ email này đã được sử dụng.'] },
+        message: msg,
+        errors: { email: [msg] },
       });
     }
 
     // Kiểm tra username đã đăng ký chưa
     const existingByUsername = await this.usersService.findByUsername(dto.username);
     if (existingByUsername) {
+      const msg = this.i18nService.t('auth.username_exists', locale);
       throw new BadRequestException({
-        message: 'Tên đăng nhập này đã được sử dụng.',
-        errors: { username: ['Tên đăng nhập này đã được sử dụng.'] },
+        message: msg,
+        errors: { username: [msg] },
       });
     }
 
@@ -169,10 +177,17 @@ export class AuthService {
       normalizedEmail,
       OtpType.REGISTER_VERIFY,
       newUser.id,
+      locale,
     );
 
+    const resolvedLocale = this.i18nService.resolveLocale(locale);
+    const successMsg =
+      resolvedLocale === 'en'
+        ? 'Registration successful. Please enter the 6-digit verification code sent to your email.'
+        : 'Đăng ký thành công. Vui lòng nhập mã OTP 6 số gửi đến email của bạn để kích hoạt.';
+
     return {
-      message: 'Đăng ký thành công. Vui lòng nhập mã OTP 6 số gửi đến email của bạn để kích hoạt.',
+      message: successMsg,
       email: normalizedEmail,
       requireOtp: true,
       ...(process.env.NODE_ENV !== 'production' ? { devOtpCode: code } : {}),
@@ -185,6 +200,7 @@ export class AuthService {
   async verifyEmail(
     dto: VerifyEmailDto,
     response: Response,
+    locale?: string,
   ): Promise<{ message: string; user: UserProfileDto }> {
     const normalizedEmail = dto.email.toLowerCase();
 
@@ -194,7 +210,7 @@ export class AuthService {
     // Kích hoạt người dùng
     const user = await this.usersService.findByEmail(normalizedEmail);
     if (!user) {
-      throw new NotFoundException('Không tìm thấy tài khoản người dùng.');
+      throw new NotFoundException(this.i18nService.t('users.not_found', locale));
     }
 
     const updatedUser = await this.usersService.update(user.id, {
@@ -202,18 +218,22 @@ export class AuthService {
     });
 
     // Tự động đăng nhập
-    return this.login(updatedUser, response);
+    return this.login(updatedUser, response, locale);
   }
 
   /**
    * Gửi lại mã OTP
    */
-  async resendOtp(email: string, type: OtpType): Promise<{ success: boolean; message: string }> {
+  async resendOtp(
+    email: string,
+    type: OtpType,
+    locale?: string,
+  ): Promise<{ success: boolean; message: string }> {
     const normalizedEmail = email.toLowerCase();
-    await this.otpService.createAndSendOtp(normalizedEmail, type);
+    await this.otpService.createAndSendOtp(normalizedEmail, type, undefined, locale);
     return {
       success: true,
-      message: 'Mã xác thực mới đã được gửi đến email của bạn.',
+      message: this.i18nService.t('auth.otp_resent', locale),
     };
   }
 
@@ -223,6 +243,7 @@ export class AuthService {
   async loginWithGoogle(
     dto: GoogleLoginDto,
     response: Response,
+    locale?: string,
   ): Promise<{ message: string; user: UserProfileDto }> {
     // Trích xuất thông tin Google từ credential hoặc payload dev
     let email = dto.email?.toLowerCase();
@@ -257,7 +278,7 @@ export class AuthService {
         isEmailVerified: true,
       });
 
-      return this.login(updatedUser, response);
+      return this.login(updatedUser, response, locale);
     }
 
     // 2. Nếu chưa có tài khoản: Tạo mới tự động
@@ -281,31 +302,48 @@ export class AuthService {
       role: Role.USER,
     });
 
-    return this.login(newUser, response);
+    return this.login(newUser, response, locale);
   }
 
   /**
    * Yêu cầu khôi phục mật khẩu (Gửi OTP 6 số)
    */
-  async forgotPassword(dto: ForgotPasswordDto): Promise<{ success: boolean; message: string }> {
+  async forgotPassword(
+    dto: ForgotPasswordDto,
+    locale?: string,
+  ): Promise<{ success: boolean; message: string }> {
     const normalizedEmail = dto.email.toLowerCase();
     const user = await this.usersService.findByEmail(normalizedEmail);
 
     if (user) {
-      await this.otpService.createAndSendOtp(normalizedEmail, OtpType.RESET_PASSWORD, user.id);
+      await this.otpService.createAndSendOtp(
+        normalizedEmail,
+        OtpType.RESET_PASSWORD,
+        user.id,
+        locale,
+      );
     }
+
+    const resolvedLocale = this.i18nService.resolveLocale(locale);
+    const msg =
+      resolvedLocale === 'en'
+        ? 'If the email exists in our system, a 6-digit verification code has been sent.'
+        : 'Nếu email tồn tại trong hệ thống, mã xác thực 6 số đã được gửi.';
 
     // Trả về thông báo thành công chung để chống rò rỉ danh tính (Anti-enumeration)
     return {
       success: true,
-      message: 'Nếu email tồn tại trong hệ thống, mã xác thực 6 số đã được gửi.',
+      message: msg,
     };
   }
 
   /**
    * Đặt lại mật khẩu bằng mã OTP 6 số
    */
-  async resetPassword(dto: ResetPasswordDto): Promise<{ success: boolean; message: string }> {
+  async resetPassword(
+    dto: ResetPasswordDto,
+    locale?: string,
+  ): Promise<{ success: boolean; message: string }> {
     const normalizedEmail = dto.email.toLowerCase();
 
     // Xác thực mã OTP
@@ -313,7 +351,7 @@ export class AuthService {
 
     const user = await this.usersService.findByEmail(normalizedEmail);
     if (!user) {
-      throw new NotFoundException('Không tìm thấy tài khoản người dùng.');
+      throw new NotFoundException(this.i18nService.t('users.not_found', locale));
     }
 
     const passwordHash = await argon2.hash(dto.newPassword, {
@@ -327,7 +365,7 @@ export class AuthService {
 
     return {
       success: true,
-      message: 'Mật khẩu đã được đặt lại thành công. Bạn có thể đăng nhập ngay.',
+      message: this.i18nService.t('auth.password_reset_success', locale),
     };
   }
 
@@ -337,25 +375,31 @@ export class AuthService {
   async changePassword(
     userId: string,
     dto: ChangePasswordDto,
+    locale?: string,
   ): Promise<{ success: boolean; message: string }> {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
     if (!user) {
-      throw new NotFoundException('Không tìm thấy tài khoản người dùng.');
+      throw new NotFoundException(this.i18nService.t('users.not_found', locale));
     }
 
     // Nếu tài khoản đã có mật khẩu thì bắt buộc kiểm tra currentPassword
     if (user.passwordHash) {
       if (!dto.currentPassword) {
+        const msg =
+          this.i18nService.resolveLocale(locale) === 'en'
+            ? 'Please provide your current password.'
+            : 'Vui lòng cung cấp mật khẩu hiện tại.';
         throw new BadRequestException({
-          message: 'Vui lòng cung cấp mật khẩu hiện tại.',
-          errors: { currentPassword: ['Vui lòng cung cấp mật khẩu hiện tại.'] },
+          message: msg,
+          errors: { currentPassword: [msg] },
         });
       }
       const isMatch = await argon2.verify(user.passwordHash, dto.currentPassword);
       if (!isMatch) {
+        const msg = this.i18nService.t('auth.old_password_incorrect', locale);
         throw new BadRequestException({
-          message: 'Mật khẩu hiện tại không chính xác.',
-          errors: { currentPassword: ['Mật khẩu hiện tại không chính xác.'] },
+          message: msg,
+          errors: { currentPassword: [msg] },
         });
       }
     }
@@ -368,7 +412,7 @@ export class AuthService {
 
     return {
       success: true,
-      message: 'Đổi mật khẩu thành công.',
+      message: this.i18nService.t('auth.password_changed_success', locale),
     };
   }
 
@@ -378,16 +422,19 @@ export class AuthService {
   async setPassword(
     userId: string,
     dto: SetPasswordDto,
+    locale?: string,
   ): Promise<{ success: boolean; message: string }> {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
     if (!user) {
-      throw new NotFoundException('Không tìm thấy tài khoản.');
+      throw new NotFoundException(this.i18nService.t('users.not_found', locale));
     }
 
     if (user.passwordHash) {
-      throw new BadRequestException(
-        'Tài khoản này đã có mật khẩu cá nhân. Vui lòng sử dụng chức năng Đổi mật khẩu.',
-      );
+      const msg = this.i18nService.t('auth.password_already_set', locale);
+      throw new BadRequestException({
+        message: msg,
+        errors: { newPassword: [msg] },
+      });
     }
 
     const passwordHash = await argon2.hash(dto.newPassword, {
@@ -398,7 +445,7 @@ export class AuthService {
 
     return {
       success: true,
-      message: 'Thiết lập mật khẩu thành công. Giờ bạn có thể đăng nhập bằng cả Email và Google.',
+      message: this.i18nService.t('auth.password_set_success', locale),
     };
   }
 

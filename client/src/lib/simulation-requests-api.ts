@@ -1,4 +1,5 @@
 import { getClientSessionId } from './telemetry';
+import { getActiveLocale } from '@/i18n';
 
 export type SimulationRequestStatus =
   'PENDING' | 'UNDER_REVIEW' | 'PLANNED' | 'IN_DEVELOPMENT' | 'COMPLETED' | 'REJECTED';
@@ -94,6 +95,7 @@ export async function fetchSimulationRequests(
       method: 'GET',
       headers: {
         Accept: 'application/json',
+        'Accept-Language': getActiveLocale(),
         'x-session-id': sessionId,
       },
       credentials: 'include',
@@ -132,6 +134,7 @@ export async function createSimulationRequest(payload: CreateSimulationRequestPa
       headers: {
         'Content-Type': 'application/json',
         Accept: 'application/json',
+        'Accept-Language': getActiveLocale(),
         'x-session-id': sessionId,
       },
       credentials: 'include',
@@ -175,6 +178,7 @@ export async function toggleSimulationRequestVote(
       headers: {
         'Content-Type': 'application/json',
         Accept: 'application/json',
+        'Accept-Language': getActiveLocale(),
         'x-session-id': sessionId,
       },
       credentials: 'include',
@@ -212,6 +216,7 @@ export async function fetchAdminSimulationRequests(
       method: 'GET',
       headers: {
         Accept: 'application/json',
+        'Accept-Language': getActiveLocale(),
       },
       credentials: 'include',
     });
@@ -246,6 +251,7 @@ export async function updateAdminSimulationRequestStatus(
       headers: {
         'Content-Type': 'application/json',
         Accept: 'application/json',
+        'Accept-Language': getActiveLocale(),
       },
       credentials: 'include',
       body: JSON.stringify(payload),
@@ -282,6 +288,7 @@ export async function deleteAdminSimulationRequest(
       method: 'DELETE',
       headers: {
         Accept: 'application/json',
+        'Accept-Language': getActiveLocale(),
       },
       credentials: 'include',
     });

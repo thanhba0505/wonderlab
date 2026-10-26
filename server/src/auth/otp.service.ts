@@ -17,6 +17,7 @@ export class OtpService {
     email: string,
     type: OtpType,
     userId?: string,
+    locale?: string,
   ): Promise<{ code: string; expiresAt: Date }> {
     const normalizedEmail = email.toLowerCase();
 
@@ -54,7 +55,7 @@ export class OtpService {
     });
 
     // Gửi email (hoặc ghi log console ở môi trường dev)
-    await this.mailService.sendOtpEmail(normalizedEmail, code, type);
+    await this.mailService.sendOtpEmail(normalizedEmail, code, type, locale);
 
     return { code, expiresAt };
   }

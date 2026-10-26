@@ -3,6 +3,7 @@ import { Be_Vietnam_Pro, Space_Grotesk, JetBrains_Mono } from 'next/font/google'
 import './globals.css';
 import { AppShell } from '@/components/layout/app-shell';
 import { AuthProvider } from '@/lib/auth-context';
+import { I18nProvider } from '@/i18n';
 
 const beVietnamPro = Be_Vietnam_Pro({
   weight: ['300', '400', '500', '600', '700', '800'],
@@ -94,9 +95,11 @@ export default function RootLayout({
         className="min-h-screen flex flex-col font-sans bg-[#f1f5f9] text-slate-800 antialiased selection:bg-blue-500/20 selection:text-blue-900"
         suppressHydrationWarning
       >
-        <AuthProvider>
-          <AppShell>{children}</AppShell>
-        </AuthProvider>
+        <I18nProvider>
+          <AuthProvider>
+            <AppShell>{children}</AppShell>
+          </AuthProvider>
+        </I18nProvider>
       </body>
     </html>
   );

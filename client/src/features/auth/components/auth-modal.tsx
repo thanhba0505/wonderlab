@@ -5,6 +5,7 @@ import { X, Mail, Lock, User, ArrowRight, CheckCircle2, KeyRound, ArrowLeft } fr
 import { BrandLogo } from '@/components/ui/brand-logo';
 import { AppForm, AppFormField, AppFormSubmit, type AppFormHelpers } from '@/components/ui';
 import { useAuth, AuthModalView } from '@/lib/auth-context';
+import { useTranslation } from '@/i18n';
 import { cn } from '@/lib/utils';
 
 export function AuthModal() {
@@ -21,6 +22,7 @@ export function AuthModal() {
     forgotPassword,
     resetPassword,
   } = useAuth();
+  const { dict, locale } = useTranslation();
 
   const [mode, setMode] = React.useState<AuthModalView>(authModalMode);
   const [email, setEmail] = React.useState<string>('');
@@ -316,11 +318,11 @@ export function AuthModal() {
           <div className="flex items-center gap-2">
             <BrandLogo variant="badge" className="h-7 w-7 rounded-lg shadow-2xs" />
             <span className="font-heading text-base font-bold text-slate-900">
-              {mode === 'login' && 'Đăng nhập Wonderlab'}
-              {mode === 'register' && 'Đăng ký tài khoản'}
-              {mode === 'otp' && 'Xác thực mã OTP 6 số'}
-              {mode === 'forgot' && 'Khôi phục mật khẩu'}
-              {mode === 'reset' && 'Đặt lại mật khẩu mới'}
+              {mode === 'login' && dict.auth.login_title}
+              {mode === 'register' && dict.auth.register_title}
+              {mode === 'otp' && dict.auth.otp_title}
+              {mode === 'forgot' && dict.auth.forgot_password_title}
+              {mode === 'reset' && dict.auth.reset_password_title}
             </span>
           </div>
 
