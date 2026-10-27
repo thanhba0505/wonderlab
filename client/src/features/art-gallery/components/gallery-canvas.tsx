@@ -22,54 +22,6 @@ export interface GalleryCanvasProps {
   isVertexOnlyMode: boolean;
 }
 
-const COLOR_MAP_VI: Record<
-  VertexColor,
-  { label: string; fill: string; ring: string; badge: string }
-> = {
-  0: {
-    label: 'Màu A (Hổ phách)',
-    fill: 'fill-amber-500',
-    ring: 'stroke-amber-500',
-    badge: 'bg-amber-100 text-amber-800 border-amber-300',
-  },
-  1: {
-    label: 'Màu B (Ngọc bích)',
-    fill: 'fill-emerald-500',
-    ring: 'stroke-emerald-500',
-    badge: 'bg-emerald-100 text-emerald-800 border-emerald-300',
-  },
-  2: {
-    label: 'Màu C (Tím lam)',
-    fill: 'fill-indigo-500',
-    ring: 'stroke-indigo-500',
-    badge: 'bg-indigo-100 text-indigo-800 border-indigo-300',
-  },
-};
-
-const COLOR_MAP_EN: Record<
-  VertexColor,
-  { label: string; fill: string; ring: string; badge: string }
-> = {
-  0: {
-    label: 'Color A (Amber)',
-    fill: 'fill-amber-500',
-    ring: 'stroke-amber-500',
-    badge: 'bg-amber-100 text-amber-800 border-amber-300',
-  },
-  1: {
-    label: 'Color B (Emerald)',
-    fill: 'fill-emerald-500',
-    ring: 'stroke-emerald-500',
-    badge: 'bg-emerald-100 text-emerald-800 border-emerald-300',
-  },
-  2: {
-    label: 'Color C (Indigo)',
-    fill: 'fill-indigo-500',
-    ring: 'stroke-indigo-500',
-    badge: 'bg-indigo-100 text-indigo-800 border-indigo-300',
-  },
-};
-
 export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
   polygon,
   guards,
@@ -80,9 +32,30 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
   fiskProof,
   isVertexOnlyMode,
 }) => {
-  const { locale } = useTranslation();
-  const isEn = locale === 'en';
-  const colorMap = isEn ? COLOR_MAP_EN : COLOR_MAP_VI;
+  const { dict } = useTranslation();
+  const colorMap: Record<
+    VertexColor,
+    { label: string; fill: string; ring: string; badge: string }
+  > = {
+    0: {
+      label: dict.sim_art_gallery.color_amber,
+      fill: 'fill-amber-500',
+      ring: 'stroke-amber-500',
+      badge: 'bg-amber-100 text-amber-800 border-amber-300',
+    },
+    1: {
+      label: dict.sim_art_gallery.color_emerald,
+      fill: 'fill-emerald-500',
+      ring: 'stroke-emerald-500',
+      badge: 'bg-emerald-100 text-emerald-800 border-emerald-300',
+    },
+    2: {
+      label: dict.sim_art_gallery.color_indigo,
+      fill: 'fill-indigo-500',
+      ring: 'stroke-indigo-500',
+      badge: 'bg-indigo-100 text-indigo-800 border-indigo-300',
+    },
+  };
   const svgRef = React.useRef<SVGSVGElement | null>(null);
   const [hoveredVertexIdx, setHoveredVertexIdx] = React.useState<number | null>(null);
 
@@ -135,32 +108,26 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200/80 px-4 py-2.5 bg-slate-50/70 text-xs text-slate-600 font-sans">
         <div className="flex items-center gap-2">
           <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-          <span className="font-semibold text-slate-800">
-            {isEn ? 'Floor Plan & Visibility Field' : 'Bản Vẽ Phòng & Không Gian Tầm Nhìn'}
-          </span>
+          <span className="font-semibold text-slate-800">{dict.sim_art_gallery.canvas_title}</span>
           <span className="text-slate-400">|</span>
           <span className="text-slate-500">
             {isVertexOnlyMode
-              ? isEn
-                ? 'Mode: Vertex Placement'
-                : 'Chế độ: Đặt tại đỉnh phòng'
-              : isEn
-                ? 'Mode: Free Placement'
-                : 'Chế độ: Tự do trong phòng'}
+              ? dict.sim_art_gallery.mode_vertex_placement
+              : dict.sim_art_gallery.mode_free_placement}
           </span>
         </div>
 
         <div className="flex items-center gap-3 font-mono text-xs text-slate-500">
           <span>
-            {polygon.length} {isEn ? 'Vertices' : 'Đỉnh'}
+            {polygon.length} {dict.sim_art_gallery.vertices_count}
           </span>
           <span>&bull;</span>
           <span>
-            {guards.length} {isEn ? 'Guards' : 'Người gác'}
+            {guards.length} {dict.sim_art_gallery.guards_count}
           </span>
           <span>&bull;</span>
           <span className="text-amber-700 font-semibold">
-            {isEn ? 'Chvátal Bound: ' : 'Cận Chvátal: '}&lfloor;{polygon.length}/3&rfloor; ={' '}
+            {dict.sim_art_gallery.chvatal_bound_label}&lfloor;{polygon.length}/3&rfloor; ={' '}
             {Math.floor(polygon.length / 3)}
           </span>
         </div>
@@ -380,12 +347,8 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
               <Eye className="h-4 w-4 text-amber-600 animate-pulse" />
               <span>
                 {isVertexOnlyMode
-                  ? isEn
-                    ? 'Click on any vertex (circle) to place a guard'
-                    : 'Bấm vào một đỉnh bất kỳ (chấm tròn) để đặt lính gác quan sát'
-                  : isEn
-                    ? 'Click anywhere inside the room or on vertices to place guards'
-                    : 'Bấm vào bất kỳ đâu trong căn phòng hoặc tại đỉnh để bố trí lính gác'}
+                  ? dict.sim_art_gallery.empty_vertex_guide
+                  : dict.sim_art_gallery.empty_free_guide}
               </span>
             </div>
           </div>
@@ -397,9 +360,7 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200/80 px-4 py-2.5 bg-slate-50/80 text-xs">
           <div className="flex items-center gap-2 font-medium text-slate-700">
             <Sparkles className="h-4 w-4 text-emerald-600" />
-            <span>
-              {isEn ? '3-Coloring by Steve Fisk Theorem:' : 'Tô 3 màu theo định lý Steve Fisk:'}
-            </span>
+            <span>{dict.sim_art_gallery.fisk_legend_title}</span>
           </div>
 
           <div className="flex flex-wrap items-center gap-3 font-mono text-xs">
@@ -423,11 +384,11 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
                   />
                   <span>
                     {meta.label}: <strong className="font-mono">{count}</strong>{' '}
-                    {isEn ? 'vertices' : 'đỉnh'}
+                    {dict.sim_art_gallery.vertices_unit}
                   </span>
                   {isOptimal && (
                     <span className="text-xs uppercase tracking-wide bg-emerald-600 text-white px-1.5 py-0.5 rounded font-mono">
-                      {isEn ? 'Minimal ≤ ⌊n/3⌋' : 'Cực tiểu ≤ ⌊n/3⌋'}
+                      {dict.sim_art_gallery.minimal_bound_badge}
                     </span>
                   )}
                 </div>
@@ -441,11 +402,7 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
       <div className="flex flex-wrap items-center justify-between gap-2 border-t border-slate-200/80 px-4 py-2 bg-white text-xs text-slate-500">
         <div className="flex items-center gap-2">
           <MapPin className="h-3.5 w-3.5 text-blue-600" />
-          <span>
-            {isEn
-              ? 'Click placed guard to remove | Click vertex to toggle guard'
-              : 'Click lính gác đã đặt để xóa | Click đỉnh để bật/tắt lính'}
-          </span>
+          <span>{dict.sim_art_gallery.canvas_helper_hint}</span>
         </div>
         {guards.length > 0 && (
           <button
@@ -453,7 +410,7 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
             className="inline-flex items-center gap-1 text-xs text-rose-600 hover:text-rose-700 font-medium transition-colors"
           >
             <Trash2 className="h-3.5 w-3.5" />
-            <span>{isEn ? 'Clear all guards' : 'Xóa toàn bộ lính'}</span>
+            <span>{dict.sim_art_gallery.clear_all_guards_btn}</span>
           </button>
         )}
       </div>

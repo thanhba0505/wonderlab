@@ -15,7 +15,6 @@ interface SimulationsCatalogProps {
 
 export function SimulationsCatalog({ initialSimulations }: SimulationsCatalogProps) {
   const { locale, dict } = useTranslation();
-  const isEn = locale === 'en';
 
   const [search, setSearch] = React.useState('');
   const [selectedCategory, setSelectedCategory] = React.useState<string>('all');
@@ -56,7 +55,7 @@ export function SimulationsCatalog({ initialSimulations }: SimulationsCatalogPro
       <div className="flex flex-col gap-3 border-b border-slate-200 pb-6">
         <div className="flex items-center gap-2 font-mono text-xs text-blue-600 font-semibold uppercase tracking-wider">
           <FlaskConical className="h-4 w-4" />
-          <span>{isEn ? 'Laboratory Repository' : 'Thư viện Thực nghiệm'}</span>
+          <span>{dict.simulations.library_repo}</span>
         </div>
         <h1 className="font-heading text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
           {dict.simulations.title}
@@ -122,11 +121,11 @@ export function SimulationsCatalog({ initialSimulations }: SimulationsCatalogPro
                     {isActive ? (
                       <Badge className="bg-emerald-100 text-emerald-800 border-emerald-300">
                         <Sparkles className="mr-1 h-3 w-3" />
-                        {isEn ? 'Active' : 'Sẵn sàng'}
+                        {dict.simulations.active_badge}
                       </Badge>
                     ) : (
                       <Badge variant="outline" className="text-slate-500 border-slate-300">
-                        {isEn ? 'Upcoming' : 'Đang chuẩn bị'}
+                        {dict.simulations.upcoming_badge}
                       </Badge>
                     )}
                   </div>
@@ -145,7 +144,7 @@ export function SimulationsCatalog({ initialSimulations }: SimulationsCatalogPro
                   <div className="flex items-center gap-1 font-mono text-xs text-slate-500">
                     <Clock className="h-3 w-3" />
                     <span>
-                      ~{sim.estimatedMinutes} {isEn ? 'min' : 'phút'}
+                      ~{sim.estimatedMinutes} {dict.simulations.min_unit}
                     </span>
                   </div>
 
@@ -159,15 +158,7 @@ export function SimulationsCatalog({ initialSimulations }: SimulationsCatalogPro
                           : 'border-slate-300 text-slate-600'
                       }
                     >
-                      <span>
-                        {isActive
-                          ? isEn
-                            ? 'Enter Lab'
-                            : 'Vào phòng lab'
-                          : isEn
-                            ? 'Details'
-                            : 'Xem chi tiết'}
-                      </span>
+                      <span>{isActive ? dict.home.enter_lab : dict.simulations.coming_soon}</span>
                       <ArrowRight className="ml-1 h-3.5 w-3.5" />
                     </Button>
                   </Link>
@@ -183,22 +174,18 @@ export function SimulationsCatalog({ initialSimulations }: SimulationsCatalogPro
         <div className="max-w-xl">
           <div className="flex items-center gap-2 text-xs font-mono font-semibold text-blue-700 uppercase">
             <Sparkles className="h-3.5 w-3.5 text-blue-600" />
-            <span>{isEn ? 'Community Ideas' : 'Đề xuất từ cộng đồng'}</span>
+            <span>{dict.simulations.community_ideas}</span>
           </div>
           <h2 className="font-heading mt-1 text-lg font-bold text-slate-900">
-            {isEn
-              ? 'Cannot find the experiment you are looking for?'
-              : 'Chưa tìm thấy bài toán bạn muốn thử nghiệm?'}
+            {dict.simulations.community_ideas}
           </h2>
           <p className="mt-1 text-xs text-slate-600 leading-relaxed">
-            {isEn
-              ? 'Propose your idea or paradox. The Wonderlab community will upvote to prioritize building it next.'
-              : 'Hãy gửi ý tưởng nghịch lý hoặc hiện tượng bạn quan tâm. Cộng đồng Wonderlab sẽ bình chọn để đội ngũ ưu tiên xây dựng mô phỏng tiếp theo.'}
+            {dict.simulations.community_ideas_desc}
           </p>
         </div>
         <Link href="/requests">
           <Button className="bg-blue-600 hover:bg-blue-700 text-white shrink-0">
-            <span>{isEn ? 'Propose & Vote' : 'Đề xuất & Bình chọn'}</span>
+            <span>{dict.simulations.propose_and_vote}</span>
             <ArrowRight className="ml-1.5 h-4 w-4" />
           </Button>
         </Link>

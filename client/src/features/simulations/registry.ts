@@ -418,6 +418,70 @@ export const SIMULATIONS_REGISTRY: SimulationMeta[] = [
         'Xu hướng mặc định rằng vì các chiếc mũ được đội ngẫu nhiên độc lập nên xác suất đoán đúng của mỗi cá nhân cũng hoàn toàn độc lập, bỏ qua khả năng truyền tin và mã hóa thông tin hợp tác.',
     },
   },
+  {
+    slug: 'bodyguard-problem',
+    title: 'Bài Toán Vệ Sĩ & Phòng Gương (The Bodyguard Problem)',
+    subtitle: 'Bida toán học, kỹ thuật trải phẳng và tính chất chặn hữu hạn',
+    category: 'physics',
+    difficulty: 'intermediate',
+    estimatedMinutes: 5,
+    formula: "M = \\frac{A + B'_{k, m, s_x, s_y}}{2} \\implies |\\mathcal{G}| \\le 2^4 = 16",
+    summary:
+      'Trong căn phòng 4 bức tường gương, một nguồn sáng phát 360° tạo ra vô hạn tia phản xạ. Kỳ diệu thay, chỉ cần tối đa 16 điểm vệ sĩ là đủ để chặn 100% mọi tia sáng chiếu tới mục tiêu!',
+    description:
+      'Xuất phát từ Olympic Leningrad 1990 và nghiên cứu của Eugene Gutkin (2005), bài toán chứng minh rằng nhóm phản xạ đối xứng Z² ⋊ D₄ thu gọn không gian trạng thái vô hạn về đúng 16 điểm trung điểm, biến mạng tia phản xạ dày đặc thành hệ thống bị chặn hoàn toàn.',
+    tags: [
+      'Bida toán học',
+      'Quang hình học',
+      'Kỹ thuật trải phẳng',
+      'Định lý Gutkin',
+      'Đối xứng nhóm',
+    ],
+    status: 'active',
+    accentColor: 'emerald',
+    hypothesis: {
+      question:
+        'Trong căn phòng vuông 4 bức tường gương hoàn hảo, nguồn sáng A chiếu 360° tạo vô số tia phản xạ. Cần ít nhất bao nhiêu điểm chắn (vệ sĩ) để chặn TOÀN BỘ mọi tia sáng chiếu tới điểm B?',
+      context:
+        'Phòng vuông kích thước 1x1. Ánh sáng phản xạ hoàn hảo vô hạn lần theo định luật gương phẳng (góc tới bằng góc phản xạ).',
+      options: [
+        {
+          id: 'opt-a',
+          label: 'Cần vô số điểm (vì tia phản xạ vô hạn lần phủ kín phòng)',
+          value: 0.1,
+          explanation:
+            'Bẫy tư duy trực giác vô hạn: Cho rằng vì có vô hạn tia phản xạ đan xen dày đặc nên không thể dùng hữu hạn điểm để che chắn.',
+        },
+        {
+          id: 'opt-b',
+          label: 'Khoảng 64 điểm',
+          value: 0.25,
+          explanation: 'Đoán quá cao do nhân nhầm bậc phản xạ của các bức tường.',
+        },
+        {
+          id: 'opt-c',
+          label: 'Chỉ cần tối đa 16 điểm (Định lý Eugene Gutkin)',
+          value: 1.0,
+          explanation:
+            'Chính xác xuất sắc! Nhờ kỹ thuật trải phẳng mặt phẳng thành lưới tinh thể chu kỳ 2, toàn bộ các ảnh ảo chỉ tạo ra tối đa 16 lớp trung điểm folded độc lập!',
+        },
+        {
+          id: 'opt-d',
+          label: 'Chỉ cần đúng 4 điểm (1 điểm trên mỗi bức tường)',
+          value: 0.05,
+          explanation:
+            'Đánh giá quá thấp: 4 điểm chỉ đủ cho các tia phản xạ 1 lần, không thể chặn các tia phản xạ chéo góc nhiều lần.',
+        },
+      ],
+      theoreticalTruth: 1.0,
+      truthExplanation:
+        'Định lý Eugene Gutkin (2005) chứng minh rằng khi trải phẳng phòng vuông thành mặt phẳng vô hạn với chu kỳ phản xạ 2, các ảnh ảo của B có tọa độ (2n ± x_B, 2p ± y_B). Các trung điểm đoạn thẳng nối A tới mọi ảnh ảo B chỉ nhận 2 × 2 × 2 × 2 = 16 giá trị phân biệt khi gập về phòng gốc [0, 1]².',
+      biasType: 'infinite-reflections-fallacy',
+      biasName: 'Bẫy Tư Duy Vô Hạn (Infinite Reflections Fallacy)',
+      biasDescription:
+        'Bộ não người thường mặc định rằng hệ quả vô hạn (vô số tia nảy) bắt buộc phải cần nguyên nhân vô hạn để kiểm soát, bỏ qua cấu trúc đối xứng tuần hoàn của đại số nhóm.',
+    },
+  },
 ];
 
 export function localizeSimulation(sim: SimulationMeta, locale: Locale = 'vi'): SimulationMeta {

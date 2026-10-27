@@ -25,10 +25,14 @@ export interface SimulationHypothesisChallenge {
     | 'zero-sum-fallacy'
     | 'infinite-sum-fallacy'
     | 'convexity-illusion'
-    | 'independence-fallacy';
+    | 'independence-fallacy'
+    | 'infinite-reflections-fallacy';
   biasName: string;
   biasDescription: string;
 }
+
+export type SimulationHypothesis = SimulationHypothesisChallenge;
+export type SimulationHypothesisOption = HypothesisOption;
 
 export interface SimulationMeta {
   slug: string;

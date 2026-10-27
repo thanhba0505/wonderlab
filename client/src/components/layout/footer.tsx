@@ -9,7 +9,7 @@ import { useTranslation } from '@/i18n';
 
 export function Footer() {
   const { user } = useAuth();
-  const { dict, locale } = useTranslation();
+  const { dict } = useTranslation();
 
   return (
     <footer className="border-t border-slate-300/80 bg-slate-200/40 py-12 text-slate-600">
@@ -50,7 +50,7 @@ export function Footer() {
                   href="/simulations/monty-hall"
                   className="text-slate-600 hover:text-slate-900 transition-colors"
                 >
-                  {locale === 'en' ? 'Monty Hall Problem' : 'Nghịch lý Monty Hall'}
+                  {dict.footer.sim_monty_hall}
                 </Link>
               </li>
               <li>
@@ -58,7 +58,7 @@ export function Footer() {
                   href="/simulations/birthday-paradox"
                   className="text-slate-600 hover:text-slate-900 transition-colors"
                 >
-                  {locale === 'en' ? 'Birthday Paradox' : 'Nghịch lý Ngày sinh'}
+                  {dict.footer.sim_birthday}
                 </Link>
               </li>
               <li>
@@ -66,7 +66,7 @@ export function Footer() {
                   href="/simulations/double-slit"
                   className="text-slate-600 hover:text-slate-900 transition-colors"
                 >
-                  {locale === 'en' ? 'Double-Slit Experiment' : 'Thí nghiệm Hai khe Young'}
+                  {dict.footer.sim_double_slit}
                 </Link>
               </li>
               <li>
@@ -74,7 +74,7 @@ export function Footer() {
                   href="/simulations/prisoners-dilemma"
                   className="text-slate-600 hover:text-slate-900 transition-colors"
                 >
-                  {locale === 'en' ? "Prisoner's Dilemma" : 'Thế lưỡng nan Người tù'}
+                  {dict.footer.sim_prisoners_dilemma}
                 </Link>
               </li>
               <li>
@@ -82,7 +82,7 @@ export function Footer() {
                   href="/simulations/zeno-paradox"
                   className="text-slate-600 hover:text-slate-900 transition-colors"
                 >
-                  {locale === 'en' ? "Zeno's Paradox" : 'Nghịch lý Zeno'}
+                  {dict.footer.sim_zeno}
                 </Link>
               </li>
               <li>
@@ -90,7 +90,7 @@ export function Footer() {
                   href="/simulations/prisoners-hats"
                   className="text-slate-600 hover:text-slate-900 transition-colors"
                 >
-                  {locale === 'en' ? 'Prisoners & Hats Riddle' : 'Bài toán Đội mũ & Bit Chẵn lẻ'}
+                  {dict.footer.sim_prisoners_hats}
                 </Link>
               </li>
               <li>
@@ -108,7 +108,7 @@ export function Footer() {
                 >
                   <span>{dict.footer.submit_request}</span>
                   <span className="text-xs font-mono bg-blue-100 text-blue-700 px-1 py-0.2 rounded font-semibold">
-                    {locale === 'en' ? 'New' : 'Mới'}
+                    {dict.footer.new_badge}
                   </span>
                 </Link>
               </li>
@@ -160,16 +160,9 @@ export function Footer() {
         </div>
 
         <div className="mt-8 border-t border-slate-200 pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500">
-          <p>
-            © 2026 Wonderlab.{' '}
-            {locale === 'en'
-              ? 'Open scientific laboratory platform.'
-              : 'Nền tảng thí nghiệm khoa học mở.'}
-          </p>
+          <p>© 2026 Wonderlab. {dict.footer.open_lab_platform}</p>
           <p className="mt-2 sm:mt-0 font-sans text-slate-500">
-            {locale === 'en'
-              ? 'Experimental Science & Liberal Education'
-              : 'Khoa học thực nghiệm & Giáo dục khai phóng'}
+            {dict.footer.experimental_education}
           </p>
         </div>
       </div>

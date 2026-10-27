@@ -28,8 +28,8 @@ export function LineupStage({
   onSelectHatColor,
   canEditHats = false,
 }: LineupStageProps) {
-  const { locale } = useTranslation();
-  const isEn = locale === 'en';
+  const { dict } = useTranslation();
+  const t = dict.sim_prisoners_hats;
   const [hoveredPrisonerId, setHoveredPrisonerId] = React.useState<number | null>(null);
 
   const n = prisoners.length;
@@ -46,24 +46,18 @@ export function LineupStage({
         <div className="flex items-center gap-2">
           <span className="inline-flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
           <span className="font-semibold text-slate-700">
-            {isEn ? `Lineup Stage (${n} Prisoners)` : `Sân Khấu Hàng Ngũ (${n} Người)`}
+            {t.lineup_stage_title.replace('{n}', String(n))}
           </span>
           <span className="text-slate-400">|</span>
           <span className="text-slate-600">
-            {canEditHats
-              ? isEn
-                ? 'Click hats to manually cycle colors'
-                : 'Nhấp vào mũ để đổi màu thủ công'
-              : isEn
-                ? 'Deduction in progress'
-                : 'Đang trong quá trình suy luận'}
+            {canEditHats ? t.click_to_cycle_colors : t.deduction_in_progress}
           </span>
         </div>
 
         <div className="flex items-center gap-2 font-mono text-xs text-slate-600 bg-slate-50 px-2.5 py-1 rounded-md border border-slate-200">
-          <span>{isEn ? 'Line of sight:' : 'Hướng nhìn:'}</span>
+          <span>{t.line_of_sight}</span>
           <span className="font-semibold text-blue-600">
-            {isEn ? `From Person #${n} ➡️ Person #1` : `Từ Người #${n} ➡️ Người #1`}
+            {t.sight_direction.replace('{n}', String(n))}
           </span>
         </div>
       </div>
@@ -115,7 +109,7 @@ export function LineupStage({
                     <div className="flex items-center gap-1.5 rounded-lg border border-slate-900 bg-slate-900 px-2.5 py-1 text-xs font-semibold text-white shadow-lg">
                       <Volume2 className="h-3.5 w-3.5 text-amber-400 animate-bounce" />
                       <span>
-                        {isEn ? 'Calls: ' : 'Hô: '}&quot;
+                        {t.calls_label}&quot;
                         {prisoner.guessedColor !== null
                           ? getColorMeta(prisoner.guessedColor, colorCount).label
                           : '...'}
@@ -181,9 +175,7 @@ export function LineupStage({
                       {/* Head */}
                       <div className="h-9 w-9 rounded-full border border-slate-300 bg-slate-100 flex items-center justify-center shadow-2xs">
                         {isUserRole ? (
-                          <span className="text-xs font-bold text-blue-700">
-                            {isEn ? 'YOU' : 'BẠN'}
-                          </span>
+                          <span className="text-xs font-bold text-blue-700">{t.you_label}</span>
                         ) : (
                           <span className="text-xs font-mono font-semibold text-slate-700">
                             #{personId}
@@ -219,12 +211,12 @@ export function LineupStage({
                     </span>
                     {personId === n && (
                       <span className="block text-xs font-medium text-amber-700 font-sans">
-                        {isEn ? '[Sacrifice]' : '[Hy sinh]'}
+                        {t.sacrifice_badge}
                       </span>
                     )}
                     {isUserRole && (
                       <span className="block text-xs font-bold text-blue-600 font-sans">
-                        {isEn ? '[Your spot]' : '[Vị trí bạn]'}
+                        {t.your_spot_badge}
                       </span>
                     )}
                   </div>
@@ -237,42 +229,38 @@ export function LineupStage({
       {/* Stage Legend & Controls Note */}
       <div className="mt-3 flex flex-wrap items-center justify-between gap-3 border-t border-slate-200/80 pt-3 text-xs text-slate-500">
         <div className="flex flex-wrap items-center gap-3">
-          <span className="font-semibold text-slate-700">{isEn ? 'Legend:' : 'Chú thích:'}</span>
+          <span className="font-semibold text-slate-700">{t.legend_title}</span>
           {colorCount === 2 ? (
             <>
               <span className="inline-flex items-center gap-1.5">
                 <span className="h-3.5 w-3.5 rounded border border-slate-300 bg-white shadow-2xs" />
-                <span>{isEn ? 'White Hat (0)' : 'Mũ Trắng (0)'}</span>
+                <span>{t.white_hat_0}</span>
               </span>
               <span className="inline-flex items-center gap-1.5">
                 <span className="h-3.5 w-3.5 rounded border border-slate-800 bg-slate-900 shadow-2xs" />
-                <span>{isEn ? 'Black Hat (1)' : 'Mũ Đen (1)'}</span>
+                <span>{t.black_hat_1}</span>
               </span>
             </>
           ) : (
             <>
               <span className="inline-flex items-center gap-1.5">
                 <span className="h-3.5 w-3.5 rounded bg-rose-500 shadow-2xs" />
-                <span>{isEn ? 'Red (0)' : 'Đỏ (0)'}</span>
+                <span>{t.red_hat_0}</span>
               </span>
               <span className="inline-flex items-center gap-1.5">
                 <span className="h-3.5 w-3.5 rounded bg-blue-600 shadow-2xs" />
-                <span>{isEn ? 'Blue (1)' : 'Xanh (1)'}</span>
+                <span>{t.blue_hat_1}</span>
               </span>
               <span className="inline-flex items-center gap-1.5">
                 <span className="h-3.5 w-3.5 rounded bg-amber-400 shadow-2xs" />
-                <span>{isEn ? 'Yellow (2)' : 'Vàng (2)'}</span>
+                <span>{t.yellow_hat_2}</span>
               </span>
             </>
           )}
         </div>
 
         <div className="flex items-center gap-2 text-slate-500 font-sans">
-          <span>
-            {isEn
-              ? '* Hover over any person to highlight their forward field of view'
-              : '* Rê chuột vào từng người để xem trường tầm nhìn phía trước'}
-          </span>
+          <span>{t.hover_field_of_view_hint}</span>
         </div>
       </div>
     </div>

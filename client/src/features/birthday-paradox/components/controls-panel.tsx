@@ -30,8 +30,8 @@ export const ControlsPanel: React.FC<ControlsPanelProps> = ({
   completedTrials = 0,
   targetTrials = 0,
 }) => {
-  const { locale } = useTranslation();
-  const isEn = locale === 'en';
+  const { locale, dict } = useTranslation();
+  const bDict = dict.sim_birthday;
 
   return (
     <div className="flex flex-col gap-4">
@@ -42,7 +42,7 @@ export const ControlsPanel: React.FC<ControlsPanelProps> = ({
             htmlFor="room-size-slider"
             className="text-xs font-bold tracking-wider text-slate-700 uppercase"
           >
-            {isEn ? 'Room population (n): ' : 'Số người trong phòng (n): '}
+            {bDict.population_label}
             <span className="font-mono text-base font-bold text-blue-600">{n}</span>
           </label>
 
@@ -77,12 +77,10 @@ export const ControlsPanel: React.FC<ControlsPanelProps> = ({
         />
 
         <div className="flex justify-between font-mono text-xs text-slate-600">
-          <span>{isEn ? '2 people' : '2 người'}</span>
-          <span className="text-amber-600 font-bold">
-            {isEn ? '23 people (50%)' : '23 người (50%)'}
-          </span>
-          <span>{isEn ? '50 people (97%)' : '50 người (97%)'}</span>
-          <span>{isEn ? '100 people (>99.9%)' : '100 người (>99.9%)'}</span>
+          <span>{bDict.preset_2}</span>
+          <span className="text-amber-600 font-bold">{bDict.preset_23}</span>
+          <span>{bDict.preset_50}</span>
+          <span>{bDict.preset_100}</span>
         </div>
       </div>
 
@@ -94,7 +92,7 @@ export const ControlsPanel: React.FC<ControlsPanelProps> = ({
           className="bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white"
         >
           <Dices className="mr-1.5 h-4 w-4" />
-          {isEn ? 'New Random Room' : 'Sinh phòng mới'}
+          {bDict.run_1_room}
         </Button>
 
         {isSimulatingBatch ? (
@@ -104,7 +102,7 @@ export const ControlsPanel: React.FC<ControlsPanelProps> = ({
             className="border-red-300 bg-red-50 text-red-700 hover:bg-red-100 hover:text-red-800 active:scale-[0.98]"
           >
             <Square className="mr-1.5 h-3.5 w-3.5 fill-current text-red-600" />
-            {isEn ? 'Stop / Cancel' : 'Hủy / Dừng lại'}
+            {bDict.stop_cancel}
           </Button>
         ) : (
           <>
@@ -114,7 +112,7 @@ export const ControlsPanel: React.FC<ControlsPanelProps> = ({
               className="border-slate-300 hover:bg-slate-100 active:scale-[0.98]"
             >
               <Play className="mr-1.5 h-3.5 w-3.5 text-blue-600" />
-              {isEn ? 'Run 10,000 rooms' : 'Chạy 10.000 phòng'}
+              {bDict.run_10000_rooms}
             </Button>
 
             <Button
@@ -123,7 +121,7 @@ export const ControlsPanel: React.FC<ControlsPanelProps> = ({
               className="border-slate-300 hover:bg-slate-100 active:scale-[0.98]"
             >
               <Play className="mr-1.5 h-3.5 w-3.5 text-amber-600" />
-              {isEn ? 'Run 50,000 rooms' : 'Chạy 50.000 phòng'}
+              {bDict.run_50000_rooms}
             </Button>
 
             <Button
@@ -132,7 +130,7 @@ export const ControlsPanel: React.FC<ControlsPanelProps> = ({
               className="border-slate-300 hover:bg-slate-100 active:scale-[0.98]"
             >
               <Play className="mr-1.5 h-3.5 w-3.5 text-emerald-600" />
-              {isEn ? 'Run 100,000 rooms' : 'Chạy 100.000 phòng'}
+              {bDict.run_100000_rooms}
             </Button>
 
             <Button
@@ -141,7 +139,7 @@ export const ControlsPanel: React.FC<ControlsPanelProps> = ({
               className="border-slate-300 hover:bg-slate-100 active:scale-[0.98]"
             >
               <Sparkles className="mr-1.5 h-3.5 w-3.5 text-purple-600" />
-              {isEn ? 'Run 200,000 rooms' : 'Chạy 200.000 phòng'}
+              {bDict.run_200000_rooms}
             </Button>
           </>
         )}
@@ -153,7 +151,7 @@ export const ControlsPanel: React.FC<ControlsPanelProps> = ({
           className="ml-auto text-slate-500 hover:text-slate-800"
         >
           <RotateCcw className="mr-1 h-3.5 w-3.5" />
-          {isEn ? 'Reset' : 'Đặt lại'}
+          {bDict.reset}
         </Button>
       </div>
 
@@ -163,11 +161,12 @@ export const ControlsPanel: React.FC<ControlsPanelProps> = ({
           <div className="flex items-center justify-between text-xs">
             <span className="font-medium text-slate-800 flex items-center gap-1.5">
               <Activity className="h-3.5 w-3.5 animate-pulse text-blue-600" />
-              {isEn ? 'Monte Carlo batch progress:' : 'Tiến độ mô phỏng Monte Carlo:'}
+              {bDict.batch_progress}
             </span>
             <span className="font-mono tabular-nums font-bold text-blue-700">
-              {batchProgress}% ({completedTrials.toLocaleString(isEn ? 'en-US' : 'vi-VN')} /{' '}
-              {targetTrials.toLocaleString(isEn ? 'en-US' : 'vi-VN')} {isEn ? 'rooms' : 'phòng'})
+              {batchProgress}% (
+              {completedTrials.toLocaleString(locale === 'en' ? 'en-US' : 'vi-VN')} /{' '}
+              {targetTrials.toLocaleString(locale === 'en' ? 'en-US' : 'vi-VN')} {bDict.rooms_unit})
             </span>
           </div>
           <div className="h-2 w-full bg-blue-100 rounded-full overflow-hidden">

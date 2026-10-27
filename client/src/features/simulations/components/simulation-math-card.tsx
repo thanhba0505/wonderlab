@@ -11,8 +11,8 @@ interface SimulationMathCardProps {
 }
 
 export const SimulationMathCard: React.FC<SimulationMathCardProps> = ({ slug, summary }) => {
-  const { locale } = useTranslation();
-  const isEn = locale === 'en';
+  const { dict } = useTranslation();
+  const mc = dict.simulations.math_card;
 
   return (
     <div className="rounded-xl border border-slate-300/85 bg-white shadow-xs p-5 space-y-4">
@@ -23,7 +23,7 @@ export const SimulationMathCard: React.FC<SimulationMathCardProps> = ({ slug, su
         </div>
         <div className="space-y-1">
           <h3 className="font-heading text-xs font-bold uppercase tracking-wider text-slate-800">
-            {isEn ? 'Experiment Overview' : 'Tổng Quan Thí Nghiệm'}
+            {mc.experiment_overview}
           </h3>
           <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-sans">{summary}</p>
         </div>
@@ -34,9 +34,7 @@ export const SimulationMathCard: React.FC<SimulationMathCardProps> = ({ slug, su
         <div className="flex items-center gap-2 pb-1">
           <Sigma className="h-4 w-4 text-blue-700" />
           <span className="text-xs font-bold uppercase tracking-wider text-slate-800 font-heading">
-            {isEn
-              ? 'Mathematical Model & Analytical Formulas'
-              : 'Mô Hình Toán Học & Công Thức Giải Tích'}
+            {mc.math_model_title}
           </span>
         </div>
 
@@ -46,16 +44,12 @@ export const SimulationMathCard: React.FC<SimulationMathCardProps> = ({ slug, su
             {/* 1. Công thức giải tích chính xác */}
             <div className="space-y-1.5">
               <div className="text-xs font-sans text-slate-500 font-semibold flex items-center gap-1.5">
-                <span>
-                  {isEn
-                    ? '1. Exact Analytic Probability (Complement Rule):'
-                    : '1. Xác suất bù chính xác (Exact Analytic Probability):'}
-                </span>
+                <span>{mc.birthday_p_collision}</span>
               </div>
               <div className="flex flex-wrap items-center gap-2 text-sm bg-slate-50/80 p-3 rounded-lg">
                 <span className="font-bold text-slate-900">P(n)</span>
                 <span>=</span>
-                <span>{isEn ? '1 − P(no shared birthday)' : '1 − P(không trùng)'}</span>
+                <span>{mc.birthday_p_no_collision}</span>
                 <span>=</span>
                 <span>1 &minus;</span>
                 <span className="inline-flex items-center">
@@ -88,11 +82,7 @@ export const SimulationMathCard: React.FC<SimulationMathCardProps> = ({ slug, su
             {/* 2. Xấp xỉ chuỗi hàm mũ Taylor */}
             <div className="space-y-1.5">
               <div className="text-xs font-sans text-slate-500 font-semibold flex items-center gap-1.5">
-                <span>
-                  {isEn
-                    ? '2. Taylor Series Exponential Approximation:'
-                    : '2. Xấp xỉ tiệm cận hàm mũ Taylor (Taylor Series Approximation):'}
-                </span>
+                <span>{mc.birthday_taylor}</span>
               </div>
               <div className="flex flex-wrap items-center gap-2 text-sm bg-slate-50/80 p-3 rounded-lg">
                 <span className="font-bold text-slate-900">P(n)</span>
@@ -115,25 +105,7 @@ export const SimulationMathCard: React.FC<SimulationMathCardProps> = ({ slug, su
 
                 <div className="w-full pt-1.5 mt-1 border-t border-slate-200/60 text-xs font-sans text-slate-600 flex items-center gap-1.5">
                   <Sparkles className="h-3.5 w-3.5 text-amber-500 shrink-0" />
-                  <span>
-                    {isEn ? (
-                      <>
-                        At <strong className="font-mono text-slate-900">n = 23</strong>: there are{' '}
-                        <strong className="font-mono text-blue-700">C(23, 2) = 253</strong> pairwise
-                        comparisons &rarr;{' '}
-                        <strong className="font-mono text-emerald-700">P(23) &asymp; 50.73%</strong>{' '}
-                        (exceeds the 50% threshold).
-                      </>
-                    ) : (
-                      <>
-                        Tại <strong className="font-mono text-slate-900">n = 23</strong>: có{' '}
-                        <strong className="font-mono text-blue-700">C(23, 2) = 253</strong> cặp đối
-                        sánh &rarr;{' '}
-                        <strong className="font-mono text-emerald-700">P(23) &asymp; 50.73%</strong>{' '}
-                        (vượt ngưỡng một nửa).
-                      </>
-                    )}
-                  </span>
+                  <span>{mc.birthday_threshold_note}</span>
                 </div>
               </div>
             </div>
@@ -145,18 +117,14 @@ export const SimulationMathCard: React.FC<SimulationMathCardProps> = ({ slug, su
           <div className="space-y-3 text-xs text-slate-800">
             <div className="flex flex-wrap items-center gap-3 bg-slate-50/80 p-3 rounded-lg">
               <div className="flex items-center gap-1.5">
-                <span className="text-slate-500 font-sans">
-                  {isEn ? 'Keep initial door:' : 'Giữ nguyên cửa ban đầu:'}
-                </span>
+                <span className="text-slate-500 font-sans">{mc.monty_hall_keep}</span>
                 <span className="font-bold text-slate-900">P(Stay) =</span>
                 <MathFraction numerator="1" denominator="3" />
                 <span className="text-slate-400">&asymp; 33.3%</span>
               </div>
               <span className="text-slate-300">|</span>
               <div className="flex items-center gap-1.5">
-                <span className="text-slate-500 font-sans">
-                  {isEn ? 'Switch to remaining door:' : 'Đổi sang cửa còn lại:'}
-                </span>
+                <span className="text-slate-500 font-sans">{mc.monty_hall_switch}</span>
                 <span className="font-bold text-emerald-700">P(Switch) = 1 &minus;</span>
                 <MathFraction numerator="1" denominator="3" />
                 <span className="font-bold text-emerald-700">=</span>
@@ -172,9 +140,7 @@ export const SimulationMathCard: React.FC<SimulationMathCardProps> = ({ slug, su
           <div className="space-y-3 text-xs text-slate-800">
             <div className="flex flex-wrap items-center gap-4 bg-slate-50/80 p-3 rounded-lg">
               <div className="flex items-center gap-1.5">
-                <span className="text-slate-500 font-sans">
-                  {isEn ? 'Bright fringe positions:' : 'Vị trí vân sáng:'}
-                </span>
+                <span className="text-slate-500 font-sans">{mc.double_slit_bright_fringe}</span>
                 <span className="font-bold text-slate-900">
                   y<sub>m</sub> = m &middot;
                 </span>
@@ -183,9 +149,7 @@ export const SimulationMathCard: React.FC<SimulationMathCardProps> = ({ slug, su
               </div>
               <span className="text-slate-300">|</span>
               <div className="flex items-center gap-1.5">
-                <span className="text-slate-500 font-sans">
-                  {isEn ? 'Wave intensity:' : 'Cường độ sóng:'}
-                </span>
+                <span className="text-slate-500 font-sans">{mc.double_slit_intensity}</span>
                 <span className="font-bold text-blue-700">
                   I(&theta;) = I<sub className="text-xs">0</sub> &middot; cos
                   <sup className="text-xs font-semibold">2</sup>
@@ -208,17 +172,13 @@ export const SimulationMathCard: React.FC<SimulationMathCardProps> = ({ slug, su
           <div className="space-y-3 text-xs text-slate-800">
             <div className="flex flex-wrap items-center gap-4 bg-slate-50/80 p-3 rounded-lg">
               <div className="flex items-center gap-1.5">
-                <span className="text-slate-500 font-sans">
-                  {isEn ? 'Dilemma condition:' : 'Điều kiện song đề:'}
-                </span>
+                <span className="text-slate-500 font-sans">{mc.prisoners_dilemma_condition}</span>
                 <span className="font-bold text-amber-700">T &gt; R &gt; P &gt; S</span>
                 <span className="text-slate-400 font-sans">(5 &gt; 3 &gt; 1 &gt; 0)</span>
               </div>
               <span className="text-slate-300">|</span>
               <div className="flex items-center gap-1.5">
-                <span className="text-slate-500 font-sans">
-                  {isEn ? 'Tit-for-Tat shadow of future:' : 'Bóng tương lai Tit-for-Tat:'}
-                </span>
+                <span className="text-slate-500 font-sans">{mc.prisoners_dilemma_tit_for_tat}</span>
                 <span className="font-bold text-blue-700">w &ge;</span>
                 <MathFraction numerator="T &minus; R" denominator="T &minus; P" />
                 <span>=</span>
@@ -234,9 +194,7 @@ export const SimulationMathCard: React.FC<SimulationMathCardProps> = ({ slug, su
           <div className="space-y-3 text-xs text-slate-800">
             <div className="flex flex-wrap items-center gap-4 bg-slate-50/80 p-3 rounded-lg">
               <div className="flex items-center gap-1.5">
-                <span className="text-slate-500 font-sans">
-                  {isEn ? 'Convergent geometric series:' : 'Chuỗi hình học hội tụ:'}
-                </span>
+                <span className="text-slate-500 font-sans">{mc.zeno_convergent_series}</span>
                 <span className="font-bold text-slate-900">
                   &sum;<sub className="text-xs">n=1</sub>
                   <sup className="text-xs font-semibold">&infin;</sup>
@@ -260,9 +218,7 @@ export const SimulationMathCard: React.FC<SimulationMathCardProps> = ({ slug, su
               </div>
               <span className="text-slate-300">|</span>
               <div className="flex items-center gap-1.5">
-                <span className="text-slate-500 font-sans">
-                  {isEn ? 'Catch-up time:' : 'Thời điểm bắt kịp:'}
-                </span>
+                <span className="text-slate-500 font-sans">{mc.zeno_catch_up_time}</span>
                 <span className="font-bold text-blue-700">
                   T<sup className="text-xs font-semibold">*</sup> =
                 </span>
@@ -291,36 +247,24 @@ export const SimulationMathCard: React.FC<SimulationMathCardProps> = ({ slug, su
           <div className="space-y-3 text-xs text-slate-800">
             <div className="flex flex-wrap items-center gap-4 bg-slate-50/80 p-3 rounded-lg">
               <div className="flex items-center gap-1.5">
-                <span className="text-slate-500 font-sans">
-                  {isEn ? 'Chvátal Theorem (1975):' : 'Định lý Chvátal (1975):'}
-                </span>
+                <span className="text-slate-500 font-sans">{mc.art_gallery_chvatal}</span>
                 <span className="font-bold text-slate-900">g(n) =</span>
                 <span className="font-bold text-emerald-700">&lfloor;</span>
                 <MathFraction numerator="n" denominator="3" />
                 <span className="font-bold text-emerald-700">&rfloor;</span>
-                <span className="text-slate-500 font-sans">
-                  {isEn
-                    ? '(always sufficient & sometimes necessary)'
-                    : '(luôn đủ & đôi khi bắt buộc)'}
-                </span>
+                <span className="text-slate-500 font-sans">{mc.art_gallery_chvatal_note}</span>
               </div>
               <span className="text-slate-300">|</span>
               <div className="flex items-center gap-1.5">
-                <span className="text-slate-500 font-sans">
-                  {isEn ? 'Triangulation:' : 'Tam giác hóa:'}
-                </span>
+                <span className="text-slate-500 font-sans">{mc.art_gallery_triangulation}</span>
                 <span className="font-bold text-blue-700">T = n &minus; 2</span>
                 <span className="text-slate-400 font-sans">&bull;</span>
-                <span className="text-slate-500 font-sans">
-                  {isEn ? 'Diagonals:' : 'Đường chéo:'}
-                </span>
+                <span className="text-slate-500 font-sans">{mc.art_gallery_diagonals}</span>
                 <span className="font-bold text-indigo-700">D = n &minus; 3</span>
               </div>
               <span className="text-slate-300">|</span>
               <div className="flex items-center gap-1.5">
-                <span className="text-slate-500 font-sans">
-                  {isEn ? 'Orthogonal gallery (90°):' : 'Phòng trực giao (Góc 90&deg;):'}
-                </span>
+                <span className="text-slate-500 font-sans">{mc.art_gallery_orthogonal}</span>
                 <span className="font-bold text-amber-700">
                   g<sub>ortho</sub>(n) = &lfloor;n/4&rfloor;
                 </span>
@@ -334,34 +278,52 @@ export const SimulationMathCard: React.FC<SimulationMathCardProps> = ({ slug, su
           <div className="space-y-3 text-xs text-slate-800">
             <div className="flex flex-wrap items-center gap-4 bg-slate-50/80 p-3 rounded-lg">
               <div className="flex items-center gap-1.5">
-                <span className="text-slate-500 font-sans">
-                  {isEn ? 'Guaranteed survival:' : 'Bảo đảm sống sót:'}
-                </span>
+                <span className="text-slate-500 font-sans">{mc.prisoners_hats_survival}</span>
                 <span className="font-bold text-slate-900">P &ge;</span>
                 <MathFraction numerator="n &minus; 1" denominator="n" />
                 <span className="text-slate-500 font-sans">&bull;</span>
-                <span className="text-slate-500 font-sans">
-                  {isEn ? 'Expected for n=10:' : 'Kỳ vọng với n=10:'}
-                </span>
+                <span className="text-slate-500 font-sans">{mc.prisoners_hats_expected}</span>
                 <span className="font-bold text-emerald-700">95.0%</span>
               </div>
               <span className="text-slate-300">|</span>
               <div className="flex items-center gap-1.5">
-                <span className="text-slate-500 font-sans">
-                  {isEn ? 'Parity broadcast signal:' : 'Tín hiệu Parity:'}
-                </span>
+                <span className="text-slate-500 font-sans">{mc.prisoners_hats_parity}</span>
                 <span className="font-bold text-blue-700">
                   p = &sum; c<sub>j</sub> (mod K)
                 </span>
               </div>
               <span className="text-slate-300">|</span>
               <div className="flex items-center gap-1.5">
-                <span className="text-slate-500 font-sans">
-                  {isEn ? 'Deductive subtraction decoding:' : 'Giải mã trừ lùi:'}
-                </span>
+                <span className="text-slate-500 font-sans">{mc.prisoners_hats_decoding}</span>
                 <span className="font-bold text-indigo-700">
                   c<sub>k</sub> = (p<sub>k</sub> &minus; &sum; c<sub>trước</sub>) mod K
                 </span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* BÀI TOÁN VỆ SĨ & PHÒNG GƯƠNG (THE BODYGUARD PROBLEM) */}
+        {slug === 'bodyguard-problem' && (
+          <div className="space-y-3 text-xs text-slate-800">
+            <div className="flex flex-wrap items-center gap-4 bg-slate-50/80 p-3 rounded-lg">
+              <div className="flex items-center gap-1.5">
+                <span className="text-slate-500 font-sans">Định lý Gutkin (2005):</span>
+                <span className="font-bold text-slate-900">
+                  |G| &le; 2<sup>4</sup> = 16
+                </span>
+              </div>
+              <span className="text-slate-300">|</span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-slate-500 font-sans">Trung điểm ảnh ảo:</span>
+                <span className="font-bold text-blue-700">
+                  M = &frac12;(A + B&apos;<sub>k,m,s</sub>)
+                </span>
+              </div>
+              <span className="text-slate-300">|</span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-slate-500 font-sans">Tính chất chặn:</span>
+                <span className="font-bold text-emerald-700">100% tia bị triệt tiêu</span>
               </div>
             </div>
           </div>

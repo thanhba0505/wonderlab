@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
 import { useTranslation } from '@/i18n';
+import { SimulationCommentsDictionary } from '@/i18n/types';
 import {
   SimulationComment,
   fetchSimulationComments,
@@ -36,20 +37,24 @@ interface CommentSectionProps {
   title?: string;
 }
 
-function formatRelativeTime(dateString: string, isEn: boolean): string {
+function formatRelativeTime(
+  dateString: string,
+  comm: SimulationCommentsDictionary,
+  locale: string,
+): string {
   try {
     const date = new Date(dateString);
     const now = new Date();
     const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
-    if (diffInSeconds < 60) return isEn ? 'Just now' : 'Vừa xong';
+    if (diffInSeconds < 60) return comm.time_just_now;
     const diffInMinutes = Math.floor(diffInSeconds / 60);
-    if (diffInMinutes < 60) return isEn ? `${diffInMinutes}m ago` : `${diffInMinutes} phút trước`;
+    if (diffInMinutes < 60) return comm.time_minutes_ago.replace('{m}', String(diffInMinutes));
     const diffInHours = Math.floor(diffInMinutes / 60);
-    if (diffInHours < 24) return isEn ? `${diffInHours}h ago` : `${diffInHours} giờ trước`;
+    if (diffInHours < 24) return comm.time_hours_ago.replace('{h}', String(diffInHours));
     const diffInDays = Math.floor(diffInHours / 24);
-    if (diffInDays < 30) return isEn ? `${diffInDays}d ago` : `${diffInDays} ngày trước`;
-    return date.toLocaleDateString(isEn ? 'en-US' : 'vi-VN');
+    if (diffInDays < 30) return comm.time_days_ago.replace('{d}', String(diffInDays));
+    return date.toLocaleDateString(locale === 'en' ? 'en-US' : 'vi-VN');
   } catch {
     return dateString;
   }
@@ -57,14 +62,10 @@ function formatRelativeTime(dateString: string, isEn: boolean): string {
 
 export function CommentSection({ simulationSlug, placeholderText, title }: CommentSectionProps) {
   const { user, login } = useAuth();
-  const { locale } = useTranslation();
-  const isEn = locale === 'en';
+  const { locale, dict } = useTranslation();
+  const comm = dict.simulations.comments;
 
-  const defaultPlaceholder = isEn
-    ? 'Share your scientific insights, questions, or analysis of this simulation...'
-    : 'Viết nhận định, câu hỏi hoặc góc nhìn khoa học của bạn về thí nghiệm này...';
-
-  const activePlaceholder = placeholderText ?? defaultPlaceholder;
+  const activePlaceholder = placeholderText ?? comm.placeholder;
 
   const [comments, setComments] = React.useState<SimulationComment[]>([]);
   const [isLoading, setIsLoading] = React.useState<boolean>(true);
@@ -135,7 +136,7 @@ export function CommentSection({ simulationSlug, placeholderText, title }: Comme
         await loadComments(true);
       }
     } else {
-      alert(res.error || (isEn ? 'Failed to post reply' : 'Không thể gửi phản hồi'));
+      alert(res.error || comm.post_reply_failed);
     }
     setSubmittingReplyId(null);
   };
@@ -161,7 +162,7 @@ export function CommentSection({ simulationSlug, placeholderText, title }: Comme
           })),
       );
     } else {
-      alert(res.error || (isEn ? 'Failed to delete comment' : 'Không thể xóa bình luận'));
+      alert(res.error || comm.delete_failed);
     }
     setDeletingCommentId(null);
     setDeleteConfirmCommentId(null);
@@ -176,16 +177,14 @@ export function CommentSection({ simulationSlug, placeholderText, title }: Comme
             <span className="font-mono text-xs font-bold text-slate-800 uppercase tracking-wide">
               {title
                 ? `${title} (${totalCommentsCount})`
-                : `${totalCommentsCount} ${isEn ? (totalCommentsCount === 1 ? 'comment' : 'comments') : 'bình luận'}`}
+                : `${totalCommentsCount} ${totalCommentsCount === 1 ? comm.count_single : comm.count_plural}`}
             </span>
           </div>
 
           {user && (
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-xs">
               <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-slate-600 font-sans">
-                {isEn ? 'Signed in as:' : 'Đang đăng nhập:'}
-              </span>
+              <span className="text-slate-600 font-sans">{comm.signed_in_as}</span>
               <strong className="font-mono text-slate-900">{user.username}</strong>
               <span className="text-xs font-mono px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 font-semibold">
                 {user.role}
@@ -203,10 +202,7 @@ export function CommentSection({ simulationSlug, placeholderText, title }: Comme
             onSubmit={async (values, helpers) => {
               const content = String(values.content || '').trim();
               if (!content) {
-                helpers.setFieldError(
-                  'content',
-                  isEn ? 'Please enter a comment' : 'Vui lòng nhập nội dung bình luận',
-                );
+                helpers.setFieldError('content', comm.comment_required);
                 return;
               }
               const res = await postSimulationComment(simulationSlug, content);
@@ -221,10 +217,7 @@ export function CommentSection({ simulationSlug, placeholderText, title }: Comme
                 if (res.errors) {
                   helpers.setErrors(res.errors);
                 } else {
-                  helpers.setFieldError(
-                    'content',
-                    res.error || (isEn ? 'Failed to post comment' : 'Không thể đăng bình luận'),
-                  );
+                  helpers.setFieldError('content', res.error || comm.post_failed);
                 }
               }
             }}
@@ -245,7 +238,7 @@ export function CommentSection({ simulationSlug, placeholderText, title }: Comme
                 leftIcon={<Send className="h-3.5 w-3.5 mr-1.5" />}
                 className="text-xs font-semibold shadow-sm"
               >
-                {isEn ? 'Post Comment' : 'Gửi bình luận'}
+                {comm.post_btn}
               </AppFormSubmit>
             </div>
           </AppForm>
@@ -255,13 +248,9 @@ export function CommentSection({ simulationSlug, placeholderText, title }: Comme
             <div className="space-y-1">
               <div className="text-sm font-bold text-slate-900 flex items-center gap-2">
                 <LogIn className="h-4 w-4 text-blue-600" />
-                {isEn ? 'Sign in to join the discussion' : 'Đăng nhập để tham gia thảo luận'}
+                {comm.sign_in_to_discuss}
               </div>
-              <p className="text-xs text-slate-600 font-sans">
-                {isEn
-                  ? 'Sign in to share scientific observations or debate hypotheses with the research community.'
-                  : 'Bạn cần đăng nhập tài khoản để gửi bình luận hoặc phản hồi các giả thuyết nghiên cứu.'}
-              </p>
+              <p className="text-xs text-slate-600 font-sans">{comm.sign_in_desc}</p>
             </div>
 
             <Button
@@ -271,13 +260,7 @@ export function CommentSection({ simulationSlug, placeholderText, title }: Comme
               className="text-xs font-semibold border-blue-300 bg-white text-blue-700 hover:bg-blue-50"
             >
               <LogIn className="h-3.5 w-3.5 mr-1.5" />
-              {showQuickLogin
-                ? isEn
-                  ? 'Close'
-                  : 'Đóng đăng nhập'
-                : isEn
-                  ? 'Sign in'
-                  : 'Đăng nhập ngay'}
+              {showQuickLogin ? comm.cancel : comm.sign_in_to_discuss}
             </Button>
           </div>
         )}
@@ -297,39 +280,33 @@ export function CommentSection({ simulationSlug, placeholderText, title }: Comme
                 if (result.errors) {
                   helpers.setErrors(result.errors);
                 } else {
-                  helpers.setFieldError(
-                    'password',
-                    result.error ||
-                      (isEn
-                        ? 'Invalid username or password'
-                        : 'Tên đăng nhập hoặc mật khẩu không chính xác'),
-                  );
+                  helpers.setFieldError('password', result.error || comm.post_failed);
                 }
               }
             }}
             className="p-4 rounded-xl border border-blue-200 bg-blue-50/40 space-y-3"
           >
             <div className="text-xs font-bold text-blue-900 uppercase tracking-wide">
-              {isEn ? 'Sign in to Wonderlab' : 'Đăng nhập tài khoản Wonderlab'}
+              {comm.login_modal_title}
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <AppFormField
                 name="username"
-                label={isEn ? 'Username' : 'Tên đăng nhập'}
-                required={isEn ? 'Please enter your username' : 'Vui lòng nhập tên đăng nhập'}
+                label={comm.login_modal_username}
+                required={comm.login_modal_username_required}
                 size="sm"
-                placeholder={isEn ? 'Username or email' : 'Nhập username hoặc email'}
+                placeholder={comm.login_modal_username_placeholder}
               />
 
               <AppFormField
                 name="password"
                 type="password"
                 showPasswordToggle
-                label={isEn ? 'Password' : 'Mật khẩu'}
-                required={isEn ? 'Please enter your password' : 'Vui lòng nhập mật khẩu'}
+                label={comm.login_modal_password}
+                required={comm.login_modal_password_required}
                 size="sm"
-                placeholder={isEn ? 'Password...' : 'Nhập mật khẩu...'}
+                placeholder={comm.login_modal_password_placeholder}
               />
             </div>
 
@@ -341,10 +318,10 @@ export function CommentSection({ simulationSlug, placeholderText, title }: Comme
                 onClick={() => setShowQuickLogin(false)}
                 className="text-xs text-slate-600 cursor-pointer"
               >
-                {isEn ? 'Cancel' : 'Hủy'}
+                {comm.cancel}
               </Button>
               <AppFormSubmit size="sm" className="text-xs font-semibold shadow-xs">
-                {isEn ? 'Sign In & Comment' : 'Xác thực & Bình luận'}
+                {comm.login_modal_submit}
               </AppFormSubmit>
             </div>
           </AppForm>
@@ -355,13 +332,11 @@ export function CommentSection({ simulationSlug, placeholderText, title }: Comme
           {isLoading ? (
             <div className="py-8 text-center text-xs text-slate-500 flex items-center justify-center gap-2">
               <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
-              {isEn ? 'Loading discussions...' : 'Đang tải danh sách thảo luận...'}
+              {comm.loading}
             </div>
           ) : comments.length === 0 ? (
             <div className="py-8 text-center text-xs text-slate-500 font-sans border border-dashed border-slate-200 rounded-xl">
-              {isEn
-                ? 'No discussions yet for this simulation. Be the first to share your hypothesis or insight!'
-                : 'Chưa có bình luận nào cho thí nghiệm này. Hãy là người đầu tiên đặt câu hỏi hoặc đưa ra nhận định!'}
+              {comm.empty_state}
             </div>
           ) : (
             comments.map(rootComment => {
@@ -398,7 +373,7 @@ export function CommentSection({ simulationSlug, placeholderText, title }: Comme
                             )}
                           </div>
                           <div className="text-xs font-mono text-slate-400">
-                            {formatRelativeTime(rootComment.createdAt, isEn)}
+                            {formatRelativeTime(rootComment.createdAt, comm, locale)}
                           </div>
                         </div>
                       </div>
@@ -411,7 +386,7 @@ export function CommentSection({ simulationSlug, placeholderText, title }: Comme
                           onClick={() => handleDelete(rootComment.id)}
                           disabled={deletingCommentId === rootComment.id}
                           className="h-7 w-7 p-0 text-slate-400 hover:text-rose-600 hover:bg-rose-50"
-                          title={isEn ? 'Delete this comment' : 'Xóa bình luận này'}
+                          title={comm.delete_comment_tooltip}
                         >
                           {deletingCommentId === rootComment.id ? (
                             <Loader2 className="h-3.5 w-3.5 animate-spin text-slate-500" />
@@ -449,13 +424,7 @@ export function CommentSection({ simulationSlug, placeholderText, title }: Comme
                           }`}
                         >
                           <Reply className="h-3.5 w-3.5 mr-1" />
-                          {isReplying
-                            ? isEn
-                              ? 'Cancel'
-                              : 'Hủy trả lời'
-                            : isEn
-                              ? 'Reply'
-                              : 'Trả lời'}
+                          {isReplying ? comm.cancel : comm.reply_to}
                         </Button>
                       ) : (
                         <button
@@ -463,7 +432,7 @@ export function CommentSection({ simulationSlug, placeholderText, title }: Comme
                           onClick={() => setShowQuickLogin(true)}
                           className="text-xs text-slate-500 hover:text-blue-700 font-sans cursor-pointer"
                         >
-                          {isEn ? 'Sign in to reply' : 'Đăng nhập để trả lời'}
+                          {comm.sign_in_to_reply}
                         </button>
                       )}
                     </div>
@@ -475,7 +444,7 @@ export function CommentSection({ simulationSlug, placeholderText, title }: Comme
                       <div className="text-xs font-semibold text-blue-900 flex items-center gap-1.5">
                         <CornerDownRight className="h-3.5 w-3.5 text-blue-600 shrink-0" />
                         <span>
-                          {isEn ? 'Reply to' : 'Trả lời'}{' '}
+                          {comm.reply_to}{' '}
                           <strong className="font-mono text-blue-950 font-bold">
                             @{rootComment.user.username}
                           </strong>
@@ -486,11 +455,7 @@ export function CommentSection({ simulationSlug, placeholderText, title }: Comme
                         size="sm"
                         value={replyContent}
                         onChange={e => setReplyContent(e.target.value)}
-                        placeholder={
-                          isEn
-                            ? `Write a reply to ${rootComment.user.username}...`
-                            : `Viết phản hồi cho ${rootComment.user.username}...`
-                        }
+                        placeholder={`@${rootComment.user.username}...`}
                         rows={2}
                         maxLength={2000}
                         showCount
@@ -506,7 +471,7 @@ export function CommentSection({ simulationSlug, placeholderText, title }: Comme
                           }}
                           className="text-xs text-slate-600 hover:text-slate-900 h-7 px-2.5"
                         >
-                          {isEn ? 'Cancel' : 'Hủy'}
+                          {comm.cancel}
                         </Button>
                         <Button
                           type="button"
@@ -520,7 +485,7 @@ export function CommentSection({ simulationSlug, placeholderText, title }: Comme
                           ) : (
                             <Send className="h-3 w-3 mr-1" />
                           )}
-                          {isEn ? 'Post Reply' : 'Gửi phản hồi'}
+                          {comm.post_reply_btn}
                         </Button>
                       </div>
                     </div>
@@ -556,7 +521,7 @@ export function CommentSection({ simulationSlug, placeholderText, title }: Comme
                                   </span>
                                 )}
                                 <span className="text-xs font-mono text-slate-400">
-                                  {formatRelativeTime(reply.createdAt, isEn)}
+                                  {formatRelativeTime(reply.createdAt, comm, locale)}
                                 </span>
                               </div>
 
@@ -568,7 +533,7 @@ export function CommentSection({ simulationSlug, placeholderText, title }: Comme
                                   onClick={() => handleDelete(reply.id)}
                                   disabled={deletingCommentId === reply.id}
                                   className="h-6 w-6 p-0 text-slate-400 hover:text-rose-600 hover:bg-rose-50"
-                                  title={isEn ? 'Delete this reply' : 'Xóa phản hồi này'}
+                                  title={comm.delete_reply_tooltip}
                                 >
                                   {deletingCommentId === reply.id ? (
                                     <Loader2 className="h-3 w-3 animate-spin text-slate-500" />
@@ -599,13 +564,9 @@ export function CommentSection({ simulationSlug, placeholderText, title }: Comme
         isOpen={Boolean(deleteConfirmCommentId)}
         onClose={() => setDeleteConfirmCommentId(null)}
         onConfirm={handleConfirmDelete}
-        title={isEn ? 'Delete Discussion' : 'Xóa thảo luận'}
-        message={
-          isEn
-            ? 'Are you sure you want to remove this comment from the simulation session?'
-            : 'Bạn có chắc chắn muốn xóa bình luận này khỏi phiên nghiên cứu mô phỏng?'
-        }
-        confirmText={isEn ? 'Delete' : 'Xóa thảo luận'}
+        title={comm.delete_discussion}
+        message={comm.delete_confirm}
+        confirmText={comm.delete_btn}
         variant="danger"
         isLoading={Boolean(deletingCommentId)}
       />

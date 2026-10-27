@@ -29,8 +29,7 @@ import { useTranslation } from '@/i18n';
 import { HypothesisOption } from '@/features/simulations/types';
 
 export function PrisonersHatsSimulation() {
-  const { locale } = useTranslation();
-  const isEn = locale === 'en';
+  const { dict } = useTranslation();
   const meta = useSimulationMeta('prisoners-hats');
 
   // Parameters
@@ -230,16 +229,8 @@ export function PrisonersHatsSimulation() {
       {meta?.hypothesis && (
         <SimulationSection
           dotColor="amber"
-          title={
-            isEn
-              ? 'Intuition Challenge: Independence vs Cooperation'
-              : 'Thử Thách Trực Giác: Trực Giác Độc Lập vs Hợp Tác'
-          }
-          subtitle={
-            isEn
-              ? 'Before testing with mathematics, how many people does your intuition predict will survive?'
-              : 'Trước khi kiểm tra bằng toán học, bộ não của bạn dự đoán số người được cứu là bao nhiêu?'
-          }
+          title={dict.sim_prisoners_hats.survey_title}
+          subtitle={dict.sim_prisoners_hats.survey_desc}
         >
           <IntuitionChallengeCard
             challenge={meta.hypothesis}
@@ -254,16 +245,8 @@ export function PrisonersHatsSimulation() {
       {/* 2. Primary Workbench Section */}
       <SimulationSection
         dotColor="blue"
-        title={
-          isEn
-            ? 'Lineup Stage & Parity Decoding Laboratory'
-            : 'Phòng Thí Nghiệm Hàng Ngũ & Phép Giải Mã Parity'
-        }
-        subtitle={
-          isEn
-            ? 'Watch animated turn-by-turn guessing or roleplay directly in the lineup to deduce your hat color'
-            : 'Quan sát hoạt họa từng lượt đoán hoặc trực tiếp nhập vai vào hàng người để suy luận màu mũ'
-        }
+        title={dict.sim_prisoners_hats.sim_title}
+        subtitle={dict.sim_prisoners_hats.sim_desc}
       >
         <SimulationWorkbenchCard>
           <div className="space-y-5">
@@ -337,16 +320,8 @@ export function PrisonersHatsSimulation() {
       {/* 3. Monte Carlo & Statistical Verification Section */}
       <SimulationSection
         dotColor="emerald"
-        title={
-          isEn
-            ? 'Large-Scale Monte Carlo Empirical Verification'
-            : 'Kiểm Định Thực Nghiệm Monte Carlo Quy Mô Lớn'
-        }
-        subtitle={
-          isEn
-            ? 'Simulate thousands of random trials to verify the mathematical theorem: 100% guaranteed survival for N-1 prisoners'
-            : 'Mô phỏng hàng nghìn ván ngẫu nhiên để chứng minh định lý toán học: tỷ lệ bảo đảm luôn đạt 100% cho N-1 người'
-        }
+        title={dict.sim_prisoners_hats.monte_carlo_section_title}
+        subtitle={dict.sim_prisoners_hats.monte_carlo_section_desc}
       >
         <MonteCarloPanel
           n={n}
@@ -374,16 +349,8 @@ export function PrisonersHatsSimulation() {
       {/* 4. Scientific Explainer & CS Connection */}
       <SimulationSection
         dotColor="indigo"
-        title={
-          isEn
-            ? 'Scientific Insights: Mathematical Foundations & Computer Science'
-            : 'Góc Tri Thức Khoa Học: Bản Chất Toán Học & Ứng Dụng'
-        }
-        subtitle={
-          isEn
-            ? 'Bridging logic puzzles, ECC RAM parity bits, and RAID storage arrays'
-            : 'Cầu nối giữa câu đố tư duy logic, bit kiểm tra RAM ECC và cấu trúc mảng ổ đĩa RAID'
-        }
+        title={dict.sim_prisoners_hats.explainer_section_title}
+        subtitle={dict.sim_prisoners_hats.explainer_section_desc}
       >
         <ParityExplainer />
       </SimulationSection>
@@ -391,24 +358,12 @@ export function PrisonersHatsSimulation() {
       {/* 5. Data Export Suite & History */}
       <SimulationSection
         dotColor="violet"
-        title={
-          isEn
-            ? 'Experimental Data Suite & Session History'
-            : 'Bộ Dữ Liệu Thực Nghiệm & Lịch Sử Phiên Thử'
-        }
-        subtitle={
-          isEn
-            ? 'Export complete deduction logs to CSV/JSON and compare previous runs'
-            : 'Xuất toàn bộ bảng log suy luận ra định dạng CSV/JSON và đối chiếu các lượt chạy trước'
-        }
+        title={dict.sim_prisoners_hats.export_section_title}
+        subtitle={dict.sim_prisoners_hats.export_section_desc}
       >
         <div className="space-y-4">
           <ExportSuitePanel
-            simulationTitle={
-              isEn
-                ? 'Prisoners Hat Puzzle & Parity Bit'
-                : 'Bài toán Đội mũ & Bit Chẵn lẻ (Prisoners Hat Puzzle)'
-            }
+            simulationTitle={dict.sim_prisoners_hats.simulation_name}
             simulationSlug="prisoners-hats"
             parameters={{
               numberOfPrisoners: n,
@@ -421,36 +376,9 @@ export function PrisonersHatsSimulation() {
               totalPrisoners: n,
               actualSurvivalRate: `${(solveResult.survivalRate * 100).toFixed(1)}%`,
               sacrificePersonResult: solveResult.sacrificeGuessedRight
-                ? isEn
-                  ? 'Guessed correctly'
-                  : 'Đoán đúng'
-                : isEn
-                  ? 'Sacrificed'
-                  : 'Hy sinh',
+                ? dict.sim_prisoners_hats.guessed_correctly
+                : dict.sim_prisoners_hats.sacrificed,
             }}
-            csvHeaders={
-              isEn
-                ? [
-                    'Step_Index',
-                    'Prisoner_ID',
-                    'Actual_Hat',
-                    'Spoken_Hat',
-                    'Expected_Parity',
-                    'Result',
-                  ]
-                : ['Lượt_bước', 'Người_số', 'Mũ_thực_tế', 'Mũ_dự_đoán', 'Parity_kỳ_vọng', 'Kết_quả']
-            }
-            historyRows={solveResult.steps.map(step => {
-              const p = solveResult.prisoners.find(pr => pr.id === step.prisonerId);
-              return [
-                step.stepIndex + 1,
-                isEn ? `Person #${step.prisonerId}` : `Người #${step.prisonerId}`,
-                p?.actualColor ?? '--',
-                step.spokenColor,
-                step.runningParity,
-                step.isCorrect ? (isEn ? 'CORRECT' : 'ĐÚNG') : isEn ? 'WRONG' : 'SAI',
-              ];
-            })}
           />
 
           <SimulationHistoryTable runs={history} onReloadParams={handleReloadParams} />

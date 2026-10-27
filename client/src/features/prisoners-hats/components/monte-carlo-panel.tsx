@@ -13,8 +13,8 @@ interface MonteCarloPanelProps {
 }
 
 export function MonteCarloPanel({ n, colorCount, onRunFinished }: MonteCarloPanelProps) {
-  const { locale } = useTranslation();
-  const isEn = locale === 'en';
+  const { dict } = useTranslation();
+  const t = dict.sim_prisoners_hats;
   const [isRunning, setIsRunning] = React.useState<boolean>(false);
   // Initial state is null to ensure SSR and client hydration output 100% identical markup
   const [summary, setSummary] = React.useState<MonteCarloSummary | null>(null);
@@ -47,14 +47,8 @@ export function MonteCarloPanel({ n, colorCount, onRunFinished }: MonteCarloPane
             <Activity className="h-4 w-4" />
           </div>
           <div>
-            <h3 className="font-heading text-sm font-bold text-slate-900">
-              {isEn ? 'Monte Carlo Empirical Verification' : 'Kiểm Định Thực Nghiệm Monte Carlo'}
-            </h3>
-            <p className="text-xs text-slate-500 font-sans">
-              {isEn
-                ? 'Verify large-scale statistical convergence across thousands of random rounds'
-                : 'Kiểm chứng sự hội tụ thống kê quy mô lớn qua hàng nghìn ván ngẫu nhiên'}
-            </p>
+            <h3 className="font-heading text-sm font-bold text-slate-900">{t.mc_title}</h3>
+            <p className="text-xs text-slate-500 font-sans">{t.mc_desc}</p>
           </div>
         </div>
 
@@ -67,7 +61,7 @@ export function MonteCarloPanel({ n, colorCount, onRunFinished }: MonteCarloPane
             onClick={() => handleRun(100)}
             className="text-xs h-7 border-slate-300 text-slate-700"
           >
-            {isEn ? '100 Rounds' : '100 Ván'}
+            {t.rounds_100}
           </Button>
           <Button
             size="sm"
@@ -76,7 +70,7 @@ export function MonteCarloPanel({ n, colorCount, onRunFinished }: MonteCarloPane
             onClick={() => handleRun(1000)}
             className="text-xs h-7 border-slate-300 text-slate-700"
           >
-            {isEn ? '1,000 Rounds' : '1.000 Ván'}
+            {t.rounds_1000}
           </Button>
           <Button
             size="sm"
@@ -85,7 +79,7 @@ export function MonteCarloPanel({ n, colorCount, onRunFinished }: MonteCarloPane
             className="text-xs h-7 bg-emerald-600 hover:bg-emerald-700 text-white gap-1"
           >
             <PlayCircle className="h-3 w-3" />
-            {isEn ? '5,000 Rounds' : '5.000 Ván'}
+            {t.rounds_5000}
           </Button>
         </div>
       </div>
@@ -98,14 +92,14 @@ export function MonteCarloPanel({ n, colorCount, onRunFinished }: MonteCarloPane
             <div className="rounded-lg border border-slate-200 bg-slate-50/70 p-3 space-y-1">
               <span className="text-xs text-slate-500 flex items-center gap-1">
                 <Cpu className="h-3.5 w-3.5 text-blue-600" />
-                {isEn ? 'Overall survival rate:' : 'Tỷ lệ sống sót toàn đoàn:'}
+                {t.overall_survival}
               </span>
               <div className="flex items-baseline gap-2">
                 <span className="font-mono text-xl sm:text-2xl font-bold text-slate-900">
                   {(summary.overallAccuracy * 100).toFixed(1)}%
                 </span>
                 <span className="text-xs text-slate-500 font-mono">
-                  ({isEn ? 'Theory: ' : 'Lý thuyết: '}
+                  ({t.theory_label}
                   {(summary.expectedTheoreticalAccuracy * 100).toFixed(1)}%)
                 </span>
               </div>
@@ -121,15 +115,13 @@ export function MonteCarloPanel({ n, colorCount, onRunFinished }: MonteCarloPane
             <div className="rounded-lg border border-emerald-200 bg-emerald-50/50 p-3 space-y-1">
               <span className="text-xs text-emerald-800 font-medium flex items-center gap-1">
                 <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
-                {isEn ? `Guaranteed group of ${n - 1}:` : `Nhóm ${n - 1} người bảo đảm:`}
+                {t.guaranteed_group_label.replace('{count}', String(n - 1))}
               </span>
               <div className="flex items-baseline gap-2">
                 <span className="font-mono text-xl sm:text-2xl font-bold text-emerald-700">
                   {(summary.guaranteedGroupAccuracy * 100).toFixed(1)}%
                 </span>
-                <span className="text-xs text-emerald-600 font-mono">
-                  {isEn ? '(100% Guaranteed)' : '(Bảo đảm 100%)'}
-                </span>
+                <span className="text-xs text-emerald-600 font-mono">{t.guaranteed_100}</span>
               </div>
               <div className="w-full bg-emerald-200 h-1.5 rounded-full overflow-hidden mt-1">
                 <div
@@ -143,15 +135,14 @@ export function MonteCarloPanel({ n, colorCount, onRunFinished }: MonteCarloPane
             <div className="rounded-lg border border-amber-200 bg-amber-50/50 p-3 space-y-1">
               <span className="text-xs text-amber-800 font-medium flex items-center gap-1">
                 <Flame className="h-3.5 w-3.5 text-amber-600" />
-                {isEn ? `Sacrifice person (#${n}):` : `Người hy sinh (#${n}):`}
+                {t.sacrifice_person_label.replace('{n}', String(n))}
               </span>
               <div className="flex items-baseline gap-2">
                 <span className="font-mono text-xl sm:text-2xl font-bold text-amber-800">
                   {(summary.sacrificeAccuracy * 100).toFixed(1)}%
                 </span>
                 <span className="text-xs text-amber-700 font-mono">
-                  ({isEn ? 'Luck ' : 'May mắn '}1/{colorCount} ={' '}
-                  {((1 / colorCount) * 100).toFixed(0)}%)
+                  ({t.luck_label}1/{colorCount} = {((1 / colorCount) * 100).toFixed(0)}%)
                 </span>
               </div>
               <div className="w-full bg-amber-200 h-1.5 rounded-full overflow-hidden mt-1">
@@ -166,32 +157,21 @@ export function MonteCarloPanel({ n, colorCount, onRunFinished }: MonteCarloPane
           {/* Statistical Breakdown Note */}
           <div className="rounded-lg bg-slate-50 border border-slate-200 p-3 text-xs text-slate-600 space-y-1 font-sans leading-relaxed">
             <p>
-              <strong>{isEn ? 'Sample summary:' : 'Tổng kết mẫu thử:'}</strong>{' '}
-              {isEn ? (
-                <>
-                  Simulated <strong>{summary.trials.toLocaleString()} rounds</strong> with{' '}
-                  <strong>{summary.totalPrisoners.toLocaleString()} total guesses</strong>.
-                </>
-              ) : (
-                <>
-                  Đã chạy thực nghiệm mô phỏng{' '}
-                  <strong>{summary.trials.toLocaleString()} ván</strong> với tổng cộng{' '}
-                  <strong>{summary.totalPrisoners.toLocaleString()} lượt đoán</strong>.
-                </>
-              )}
+              <strong>{t.sample_summary_title}</strong>{' '}
+              {t.sample_summary_rounds
+                .replace('{trials}', summary.trials.toLocaleString())
+                .replace('{guesses}', summary.totalPrisoners.toLocaleString())}
             </p>
             <p className="text-slate-500">
-              {isEn
-                ? `Even with hat colors randomized every round, the ${n - 1} group consistently achieves absolute 100% accuracy thanks to the modulo ${colorCount} parity checking algorithm.`
-                : `Dù màu mũ được xáo trộn hoàn toàn ngẫu nhiên ở mỗi vòng, nhóm ${n - 1} người luôn đạt độ chính xác tuyệt đối 100% nhờ vào thuật toán kiểm tra tính chẵn lẻ modulo ${colorCount}.`}
+              {t.sample_summary_consistent
+                .replace('{count}', String(n - 1))
+                .replace('{mod}', String(colorCount))}
             </p>
           </div>
         </div>
       ) : (
         <div className="rounded-lg border border-slate-200 bg-slate-50/60 p-6 text-center text-xs text-slate-500 font-sans">
-          {isEn
-            ? 'Initializing Monte Carlo sample verification...'
-            : 'Đang khởi tạo mẫu kiểm định Monte Carlo...'}
+          {t.initializing_mc}
         </div>
       )}
     </div>

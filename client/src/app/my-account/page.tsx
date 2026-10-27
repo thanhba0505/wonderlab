@@ -22,8 +22,7 @@ import { useTranslation } from '@/i18n';
 
 export default function MyAccountPage() {
   const { user } = useAuth();
-  const { locale, dict } = useTranslation();
-  const isEn = locale === 'en';
+  const { dict } = useTranslation();
 
   if (!user) return null;
 
@@ -88,15 +87,9 @@ export default function MyAccountPage() {
             </div>
             <div>
               <div className="text-xs font-bold text-amber-950 font-mono uppercase tracking-wider">
-                {isEn
-                  ? 'Administrator Privileges (Admin Console)'
-                  : 'Đặc quyền Quản trị viên (Admin Console)'}
+                {dict.account.role_admin_badge}
               </div>
-              <p className="text-xs text-amber-900 mt-0.5">
-                {isEn
-                  ? 'You are logged in with administrative privileges. You can access the system management portal.'
-                  : 'Bạn đang đăng nhập với quyền Quản trị tối cao. Bạn có thể truy cập trang Quản trị toàn sàn.'}
-              </p>
+              <p className="text-xs text-amber-900 mt-0.5">{dict.account.open_admin_console}</p>
             </div>
           </div>
           <Link href="/admin" className="shrink-0">
@@ -105,7 +98,7 @@ export default function MyAccountPage() {
               size="sm"
               className="bg-white border-amber-300 text-amber-900 hover:bg-amber-100 text-xs font-bold"
             >
-              {isEn ? 'Open Admin Console' : 'Mở Admin Console'}
+              {dict.account.open_admin_console}
             </AppButton>
           </Link>
         </div>
@@ -130,8 +123,7 @@ export default function MyAccountPage() {
                 </AppTag>
               </div>
               <p className="text-xs text-slate-500 mt-1 font-mono">
-                {user.email ||
-                  (isEn ? 'No personal email provided' : 'Chưa cung cấp email cá nhân')}
+                {user.email || dict.account.no_email_provided}
               </p>
             </div>
           </div>
@@ -185,7 +177,7 @@ export default function MyAccountPage() {
                       <span className="text-slate-300">•</span>
                       <span className="text-xs text-slate-500 font-mono flex items-center gap-1">
                         <Clock className="h-3 w-3" /> ~{sim.estimatedMinutes}{' '}
-                        {isEn ? 'min' : 'phút'}
+                        {dict.account.minutes_unit}
                       </span>
                     </div>
                     <Link
@@ -203,7 +195,7 @@ export default function MyAccountPage() {
                       size="sm"
                       className="text-xs text-slate-700 hover:text-blue-600 group-hover:border-blue-300"
                     >
-                      {isEn ? 'Experiment' : 'Thực nghiệm'}
+                      {dict.account.experiment_label}
                     </AppButton>
                   </Link>
                 </div>
@@ -239,7 +231,7 @@ export default function MyAccountPage() {
                     <span>{essay.categoryLabel}</span>
                     <span className="text-slate-300">•</span>
                     <span>
-                      {essay.readTimeMinutes} {isEn ? 'min read' : 'phút đọc'}
+                      {essay.readTimeMinutes} {dict.account.min_read}
                     </span>
                   </div>
                   <Link

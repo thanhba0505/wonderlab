@@ -12,8 +12,7 @@ interface EssaysCatalogProps {
 }
 
 export function EssaysCatalog({ initialEssays }: EssaysCatalogProps) {
-  const { locale, dict } = useTranslation();
-  const isEn = locale === 'en';
+  const { dict } = useTranslation();
 
   return (
     <div className="flex flex-col gap-8 xl:gap-10 pb-16">
@@ -36,9 +35,7 @@ export function EssaysCatalog({ initialEssays }: EssaysCatalogProps) {
           </h1>
         </div>
         <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-[40px] font-heading font-extrabold text-slate-900 tracking-tight leading-tight">
-          {isEn
-            ? 'Open questions in nature and human cognition'
-            : 'Những câu hỏi mở về tự nhiên và nhận thức'}
+          {dict.home.editorial_title}
         </h2>
         <p className="text-sm sm:text-base xl:text-lg text-slate-600 font-sans leading-relaxed">
           {dict.essays.subtitle}
@@ -66,12 +63,11 @@ export function EssaysCatalog({ initialEssays }: EssaysCatalogProps) {
                   <div className="flex items-center justify-between text-xs text-slate-500">
                     <span className="flex items-center gap-1.5 font-mono text-blue-700 font-bold">
                       <Atom className="h-3.5 w-3.5" />
-                      {isEn
-                        ? `Essay #${article.issueNumber || `0${idx + 1}`}`
-                        : `Tiểu luận #${article.issueNumber || `0${idx + 1}`}`}
+                      {dict.essays.essay_prefix}
+                      {article.issueNumber || `0${idx + 1}`}
                     </span>
                     <span className="font-mono text-slate-400">
-                      {article.readTimeMinutes} {isEn ? 'min read' : 'phút đọc'}
+                      {article.readTimeMinutes} {dict.essays.min_read}
                     </span>
                   </div>
 

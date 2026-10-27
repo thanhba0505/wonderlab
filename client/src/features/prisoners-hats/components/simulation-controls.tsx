@@ -48,8 +48,7 @@ export function SimulationControls({
   onChangeSpeed,
   isCompleted,
 }: SimulationControlsProps) {
-  const { locale } = useTranslation();
-  const isEn = locale === 'en';
+  const { dict } = useTranslation();
 
   return (
     <div className="rounded-xl border border-slate-300/85 bg-white p-4 sm:p-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.06),0_1px_3px_0_rgba(15,23,42,0.04)] space-y-4">
@@ -65,7 +64,7 @@ export function SimulationControls({
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            {isEn ? 'Automatic & Stepper Mode' : 'Chế độ Tự động & Từng bước'}
+            {dict.sim_prisoners_hats.mode_auto_tab}
           </button>
           <button
             type="button"
@@ -77,7 +76,7 @@ export function SimulationControls({
             }`}
           >
             <Sparkles className="h-3.5 w-3.5" />
-            {isEn ? 'Roleplay Challenge' : 'Nhập vai Thử thách'}
+            {dict.sim_prisoners_hats.mode_roleplay_tab}
           </button>
         </div>
 
@@ -96,18 +95,12 @@ export function SimulationControls({
             {isPlaying ? (
               <>
                 <Pause className="h-3.5 w-3.5" />
-                {isEn ? 'Pause' : 'Tạm dừng'}
+                {dict.sim_prisoners_hats.pause_btn}
               </>
             ) : (
               <>
                 <Play className="h-3.5 w-3.5" />
-                {isCompleted
-                  ? isEn
-                    ? 'Completed'
-                    : 'Hoàn thành'
-                  : isEn
-                    ? 'Auto-play'
-                    : 'Phát tự động'}
+                {dict.sim_prisoners_hats.run_auto_btn}
               </>
             )}
           </Button>
@@ -120,7 +113,7 @@ export function SimulationControls({
             className="h-8 gap-1 text-xs border-slate-300 text-slate-700"
           >
             <SkipForward className="h-3.5 w-3.5" />
-            {isEn ? 'Step next' : 'Bước tiếp'}
+            {dict.sim_prisoners_hats.step_next_btn}
           </Button>
 
           <Button
@@ -130,7 +123,7 @@ export function SimulationControls({
             className="h-8 gap-1 text-xs border-slate-300 text-slate-700"
           >
             <RotateCcw className="h-3.5 w-3.5" />
-            {isEn ? 'Reset' : 'Đặt lại'}
+            {dict.sim_prisoners_hats.reset_btn}
           </Button>
 
           <Button
@@ -140,7 +133,7 @@ export function SimulationControls({
             className="h-8 gap-1 text-xs border-slate-300 text-slate-700"
           >
             <Dices className="h-3.5 w-3.5" />
-            {isEn ? 'Randomize colors' : 'Đổi màu ngẫu nhiên'}
+            {dict.sim_prisoners_hats.randomize_btn}
           </Button>
         </div>
       </div>
@@ -152,10 +145,10 @@ export function SimulationControls({
           <label className="flex items-center justify-between text-slate-700 font-semibold">
             <span className="flex items-center gap-1.5">
               <Users className="h-3.5 w-3.5 text-blue-600" />
-              {isEn ? 'Number of prisoners (N):' : 'Số lượng người (N):'}
+              {dict.sim_prisoners_hats.prisoners_count_label}
             </span>
             <span className="font-mono text-blue-700 font-bold">
-              {n} {isEn ? 'people' : 'người'}
+              {n} {dict.sim_prisoners_hats.people_unit}
             </span>
           </label>
           <div className="flex items-center gap-1">
@@ -181,7 +174,7 @@ export function SimulationControls({
           <label className="flex items-center justify-between text-slate-700 font-semibold">
             <span className="flex items-center gap-1.5">
               <Palette className="h-3.5 w-3.5 text-indigo-600" />
-              {isEn ? 'Hat color space:' : 'Không gian màu mũ:'}
+              {dict.sim_prisoners_hats.color_space_label}
             </span>
             <span className="font-mono text-slate-700 font-bold">K = {colorCount}</span>
           </label>
@@ -195,7 +188,7 @@ export function SimulationControls({
                   : 'border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100'
               }`}
             >
-              {isEn ? '2 Colors (B/W)' : '2 Màu (Đen / Trắng)'}
+              {dict.sim_prisoners_hats.color_space_2}
             </button>
             <button
               type="button"
@@ -206,7 +199,7 @@ export function SimulationControls({
                   : 'border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100'
               }`}
             >
-              {isEn ? '3 Colors (Mod 3)' : '3 Màu (Mod 3)'}
+              {dict.sim_prisoners_hats.color_space_3}
             </button>
           </div>
         </div>
@@ -216,7 +209,7 @@ export function SimulationControls({
           <label className="flex items-center justify-between text-slate-700 font-semibold">
             <span className="flex items-center gap-1.5">
               <FastForward className="h-3.5 w-3.5 text-slate-500" />
-              {isEn ? 'Playback speed:' : 'Tốc độ diễn hoạt:'}
+              {dict.sim_prisoners_hats.speed_label}
             </span>
             <span className="font-mono text-slate-600">{playbackSpeed}x</span>
           </label>

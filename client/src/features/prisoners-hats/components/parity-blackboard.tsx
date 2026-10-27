@@ -18,8 +18,8 @@ export function ParityBlackboard({
   prisoners,
   colorCount,
 }: ParityBlackboardProps) {
-  const { locale } = useTranslation();
-  const isEn = locale === 'en';
+  const { dict } = useTranslation();
+  const t = dict.sim_prisoners_hats;
   const currentStep = steps[currentStepIndex] ?? null;
   const initialStep = steps[0] ?? null;
   const palette = getPalette(colorCount);
@@ -33,25 +33,15 @@ export function ParityBlackboard({
             <Binary className="h-4 w-4" />
           </div>
           <div>
-            <h3 className="font-heading text-sm font-bold text-slate-900">
-              {isEn
-                ? 'Parity Decoding Blackboard & Modulo Subtraction'
-                : 'Bảng Giải Mã Parity & Chuỗi Trừ Lùi Modulo'}
-            </h3>
-            <p className="text-xs text-slate-500 font-sans">
-              {isEn
-                ? 'Observe real-time reduction in information entropy across each spoken turn'
-                : 'Theo dõi trực tiếp sự suy giảm entropy thông tin qua từng lượt phát biểu'}
-            </p>
+            <h3 className="font-heading text-sm font-bold text-slate-900">{t.blackboard_title}</h3>
+            <p className="text-xs text-slate-500 font-sans">{t.blackboard_desc}</p>
           </div>
         </div>
 
         {initialStep && (
           <div className="font-mono text-xs bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg text-slate-700">
             <span className="text-slate-500 font-sans">
-              {isEn
-                ? `Root signal Person #${initialStep.prisonerId}: `
-                : `Tín hiệu gốc Người #${initialStep.prisonerId}: `}
+              {t.root_signal_label.replace('{id}', String(initialStep.prisonerId))}
             </span>
             <span className="font-bold text-blue-700">
               {palette[initialStep.spokenColor]?.label} ({initialStep.spokenColor})
@@ -66,19 +56,17 @@ export function ParityBlackboard({
           <div className="flex items-center justify-between text-xs font-semibold text-blue-900">
             <span className="flex items-center gap-1.5">
               <Lightbulb className="h-4 w-4 text-amber-500" />
-              {isEn
-                ? `Current turn: Person #${currentStep.prisonerId}`
-                : `Lượt hiện tại: Người #${currentStep.prisonerId}`}
+              {t.current_turn_label.replace('{id}', String(currentStep.prisonerId))}
             </span>
             <span className="font-mono text-blue-700 bg-white/80 px-2 py-0.5 rounded border border-blue-200">
-              {isEn
-                ? `Step ${currentStepIndex + 1} / ${steps.length}`
-                : `Bước ${currentStepIndex + 1} / ${steps.length}`}
+              {t.step_progress
+                .replace('{step}', String(currentStepIndex + 1))
+                .replace('{total}', String(steps.length))}
             </span>
           </div>
 
           <div className="font-mono text-xs sm:text-sm text-slate-800 bg-white p-2.5 rounded-md border border-blue-100 flex flex-wrap items-center gap-2">
-            <span className="text-slate-500 font-sans">{isEn ? 'Formula:' : 'Công thức:'}</span>
+            <span className="text-slate-500 font-sans">{t.formula_label}</span>
             <span className="font-bold text-blue-700">{currentStep.formulaString}</span>
           </div>
 
@@ -88,9 +76,7 @@ export function ParityBlackboard({
         </div>
       ) : (
         <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-center text-xs text-slate-500">
-          {isEn
-            ? 'Click "Auto-play" or "Step next" to trace the deduction step-by-step.'
-            : 'Bấm "Phát tự động" hoặc "Bước tiếp" để theo dõi quá trình giải mã từng bước.'}
+          {t.step_next_hint}
         </div>
       )}
 
@@ -99,13 +85,13 @@ export function ParityBlackboard({
         <table className="w-full text-left text-xs font-sans">
           <thead className="bg-slate-50 text-slate-600 border-b border-slate-200 font-semibold font-mono">
             <tr>
-              <th className="py-2.5 px-3">{isEn ? 'Turn' : 'Lượt'}</th>
-              <th className="py-2.5 px-3">{isEn ? 'Position' : 'Vị trí'}</th>
-              <th className="py-2.5 px-3">{isEn ? 'Actual Hat' : 'Mũ thật'}</th>
-              <th className="py-2.5 px-3">{isEn ? 'Seen Ahead' : 'Thấy phía trước'}</th>
-              <th className="py-2.5 px-3">{isEn ? 'Expected Parity' : 'Parity kỳ vọng'}</th>
-              <th className="py-2.5 px-3">{isEn ? 'Spoken Color' : 'Hô màu'}</th>
-              <th className="py-2.5 px-3 text-center">{isEn ? 'Result' : 'Kết quả'}</th>
+              <th className="py-2.5 px-3">{t.turn_col}</th>
+              <th className="py-2.5 px-3">{t.position_col}</th>
+              <th className="py-2.5 px-3">{t.actual_hat_col}</th>
+              <th className="py-2.5 px-3">{t.seen_ahead_col}</th>
+              <th className="py-2.5 px-3">{t.expected_parity_col}</th>
+              <th className="py-2.5 px-3">{t.spoken_col}</th>
+              <th className="py-2.5 px-3 text-center">{t.result_col}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 font-mono">
@@ -131,10 +117,10 @@ export function ParityBlackboard({
                 >
                   <td className="py-2 px-3 font-semibold text-slate-500">#{idx + 1}</td>
                   <td className="py-2 px-3">
-                    {isEn ? `Person #${step.prisonerId}` : `Người #${step.prisonerId}`}
+                    {t.person_tag.replace('{id}', String(step.prisonerId))}
                     {prisoner?.isSacrifice && (
                       <span className="ml-1 text-amber-600 font-sans text-xs">
-                        {isEn ? '(Sacrifice)' : '(Hy sinh)'}
+                        {t.sacrifice_tag}
                       </span>
                     )}
                   </td>
@@ -172,15 +158,15 @@ export function ParityBlackboard({
                     {isPast ? (
                       step.isCorrect ? (
                         <span className="inline-flex items-center gap-1 text-emerald-600 font-bold">
-                          <Check className="h-3.5 w-3.5" /> {isEn ? 'Correct' : 'Đúng'}
+                          <Check className="h-3.5 w-3.5" /> {t.correct_label}
                         </span>
                       ) : (
                         <span className="inline-flex items-center gap-1 text-rose-600 font-bold">
-                          <X className="h-3.5 w-3.5" /> {isEn ? 'Wrong' : 'Sai'}
+                          <X className="h-3.5 w-3.5" /> {t.wrong_label}
                         </span>
                       )
                     ) : (
-                      <span className="text-slate-400">{isEn ? 'Waiting' : 'Chờ'}</span>
+                      <span className="text-slate-400">{t.waiting_label}</span>
                     )}
                   </td>
                 </tr>
@@ -194,21 +180,15 @@ export function ParityBlackboard({
       <div className="flex items-start gap-2 text-xs text-slate-500 font-sans bg-slate-50 p-2.5 rounded-md border border-slate-200">
         <ArrowRight className="h-4 w-4 text-blue-600 shrink-0 mt-0.5" />
         <span>
-          <strong>{isEn ? 'Backward Subtraction Rule:' : 'Quy luật trừ lùi:'}</strong>{' '}
-          {isEn ? (
+          <strong>{t.subtraction_rule_title}</strong>{' '}
+          {t.subtraction_rule_desc.includes('{formula}') ? (
             <>
-              After each correct call by the prisoner behind, the expected parity for the next turn
-              is decremented by the announced color:{' '}
-              <code className="text-blue-700 font-bold">{'P_{k-1} = (P_k - c_k) mod K'}</code>. This
-              guarantees that all remaining prisoners retain complete information.
+              {t.subtraction_rule_desc.split('{formula}')[0]}
+              <code className="text-blue-700 font-bold">{'P_{k-1} = (P_k - c_k) mod K'}</code>
+              {t.subtraction_rule_desc.split('{formula}')[1]}
             </>
           ) : (
-            <>
-              Sau mỗi lượt đoán chính xác của người phía sau, Parity kỳ vọng cho lượt tiếp theo được
-              trừ đi đúng giá trị màu vừa hô:{' '}
-              <code className="text-blue-700 font-bold">{'P_{k-1} = (P_k - c_k) mod K'}</code>.
-              Chuỗi này giúp bảo đảm 100% người còn lại luôn có đủ thông tin.
-            </>
+            t.subtraction_rule_desc
           )}
         </span>
       </div>

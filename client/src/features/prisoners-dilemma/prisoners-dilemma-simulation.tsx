@@ -39,8 +39,7 @@ import {
 type GameMode = 'duel' | 'tournament';
 
 export function PrisonersDilemmaSimulation() {
-  const { locale } = useTranslation();
-  const isEn = locale === 'en';
+  const { locale, dict } = useTranslation();
   const meta = useSimulationMeta('prisoners-dilemma');
   const [activeMode, setActiveMode] = React.useState<GameMode>('duel');
   const [lastMove1, setLastMove1] = React.useState<Move | null>(null);
@@ -194,12 +193,8 @@ export function PrisonersDilemmaSimulation() {
       {/* 1. TITLE CÂU HỎI & CÂU HỎI TRỰC GIÁC */}
       <SimulationSection
         dotColor="amber"
-        title={isEn ? 'Pre-experiment Intuition Survey' : 'Khảo Sát Trực Giác Trước Thực Nghiệm'}
-        subtitle={
-          isEn
-            ? 'Make a personal prediction to measure the gap between naive intuition and probability'
-            : 'Đưa ra dự đoán cá nhân để đo lường khoảng cách giữa trực giác thông thường và toán học xác suất'
-        }
+        title={dict.sim_prisoners_dilemma.survey_title}
+        subtitle={dict.sim_prisoners_dilemma.survey_desc}
       >
         {meta?.hypothesis && (
           <IntuitionChallengeCard
@@ -215,61 +210,53 @@ export function PrisonersDilemmaSimulation() {
       {/* 2. TITLE CHỖ THÍ NGHIỆM & BLOCK THÍ NGHIỆM HỢP NHẤT */}
       <SimulationSection
         dotColor="blue"
-        title={isEn ? 'Laboratory & Visual Simulation' : 'Buồng Thí Nghiệm & Mô Phỏng Trực Quan'}
-        subtitle={
-          isEn
-            ? 'Game theory arena, payoff matrix, and Axelrod population evolutionary tournament'
-            : 'Không gian đấu trường lý thuyết trò chơi, ma trận thanh toán và giải đấu tiến hóa quần thể Axelrod'
-        }
+        title={dict.sim_prisoners_dilemma.sim_title}
+        subtitle={dict.sim_prisoners_dilemma.sim_desc}
       >
         <SimulationWorkbenchCard
           metricsBar={
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 pb-5 border-b border-slate-200/80">
               <div className="space-y-1">
                 <div className="text-xs font-semibold tracking-wider text-slate-500 uppercase">
-                  {isEn ? 'Game Mode' : 'Chế độ thi đấu'}
+                  {dict.sim_prisoners_dilemma.game_mode}
                 </div>
                 <div className="font-mono text-xl sm:text-2xl font-bold text-slate-900">
                   {activeMode === 'duel' ? '1-on-1 Duel' : 'Tournament'}
                 </div>
                 <div className="text-xs text-slate-500 font-sans">
                   {activeMode === 'duel'
-                    ? isEn
-                      ? 'Head-to-head match'
-                      : 'Đấu tay đôi đối kháng'
-                    : isEn
-                      ? 'Axelrod evolutionary tournament'
-                      : 'Giải đấu tiến hóa Axelrod'}
+                    ? dict.sim_prisoners_dilemma.duel_desc
+                    : dict.sim_prisoners_dilemma.tournament_desc}
                 </div>
               </div>
 
               <div className="space-y-1 sm:border-l sm:border-slate-200/80 sm:pl-4">
                 <div className="text-xs font-semibold tracking-wider text-slate-500 uppercase">
-                  {isEn ? 'Nash Equilibrium' : 'Cân bằng Nash'}
+                  {dict.sim_prisoners_dilemma.nash_equilibrium}
                 </div>
                 <div className="font-mono text-xl sm:text-2xl font-bold pt-0.5 text-rose-600">
-                  {isEn ? '(Defect, Defect)' : '(Phản bội, Phản bội)'}
+                  {dict.sim_prisoners_dilemma.defect_defect}
                 </div>
                 <div className="text-xs text-slate-500 font-sans">
-                  {isEn ? 'Strictly dominant strategy' : 'Chiến lược chi phối nghiêm ngặt'}
+                  {dict.sim_prisoners_dilemma.dominant_strategy}
                 </div>
               </div>
 
               <div className="space-y-1 border-t sm:border-t-0 pt-3 sm:pt-0 sm:border-l sm:border-slate-200/80 sm:pl-4">
                 <div className="text-xs font-semibold tracking-wider text-slate-500 uppercase">
-                  {isEn ? 'Pareto Optimum' : 'Pareto Tối ưu'}
+                  {dict.sim_prisoners_dilemma.pareto_optimum}
                 </div>
                 <div className="font-mono text-xl sm:text-2xl font-bold pt-0.5 text-emerald-600">
-                  {isEn ? '(Cooperate, Cooperate)' : '(Hợp tác, Hợp tác)'}
+                  {dict.sim_prisoners_dilemma.cooperate_cooperate}
                 </div>
                 <div className="text-xs text-slate-500 font-sans">
-                  {isEn ? 'Max collective payoff (+6 pts)' : 'Lợi ích tập thể cao nhất (+6 điểm)'}
+                  {dict.sim_prisoners_dilemma.max_collective_payoff}
                 </div>
               </div>
 
               <div className="space-y-1 border-t sm:border-t-0 pt-3 sm:pt-0 sm:border-l sm:border-slate-200/80 sm:pl-4">
                 <div className="text-xs font-semibold tracking-wider text-slate-500 uppercase">
-                  {isEn ? 'Rounds Played' : 'Số hiệp đã đấu'}
+                  {dict.sim_prisoners_dilemma.rounds_played}
                 </div>
                 <div className="font-mono text-2xl sm:text-3xl font-bold text-slate-900 tabular-nums">
                   {recentRounds.length}
@@ -277,9 +264,7 @@ export function PrisonersDilemmaSimulation() {
                 <div className="text-xs text-slate-500 font-mono">
                   {lastMatchStats
                     ? `P1: ${lastMatchStats.userScore} | P2: ${lastMatchStats.opponentScore}`
-                    : isEn
-                      ? 'Ready for round'
-                      : 'Sẵn sàng đấu hiệp'}
+                    : dict.sim_prisoners_dilemma.ready_for_round}
                 </div>
               </div>
             </div>
@@ -291,39 +276,39 @@ export function PrisonersDilemmaSimulation() {
                 size="sm"
                 onClick={handleExportCsv}
                 className="h-7 gap-1.5 border-slate-300 bg-white font-mono text-xs text-slate-700 hover:bg-slate-50 hover:text-slate-900"
-                title={isEn ? 'Export CSV Spreadsheet' : 'Tải tệp bảng tính CSV'}
+                title={dict.simulations.export.csv}
               >
                 <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-600" />
-                {isEn ? 'Export CSV' : 'Xuất CSV'}
+                {dict.simulations.export.csv}
               </Button>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleExportJson}
                 className="h-7 gap-1.5 border-slate-300 bg-white font-mono text-xs text-slate-700 hover:bg-slate-50 hover:text-slate-900"
-                title={isEn ? 'Export JSON Data' : 'Tải tệp JSON dữ liệu'}
+                title={dict.simulations.export.json}
               >
                 <FileJson className="h-3.5 w-3.5 text-blue-600" />
-                {isEn ? 'Export JSON' : 'Xuất JSON'}
+                {dict.simulations.export.json}
               </Button>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleCopyReport}
                 className="h-7 gap-1.5 border-slate-300 bg-white font-mono text-xs text-slate-700 hover:bg-slate-50 hover:text-slate-900"
-                title={isEn ? 'Copy Markdown Report' : 'Sao chép báo cáo Markdown'}
+                title={dict.simulations.export.copy_report}
               >
                 {copiedType === 'report' ? (
                   <>
                     <Check className="h-3.5 w-3.5 text-emerald-600" />
                     <span className="text-emerald-700 font-semibold">
-                      {isEn ? 'Copied!' : 'Đã chép!'}
+                      {dict.simulations.export.copied}
                     </span>
                   </>
                 ) : (
                   <>
                     <Copy className="h-3.5 w-3.5 text-slate-500" />
-                    {isEn ? 'Copy Report' : 'Chép Báo cáo'}
+                    {dict.simulations.export.copy_report}
                   </>
                 )}
               </Button>
@@ -337,23 +322,23 @@ export function PrisonersDilemmaSimulation() {
                 <div className="flex items-center gap-1 text-slate-700">
                   <Database className="h-3.5 w-3.5 text-blue-600" />
                   <span className="font-bold text-blue-700 tabular-nums">
-                    {globalStats.totalTrials.toLocaleString(isEn ? 'en-US' : 'vi-VN')}
+                    {globalStats.totalTrials.toLocaleString(locale === 'en' ? 'en-US' : 'vi-VN')}
                   </span>
-                  <span className="text-slate-400">{isEn ? 'rounds' : 'hiệp'}</span>
+                  <span className="text-slate-400">{dict.simulations.telemetry.trials}</span>
                 </div>
                 <span className="text-slate-300">•</span>
                 <div className="flex items-center gap-1 text-slate-600">
                   <Sparkles className="h-3.5 w-3.5 text-amber-500" />
                   <span className="font-bold text-slate-800 tabular-nums">
-                    {globalStats.totalRuns.toLocaleString(isEn ? 'en-US' : 'vi-VN')}
+                    {globalStats.totalRuns.toLocaleString(locale === 'en' ? 'en-US' : 'vi-VN')}
                   </span>
-                  <span className="text-slate-400">{isEn ? 'matches' : 'trận'}</span>
+                  <span className="text-slate-400">{dict.simulations.telemetry.runs}</span>
                 </div>
               </div>
             ) : (
               <div className="flex items-center gap-2 text-xs text-slate-500">
                 <Activity className="h-3.5 w-3.5 text-blue-600 animate-pulse" />
-                <span>{isEn ? 'Ready for telemetry' : 'Sẵn sàng thu thập telemetry'}</span>
+                <span>{dict.simulations.telemetry.ready}</span>
               </div>
             )
           }
@@ -374,7 +359,7 @@ export function PrisonersDilemmaSimulation() {
                   }`}
                 >
                   <Swords className="h-3.5 w-3.5 text-blue-600" />
-                  {isEn ? '1. 1-on-1 Duel' : '1. Đấu tay đôi (1-on-1 Duel)'}
+                  {dict.sim_prisoners_dilemma.mode_duel}
                 </Button>
                 <Button
                   type="button"
@@ -388,9 +373,7 @@ export function PrisonersDilemmaSimulation() {
                   }`}
                 >
                   <Users className="h-3.5 w-3.5 text-emerald-600" />
-                  {isEn
-                    ? '2. Population Evolution (Axelrod)'
-                    : '2. Tiến hóa Quần thể (Axelrod Tournament)'}
+                  {dict.sim_prisoners_dilemma.mode_tournament}
                 </Button>
               </div>
 
@@ -400,9 +383,7 @@ export function PrisonersDilemmaSimulation() {
                   className="text-xs font-mono border-slate-300 text-slate-600"
                 >
                   <Sparkles className="mr-1 h-3 w-3 text-amber-500" />
-                  {isEn
-                    ? 'Nash Equilibrium: (Defect, Defect)'
-                    : 'Cân bằng Nash: (Phản bội, Phản bội)'}
+                  {dict.sim_prisoners_dilemma.nash_badge}
                 </Badge>
               </div>
             </div>
@@ -430,12 +411,8 @@ export function PrisonersDilemmaSimulation() {
       {/* 3. TITLE NHẬT KÝ & NHẬT KÝ THỰC NGHIỆM */}
       <SimulationSection
         dotColor="emerald"
-        title={isEn ? 'Experimental Log' : 'Nhật Ký Thực Nghiệm'}
-        subtitle={
-          isEn
-            ? 'Detailed trial history and experiment logs recorded during this session'
-            : 'Bảng lưu trữ chi tiết các lượt chơi và kết quả thực nghiệm trong phiên nghiên cứu'
-        }
+        title={dict.simulations.history.title}
+        subtitle={dict.simulations.history.subtitle}
       >
         <SimulationHistoryTable runs={history} isLoading={false} />
       </SimulationSection>
@@ -443,16 +420,8 @@ export function PrisonersDilemmaSimulation() {
       {/* 4. TITLE GIẢI THÍCH & GIẢI THÍCH KHOA HỌC */}
       <SimulationSection
         dotColor="blue"
-        title={
-          isEn
-            ? 'Scientific Explanation & Mathematical Foundation'
-            : 'Giải Thích Khoa Học & Bản Chất Toán Học'
-        }
-        subtitle={
-          isEn
-            ? 'Deconstructing Nash equilibrium, Pareto dilemmas, and the emergence of cooperation in iterated games'
-            : 'Bóc tách cân bằng Nash, thế kẹt Pareto và nguồn gốc sự hợp tác trong trò chơi lặp vô hạn'
-        }
+        title={dict.simulations.explainer.title}
+        subtitle={dict.simulations.explainer.subtitle}
       >
         <SimulationExplainerCard>
           <StrategyExplainer />

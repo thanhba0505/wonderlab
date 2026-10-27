@@ -15,8 +15,7 @@ export const GalleryMetrics: React.FC<GalleryMetricsProps> = ({
   numGuards,
   coveragePercentage,
 }) => {
-  const { locale } = useTranslation();
-  const isEn = locale === 'en';
+  const { dict } = useTranslation();
   const chvatalBound = Math.floor(numVertices / 3);
   const isFullyCovered = coveragePercentage >= 99.5;
 
@@ -25,40 +24,39 @@ export const GalleryMetrics: React.FC<GalleryMetricsProps> = ({
       {/* 1. Số đỉnh & Ngưỡng Chvátal */}
       <div className="space-y-1">
         <div className="text-xs font-semibold tracking-wider text-slate-500 uppercase font-sans">
-          {isEn ? 'Vertices & Chvátal Bound' : 'Số Đỉnh & Cận Chvátal'}
+          {dict.sim_art_gallery.vertices_chvatal_title}
         </div>
         <div className="font-mono text-2xl sm:text-3xl font-bold text-slate-900 tabular-nums">
           {numVertices}{' '}
           <span className="text-xs font-sans text-slate-400 font-normal">
-            {isEn ? 'vertices' : 'đỉnh'}
+            {dict.sim_art_gallery.vertices_unit}
           </span>
         </div>
         <div className="text-xs text-slate-500 font-mono">
-          {isEn ? 'Bound ' : 'Ngưỡng '}&lfloor;{numVertices}/3&rfloor; ={' '}
-          <strong className="text-blue-700">{chvatalBound}</strong> {isEn ? 'guards' : 'lính'}
+          {dict.sim_art_gallery.chvatal_bound_label}&lfloor;{numVertices}/3&rfloor; ={' '}
+          <strong className="text-blue-700">{chvatalBound}</strong>{' '}
+          {dict.sim_art_gallery.guards_count.toLowerCase()}
         </div>
       </div>
 
       {/* 2. Số người gác hiện tại */}
       <div className="space-y-1 sm:border-l sm:border-slate-200/80 sm:pl-4">
         <div className="text-xs font-semibold tracking-wider text-slate-500 uppercase font-sans">
-          {isEn ? 'Current Guards Placed' : 'Số Người Gác Hiện Tại'}
+          {dict.sim_art_gallery.current_guards_title}
         </div>
         <div className="font-mono text-2xl sm:text-3xl font-bold text-amber-700 tabular-nums">
           {numGuards}{' '}
           <span className="text-xs font-sans text-slate-400 font-normal">
-            {isEn ? 'guards' : 'người'}
+            {dict.sim_art_gallery.guards_count.toLowerCase()}
           </span>
         </div>
         <div className="text-xs text-slate-500 font-sans">
           {numGuards <= chvatalBound ? (
             <span className="text-emerald-700 font-semibold font-mono">
-              {isEn ? '≤ Chvátal Bound' : '≤ Cận Chvátal'}
+              {dict.sim_art_gallery.lte_chvatal}
             </span>
           ) : (
-            <span className="text-slate-500 font-mono">
-              {isEn ? '> Chvátal Bound' : '> Cận Chvátal'}
-            </span>
+            <span className="text-slate-500 font-mono">{dict.sim_art_gallery.gt_chvatal}</span>
           )}
         </div>
       </div>
@@ -66,7 +64,7 @@ export const GalleryMetrics: React.FC<GalleryMetricsProps> = ({
       {/* 3. Tỷ lệ diện tích phòng được quan sát */}
       <div className="space-y-1 border-t sm:border-t-0 pt-3 sm:pt-0 sm:border-l sm:border-slate-200/80 sm:pl-4">
         <div className="text-xs font-semibold tracking-wider text-slate-500 uppercase font-sans">
-          {isEn ? 'Coverage Vision' : 'Độ Phủ Tầm Nhìn'}
+          {dict.sim_art_gallery.coverage_title}
         </div>
         <div className="font-mono text-2xl sm:text-3xl font-bold text-blue-700 tabular-nums">
           {coveragePercentage.toFixed(1)}%
@@ -84,29 +82,25 @@ export const GalleryMetrics: React.FC<GalleryMetricsProps> = ({
       {/* 4. Trạng thái an ninh căn phòng */}
       <div className="space-y-1 border-t sm:border-t-0 pt-3 sm:pt-0 sm:border-l sm:border-slate-200/80 sm:pl-4">
         <div className="text-xs font-semibold tracking-wider text-slate-500 uppercase font-sans">
-          {isEn ? 'Security Status' : 'Trạng Thái An Ninh'}
+          {dict.sim_art_gallery.security_status_title}
         </div>
         <div className="pt-0.5">
           {isFullyCovered ? (
             <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-50 border border-emerald-300 text-emerald-800 font-semibold text-xs font-sans">
               <ShieldCheck className="h-4 w-4 text-emerald-600 shrink-0" />
-              <span>{isEn ? '100% Covered' : 'Bao Quát 100%'}</span>
+              <span>{dict.sim_art_gallery.covered_100}</span>
             </div>
           ) : (
             <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-50 border border-amber-300 text-amber-800 font-semibold text-xs font-sans">
               <ShieldAlert className="h-4 w-4 text-amber-600 shrink-0" />
-              <span>{isEn ? 'Blind Spots Remain' : 'Còn Góc Khuất'}</span>
+              <span>{dict.sim_art_gallery.blind_spots_remain}</span>
             </div>
           )}
         </div>
         <div className="text-xs text-slate-500 font-sans">
           {isFullyCovered
-            ? isEn
-              ? 'No blind spots remaining in room'
-              : 'Không còn góc chết nào trong phòng'
-            : isEn
-              ? 'Need more guards or better placement'
-              : 'Cần thêm lính hoặc đổi góc đặt'}
+            ? dict.sim_art_gallery.no_blind_spots_desc
+            : dict.sim_art_gallery.need_more_guards_desc}
         </div>
       </div>
     </div>

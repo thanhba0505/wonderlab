@@ -11,8 +11,7 @@ interface GlobalTelemetryWidgetProps {
 }
 
 export function GlobalTelemetryWidget({ stats, className = '' }: GlobalTelemetryWidgetProps) {
-  const { locale } = useTranslation();
-  const isEn = locale === 'en';
+  const { locale, dict } = useTranslation();
 
   if (!stats || stats.totalTrials === 0) {
     return (
@@ -20,11 +19,7 @@ export function GlobalTelemetryWidget({ stats, className = '' }: GlobalTelemetry
         className={`inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50/80 px-3 py-1.5 text-xs font-mono text-slate-600 ${className}`}
       >
         <Activity className="h-3.5 w-3.5 text-blue-600 animate-pulse" />
-        <span>
-          {isEn
-            ? 'System ready for live experiment telemetry'
-            : 'Hệ thống sẵn sàng thu thập dữ liệu thực nghiệm sống'}
-        </span>
+        <span>{dict.simulations.telemetry.empty_state}</span>
       </div>
     );
   }
@@ -36,18 +31,16 @@ export function GlobalTelemetryWidget({ stats, className = '' }: GlobalTelemetry
       <div className="flex items-center gap-2">
         <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
         <span className="font-bold text-slate-900">
-          {isEn ? 'COMMUNITY TELEMETRY:' : 'TELEMETRY CỘNG ĐỒNG:'}
+          {dict.simulations.telemetry.community_telemetry}
         </span>
       </div>
 
       <div className="flex items-center gap-1.5 text-slate-700">
         <Database className="h-3.5 w-3.5 text-blue-600" />
         <span className="font-extrabold text-blue-700 tabular-nums">
-          {stats.totalTrials.toLocaleString(isEn ? 'en-US' : 'vi-VN')}
+          {stats.totalTrials.toLocaleString(locale === 'en' ? 'en-US' : 'vi-VN')}
         </span>
-        <span className="text-slate-500">
-          {isEn ? 'accumulated trials' : 'phép thử đã tích lũy'}
-        </span>
+        <span className="text-slate-500">{dict.simulations.telemetry.accumulated_trials}</span>
       </div>
 
       <div className="hidden sm:inline-block h-3 w-px bg-slate-200" />
@@ -55,9 +48,9 @@ export function GlobalTelemetryWidget({ stats, className = '' }: GlobalTelemetry
       <div className="flex items-center gap-1.5 text-slate-500">
         <Sparkles className="h-3.5 w-3.5 text-amber-500" />
         <span className="font-bold text-slate-800 tabular-nums">
-          {stats.totalRuns.toLocaleString(isEn ? 'en-US' : 'vi-VN')}
+          {stats.totalRuns.toLocaleString(locale === 'en' ? 'en-US' : 'vi-VN')}
         </span>
-        <span>{isEn ? 'runs recorded' : 'lượt chạy'}</span>
+        <span>{dict.simulations.telemetry.runs_recorded}</span>
       </div>
     </div>
   );
