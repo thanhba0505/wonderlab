@@ -13,6 +13,7 @@ import { prisonersDilemmaEn } from './prisoners-dilemma';
 import { zenoEn } from './zeno';
 import { artGalleryEn } from './art-gallery';
 import { prisonersHatsEn } from './prisoners-hats';
+import { bodyguardEn } from './bodyguard';
 
 export const en: TranslationDictionary = {
   nav: navEn,
@@ -35,4 +36,5 @@ export const en: TranslationDictionary = {
   sim_zeno: zenoEn,
   sim_art_gallery: artGalleryEn,
   sim_prisoners_hats: prisonersHatsEn,
+  sim_bodyguard: bodyguardEn,
 };

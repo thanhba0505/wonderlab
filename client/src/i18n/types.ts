@@ -1129,4 +1129,28 @@ export interface TranslationDictionary {
   sim_zeno: ZenoSimulationDictionary;
   sim_art_gallery: ArtGallerySimulationDictionary;
   sim_prisoners_hats: PrisonersHatsSimulationDictionary;
+  sim_bodyguard: BodyguardSimulationDictionary;
+}
+
+export interface BodyguardSimulationDictionary {
+  survey_title: string;
+  survey_desc: string;
+  sim_title: string;
+  sim_desc: string;
+  explainer_title: string;
+  explainer_desc: string;
+  preset_generic: string;
+  preset_vertical: string;
+  preset_diagonal: string;
+  preset_center: string;
+  preset_self: string;
+  mode_dual: string;
+  mode_room: string;
+  mode_unfolded: string;
+  guards_active: string;
+  guards_inactive: string;
+  safe_status: string;
+  alert_status: string;
+  copy_coords_btn: string;
+  copied_btn: string;
 }

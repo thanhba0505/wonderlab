@@ -1,271 +1,378 @@
 'use client';
 
-import React, { useRef, useEffect, useCallback } from 'react';
-import { Point } from '@/features/bodyguard-problem/bodyguard-math';
+import React, { useRef, useEffect, useState, useCallback } from 'react';
+import {
+  Point,
+  RayTraceResult,
+  distanceBetween,
+} from '@/features/bodyguard-problem/bodyguard-math';
 
 interface RoomCanvasProps {
   source: Point;
   target: Point;
   guards: Point[];
-  maxBounces: number;
+  rays: RayTraceResult[];
+  showGuards: boolean;
   onSourceMove: (p: Point) => void;
   onTargetMove: (p: Point) => void;
+  className?: string;
 }
 
-const CANVAS_SIZE = 400;
-const EPS = 1e-8;
-const HIT_RADIUS_PX = 8; // pixels for drag hit test
-const RAY_RADIUS = 0.012; // unit-space hit radius for rays
-
-function toPixel(v: number): number {
-  return v * CANVAS_SIZE;
-}
-
-function toUnit(px: number): number {
-  return Math.min(1, Math.max(0, px / CANVAS_SIZE));
-}
-
-function drawLabeledCircle(
-  ctx: CanvasRenderingContext2D,
-  pt: Point,
-  color: string,
-  label: string,
-  radius: number,
-): void {
-  const px = toPixel(pt.x);
-  const py = toPixel(pt.y);
-  ctx.fillStyle = color;
-  ctx.beginPath();
-  ctx.arc(px, py, radius, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = '#1e293b';
-  ctx.font = 'bold 11px JetBrains Mono, monospace';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText(label, px, py - radius - 7);
-}
-
-function traceRaySegments(
-  source: Point,
-  dx: number,
-  dy: number,
-  guards: Point[],
-  target: Point,
-  maxBounces: number,
-): {
-  segments: { x1: number; y1: number; x2: number; y2: number }[];
-  hitTarget: boolean;
-  blocked: boolean;
-} {
-  const segments: { x1: number; y1: number; x2: number; y2: number }[] = [];
-  let x = source.x;
-  let y = source.y;
-  let cdx = dx;
-  let cdy = dy;
-  let hitTarget = false;
-  let blocked = false;
-
-  for (let bounce = 0; bounce <= maxBounces; bounce++) {
-    // Check if current pos near target
-    if (Math.hypot(x - target.x, y - target.y) < RAY_RADIUS) {
-      hitTarget = true;
-      break;
-    }
-    // Check guard interception at current pos
-    if (guards.some(g => Math.hypot(x - g.x, y - g.y) < RAY_RADIUS)) {
-      blocked = true;
-      break;
-    }
-
-    const tX = cdx > 0 ? (1 - x) / cdx : cdx < 0 ? -x / cdx : Infinity;
-    const tY = cdy > 0 ? (1 - y) / cdy : cdy < 0 ? -y / cdy : Infinity;
-    const t = Math.min(tX, tY);
-    const nx = x + cdx * t;
-    const ny = y + cdy * t;
-
-    segments.push({ x1: x, y1: y, x2: nx, y2: ny });
-
-    if (Math.abs(t - tX) < EPS) cdx = -cdx;
-    if (Math.abs(t - tY) < EPS) cdy = -cdy;
-    x = nx;
-    y = ny;
-
-    // Check after moving to wall if near target or guard
-    if (Math.hypot(x - target.x, y - target.y) < RAY_RADIUS) {
-      hitTarget = true;
-      break;
-    }
-    if (guards.some(g => Math.hypot(x - g.x, y - g.y) < RAY_RADIUS)) {
-      blocked = true;
-      break;
-    }
-  }
-
-  return { segments, hitTarget, blocked };
-}
+const HIT_RADIUS = 0.04; // Hit test radius in unit coordinates for dragging
+const PADDING = 28; // Padding around the room in canvas pixels
 
 export function RoomCanvas({
   source,
   target,
   guards,
-  maxBounces,
+  rays,
+  showGuards,
   onSourceMove,
   onTargetMove,
+  className = '',
 }: RoomCanvasProps): React.JSX.Element {
+  const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const dragging = useRef<'source' | 'target' | null>(null);
+  const [activeDrag, setActiveDrag] = useState<'source' | 'target' | null>(null);
+  const [hoveredNode, setHoveredNode] = useState<'source' | 'target' | null>(null);
 
-  // Drawing effect
+  // Convert unit [0, 1] to canvas pixel coords
+  const toCanvasPx = useCallback((val: number, roomSize: number, offset: number): number => {
+    return offset + val * roomSize;
+  }, []);
+
+  // Convert canvas pixel coords to unit [0, 1]
+  const toUnitCoord = useCallback((px: number, roomSize: number, offset: number): number => {
+    return Math.min(0.98, Math.max(0.02, (px - offset) / roomSize));
+  }, []);
+
+  // Render loop
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    ctx.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
-
-    // Background
-    ctx.fillStyle = '#f8fafc';
-    ctx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
-
-    // Wall mirror indicators - small tick marks on each wall
-    const wallColor = '#94a3b8';
-    ctx.strokeStyle = wallColor;
-    ctx.lineWidth = 2;
-    ctx.strokeRect(1, 1, CANVAS_SIZE - 2, CANVAS_SIZE - 2);
-
-    // Mirror hatch marks on walls
-    ctx.strokeStyle = '#cbd5e1';
-    ctx.lineWidth = 1;
-    const hatchCount = 10;
-    for (let i = 0; i < hatchCount; i++) {
-      const pos = (i + 0.5) * (CANVAS_SIZE / hatchCount);
-      const hLen = 6;
-      // Top wall
-      ctx.beginPath();
-      ctx.moveTo(pos, 0);
-      ctx.lineTo(pos - hLen / 2, hLen);
-      ctx.stroke();
-      // Bottom wall
-      ctx.beginPath();
-      ctx.moveTo(pos, CANVAS_SIZE);
-      ctx.lineTo(pos - hLen / 2, CANVAS_SIZE - hLen);
-      ctx.stroke();
-      // Left wall
-      ctx.beginPath();
-      ctx.moveTo(0, pos);
-      ctx.lineTo(hLen, pos - hLen / 2);
-      ctx.stroke();
-      // Right wall
-      ctx.beginPath();
-      ctx.moveTo(CANVAS_SIZE, pos);
-      ctx.lineTo(CANVAS_SIZE - hLen, pos - hLen / 2);
-      ctx.stroke();
-    }
-
-    // Draw rays
-    const rayCount = 36;
-    for (let i = 0; i < rayCount; i++) {
-      const angle = (i * 2 * Math.PI) / rayCount;
-      const dx = Math.cos(angle);
-      const dy = Math.sin(angle);
-      const { segments, hitTarget, blocked } = traceRaySegments(
-        source,
-        dx,
-        dy,
-        guards,
-        target,
-        maxBounces,
-      );
-
-      let rayColor: string;
-      if (hitTarget) {
-        rayColor = '#06b6d4'; // cyan
-      } else if (blocked) {
-        rayColor = '#ef4444'; // red
-      } else {
-        rayColor = '#cbd5e1'; // slate-300
-      }
-
-      ctx.strokeStyle = rayColor;
-      ctx.lineWidth = hitTarget ? 1.5 : 0.8;
-      ctx.globalAlpha = hitTarget ? 0.85 : 0.5;
-      ctx.beginPath();
-      for (const seg of segments) {
-        ctx.moveTo(toPixel(seg.x1), toPixel(seg.y1));
-        ctx.lineTo(toPixel(seg.x2), toPixel(seg.y2));
-      }
-      ctx.stroke();
-    }
-    ctx.globalAlpha = 1;
-
-    // Draw guards
-    guards.forEach((g, idx) => {
-      drawLabeledCircle(ctx, g, '#10b981', `G${idx + 1}`, 5);
-    });
-
-    // Draw source (amber) and target (cyan) on top
-    drawLabeledCircle(ctx, source, '#f59e0b', 'A', 7);
-    drawLabeledCircle(ctx, target, '#06b6d4', 'B', 7);
-  }, [source, target, guards, maxBounces]);
-
-  const getCanvasPoint = useCallback((e: MouseEvent | React.MouseEvent): Point => {
-    const canvas = canvasRef.current;
-    if (!canvas) return { x: 0, y: 0 };
+    // Handle High-DPI displays
     const rect = canvas.getBoundingClientRect();
-    const scaleX = CANVAS_SIZE / rect.width;
-    const scaleY = CANVAS_SIZE / rect.height;
-    const canvasX = (e.clientX - rect.left) * scaleX;
-    const canvasY = (e.clientY - rect.top) * scaleY;
-    return { x: toUnit(canvasX), y: toUnit(canvasY) };
-  }, []);
+    const dpr = window.devicePixelRatio || 1;
+    const width = rect.width;
+    const height = rect.height;
 
-  const handleMouseDown = useCallback(
-    (e: React.MouseEvent<HTMLCanvasElement>) => {
-      const pt = getCanvasPoint(e);
-      const pxX = toPixel(pt.x);
-      const pxY = toPixel(pt.y);
-      const srcX = toPixel(source.x);
-      const srcY = toPixel(source.y);
-      const tgtX = toPixel(target.x);
-      const tgtY = toPixel(target.y);
+    canvas.width = width * dpr;
+    canvas.height = height * dpr;
+    ctx.scale(dpr, dpr);
 
-      if (Math.hypot(pxX - srcX, pxY - srcY) < HIT_RADIUS_PX + 4) {
-        dragging.current = 'source';
-      } else if (Math.hypot(pxX - tgtX, pxY - tgtY) < HIT_RADIUS_PX + 4) {
-        dragging.current = 'target';
+    // Compute room square dimensions inside canvas
+    const availSize = Math.min(width, height) - PADDING * 2;
+    const roomSize = Math.max(100, availSize);
+    const offsetX = (width - roomSize) / 2;
+    const offsetY = (height - roomSize) / 2;
+
+    // Clear background
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, width, height);
+
+    // Subtle technical grid inside room
+    ctx.strokeStyle = '#f1f5f9';
+    ctx.lineWidth = 1;
+    const gridDivisions = 4;
+    for (let i = 1; i < gridDivisions; i++) {
+      const gx = offsetX + (i / gridDivisions) * roomSize;
+      const gy = offsetY + (i / gridDivisions) * roomSize;
+      ctx.beginPath();
+      ctx.moveTo(gx, offsetY);
+      ctx.lineTo(gx, offsetY + roomSize);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(offsetX, gy);
+      ctx.lineTo(offsetX + roomSize, gy);
+      ctx.stroke();
+    }
+
+    // Mirror Wall Backing Glow
+    ctx.strokeStyle = '#e2e8f0';
+    ctx.lineWidth = 8;
+    ctx.strokeRect(offsetX, offsetY, roomSize, roomSize);
+
+    // Main Mirror Walls (Hairline border)
+    ctx.strokeStyle = '#0f172a';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(offsetX, offsetY, roomSize, roomSize);
+
+    // Draw optical mirror hatch marks (slanted lines behind the wall)
+    ctx.strokeStyle = '#94a3b8';
+    ctx.lineWidth = 1;
+    const hatchCount = 12;
+    const hatchLen = 6;
+    for (let i = 0; i <= hatchCount; i++) {
+      const frac = i / hatchCount;
+      const pos = frac * roomSize;
+
+      // Top wall hatches
+      ctx.beginPath();
+      ctx.moveTo(offsetX + pos, offsetY);
+      ctx.lineTo(offsetX + pos - hatchLen, offsetY - hatchLen);
+      ctx.stroke();
+
+      // Bottom wall hatches
+      ctx.beginPath();
+      ctx.moveTo(offsetX + pos, offsetY + roomSize);
+      ctx.lineTo(offsetX + pos + hatchLen, offsetY + roomSize + hatchLen);
+      ctx.stroke();
+
+      // Left wall hatches
+      ctx.beginPath();
+      ctx.moveTo(offsetX, offsetY + pos);
+      ctx.lineTo(offsetX - hatchLen, offsetY + pos + hatchLen);
+      ctx.stroke();
+
+      // Right wall hatches
+      ctx.beginPath();
+      ctx.moveTo(offsetX + roomSize, offsetY + pos);
+      ctx.lineTo(offsetX + roomSize + hatchLen, offsetY + pos - hatchLen);
+      ctx.stroke();
+    }
+
+    // Wall coordinate labels (0, 1)
+    ctx.fillStyle = '#64748b';
+    ctx.font = '12px JetBrains Mono, monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'bottom';
+    ctx.fillText('(0, 1)', offsetX, offsetY - 8);
+    ctx.fillText('(1, 1)', offsetX + roomSize, offsetY - 8);
+    ctx.textBaseline = 'top';
+    ctx.fillText('(0, 0)', offsetX, offsetY + roomSize + 8);
+    ctx.fillText('(1, 0)', offsetX + roomSize, offsetY + roomSize + 8);
+
+    // 1. Draw light rays
+    for (const ray of rays) {
+      if (ray.segments.length === 0) continue;
+
+      let strokeStyle = '#94a3b8'; // Default bouncing ray
+      let lineWidth = 1;
+
+      if (ray.blockedByGuard) {
+        strokeStyle = 'rgba(239, 68, 68, 0.75)'; // Red for intercepted ray
+        lineWidth = 1.4;
+      } else if (ray.hitTarget) {
+        strokeStyle = 'rgba(6, 182, 212, 0.9)'; // Cyan for target hit
+        lineWidth = 1.8;
       }
-    },
-    [source, target, getCanvasPoint],
-  );
 
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent): void => {
-      if (!dragging.current) return;
-      const pt = getCanvasPoint(e);
-      if (dragging.current === 'source') onSourceMove(pt);
-      else onTargetMove(pt);
-    };
-    const handleMouseUp = (): void => {
-      dragging.current = null;
-    };
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseup', handleMouseUp);
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
-    };
-  }, [getCanvasPoint, onSourceMove, onTargetMove]);
+      ctx.strokeStyle = strokeStyle;
+      ctx.lineWidth = lineWidth;
+      ctx.beginPath();
+
+      const first = ray.segments[0];
+      if (first) {
+        ctx.moveTo(
+          toCanvasPx(first.x1, roomSize, offsetX),
+          toCanvasPx(first.y1, roomSize, offsetY),
+        );
+
+        for (const seg of ray.segments) {
+          ctx.lineTo(toCanvasPx(seg.x2, roomSize, offsetX), toCanvasPx(seg.y2, roomSize, offsetY));
+        }
+        ctx.stroke();
+      }
+
+      // If blocked by guard, draw impact marker
+      if (ray.blockedByGuard && ray.blockedGuardPoint) {
+        const gx = toCanvasPx(ray.blockedGuardPoint.x, roomSize, offsetX);
+        const gy = toCanvasPx(ray.blockedGuardPoint.y, roomSize, offsetY);
+        ctx.fillStyle = 'rgba(239, 68, 68, 0.4)';
+        ctx.beginPath();
+        ctx.arc(gx, gy, 7, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    // 2. Draw Bodyguards (Emerald points)
+    if (showGuards) {
+      guards.forEach((g, idx) => {
+        const gx = toCanvasPx(g.x, roomSize, offsetX);
+        const gy = toCanvasPx(g.y, roomSize, offsetY);
+
+        // Guard aura ring
+        ctx.fillStyle = 'rgba(16, 185, 129, 0.15)';
+        ctx.beginPath();
+        ctx.arc(gx, gy, 9, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Guard core
+        ctx.fillStyle = '#059669';
+        ctx.beginPath();
+        ctx.arc(gx, gy, 4.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Inner white dot
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(gx, gy, 1.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Minimal guard label
+        ctx.fillStyle = '#065f46';
+        ctx.font = '12px JetBrains Mono, monospace';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        ctx.fillText(`G${idx + 1}`, gx, gy + 7);
+      });
+    }
+
+    // 3. Draw Target Point B (Cyan)
+    const bx = toCanvasPx(target.x, roomSize, offsetX);
+    const by = toCanvasPx(target.y, roomSize, offsetY);
+
+    // Outer glow for target
+    ctx.fillStyle = 'rgba(6, 182, 212, 0.2)';
+    ctx.beginPath();
+    ctx.arc(bx, by, 14, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Main circle
+    ctx.fillStyle = '#0891b2';
+    ctx.beginPath();
+    ctx.arc(bx, by, 8, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Target label
+    ctx.fillStyle = '#0e7490';
+    ctx.font = 'bold 12px JetBrains Mono, monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'bottom';
+    ctx.fillText(`Mục tiêu B (${target.x.toFixed(2)}, ${target.y.toFixed(2)})`, bx, by - 12);
+
+    // 4. Draw Source Point A (Amber)
+    const ax = toCanvasPx(source.x, roomSize, offsetX);
+    const ay = toCanvasPx(source.y, roomSize, offsetY);
+
+    // Outer glow for source
+    ctx.fillStyle = 'rgba(245, 158, 11, 0.25)';
+    ctx.beginPath();
+    ctx.arc(ax, ay, 16, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Main circle
+    ctx.fillStyle = '#d97706';
+    ctx.beginPath();
+    ctx.arc(ax, ay, 9, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Source label
+    ctx.fillStyle = '#b45309';
+    ctx.font = 'bold 12px JetBrains Mono, monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'bottom';
+    ctx.fillText(`Nguồn A (${source.x.toFixed(2)}, ${source.y.toFixed(2)})`, ax, ay - 14);
+  }, [source, target, guards, rays, showGuards, toCanvasPx]);
+
+  // Pointer event handlers for drag & drop
+  const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const px = e.clientX - rect.left;
+    const py = e.clientY - rect.top;
+
+    const availSize = Math.min(rect.width, rect.height) - PADDING * 2;
+    const roomSize = Math.max(100, availSize);
+    const offsetX = (rect.width - roomSize) / 2;
+    const offsetY = (rect.height - roomSize) / 2;
+
+    const unitX = (px - offsetX) / roomSize;
+    const unitY = (py - offsetY) / roomSize;
+
+    // Check hit on source
+    if (distanceBetween({ x: unitX, y: unitY }, source) < HIT_RADIUS) {
+      setActiveDrag('source');
+      canvas.setPointerCapture(e.pointerId);
+      return;
+    }
+
+    // Check hit on target
+    if (distanceBetween({ x: unitX, y: unitY }, target) < HIT_RADIUS) {
+      setActiveDrag('target');
+      canvas.setPointerCapture(e.pointerId);
+      return;
+    }
+  };
+
+  const handlePointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const px = e.clientX - rect.left;
+    const py = e.clientY - rect.top;
+
+    const availSize = Math.min(rect.width, rect.height) - PADDING * 2;
+    const roomSize = Math.max(100, availSize);
+    const offsetX = (rect.width - roomSize) / 2;
+    const offsetY = (rect.height - roomSize) / 2;
+
+    const newX = toUnitCoord(px, roomSize, offsetX);
+    const newY = toUnitCoord(py, roomSize, offsetY);
+
+    if (activeDrag === 'source') {
+      onSourceMove({ x: Math.round(newX * 100) / 100, y: Math.round(newY * 100) / 100 });
+      return;
+    }
+
+    if (activeDrag === 'target') {
+      onTargetMove({ x: Math.round(newX * 100) / 100, y: Math.round(newY * 100) / 100 });
+      return;
+    }
+
+    // Hover state detection
+    const unitX = (px - offsetX) / roomSize;
+    const unitY = (py - offsetY) / roomSize;
+    if (distanceBetween({ x: unitX, y: unitY }, source) < HIT_RADIUS) {
+      setHoveredNode('source');
+    } else if (distanceBetween({ x: unitX, y: unitY }, target) < HIT_RADIUS) {
+      setHoveredNode('target');
+    } else {
+      setHoveredNode(null);
+    }
+  };
+
+  const handlePointerUp = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    if (activeDrag) {
+      canvasRef.current?.releasePointerCapture(e.pointerId);
+      setActiveDrag(null);
+    }
+  };
+
+  const cursorClass = activeDrag
+    ? 'cursor-grabbing'
+    : hoveredNode
+      ? 'cursor-grab'
+      : 'cursor-crosshair';
 
   return (
-    <div className="rounded-xl border border-slate-300 bg-white p-3 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.06)]">
+    <div
+      ref={containerRef}
+      className={`relative flex flex-col items-center justify-center overflow-hidden rounded-xl border border-slate-300 bg-white p-2 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.06)] ${className}`}
+    >
       <canvas
         ref={canvasRef}
-        width={CANVAS_SIZE}
-        height={CANVAS_SIZE}
-        className="w-full cursor-crosshair rounded-lg"
-        onMouseDown={handleMouseDown}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerUp}
+        className={`h-[420px] w-full max-w-[500px] touch-none select-none rounded-lg ${cursorClass}`}
       />
+      <div className="mt-1 flex w-full items-center justify-between px-2 text-xs font-mono text-slate-500">
+        <span>Kéo A hoặc B để dịch chuyển</span>
+        <span>Kích thước: 1.0 × 1.0</span>
+      </div>
     </div>
   );
 }

@@ -302,6 +302,32 @@ export const SimulationMathCard: React.FC<SimulationMathCardProps> = ({ slug, su
             </div>
           </div>
         )}
+
+        {/* BÀI TOÁN VỆ SĨ & PHÒNG GƯƠNG (THE BODYGUARD PROBLEM) */}
+        {slug === 'bodyguard-problem' && (
+          <div className="space-y-3 text-xs text-slate-800">
+            <div className="flex flex-wrap items-center gap-4 bg-slate-50/80 p-3 rounded-lg">
+              <div className="flex items-center gap-1.5">
+                <span className="text-slate-500 font-sans">Định lý Gutkin (2005):</span>
+                <span className="font-bold text-slate-900">
+                  |G| &le; 2<sup>4</sup> = 16
+                </span>
+              </div>
+              <span className="text-slate-300">|</span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-slate-500 font-sans">Trung điểm ảnh ảo:</span>
+                <span className="font-bold text-blue-700">
+                  M = &frac12;(A + B&apos;<sub>k,m,s</sub>)
+                </span>
+              </div>
+              <span className="text-slate-300">|</span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-slate-500 font-sans">Tính chất chặn:</span>
+                <span className="font-bold text-emerald-700">100% tia bị triệt tiêu</span>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

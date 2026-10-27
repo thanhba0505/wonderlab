@@ -683,4 +683,109 @@ export const SIMULATION_LOCALES: Record<string, Record<Locale, LocalizedSimulati
       },
     },
   },
+  'bodyguard-problem': {
+    vi: {
+      title: 'Bài Toán Vệ Sĩ & Phòng Gương (The Bodyguard Problem)',
+      subtitle: 'Bida toán học, kỹ thuật trải phẳng và tính chất chặn hữu hạn',
+      summary:
+        'Trong căn phòng 4 bức tường gương, một nguồn sáng phát 360° tạo ra vô hạn tia phản xạ. Kỳ diệu thay, chỉ cần tối đa 16 điểm vệ sĩ là đủ để chặn 100% mọi tia sáng chiếu tới mục tiêu!',
+      description:
+        'Xuất phát từ Olympic Leningrad 1990 và nghiên cứu của Eugene Gutkin (2005), bài toán chứng minh rằng nhóm phản xạ đối xứng Z² ⋊ D₄ thu gọn không gian trạng thái vô hạn về đúng 16 điểm trung điểm, biến mạng tia phản xạ dày đặc thành hệ thống bị chặn hoàn toàn.',
+      tags: [
+        'Bida toán học',
+        'Quang hình học',
+        'Kỹ thuật trải phẳng',
+        'Định lý Gutkin',
+        'Đối xứng nhóm',
+      ],
+      hypothesis: {
+        question:
+          'Trong căn phòng vuông 4 bức tường gương hoàn hảo, nguồn sáng A chiếu 360° tạo vô số tia phản xạ. Cần ít nhất bao nhiêu điểm chắn (vệ sĩ) để chặn TOÀN BỘ mọi tia sáng chiếu tới điểm B?',
+        context:
+          'Phòng vuông kích thước 1x1. Ánh sáng phản xạ hoàn hảo vô hạn lần theo định luật gương phẳng (góc tới bằng góc phản xạ).',
+        options: [
+          {
+            id: 'opt-a',
+            label: 'Cần vô số điểm (vì tia phản xạ vô hạn lần phủ kín phòng)',
+            explanation:
+              'Bẫy tư duy trực giác vô hạn: Cho rằng vì có vô hạn tia phản xạ đan xen dày đặc nên không thể dùng hữu hạn điểm để che chắn.',
+          },
+          {
+            id: 'opt-b',
+            label: 'Khoảng 64 điểm',
+            explanation: 'Đoán quá cao do nhân nhầm bậc phản xạ của các bức tường.',
+          },
+          {
+            id: 'opt-c',
+            label: 'Chỉ cần tối đa 16 điểm (Định lý Eugene Gutkin)',
+            explanation:
+              'Chính xác xuất sắc! Nhờ kỹ thuật trải phẳng mặt phẳng thành lưới tinh thể chu kỳ 2, toàn bộ các ảnh ảo chỉ tạo ra tối đa 16 lớp trung điểm folded độc lập!',
+          },
+          {
+            id: 'opt-d',
+            label: 'Chỉ cần đúng 4 điểm (1 điểm trên mỗi bức tường)',
+            explanation:
+              'Đánh giá quá thấp: 4 điểm chỉ đủ cho các tia phản xạ 1 lần, không thể chặn các tia phản xạ chéo góc nhiều lần.',
+          },
+        ],
+        truthExplanation:
+          'Định lý Eugene Gutkin (2005) chứng minh rằng khi trải phẳng phòng vuông thành mặt phẳng vô hạn với chu kỳ phản xạ 2, các ảnh ảo của B có tọa độ (2n ± x_B, 2p ± y_B). Các trung điểm đoạn thẳng nối A tới mọi ảnh ảo B chỉ nhận 2 × 2 × 2 × 2 = 16 giá trị phân biệt khi gập về phòng gốc [0, 1]².',
+        biasName: 'Bẫy Tư Duy Vô Hạn (Infinite Reflections Fallacy)',
+        biasDescription:
+          'Bộ não người thường mặc định rằng hệ quả vô hạn (vô số tia nảy) bắt buộc phải cần nguyên nhân vô hạn để kiểm soát, bỏ qua cấu trúc đối xứng tuần hoàn của đại số nhóm.',
+      },
+    },
+    en: {
+      title: 'The Bodyguard Problem & Mirror Room',
+      subtitle: 'Mathematical billiards, unfolding lattice, and finite blocking property',
+      summary:
+        'In a square room with 4 mirror walls, a 360° light source produces infinite reflections. Remarkably, at most 16 bodyguard points are sufficient to block 100% of all rays from reaching the target!',
+      description:
+        'Originating from the 1990 Leningrad Math Olympiad and expanded by Eugene Gutkin (2005), this problem proves that the symmetry group Z² ⋊ D₄ folds infinite reflections into exactly 16 midpoints, rendering the target entirely invulnerable.',
+      tags: [
+        'Mathematical Billiards',
+        'Optics',
+        'Unfolding Lattice',
+        'Gutkin Theorem',
+        'Group Symmetry',
+      ],
+      hypothesis: {
+        question:
+          'In a square room with 4 perfect mirror walls and a 360° light source A, what is the minimum number of obstacle points (bodyguards) needed to block ALL reflected rays from reaching target B?',
+        context:
+          'A 1x1 unit square room with specular mirror boundaries. Light reflects infinitely following the law of reflection (angle of incidence = angle of reflection).',
+        options: [
+          {
+            id: 'opt-a',
+            label: 'Infinitely many points (infinite reflections create an impenetrable dense web)',
+            explanation:
+              'Infinite scaling heuristic: assuming infinite bounces require infinite obstacles to cover.',
+          },
+          {
+            id: 'opt-b',
+            label: 'Around 64 points',
+            explanation:
+              'Overestimate arising from naive multiplication of wall reflection orders.',
+          },
+          {
+            id: 'opt-c',
+            label: 'At most 16 points (Eugene Gutkin Theorem)',
+            explanation:
+              'Brilliantly correct! By unfolding the room into a period-2 lattice, all virtual images reduce modulo 2 to at most 16 distinct midpoint coordinates!',
+          },
+          {
+            id: 'opt-d',
+            label: 'Exactly 4 points (one near each wall)',
+            explanation:
+              'Underestimate: 4 points only intercept single-bounce rays, missing multi-bounce ricochets.',
+          },
+        ],
+        truthExplanation:
+          'Eugene Gutkin (2005) proved that unfolding the square billiards into R² produces virtual images at (2n ± x_B, 2p ± y_B). The segment midpoints connecting source A to every virtual image fold modulo 2 into at most 2 × 2 × 2 × 2 = 16 unique points in [0, 1]².',
+        biasName: 'Infinite Reflections Fallacy',
+        biasDescription:
+          'The intuitive cognitive bias of assuming that infinite physical bounces require infinite barriers, overlooking the discrete periodicity of reflection groups.',
+      },
+    },
+  },
 };
