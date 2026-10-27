@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Clock, ChevronRight, Compass, Sparkles, FlaskConical, ArrowRight } from 'lucide-react';
+import { MathFraction } from '@/features/simulations/components';
 import { CuratedExperience } from '@/types';
 import { useTranslation } from '@/i18n';
 
@@ -15,7 +16,7 @@ interface LocalizedItem {
   category: string;
   estimatedMinutes: number;
   highlightTag: { vi: string; en: string };
-  concept: string;
+  concept: string | React.ReactNode;
   href: string;
 }
 
@@ -36,7 +37,19 @@ export const LOCALIZED_CURATED_LIST: LocalizedItem[] = [
       vi: 'Toán học xác suất',
       en: 'Probability & Combinatorics',
     },
-    concept: 'P(A) = 1 - (365! / ((365-n)! · 365^n))',
+    concept: (
+      <span className="inline-flex items-center">
+        <span>P(A) = 1 &minus;</span>
+        <MathFraction
+          numerator="365!"
+          denominator={
+            <span>
+              (365 &minus; n)! &middot; 365<sup>n</sup>
+            </span>
+          }
+        />
+      </span>
+    ),
     href: '/simulations/birthday-paradox',
   },
   {
@@ -55,7 +68,18 @@ export const LOCALIZED_CURATED_LIST: LocalizedItem[] = [
       vi: 'Triết học & Giải tích',
       en: 'Philosophy & Calculus',
     },
-    concept: '\\sum_{n=1}^{\\infty} (1/2)^n = 1',
+    concept: (
+      <span className="inline-flex items-center">
+        <span>&sum;</span>
+        <sub className="text-xs">n=1</sub>
+        <sup className="text-xs font-semibold">&infin;</sup>
+        <span className="ml-0.5">(</span>
+        <MathFraction numerator="1" denominator="2" />
+        <span>)</span>
+        <sup className="text-xs font-semibold">n</sup>
+        <span className="ml-0.5">= 1</span>
+      </span>
+    ),
     href: '/simulations/zeno-paradox',
   },
   {
@@ -74,7 +98,14 @@ export const LOCALIZED_CURATED_LIST: LocalizedItem[] = [
       vi: 'Lý thuyết trò chơi',
       en: 'Game Theory',
     },
-    concept: 'Nash: ui(si*, s-i*) ≥ ui(si, s-i*)',
+    concept: (
+      <span className="inline-flex items-center">
+        <span>
+          Nash: u<sub>i</sub>(s<sub>i</sub>*, s<sub>&minus;i</sub>*) &ge; u<sub>i</sub>(s
+          <sub>i</sub>, s<sub>&minus;i</sub>*)
+        </span>
+      </span>
+    ),
     href: '/simulations/prisoners-dilemma',
   },
   {
@@ -93,7 +124,13 @@ export const LOCALIZED_CURATED_LIST: LocalizedItem[] = [
       vi: 'Vật lý lượng tử',
       en: 'Quantum Physics',
     },
-    concept: 'Wave-particle: |ψ⟩ = c1|1⟩ + c2|2⟩',
+    concept: (
+      <span className="inline-flex items-center">
+        <span>
+          |&Psi;&rang; = c<sub>1</sub>|1&rang; + c<sub>2</sub>|2&rang;
+        </span>
+      </span>
+    ),
     href: '/simulations/double-slit',
   },
   {
@@ -112,7 +149,13 @@ export const LOCALIZED_CURATED_LIST: LocalizedItem[] = [
       vi: 'Hình học & Logic',
       en: 'Computational Geometry',
     },
-    concept: 'g(n) = \\lfloor n/3 \\rfloor',
+    concept: (
+      <span className="inline-flex items-center">
+        <span>g(n) = &lfloor;</span>
+        <MathFraction numerator="n" denominator="3" />
+        <span>&rfloor;</span>
+      </span>
+    ),
     href: '/simulations/art-gallery',
   },
   {
@@ -131,8 +174,45 @@ export const LOCALIZED_CURATED_LIST: LocalizedItem[] = [
       vi: 'Lý thuyết thông tin & Logic',
       en: 'Information Theory & Logic',
     },
-    concept: 'P \\ge (n-1)/n, \\quad c_k = (p - \\sum c_{j}) \\pmod K',
+    concept: (
+      <span className="inline-flex items-center">
+        <span>P &ge;</span>
+        <MathFraction numerator="n &minus; 1" denominator="n" />
+        <span className="mx-1">&bull;</span>
+        <span>
+          c<sub>k</sub> = (p &minus; &sum; c<sub>j</sub>) mod K
+        </span>
+      </span>
+    ),
     href: '/simulations/prisoners-hats',
+  },
+  {
+    id: 'bodyguard-problem',
+    title: {
+      vi: 'Bài toán Vệ sĩ & Phòng Gương (The Bodyguard Problem)',
+      en: 'The Bodyguard Problem & Mirror Room (Gutkin Theorem)',
+    },
+    summary: {
+      vi: 'Liệu có thể bảo vệ một mục tiêu trong phòng gương đa giác khỏi mọi tia laser chỉ với số lượng hữu hạn vệ sĩ? Khám phá định lý Eugene Gutkin và kỹ thuật trải phẳng mặt phẳng.',
+      en: 'Can a target in a polygonal mirror room be shielded from all light rays with finitely many bodyguards? Discover Eugene Gutkin’s theorem and lattice unfolding.',
+    },
+    category: 'mind-games',
+    estimatedMinutes: 5,
+    highlightTag: {
+      vi: 'Hình học & Quang học',
+      en: 'Geometry & Optics',
+    },
+    concept: (
+      <span className="inline-flex items-center">
+        <span>M =</span>
+        <MathFraction numerator="A + B'" denominator="2" />
+        <span className="mx-1.5">&bull;</span>
+        <span>
+          |G| &le; 2<sup>4</sup> = 16
+        </span>
+      </span>
+    ),
+    href: '/simulations/bodyguard-problem',
   },
 ];
 
@@ -198,7 +278,7 @@ export function CuratedList() {
 
                 <div className="flex items-center gap-2 pt-1">
                   <Sparkles className="h-3.5 w-3.5 text-blue-600 shrink-0" />
-                  <span className="text-xs font-mono font-medium text-blue-900 bg-slate-100 px-2.5 py-1 rounded-md">
+                  <span className="text-xs font-mono font-medium text-blue-900 bg-slate-100 px-2.5 py-1 rounded-md inline-flex items-center">
                     {item.concept}
                   </span>
                 </div>

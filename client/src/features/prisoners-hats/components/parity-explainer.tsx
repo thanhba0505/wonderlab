@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { BookOpen, Cpu, HardDrive, ShieldCheck, Binary } from 'lucide-react';
+import { MathFraction } from '@/features/simulations/components';
 import { useTranslation } from '@/i18n';
 
 export function ParityExplainer() {
@@ -28,8 +29,17 @@ export function ParityExplainer() {
           {t.exp_sec1_heading}
         </h3>
         <p>{t.exp_sec1_p1}</p>
-        <div className="font-mono text-xs bg-slate-50 p-2.5 rounded-md border border-slate-200 text-slate-800">
-          {t.exp_sec1_formula}
+        <div className="font-mono text-xs bg-slate-50 p-2.5 rounded-md border border-slate-200 text-slate-800 flex items-center flex-wrap gap-1">
+          <span>
+            {t.exp_sec1_heading.includes('Random') ? 'P(Random 9 guesses)' : 'P(Đoán mò 9 người)'} =
+          </span>
+          <span>(</span>
+          <MathFraction numerator="1" denominator="2" />
+          <span>)</span>
+          <sup className="text-xs font-semibold">9</sup>
+          <span>=</span>
+          <MathFraction numerator="1" denominator="512" />
+          <span>&asymp; 0.195%</span>
         </div>
         <p>{t.exp_sec1_p2}</p>
       </div>

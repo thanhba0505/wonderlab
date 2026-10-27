@@ -25,6 +25,7 @@ AI coding agents instinctively converge on predictable, unoriginal UI tropes. **
 | **Internal Tech Boasting & Leaking Dev Endpoints** | Exposing internal libraries, cryptographic algorithms (`Argon2id`, `HttpOnly Cookie`, `OWASP`), raw localhost endpoints (`http://localhost:4101/api/docs`), `/api/v1/health` status badges, or framework version strings on public UI. | **Strictly forbidden**. Web platforms must feel like authentic, scholarly productions, not developer playgrounds or tech demos. Keep plumbing, internal security specs, dev ports, and versions strictly out of user-facing UI. |
 | **Micro Font Sizes (< 12px)**                      | Slapping arbitrary tiny text (`text-[8px]`, `text-[10px]`, `text-[11px]`) renders illegible on high-DPI/mobile screens and breaks accessibility.                                                                                       | **Strict Minimum 12px Rule**. Every text element, badge, tag, and caption must be at least `text-xs` (12px). Section headings are standardized to `18px` (`text-[18px]`).                                                       |
 | **Developer Self-Narration & Meta Tech Text**      | Leaking code patterns, config names, architecture labels, or implementation descriptions (e.g. _"Mô hình phản biện 2 cấp"_, _"Biểu diễn phân số & số mũ"_, _"Hỗ trợ lồng 2 cấp"_, _"config tham số"_).                                 | **Zero Developer Self-Narration**. Never expose how the app is coded, configured, or architected. Copy must be 100% authentic scientific subject matter or natural human user action.                                           |
+| **Raw ASCII Math Notation**                        | Displaying lazy programming shorthands like `n/3`, `x^2`, `2^4`, `O(n^2)` or `(A + B)/2` looks amateurish and uncrafted.                                                                                                               | **Beautiful Math Expressions Standard**. Use `<MathFraction>`, `<sup>`, `<sub>`, or `&radic;`. The ONLY exception is simple constant numerical ratios without variables (e.g. `2/3`, `1/3`, `50/50`).                           |
 
 ---
 
@@ -56,6 +57,9 @@ AI coding agents instinctively converge on predictable, unoriginal UI tropes. **
    - All badges, status indicators, metadata, captions, and formulas must maintain at least `text-xs` (12px).
 5. **Section Heading Sizing Standard (18px)**:
    - Section headings (`h2`) are standardized to `18px` (`text-[18px] font-bold`), balancing authority with scientific restraint without overwhelming the layout.
+6. **Beautiful Mathematical Expression Standard**:
+   - Always format fractions via `<MathFraction>`, powers via `<sup>`/`MathPower`, radicals via `&radic;`/`MathSqrt`, and subscripts via `<sub>`/`MathSub`. Never use raw `/` or `^` when expressions contain variables.
+   - The single allowed exception: Simple constant numerical ratios without variables (e.g. `2/3`, `1/3`, `50/50`).
 
 ---
 

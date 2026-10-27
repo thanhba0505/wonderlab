@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { ShieldCheck, ShieldAlert } from 'lucide-react';
+import { MathFraction } from '@/features/simulations/components';
 import { useTranslation } from '@/i18n';
 
 export interface GalleryMetricsProps {
@@ -32,10 +33,12 @@ export const GalleryMetrics: React.FC<GalleryMetricsProps> = ({
             {dict.sim_art_gallery.vertices_unit}
           </span>
         </div>
-        <div className="text-xs text-slate-500 font-mono">
-          {dict.sim_art_gallery.chvatal_bound_label}&lfloor;{numVertices}/3&rfloor; ={' '}
-          <strong className="text-blue-700">{chvatalBound}</strong>{' '}
-          {dict.sim_art_gallery.guards_count.toLowerCase()}
+        <div className="text-xs text-slate-500 font-mono inline-flex items-center">
+          <span>{dict.sim_art_gallery.chvatal_bound_label}&lfloor;</span>
+          <MathFraction numerator={numVertices} denominator="3" />
+          <span>&rfloor; = </span>
+          <strong className="text-blue-700 ml-1">{chvatalBound}</strong>{' '}
+          <span className="ml-1">{dict.sim_art_gallery.guards_count.toLowerCase()}</span>
         </div>
       </div>
 
