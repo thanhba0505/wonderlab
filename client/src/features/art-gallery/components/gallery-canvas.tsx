@@ -9,6 +9,7 @@ import {
   VertexColor,
 } from '../art-gallery-math';
 import { Eye, Trash2, Sparkles, MapPin } from 'lucide-react';
+import { MathFraction } from '@/features/simulations/components';
 import { useTranslation } from '@/i18n';
 
 export interface GalleryCanvasProps {
@@ -126,9 +127,10 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
             {guards.length} {dict.sim_art_gallery.guards_count}
           </span>
           <span>&bull;</span>
-          <span className="text-amber-700 font-semibold">
-            {dict.sim_art_gallery.chvatal_bound_label}&lfloor;{polygon.length}/3&rfloor; ={' '}
-            {Math.floor(polygon.length / 3)}
+          <span className="text-amber-700 font-semibold inline-flex items-center">
+            <span>{dict.sim_art_gallery.chvatal_bound_label}&lfloor;</span>
+            <MathFraction numerator={polygon.length} denominator="3" />
+            <span>&rfloor; = {Math.floor(polygon.length / 3)}</span>
           </span>
         </div>
       </div>

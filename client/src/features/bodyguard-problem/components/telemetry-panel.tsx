@@ -186,7 +186,7 @@ export function TelemetryPanel({
           <div className="border-t border-slate-200 p-4">
             <div className="mb-3 flex items-center justify-between">
               <span className="text-xs text-slate-500 font-mono">
-                Tọa độ chuẩn hóa trong phòng đơn vị [0, 1]²:
+                Tọa độ chuẩn hóa trong phòng đơn vị [0, 1]<sup>2</sup>:
               </span>
               <button
                 type="button"

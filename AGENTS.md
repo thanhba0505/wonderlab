@@ -87,6 +87,10 @@ wonderlab/
   - `JetBrains Mono` (Mono) with `tabular-nums` for simulation counters, probabilities, and formulas.
   - **Minimum Font Size Standard ($\ge 12\text{px}$)**: Strictly forbid any font size below `12px` (`text-xs`). Never use `text-[11px]`, `text-[10px]`, `text-[9px]`, `text-[8px]`, or any micro-text. All captions, badges, metadata, and helper text must be at least `text-xs` (12px / 0.75rem) to guarantee visual accessibility and clean editorial sharpness.
   - **Section Headings Standard (18px)**: Standardize all primary section headings (`h2`) in simulation workflows and editorial views to `18px` (`text-[18px]` or `text-lg`), keeping titles clean, prominent, and proportional without aggressive oversized headers.
+  - **Mathematical Typography & Beautiful Expression Standard**:
+    - Strictly forbid raw ASCII math symbols (`/`, `^`, `sqrt`, `sum`) for any mathematical expression containing variables or algebraic structures (e.g. `n/3`, `(n-1)/n`, `(x_A ± x_B)/2`, `x^2`, `2^4`, `O(n^2)`, `\lfloor n/4 \rfloor`).
+    - Mandatory use of `<MathFraction>`, `<sup>`, `<sub>`, radical symbols (`&radic;`), or LaTeX expressions (`\frac{...}{...}`) for beautiful editorial rendering.
+    - **Single Allowed Exception**: Simple constant numerical ratios without variables in running prose (e.g., `2/3`, `1/3`, `50/50`).
 - **Anti-AI Slop Guardrails**:
   1. _No unmotivated purple/pink linear gradients_ on buttons or text.
   2. _No muddy glassmorphism everywhere_ (`backdrop-blur` stacked blindly). Use crisp, opaque surfaces.
@@ -106,6 +110,10 @@ wonderlab/
        - Formatting / implementation self-narration: `"Biểu diễn phân số & số mũ"`, `"render trực tiếp từ state"`, `"dữ liệu tính toán live"`, `"cấu hình tham số"`, `"component"`.
        - Developer / code jargon: Variable names, database column names, internal algorithm versions, config keys.
      - **Rule of Thumb**: If a phrase describes _how the software is coded, configured, or architected_ rather than the _scientific subject matter or authentic user action_, it MUST NOT appear in the UI. Keep all copy strictly scientific, editorial, and natural.
+  10. _No raw ASCII/programming math notation on public UI (Beautiful Mathematical Expression Standard)_.
+      - Never display lazy programming shorthands like `n/3`, `x^2`, `2^4`, `O(n^2)` or `(A + B)/2` directly in UI labels, cards, or explainers.
+      - All mathematical fractions must use `<MathFraction>`, exponents must use `<sup>` or `MathPower`, radicals must use `&radic;` or `MathSqrt`, and subscripts must use `<sub>` or `MathSub`.
+      - The **ONLY** exception where `/` is permitted is simple constant numerical ratios without variables (e.g. `2/3`, `1/3`, `50/50`).
 - **No Faux Data**: Never display mock user counters, fake review badges, or placeholder vanity statistics. Show honest simulation counters calculated live in the browser.
 - **No Lorem Ipsum**: All copy must be meaningful, scientific, engaging, and in Vietnamese or English according to user language settings.
 - **Interactive Authenticity & Tactile Feel**: Every clickable element (e.g. Monty Hall doors) must function accurately with physical feedback (`active:scale-[0.98]`) and update mathematical probabilities live with `font-mono tabular-nums`.

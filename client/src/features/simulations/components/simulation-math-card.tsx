@@ -266,8 +266,10 @@ export const SimulationMathCard: React.FC<SimulationMathCardProps> = ({ slug, su
               <div className="flex items-center gap-1.5">
                 <span className="text-slate-500 font-sans">{mc.art_gallery_orthogonal}</span>
                 <span className="font-bold text-amber-700">
-                  g<sub>ortho</sub>(n) = &lfloor;n/4&rfloor;
+                  g<sub>ortho</sub>(n) = &lfloor;
                 </span>
+                <MathFraction numerator="n" denominator="4" />
+                <span className="font-bold text-amber-700">&rfloor;</span>
               </div>
             </div>
           </div>
@@ -316,9 +318,15 @@ export const SimulationMathCard: React.FC<SimulationMathCardProps> = ({ slug, su
               <span className="text-slate-300">|</span>
               <div className="flex items-center gap-1.5">
                 <span className="text-slate-500 font-sans">Trung điểm ảnh ảo:</span>
-                <span className="font-bold text-blue-700">
-                  M = &frac12;(A + B&apos;<sub>k,m,s</sub>)
-                </span>
+                <span className="font-bold text-blue-700">M =</span>
+                <MathFraction
+                  numerator={
+                    <span>
+                      A + B&apos;<sub>k,m,s</sub>
+                    </span>
+                  }
+                  denominator="2"
+                />
               </div>
               <span className="text-slate-300">|</span>
               <div className="flex items-center gap-1.5">

@@ -18,7 +18,7 @@ export interface CuratedExperience {
   category: ContentCategory;
   estimatedMinutes: number;
   highlightTag: string;
-  concept: string;
+  concept: string | React.ReactNode;
   href?: string;
 }
 
