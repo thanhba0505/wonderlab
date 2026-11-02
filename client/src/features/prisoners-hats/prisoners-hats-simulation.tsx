@@ -248,7 +248,75 @@ export function PrisonersHatsSimulation() {
         title={dict.sim_prisoners_hats.sim_title}
         subtitle={dict.sim_prisoners_hats.sim_desc}
       >
-        <SimulationWorkbenchCard>
+        <SimulationWorkbenchCard
+          title={dict.sim_prisoners_hats.sim_title}
+          controls={
+            <div className="space-y-5">
+              <SimulationControls
+                n={n}
+                onChangeN={handleChangeN}
+                colorCount={colorCount}
+                onChangeColorCount={handleChangeColorCount}
+                mode={mode}
+                onChangeMode={setMode}
+                isPlaying={isPlaying}
+                onTogglePlay={() => setIsPlaying(prev => !prev)}
+                onStepNext={handleStepNext}
+                onReset={handleReset}
+                onRandomize={handleRandomize}
+                playbackSpeed={playbackSpeed}
+                onChangeSpeed={setPlaybackSpeed}
+                isCompleted={isCompleted}
+              />
+
+              {mode === 'roleplay' && (
+                <RoleplayController
+                  n={n}
+                  colorCount={colorCount}
+                  actualHats={actualHats}
+                  rolePlayPosition={rolePlayPosition}
+                  onSelectPosition={pos => {
+                    setRolePlayPosition(pos);
+                    setUserGuessedColor(null);
+                    handleReset();
+                  }}
+                  isMyTurn={isMyTurn}
+                  hasUserGuessed={userGuessedColor !== null}
+                  userGuessedColor={userGuessedColor}
+                  onUserSubmitGuess={handleUserSubmitGuess}
+                  onResetChallenge={() => {
+                    setUserGuessedColor(null);
+                    handleReset();
+                  }}
+                />
+              )}
+            </div>
+          }
+          stage={
+            <div className="space-y-6">
+              <LineupStage
+                prisoners={visualPrisoners}
+                colorCount={colorCount}
+                currentStepIndex={currentStepIndex}
+                currentStep={
+                  currentStepIndex >= 0 ? (solveResult.steps[currentStepIndex] ?? null) : null
+                }
+                rolePlayPosition={mode === 'roleplay' ? rolePlayPosition : null}
+                isRolePlayActive={mode === 'roleplay'}
+                userGuessedColor={userGuessedColor}
+                onSelectHatColor={handleSelectHatColor}
+                canEditHats={currentStepIndex === -1 || isCompleted}
+              />
+
+              <ParityBlackboard
+                steps={solveResult.steps}
+                currentStepIndex={currentStepIndex}
+                prisoners={solveResult.prisoners}
+                colorCount={colorCount}
+              />
+            </div>
+          }
+        >
           <div className="space-y-5">
             {/* Control Panel */}
             <SimulationControls

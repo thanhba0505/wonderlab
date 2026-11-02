@@ -260,6 +260,108 @@ ${guards.map((g, i) => `  - G${i + 1}: (${g.x.toFixed(4)}, ${g.y.toFixed(4)})`).
         subtitle={dict.sim_bodyguard.sim_desc}
       >
         <SimulationWorkbenchCard
+          title={dict.sim_bodyguard.sim_title}
+          controls={
+            <ControlDeck
+              source={source}
+              target={target}
+              guardsCount={guards.length}
+              showGuards={showGuards}
+              setShowGuards={setShowGuards}
+              viewMode={viewMode}
+              setViewMode={setViewMode}
+              rayMode={rayMode}
+              setRayMode={setRayMode}
+              maxBounces={maxBounces}
+              setMaxBounces={setMaxBounces}
+              rayCount={rayCount}
+              setRayCount={setRayCount}
+              manualAngle={manualAngle}
+              setManualAngle={setManualAngle}
+              activePresetId={activePresetId}
+              onSelectPreset={handleSelectPreset}
+              onReset={handleReset}
+            />
+          }
+          stage={
+            <div className="space-y-6">
+              {/* Vùng hiển thị Canvas theo View Mode */}
+              {viewMode === 'dual' && (
+                <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+                  <div className="flex flex-col gap-2">
+                    <span className="text-xs font-mono font-bold uppercase tracking-widest text-slate-700">
+                      Phòng Gương Thực Tế [0, 1]² (Tia Phản Xạ Gấp Khúc)
+                    </span>
+                    <RoomCanvas
+                      source={source}
+                      target={target}
+                      guards={showGuards ? guards : []}
+                      rays={simulationResults.rays}
+                      showGuards={showGuards}
+                      onSourceMove={setSource}
+                      onTargetMove={setTarget}
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <span className="text-xs font-mono font-bold uppercase tracking-widest text-slate-700">
+                      Lưới Trải Phẳng Vô Hạn 5×5 (Tia Thẳng & Trung Điểm)
+                    </span>
+                    <UnfoldingCanvas
+                      source={source}
+                      target={target}
+                      guards={showGuards ? guards : []}
+                      showGuards={showGuards}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {viewMode === 'room' && (
+                <div className="flex flex-col items-center gap-2">
+                  <span className="text-xs font-mono font-bold uppercase tracking-widest text-slate-700">
+                    Căn Phòng Gương Thực Tế [0, 1]² (Tia Phản Xạ Gấp Khúc)
+                  </span>
+                  <RoomCanvas
+                    source={source}
+                    target={target}
+                    guards={showGuards ? guards : []}
+                    rays={simulationResults.rays}
+                    showGuards={showGuards}
+                    onSourceMove={setSource}
+                    onTargetMove={setTarget}
+                    className="w-full max-w-[620px]"
+                  />
+                </div>
+              )}
+
+              {viewMode === 'unfolded' && (
+                <div className="flex flex-col items-center gap-2">
+                  <span className="text-xs font-mono font-bold uppercase tracking-widest text-slate-700">
+                    Lưới Trải Phẳng Vô Hạn 5×5 (Tia Thẳng & Trung Điểm Bảo Vệ)
+                  </span>
+                  <UnfoldingCanvas
+                    source={source}
+                    target={target}
+                    guards={showGuards ? guards : []}
+                    showGuards={showGuards}
+                    className="w-full max-w-[620px]"
+                  />
+                </div>
+              )}
+
+              {/* Telemetry & Bảng đo đạc */}
+              <TelemetryPanel
+                source={source}
+                target={target}
+                guards={guards}
+                showGuards={showGuards}
+                blockedCount={simulationResults.blockedCount}
+                totalTargetedRays={simulationResults.totalTargeted}
+                protectionRate={simulationResults.protectionRate}
+              />
+            </div>
+          }
           tools={
             <div className="flex flex-wrap items-center gap-2">
               <Button

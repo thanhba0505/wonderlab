@@ -233,6 +233,49 @@ export function ArtGallerySimulation() {
         subtitle={dict.sim_art_gallery.sim_desc}
       >
         <SimulationWorkbenchCard
+          title={dict.sim_art_gallery.sim_title}
+          controls={
+            <div className="flex flex-col gap-5">
+              <GalleryControls
+                currentPresetId={currentPresetId}
+                onSelectPreset={handleSelectPreset}
+                onGenerateRandom={handleGenerateRandom}
+                onApplyFiskGuards={handleApplyFiskGuards}
+                onReset={handleReset}
+                isVertexOnlyMode={isVertexOnlyMode}
+                onToggleVertexMode={setIsVertexOnlyMode}
+              />
+
+              {/* Thông tin nhanh về lính gác */}
+              <div className="rounded-xl border border-slate-300/85 bg-slate-50/60 p-4 space-y-2 text-xs text-slate-600">
+                <div className="font-heading font-bold text-slate-800 uppercase tracking-wider">
+                  {dict.sim_art_gallery.guard_tip_title}
+                </div>
+                <p className="leading-relaxed">{dict.sim_art_gallery.guard_tip_body}</p>
+              </div>
+            </div>
+          }
+          stage={
+            <div className="flex flex-col gap-5">
+              <GalleryCanvas
+                polygon={polygon}
+                guards={guards}
+                onAddGuard={handleAddGuard}
+                onRemoveGuard={handleRemoveGuard}
+                showTriangulation={showTriangulation}
+                showColoring={showColoring}
+                fiskProof={fiskProof}
+                isVertexOnlyMode={isVertexOnlyMode}
+              />
+
+              <FiskStepper
+                currentStep={fiskStep}
+                onStepChange={handleStepChange}
+                fiskProof={fiskProof}
+                numVertices={polygon.length}
+              />
+            </div>
+          }
           metricsBar={
             <GalleryMetrics
               numVertices={polygon.length}

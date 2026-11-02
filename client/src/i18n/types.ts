@@ -554,6 +554,11 @@ export interface SimulationsDictionary {
   telemetry: SimulationTelemetryDictionary;
   export: SimulationExportDictionary;
   explainer: SimulationExplainerSectionDictionary;
+  fullscreen_enter: string;
+  fullscreen_exit: string;
+  fullscreen_controls_title: string;
+  fullscreen_stage_title: string;
+  fullscreen_esc_hint: string;
 }
 
 export interface BirthdaySimulationDictionary {

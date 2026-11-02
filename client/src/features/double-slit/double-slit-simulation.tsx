@@ -216,6 +216,31 @@ export function DoubleSlitSimulation() {
       {/* 2. TITLE CHỖ THÍ NGHIỆM & BLOCK THÍ NGHIỆM HỢP NHẤT */}
       <SimulationSection dotColor="blue" title={dsDict.sim_title} subtitle={dsDict.sim_desc}>
         <SimulationWorkbenchCard
+          title={dsDict.sim_title}
+          controls={
+            <ControlsPanel
+              params={params}
+              onParamsChange={handleParamsChange}
+              onFireSingle={handleFireSingle}
+              onFireBurst={handleFireBurst}
+              onReset={handleReset}
+              isStreaming={isStreaming}
+              onToggleStream={() => setIsStreaming(s => !s)}
+              totalHits={hits.length}
+            />
+          }
+          stage={
+            <div className="space-y-6">
+              <SlitVisualizer
+                params={params}
+                hits={hits}
+                lastHitY={lastHitY}
+                isStreaming={isStreaming}
+                totalHits={hits.length}
+              />
+              <IntensityChart params={params} hits={hits} />
+            </div>
+          }
           metricsBar={
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 pb-5 border-b border-slate-200/80">
               <div className="space-y-1">

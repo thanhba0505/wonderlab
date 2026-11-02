@@ -33,6 +33,7 @@ import {
 import { useSimulationTelemetry } from '@/lib/hooks/use-simulation-telemetry';
 import {
   SimulationSection,
+  SimulationWorkbenchCard,
   SimulationExplainerCard,
   SimulationHistoryTable,
   IntuitionChallengeCard,
@@ -348,112 +349,111 @@ export const BirthdaySimulation: React.FC = () => {
 
       {/* 3. TITLE CHỖ THÍ NGHIỆM & BLOCK THÍ NGHIỆM HỢP NHẤT */}
       <SimulationSection dotColor="blue" title={bDict.sim_title} subtitle={bDict.sim_desc}>
-        {/* 🧪 BLOCK THÍ NGHIỆM HỢP NHẤT (Single Unified Lab Workbench - Không lồng khung) */}
-        <div className="rounded-2xl border border-slate-300/85 bg-white shadow-xs p-5 sm:p-6 space-y-6">
-          {/* [A] Thanh trạng thái đo lường nhỏ gọn (Không viền hộp lồng nhau) */}
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 pb-5 border-b border-slate-200/80">
-            {/* Metric 1: Group size n */}
-            <div className="space-y-1">
-              <div className="text-xs font-semibold tracking-wider text-slate-500 uppercase">
-                {bDict.room_population}
+        {/* 🧪 BLOCK THÍ NGHIỆM HỢP NHẤT (SimulationWorkbenchCard hỗ trợ Toàn màn hình & 2 Cột) */}
+        <SimulationWorkbenchCard
+          title={bDict.sim_title}
+          metricsBar={
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 pb-5 border-b border-slate-200/80">
+              {/* Metric 1: Group size n */}
+              <div className="space-y-1">
+                <div className="text-xs font-semibold tracking-wider text-slate-500 uppercase">
+                  {bDict.room_population}
+                </div>
+                <div className="font-mono text-2xl sm:text-3xl font-bold text-slate-900 tabular-nums">
+                  {n}
+                </div>
+                <div className="text-xs text-slate-500 font-mono">
+                  {totalPairs} {bDict.pairwise_comparisons}
+                </div>
               </div>
-              <div className="font-mono text-2xl sm:text-3xl font-bold text-slate-900 tabular-nums">
-                {n}
-              </div>
-              <div className="text-xs text-slate-500 font-mono">
-                {totalPairs} {bDict.pairwise_comparisons}
-              </div>
-            </div>
 
-            {/* Metric 2: Theoretical P(n) */}
-            <div className="space-y-1 sm:border-l sm:border-slate-200/80 sm:pl-4">
-              <div className="text-xs font-semibold tracking-wider text-slate-500 uppercase">
-                {bDict.theoretical_prob}
+              {/* Metric 2: Theoretical P(n) */}
+              <div className="space-y-1 sm:border-l sm:border-slate-200/80 sm:pl-4">
+                <div className="text-xs font-semibold tracking-wider text-slate-500 uppercase">
+                  {bDict.theoretical_prob}
+                </div>
+                <div className="font-mono text-2xl sm:text-3xl font-bold text-blue-700 tabular-nums">
+                  {(theoreticalP * 100).toFixed(1)}%
+                </div>
+                <div className="text-xs text-slate-500 font-sans">
+                  {n >= 23 ? '> 50% ★' : '< 50%'}
+                </div>
               </div>
-              <div className="font-mono text-2xl sm:text-3xl font-bold text-blue-700 tabular-nums">
-                {(theoreticalP * 100).toFixed(1)}%
-              </div>
-              <div className="text-xs text-slate-500 font-sans">
-                {n >= 23 ? '> 50% ★' : '< 50%'}
-              </div>
-            </div>
 
-            {/* Metric 3: Current room collision */}
-            <div className="space-y-1 border-t sm:border-t-0 pt-3 sm:pt-0 sm:border-l sm:border-slate-200/80 sm:pl-4">
-              <div className="text-xs font-semibold tracking-wider text-slate-500 uppercase">
-                {bDict.current_room}
-              </div>
-              <div className="flex items-center gap-1.5 font-mono text-xl sm:text-2xl font-bold pt-0.5">
-                {room.hasCollision ? (
-                  <>
-                    <CheckCircle2 className="h-5 w-5 text-amber-600" />
-                    <span className="text-amber-700">{bDict.collision}</span>
-                  </>
-                ) : (
-                  <>
-                    <XCircle className="h-5 w-5 text-slate-400" />
-                    <span className="text-slate-600">{bDict.no_collision}</span>
-                  </>
-                )}
-              </div>
-              <div className="font-mono text-xs text-slate-500 tabular-nums">
-                {room.collisionPairs.length} {bDict.shared_pairs}
-              </div>
-            </div>
-
-            {/* Metric 4: Monte Carlo rate */}
-            <div className="space-y-1 border-t sm:border-t-0 pt-3 sm:pt-0 sm:border-l sm:border-slate-200/80 sm:pl-4">
-              <div className="text-xs font-semibold tracking-wider text-slate-500 uppercase">
-                {bDict.monte_carlo_trials}
-              </div>
-              <div className="font-mono text-2xl sm:text-3xl font-bold text-emerald-700 tabular-nums">
-                {(currentEmpiricalRate * 100).toFixed(1)}%
-              </div>
-              <div className="font-mono text-xs text-slate-500 tabular-nums">
-                {monteCarloResult
-                  ? `${monteCarloResult.collisions}/${monteCarloResult.trials} ${bDict.rooms_unit}`
-                  : `${sessionCollisionCount}/${sessionRoomsCount} ${bDict.trials_unit}`}
-              </div>
-            </div>
-          </div>
-
-          {/* [B] Vùng thực nghiệm tương tác chính (Không đóng khung lồng, không lặp title, line phân khu vực) */}
-          <div className="grid gap-6 lg:grid-cols-12">
-            {/* Cột trái: Bộ điều khiển & Vòng tròn radar */}
-            <div className="flex flex-col gap-6 lg:col-span-5">
-              {/* Controls Section - Phẳng, không kẻ line ngay dưới title */}
-              <div className="space-y-3">
-                <div className="flex items-center justify-between pb-1">
-                  <div className="flex items-center gap-2">
-                    <Sliders className="h-4 w-4 text-blue-600" />
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800 font-heading">
-                      {bDict.lab_parameters}
-                    </h3>
-                  </div>
-                  {room.hasCollision && (
-                    <Badge className="bg-amber-100 text-amber-800 border-amber-300 text-xs">
-                      <Sparkles className="mr-1 h-3 w-3" />
-                      {bDict.collision_exclamation}
-                    </Badge>
+              {/* Metric 3: Current room collision */}
+              <div className="space-y-1 border-t sm:border-t-0 pt-3 sm:pt-0 sm:border-l sm:border-slate-200/80 sm:pl-4">
+                <div className="text-xs font-semibold tracking-wider text-slate-500 uppercase">
+                  {bDict.current_room}
+                </div>
+                <div className="flex items-center gap-1.5 font-mono text-xl sm:text-2xl font-bold pt-0.5">
+                  {room.hasCollision ? (
+                    <>
+                      <CheckCircle2 className="h-5 w-5 text-amber-600" />
+                      <span className="text-amber-700">{bDict.collision}</span>
+                    </>
+                  ) : (
+                    <>
+                      <XCircle className="h-5 w-5 text-slate-400" />
+                      <span className="text-slate-600">{bDict.no_collision}</span>
+                    </>
                   )}
                 </div>
-
-                <ControlsPanel
-                  n={n}
-                  onChangeN={handleNChange}
-                  onRandomizeRoom={handleRandomizeRoom}
-                  onRunBatch={handleRunBatch}
-                  onAbortBatch={abortWorkerBirthday}
-                  onReset={handleReset}
-                  isSimulatingBatch={isSimulatingBatch}
-                  batchProgress={batchProgress}
-                  completedTrials={workerPartial?.completedTrials}
-                  targetTrials={targetTrials}
-                />
+                <div className="font-mono text-xs text-slate-500 tabular-nums">
+                  {room.collisionPairs.length} {bDict.shared_pairs}
+                </div>
               </div>
 
-              {/* Chamber Radar Section - Line phân khu vực ở trên, không kẻ line ngay dưới title */}
-              <div className="space-y-3 pt-6 border-t border-slate-200/80">
+              {/* Metric 4: Monte Carlo rate */}
+              <div className="space-y-1 border-t sm:border-t-0 pt-3 sm:pt-0 sm:border-l sm:border-slate-200/80 sm:pl-4">
+                <div className="text-xs font-semibold tracking-wider text-slate-500 uppercase">
+                  {bDict.monte_carlo_trials}
+                </div>
+                <div className="font-mono text-2xl sm:text-3xl font-bold text-emerald-700 tabular-nums">
+                  {(currentEmpiricalRate * 100).toFixed(1)}%
+                </div>
+                <div className="font-mono text-xs text-slate-500 tabular-nums">
+                  {monteCarloResult
+                    ? `${monteCarloResult.collisions}/${monteCarloResult.trials} ${bDict.rooms_unit}`
+                    : `${sessionCollisionCount}/${sessionRoomsCount} ${bDict.trials_unit}`}
+                </div>
+              </div>
+            </div>
+          }
+          controls={
+            <div className="space-y-4">
+              <div className="flex items-center justify-between pb-1">
+                <div className="flex items-center gap-2">
+                  <Sliders className="h-4 w-4 text-blue-600" />
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800 font-heading">
+                    {bDict.lab_parameters}
+                  </h3>
+                </div>
+                {room.hasCollision && (
+                  <Badge className="bg-amber-100 text-amber-800 border-amber-300 text-xs">
+                    <Sparkles className="mr-1 h-3 w-3" />
+                    {bDict.collision_exclamation}
+                  </Badge>
+                )}
+              </div>
+
+              <ControlsPanel
+                n={n}
+                onChangeN={handleNChange}
+                onRandomizeRoom={handleRandomizeRoom}
+                onRunBatch={handleRunBatch}
+                onAbortBatch={abortWorkerBirthday}
+                onReset={handleReset}
+                isSimulatingBatch={isSimulatingBatch}
+                batchProgress={batchProgress}
+                completedTrials={workerPartial?.completedTrials}
+                targetTrials={targetTrials}
+              />
+            </div>
+          }
+          stage={
+            <div className="space-y-6">
+              {/* Radar không gian */}
+              <div className="space-y-3">
                 <div className="flex items-center gap-2 pb-1">
                   <Radar className="h-4 w-4 text-violet-600" />
                   <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800 font-heading">
@@ -469,16 +469,13 @@ export const BirthdaySimulation: React.FC = () => {
                   />
                 </div>
               </div>
-            </div>
 
-            {/* Cột phải: Đồ thị xác suất & Lịch phân bổ - Phân cách bằng line dọc */}
-            <div className="flex flex-col gap-6 lg:col-span-7 lg:border-l lg:border-slate-200/80 lg:pl-6">
-              {/* Probability Chart - Title duy nhất tích hợp bên trong component */}
-              <div>
+              {/* Đồ thị xác suất */}
+              <div className="pt-6 border-t border-slate-200/80">
                 <ProbabilityChart currentN={n} monteCarloResult={monteCarloResult} />
               </div>
 
-              {/* Calendar Heatmap - Line phân khu vực ở trên, title duy nhất tích hợp bên trong */}
+              {/* Bản đồ nhiệt lịch */}
               <div className="pt-6 border-t border-slate-200/80">
                 <CalendarHeatmap
                   people={room.people}
@@ -488,12 +485,9 @@ export const BirthdaySimulation: React.FC = () => {
                 />
               </div>
             </div>
-          </div>
-
-          {/* ─────────────────────── (Line ngăn cách công cụ & telemetry) ──────────────────────── */}
-          <div className="border-t border-slate-200/80 pt-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
-            {/* [C.1] Mấy nút công cụ ở bottom block này */}
-            <div className="flex flex-wrap items-center gap-2">
+          }
+          tools={
+            <>
               <Button
                 variant="outline"
                 size="sm"
@@ -555,39 +549,106 @@ export const BirthdaySimulation: React.FC = () => {
                   </>
                 )}
               </Button>
+            </>
+          }
+          telemetry={
+            globalStats && globalStats.totalTrials > 0 ? (
+              <div className="flex items-center gap-2 text-slate-600">
+                <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="font-semibold text-slate-700">Telemetry:</span>
+                <div className="flex items-center gap-1 text-slate-700">
+                  <Database className="h-3.5 w-3.5 text-blue-600" />
+                  <span className="font-bold text-blue-700 tabular-nums">
+                    {globalStats.totalTrials.toLocaleString(locale === 'en' ? 'en-US' : 'vi-VN')}
+                  </span>
+                  <span className="text-slate-400">{tel.trials}</span>
+                </div>
+                <span className="text-slate-300">•</span>
+                <div className="flex items-center gap-1 text-slate-600">
+                  <Sparkles className="h-3.5 w-3.5 text-amber-500" />
+                  <span className="font-bold text-slate-800 tabular-nums">
+                    {globalStats.totalRuns.toLocaleString(locale === 'en' ? 'en-US' : 'vi-VN')}
+                  </span>
+                  <span className="text-slate-400">{tel.runs}</span>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 text-xs text-slate-500">
+                <Activity className="h-3.5 w-3.5 text-blue-600 animate-pulse" />
+                <span>{tel.ready}</span>
+              </div>
+            )
+          }
+        >
+          {/* Bento grid cho chế độ bình thường */}
+          <div className="grid gap-6 lg:grid-cols-12">
+            {/* Cột trái: Bộ điều khiển & Vòng tròn radar */}
+            <div className="flex flex-col gap-6 lg:col-span-5">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between pb-1">
+                  <div className="flex items-center gap-2">
+                    <Sliders className="h-4 w-4 text-blue-600" />
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800 font-heading">
+                      {bDict.lab_parameters}
+                    </h3>
+                  </div>
+                  {room.hasCollision && (
+                    <Badge className="bg-amber-100 text-amber-800 border-amber-300 text-xs">
+                      <Sparkles className="mr-1 h-3 w-3" />
+                      {bDict.collision_exclamation}
+                    </Badge>
+                  )}
+                </div>
+
+                <ControlsPanel
+                  n={n}
+                  onChangeN={handleNChange}
+                  onRandomizeRoom={handleRandomizeRoom}
+                  onRunBatch={handleRunBatch}
+                  onAbortBatch={abortWorkerBirthday}
+                  onReset={handleReset}
+                  isSimulatingBatch={isSimulatingBatch}
+                  batchProgress={batchProgress}
+                  completedTrials={workerPartial?.completedTrials}
+                  targetTrials={targetTrials}
+                />
+              </div>
+
+              <div className="space-y-3 pt-6 border-t border-slate-200/80">
+                <div className="flex items-center gap-2 pb-1">
+                  <Radar className="h-4 w-4 text-violet-600" />
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800 font-heading">
+                    {bDict.spatial_radar}
+                  </h3>
+                </div>
+                <div className="flex justify-center pt-1">
+                  <ChamberRadar
+                    people={room.people}
+                    collisionPairs={room.collisionPairs}
+                    selectedPersonId={selectedPersonId}
+                    onSelectPerson={setSelectedPersonId}
+                  />
+                </div>
+              </div>
             </div>
 
-            {/* [C.2] Thông số Telemetry góc dưới phải */}
-            <div className="flex items-center gap-2 self-end md:self-auto text-xs font-mono">
-              {globalStats && globalStats.totalTrials > 0 ? (
-                <div className="flex items-center gap-2 text-slate-600">
-                  <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                  <span className="font-semibold text-slate-700">Telemetry:</span>
-                  <div className="flex items-center gap-1 text-slate-700">
-                    <Database className="h-3.5 w-3.5 text-blue-600" />
-                    <span className="font-bold text-blue-700 tabular-nums">
-                      {globalStats.totalTrials.toLocaleString(locale === 'en' ? 'en-US' : 'vi-VN')}
-                    </span>
-                    <span className="text-slate-400">{tel.trials}</span>
-                  </div>
-                  <span className="text-slate-300">•</span>
-                  <div className="flex items-center gap-1 text-slate-600">
-                    <Sparkles className="h-3.5 w-3.5 text-amber-500" />
-                    <span className="font-bold text-slate-800 tabular-nums">
-                      {globalStats.totalRuns.toLocaleString(locale === 'en' ? 'en-US' : 'vi-VN')}
-                    </span>
-                    <span className="text-slate-400">{tel.runs}</span>
-                  </div>
-                </div>
-              ) : (
-                <div className="flex items-center gap-2 text-xs text-slate-500">
-                  <Activity className="h-3.5 w-3.5 text-blue-600 animate-pulse" />
-                  <span>{tel.ready}</span>
-                </div>
-              )}
+            {/* Cột phải: Đồ thị xác suất & Lịch phân bổ */}
+            <div className="flex flex-col gap-6 lg:col-span-7 lg:border-l lg:border-slate-200/80 lg:pl-6">
+              <div>
+                <ProbabilityChart currentN={n} monteCarloResult={monteCarloResult} />
+              </div>
+
+              <div className="pt-6 border-t border-slate-200/80">
+                <CalendarHeatmap
+                  people={room.people}
+                  sharedDates={room.sharedDates}
+                  selectedPersonId={selectedPersonId}
+                  onSelectPerson={setSelectedPersonId}
+                />
+              </div>
             </div>
           </div>
-        </div>
+        </SimulationWorkbenchCard>
       </SimulationSection>
 
       {/* 4. TITLE NHẬT KÝ & NHẬT KÝ THỰC NGHIỆM */}

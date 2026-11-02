@@ -197,6 +197,36 @@ export function ZenoSimulation() {
         subtitle={dict.sim_zeno.sim_desc}
       >
         <SimulationWorkbenchCard
+          title={dict.sim_zeno.sim_title}
+          controls={
+            <ControlsPanel
+              params={params}
+              onParamsChange={updater => {
+                setParams(updater);
+                setCurrentStepIndex(0);
+              }}
+              onReset={handleReset}
+            />
+          }
+          stage={
+            <div className="space-y-6">
+              <RaceTrack
+                params={params}
+                steps={steps}
+                currentStepIndex={currentStepIndex}
+                onStepChange={handleStepChange}
+                perspective={perspective}
+                onPerspectiveChange={handlePerspectiveChange}
+              />
+
+              <GeometricSeriesChart
+                params={params}
+                steps={steps}
+                currentStepIndex={currentStepIndex}
+                onStepSelect={handleStepChange}
+              />
+            </div>
+          }
           metricsBar={
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 pb-5 border-b border-slate-200/80">
               <div className="space-y-1">
