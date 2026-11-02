@@ -64,3 +64,24 @@ description: Next.js App Router engineering standards for Wonderlab. Covers rout
   - Implement `generateStaticParams` so images are pre-rendered at build time.
   - Satori layout rules: Use flexbox only (`display: 'flex'` is standard; avoid CSS grid).
   - Font loading: Always load local TTF fonts (`BeVietnamPro-Bold.ttf`, `BeVietnamPro-Regular.ttf` in `src/assets/fonts/`) using `fs.readFile` to guarantee 100% complete Vietnamese diacritic rendering without network dependency during builds.
+
+## 6. React State Discipline & Re-render Minimization
+
+- **Zero Derived State in `useEffect`**:
+  - Never use `useEffect` to synchronize, mirror, or transform state (`useEffect(() => { setFiltered(items.filter(...)); }, [items])`).
+  - Calculate derived values inline during rendering (`const filtered = items.filter(...)` or `useMemo(() => items.filter(...), [items])` for expensive operations).
+  - Eliminates redundant two-pass rendering (render 1 with stale data -> effect -> render 2 with updated state).
+- **Event-Driven Side Effects**:
+  - Perform state mutations, telemetry dispatches, navigation, and API requests directly inside user event handlers (`onClick`, `onChange`, `onSubmit`).
+  - Never introduce intermediate flag states solely to trigger a `useEffect`.
+  - Reserve `useEffect` strictly for genuine external synchronization (DOM event listeners, Web Workers, Canvas context binding, AudioContext, or WebSocket subscriptions).
+- **Form Watcher Isolation (`useWatch` / `watch`)**:
+  - In form management (e.g. React Hook Form), calling `useWatch` or `watch()` at the root form component forces every child component to re-render on every keystroke.
+  - Isolate field watchers into dedicated, small leaf components (e.g. `<SubmitButtonWithWatch control={control} />`).
+  - Use `getValues()` for one-off reads on submit or user action instead of continuous subscriptions.
+- **`useRef` for High-Frequency & Non-Rendering Simulation State**:
+  - In interactive canvas simulations, Monte Carlo iterators, and physics engines, store `requestAnimationFrame` IDs, canvas 2D contexts, worker instances, timer handles, and internal loop counters in `useRef` rather than `useState`.
+  - Throttle visual telemetry updates (e.g. batch counter updates every $N$ iterations or via `requestAnimationFrame`) to prevent thrashing React at hundreds of re-renders per second.
+- **Component Granularity & Stable Callbacks**:
+  - Split large simulation cards into granular subcomponents so parameter controls (sliders, toggles) do not force expensive sibling canvases or charts to re-render.
+  - Wrap functions in `useCallback` when passing them down to memoized child components (`React.memo`).

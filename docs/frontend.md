@@ -166,3 +166,28 @@ Nhằm tối ưu hóa khả năng thu thập dữ liệu công cụ tìm kiếm 
   - Sinh ảnh 1200x630 thời gian thực (hỗ trợ SSG prerender qua `generateStaticParams`) bằng `ImageResponse` từ `next/og`.
   - Tuân thủ phong cách **"Clean Paper & Lab Editorial"**: canvas Slate-100 với lưới tọa độ kỹ thuật, thẻ trắng với hairline viền sắc nét, badge danh mục phân màu ngữ nghĩa, dấu chứng nhận "Interactive Science Simulation".
   - Đóng gói cục bộ font chữ `Be Vietnam Pro` (Bold & Regular) trong `client/src/assets/fonts/` đảm bảo hiển thị 100% tiếng Việt có dấu hoàn hảo mà không bị gãy phông hoặc phụ thuộc mạng ngoài lúc build.
+
+---
+
+## 8. Quản Lý Trạng Thái React & Chuẩn Mực Tối Ưu Hóa Re-render (Anti-Re-render Standard)
+
+Nhằm đảm bảo hiệu năng 60 FPS mượt mà cho các buồng thực nghiệm khoa học, mô phỏng Monte Carlo quy mô lớn và giao diện người dùng phức tạp, toàn bộ mã nguồn React tuân thủ nghiêm ngặt các nguyên tắc kiểm soát re-render:
+
+- **Nghiêm cấm Đồng bộ Trạng thái Phái sinh qua `useEffect` (Zero Derived State in `useEffect`)**:
+  - Tuyệt đối không dùng `useEffect` để cập nhật một state dựa trên props hoặc state khác (ví dụ: `useEffect(() => { setFiltered(items.filter(...)) }, [items])`).
+  - Toàn bộ dữ liệu phái sinh phải được tính toán trực tiếp trong pha render (`const filtered = items.filter(...)`), hoặc bọc qua `useMemo` khi xử lý thuật toán phức tạp.
+  - Triệt tiêu hoàn toàn chu kỳ render 2 pha lãng phí (render lần 1 với state cũ $\to$ effect kích hoạt $\to$ render lần 2 với state mới).
+- **Hành động Hướng Sự kiện (Event-Driven Side Effects)**:
+  - Mọi thao tác đột biến dữ liệu, gọi API, phát telemetry, hoặc hiển thị thông báo phải được kích hoạt trực tiếp từ trình xử lý sự kiện của người dùng (`onClick`, `onChange`, `onSubmit`).
+  - Không tạo state cờ trung gian (flag) chỉ để gián tiếp kích hoạt một `useEffect`.
+  - Chỉ sử dụng `useEffect` cho việc đồng bộ với hệ thống ngoại vi độc lập (lắng nghe sự kiện DOM toàn cục, kết nối WebSocket, Web Worker, Canvas context, hoặc AudioContext).
+- **Cô lập Vùng Quan sát Form (`useWatch` / `watch`)**:
+  - Trong các biểu mẫu hoặc bảng điều khiển tham số (như React Hook Form), việc gọi `useWatch` hoặc `watch()` ở component gốc sẽ ép toàn bộ cây component và các ô nhập liệu re-render theo từng ký tự gõ phím.
+  - Luôn cô lập các trường cần theo dõi trực tiếp vào các component lá chuyên biệt (ví dụ: `<SubmitButtonWithWatch control={control} />`).
+  - Ưu tiên sử dụng `getValues()` để đọc giá trị tức thời khi người dùng bấm nút thay vì đăng ký lắng nghe liên tục nếu không thực sự cần cập nhật giao diện thời gian thực.
+- **Sử dụng `useRef` cho Biến Tần số Cao & Trạng thái Không Hiển thị**:
+  - Trong các mô phỏng Canvas, vòng lặp Monte Carlo và bộ đếm thời gian thực, lưu trữ `requestAnimationFrame` ID, tham chiếu Canvas rendering context, worker handle, timer ID và chỉ số vòng lặp trong `useRef` thay vì `useState`.
+  - Gom cụm (batch) hoặc điều tiết (throttle) tần suất cập nhật state giao diện (ví dụ: cập nhật số liệu thống kê sau mỗi $N$ vòng lặp hoặc theo từng frame màn hình) thay vì kích hoạt `setState` hàng trăm lần mỗi giây.
+- **Phân tách Component Hạt mịn (Granular Components) & Ổn định Hàm Callback**:
+  - Chia nhỏ các thẻ Workbench mô phỏng lớn thành các component hạt mịn để thao tác thay đổi tham số cục bộ (như thanh trượt slider, nút toggle) không làm render lại các bề mặt Canvas hoặc bảng dữ liệu nặng bên cạnh.
+  - Sử dụng `useCallback` khi truyền hàm callback xuống các component con đã được ghi nhớ (`React.memo`).

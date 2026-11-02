@@ -137,6 +137,12 @@ wonderlab/
 - **Clean Code & Guard Clauses**: Validate inputs early; return early. Avoid nested `if/else` past 2 levels.
 - **Naming**: Intent-revealing names (`isDoorRevealed`, `calculateMontyProbabilities`). No abbreviations or single-character variables except standard loop indices.
 - **Imports**: Group imports (standard/external first, internal path aliases `@/...` second, relative third).
+- **React State Management & Re-render Minimization Standards (Anti-Re-render Standard)**:
+  - **Zero Derived State in `useEffect`**: Strictly forbid using `useEffect` to synchronize, mirror, or transform state (`setDerived(props.value * 2)` inside `useEffect`). Calculate derived values directly during render (`const derived = compute(a, b)` or `useMemo` for computationally intensive algorithms). This completely eliminates redundant two-pass rendering cycles.
+  - **Event-Driven Actions Over Effect Triggers**: Mutate state, trigger API dispatches, or fire telemetry directly inside user event handlers (`onClick`, `onChange`, `onSubmit`). Never set an intermediate flag state simply to trigger a `useEffect`. Reserve `useEffect` strictly for synchronization with external systems (DOM event listeners, Canvas contexts, Web Workers, AudioContext, or WebSocket subscriptions).
+  - **Form Watcher Isolation (`useWatch` / `watch`)**: In form workflows (e.g. React Hook Form), calling `useWatch` or `watch()` at the top-level form component triggers full-tree re-renders on every keystroke. Always isolate reactive watchers into dedicated leaf child components, or query values on demand via `getValues()` during submit/event evaluation.
+  - **`useRef` for Non-Rendering & High-Frequency Simulation State**: In interactive canvas simulations, Monte Carlo loops, physics engines, and timer controls, store transient references, canvas contexts, worker instances, `requestAnimationFrame` IDs, and iteration indices in `useRef` rather than `useState`. Throttled or batched UI updates should be applied instead of triggering React state updates on every micro-tick.
+  - **Component Granularity & Stable References**: Decompose heavy simulation workbenches into focused child components so localized control updates (e.g. sliders, toggle buttons) do not re-render heavy canvas surfaces or sibling data tables. Use `useCallback` when passing event callbacks to memoized children (`React.memo`).
 
 ---
 
@@ -260,6 +266,7 @@ pnpm check          # Runs all verification steps in sequence
     - The agent MUST **autonomously codify and record it into `AGENTS.md` and the appropriate documentation under `docs/` (or `.agents/skills/`) within the very same task**.
     - Never treat permanent rules or long-term directives as ephemeral conversational memory. Do not wait for the user to explicitly remind you to document them. If a standard or constraint must be obeyed in future tasks and sessions, it must be committed directly to repository memory (`AGENTS.md` and `docs/`) so all future agents immediately inherit and enforce it.
 13. **Mandatory SEO, Schema.org Structured Data & Dynamic Open Graph Protocol**: Every newly introduced public interactive simulation or editorial essay must be registered in the dynamic sitemap (`sitemap.ts`), configured with explicit canonical URL metadata, equipped with Schema.org JSON-LD structured data (`LearningResource` / `TechArticle` + `BreadcrumbList`) rendered via typed server components with XSS sanitization, and paired with a dynamic 1200x630 Open Graph Image (`opengraph-image.tsx`) adhering to Clean Paper & Lab Editorial standards and local font bundling for Vietnamese diacritics.
+14. **Mandatory React Re-render Minimization & Effect Discipline**: Strictly forbid using `useEffect` for derived state calculation, cascading `setState` calls, or event-driven business logic. Form watchers (`useWatch`, `watch`) must be isolated into granular subcomponents or replaced with `getValues()` on demand to prevent root re-render cascades. For continuous canvas animations, Monte Carlo loops, and high-frequency counters, use `useRef` for non-rendering state to maintain 60 FPS performance and zero UI thrashing.
 
 ---
 
