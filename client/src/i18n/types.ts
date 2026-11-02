@@ -24,6 +24,10 @@ export interface HeaderDictionary {
   language: string;
   switch_to: string;
   current_lang: string;
+  sound_toggle: string;
+  sound_muted: string;
+  sound_unmuted: string;
+  sound_volume: string;
 }
 
 export interface FooterDictionary {
@@ -1111,6 +1115,38 @@ export interface PrisonersHatsSimulationDictionary {
   color_space_2: string;
   color_space_3: string;
   speed_label: string;
+  // Stage & Visual Motion
+  sight_cone_label: string;
+  blind_spot_label: string;
+  particle_transmitted: string;
+  sound_effect_toggle: string;
+  cinematic_prologue_title: string;
+  cinematic_prologue_body: string;
+  // Modulo Equation Balance Bar
+  equation_balance_title: string;
+  equation_balance_desc: string;
+  root_signal_box: string;
+  heard_sum_box: string;
+  seen_ahead_box: string;
+  my_color_result_box: string;
+  // Scratchpad
+  scratchpad_title: string;
+  scratchpad_desc: string;
+  scratchpad_toggle_btn: string;
+  scratchpad_sum_label: string;
+  scratchpad_parity_result: string;
+  // Hamming Code & Cosmic Ray
+  hamming_variant_title: string;
+  hamming_variant_desc: string;
+  hamming_sphere_title: string;
+  hamming_sphere_desc: string;
+  ecc_interactive_title: string;
+  ecc_interactive_desc: string;
+  flip_bit_btn: string;
+  repair_bit_btn: string;
+  memory_intact: string;
+  memory_error_detected: string;
+  memory_repaired: string;
 }
 
 export interface TranslationDictionary {

@@ -185,4 +185,42 @@ export const prisonersHatsEn: PrisonersHatsSimulationDictionary = {
   color_space_2: '2 Colors (B/W)',
   color_space_3: '3 Colors (Mod 3)',
   speed_label: 'Playback speed:',
+  // Stage & Visual Motion
+  sight_cone_label: 'Line-of-Sight Beam (Observation Field)',
+  blind_spot_label: 'Blind Spot (Cannot see own hat)',
+  particle_transmitted: 'Parity bit transmitted',
+  sound_effect_toggle: 'Simulation sound effects',
+  cinematic_prologue_title: 'The Night Before Trial: The Power of Collective Logic',
+  cinematic_prologue_body:
+    '10 scientists have one hour before dawn to agree on a life-saving convention. Independent guessing yields a dismal (1/2)¹⁰ ≈ 0.098% team survival probability. How does a single parity bit turn an impossible ordeal into guaranteed liberation?',
+  // Modulo Equation Balance Bar
+  equation_balance_title: 'Real-Time Modulo Algebraic Balance',
+  equation_balance_desc:
+    'Your Hat Color = [Root Signal] − [Sum of Heard Calls] − [Sum Seen Ahead] (mod k)',
+  root_signal_box: 'Root Signal',
+  heard_sum_box: 'Sum Heard',
+  seen_ahead_box: 'Seen Ahead',
+  my_color_result_box: 'Decoded Hat',
+  // Scratchpad
+  scratchpad_title: 'Mental Scratchpad & Parity Tool',
+  scratchpad_desc:
+    'Sum up visible hats ahead to test your mental mod k calculation before committing your guess:',
+  scratchpad_toggle_btn: 'Open scratchpad',
+  scratchpad_sum_label: 'Sum of hats ahead',
+  scratchpad_parity_result: 'Modulo Remainder',
+  // Hamming Code & Cosmic Ray
+  hamming_variant_title: 'Advanced Variant: Simultaneous Guessing & Hamming Code [7, 4]',
+  hamming_variant_desc:
+    'When all 7 prisoners must shout simultaneously without hearing anyone, Hamming error-correcting codes guarantee 75% team survival probability!',
+  hamming_sphere_title: 'Hamming Sphere Partitioning in 2⁷ Vector Space',
+  hamming_sphere_desc:
+    'The 128 hat configurations are grouped into 16 Hamming spheres of radius 1. Each prisoner guesses under the premise that the team vector lies on the sphere boundary.',
+  ecc_interactive_title: 'Interactive Experiment: Cosmic Ray Bit-Flips in ECC RAM',
+  ecc_interactive_desc:
+    'Click any memory cell to fire a cosmic ray and flip a bit. Watch Parity logic detect the corrupted position and reconstruct original data instantly!',
+  flip_bit_btn: 'Fire Cosmic Ray (Flip random bit)',
+  repair_bit_btn: 'Auto-repair (Parity Correction)',
+  memory_intact: 'Memory Intact (0 bit errors)',
+  memory_error_detected: 'WARNING: Bit error detected at Cell #{bit}! Restoring...',
+  memory_repaired: 'Memory successfully reconstructed via Parity Bit!',
 };

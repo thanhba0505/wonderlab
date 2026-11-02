@@ -181,4 +181,42 @@ export const prisonersHatsVi: PrisonersHatsSimulationDictionary = {
   color_space_2: '2 Màu (Đen / Trắng)',
   color_space_3: '3 Màu (Mod 3)',
   speed_label: 'Tốc độ diễn hoạt:',
+  // Stage & Visual Motion
+  sight_cone_label: 'Nón tầm nhìn (Trường quan sát)',
+  blind_spot_label: 'Điểm mù (Không thấy mũ của mình)',
+  particle_transmitted: 'Đã truyền tín hiệu Parity',
+  sound_effect_toggle: 'Âm thanh mô phỏng',
+  cinematic_prologue_title: 'Đêm Trước Ngày Phán Quyết: Thử Thách Trí Tuệ Tập Thể',
+  cinematic_prologue_body:
+    '10 nhà khoa học có đúng một giờ trong đêm để thống nhất một quy ước cứu mạng. Nếu từng người đoán mò độc lập, xác suất sống sót của cả đoàn là (1/2)¹⁰ ≈ 0.098%. Làm thế nào bit chẵn lẻ biến điều bất khả thành sự cứu rỗi tuyệt đối?',
+  // Modulo Equation Balance Bar
+  equation_balance_title: 'Cán Cân Đại Số Đồng Dư Trực Quan',
+  equation_balance_desc:
+    'Màu mũ của bạn = [Tín hiệu gốc] − [Tổng màu đã nghe] − [Tổng màu nhìn thấy trước mặt] (mod k)',
+  root_signal_box: 'Tín hiệu gốc',
+  heard_sum_box: 'Tổng đã nghe',
+  seen_ahead_box: 'Thấy trước mặt',
+  my_color_result_box: 'Màu mũ giải mã',
+  // Scratchpad
+  scratchpad_title: 'Sổ Tay Thử Nhẩm Tính (Scratchpad)',
+  scratchpad_desc:
+    'Cộng dồn số mũ bạn quan sát được phía trước để nhẩm tính mod k trước khi chốt đáp án:',
+  scratchpad_toggle_btn: 'Mở nháp nhẩm tính',
+  scratchpad_sum_label: 'Tổng mũ thấy trước',
+  scratchpad_parity_result: 'Số dư Modulo',
+  // Hamming Code & Cosmic Ray
+  hamming_variant_title: 'Biến Thể Mở Rộng: Đoán Đồng Thời & Mã Hamming [7, 4]',
+  hamming_variant_desc:
+    'Nếu cả 7 người phải hô cùng một lúc mà không được nghe ai, mã sửa sai Hamming đảm bảo cứu toàn đội với xác suất 75%!',
+  hamming_sphere_title: 'Phân Vùng Quả Cầu Hamming Trong Không Gian 2⁷',
+  hamming_sphere_desc:
+    '128 trạng thái mũ được gom thành 16 quả cầu Hamming bán kính 1. Mỗi người suy luận dựa trên giả thiết cấu hình rơi vào bề mặt quả cầu thay vì tâm.',
+  ecc_interactive_title: 'Thực Nghiệm Tương Tác: Tia Vũ Trụ & Lật Bit ECC RAM',
+  ecc_interactive_desc:
+    'Nhấp vào ô nhớ bất kỳ để phóng tia vũ trụ làm đảo bit 0 ↔ 1. Quan sát thuật toán Parity phát hiện vị trí sai và tự động khôi phục dữ liệu gốc!',
+  flip_bit_btn: 'Bắn tia vũ trụ (Lật ngẫu nhiên 1 bit)',
+  repair_bit_btn: 'Tự động sửa lỗi (Parity Correction)',
+  memory_intact: 'Bộ nhớ toàn vẹn (0 lỗi bit)',
+  memory_error_detected: 'CẢNH BÁO: Phát hiện lỗi tại Ô #{bit}! Đang khôi phục...',
+  memory_repaired: 'Đã sửa chữa thành công lỗi bit nhờ Parity Bit!',
 };

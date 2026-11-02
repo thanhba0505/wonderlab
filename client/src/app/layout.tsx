@@ -3,6 +3,7 @@ import { Be_Vietnam_Pro, Space_Grotesk, JetBrains_Mono } from 'next/font/google'
 import './globals.css';
 import { AppShell } from '@/components/layout/app-shell';
 import { AuthProvider } from '@/lib/auth-context';
+import { SoundProvider } from '@/lib/audio-context';
 import { getAppBaseUrl } from '@/lib/utils';
 import { I18nProvider } from '@/i18n';
 
@@ -97,9 +98,11 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <I18nProvider>
-          <AuthProvider>
-            <AppShell>{children}</AppShell>
-          </AuthProvider>
+          <SoundProvider>
+            <AuthProvider>
+              <AppShell>{children}</AppShell>
+            </AuthProvider>
+          </SoundProvider>
         </I18nProvider>
       </body>
     </html>

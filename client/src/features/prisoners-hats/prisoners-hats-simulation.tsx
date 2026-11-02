@@ -27,10 +27,12 @@ import { useSimulationTelemetry } from '@/lib/hooks/use-simulation-telemetry';
 import { useSimulationMeta } from '@/features/simulations/hooks';
 import { useTranslation } from '@/i18n';
 import { HypothesisOption } from '@/features/simulations/types';
+import { useHatSound } from './utils/hat-audio';
 
 export function PrisonersHatsSimulation() {
   const { dict } = useTranslation();
   const meta = useSimulationMeta('prisoners-hats');
+  const { playShuffleDrop, playPop } = useHatSound();
 
   // Parameters
   const [n, setN] = React.useState<number>(10);
@@ -167,6 +169,7 @@ export function PrisonersHatsSimulation() {
     setCurrentStepIndex(-1);
     setUserGuessedColor(null);
     setActualHats(generateRandomHats(n, colorCount));
+    playShuffleDrop();
   };
 
   const handleReset = () => {
@@ -194,6 +197,7 @@ export function PrisonersHatsSimulation() {
   const handleSelectHatColor = (personIndex: number) => {
     if (currentStepIndex >= 0 && !isCompleted) return; // don't edit mid-run
 
+    playPop();
     setActualHats(prev => {
       const next = [...prev];
       const currentColor = next[personIndex] ?? 0;

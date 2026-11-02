@@ -21,6 +21,10 @@ export const headerEn: HeaderDictionary = {
   language: 'Language',
   switch_to: 'Switch to {lang}',
   current_lang: 'English',
+  sound_toggle: 'Toggle sound',
+  sound_muted: 'Sound: Muted',
+  sound_unmuted: 'Sound: Unmuted',
+  sound_volume: 'Volume: {vol}%',
 };
 
 export const footerEn: FooterDictionary = {

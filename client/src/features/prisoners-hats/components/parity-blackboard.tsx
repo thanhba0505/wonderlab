@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { SimulationStep, PrisonerState, getColorMeta, getPalette } from '../hat-puzzle-math';
-import { Binary, Check, X, ArrowRight, Lightbulb } from 'lucide-react';
+import { Binary, Check, X, Lightbulb, Scale } from 'lucide-react';
 import { useTranslation } from '@/i18n';
 
 interface ParityBlackboardProps {
@@ -50,24 +50,70 @@ export function ParityBlackboard({
         )}
       </div>
 
-      {/* Active Turn Formula Callout */}
+      {/* Real-time Modulo Algebraic Balance Bar */}
       {currentStep ? (
-        <div className="rounded-lg border border-blue-200 bg-blue-50/60 p-3.5 space-y-2">
+        <div className="rounded-lg border border-blue-200 bg-blue-50/60 p-3.5 space-y-3">
           <div className="flex items-center justify-between text-xs font-semibold text-blue-900">
             <span className="flex items-center gap-1.5">
               <Lightbulb className="h-4 w-4 text-amber-500" />
               {t.current_turn_label.replace('{id}', String(currentStep.prisonerId))}
             </span>
-            <span className="font-mono text-blue-700 bg-white/80 px-2 py-0.5 rounded border border-blue-200">
+            <span className="font-mono text-blue-700 bg-white/90 px-2 py-0.5 rounded border border-blue-200">
               {t.step_progress
                 .replace('{step}', String(currentStepIndex + 1))
                 .replace('{total}', String(steps.length))}
             </span>
           </div>
 
-          <div className="font-mono text-xs sm:text-sm text-slate-800 bg-white p-2.5 rounded-md border border-blue-100 flex flex-wrap items-center gap-2">
-            <span className="text-slate-500 font-sans">{t.formula_label}</span>
-            <span className="font-bold text-blue-700">{currentStep.formulaString}</span>
+          {/* Interactive Modulo Equation Scale */}
+          <div className="rounded-md border border-blue-200/80 bg-white p-3 space-y-2">
+            <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-700">
+              <Scale className="h-3.5 w-3.5 text-blue-600" />
+              <span>{t.equation_balance_title}</span>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 items-center text-center font-mono">
+              {/* Term 1: Parity kỳ vọng */}
+              <div className="rounded-md border border-blue-200 bg-blue-50/70 p-2">
+                <span className="block text-xs font-sans text-slate-500">{t.root_signal_box}</span>
+                <span className="text-sm sm:text-base font-bold text-blue-800">
+                  {currentStep.runningParity}
+                </span>
+              </div>
+
+              {/* Minus sign */}
+              <div className="text-slate-400 font-bold text-lg select-none hidden sm:block">−</div>
+
+              {/* Term 2: Tổng thấy trước mặt */}
+              <div className="rounded-md border border-amber-200 bg-amber-50/70 p-2">
+                <span className="block text-xs font-sans text-slate-500">{t.seen_ahead_box}</span>
+                <span className="text-sm sm:text-base font-bold text-amber-800">
+                  {currentStep.seenSumAhead}
+                </span>
+              </div>
+
+              {/* Equals sign */}
+              <div className="text-slate-400 font-bold text-lg select-none hidden sm:block">=</div>
+
+              {/* Result: Màu mũ giải mã */}
+              <div className="col-span-2 sm:col-span-1 rounded-md border border-emerald-300 bg-emerald-50/80 p-2 shadow-2xs">
+                <span className="block text-xs font-sans font-semibold text-emerald-800">
+                  {t.my_color_result_box}
+                </span>
+                <span className="text-sm sm:text-base font-extrabold text-emerald-700">
+                  {getColorMeta(currentStep.spokenColor, colorCount).label} (
+                  {currentStep.spokenColor})
+                </span>
+              </div>
+            </div>
+
+            <div className="font-mono text-xs text-slate-600 pt-1 border-t border-slate-100 flex items-center justify-between">
+              <span>
+                {t.formula_label}{' '}
+                <strong className="text-blue-700">{currentStep.formulaString}</strong>
+              </span>
+              <span className="text-xs text-slate-400 font-sans">mod {colorCount}</span>
+            </div>
           </div>
 
           <p className="text-xs text-slate-700 font-sans leading-relaxed">
@@ -75,7 +121,7 @@ export function ParityBlackboard({
           </p>
         </div>
       ) : (
-        <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-center text-xs text-slate-500">
+        <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-center text-xs text-slate-500 font-sans">
           {t.step_next_hint}
         </div>
       )}
@@ -128,45 +174,39 @@ export function ParityBlackboard({
                     {isPast ? (
                       <span className="inline-flex items-center gap-1">
                         <span
-                          className="h-2.5 w-2.5 rounded-full border border-slate-300"
+                          className="h-2.5 w-2.5 rounded-full border border-slate-400"
                           style={{ backgroundColor: actualMeta.bgHex }}
                         />
-                        <span>{actualMeta.label}</span>
+                        <span>{actualMeta.shortLabel}</span>
                       </span>
                     ) : (
-                      '--'
+                      '—'
                     )}
                   </td>
-                  <td className="py-2 px-3">
-                    {isPast ? `mod ${colorCount} = ${step.seenSumAhead}` : '--'}
-                  </td>
-                  <td className="py-2 px-3">{isPast ? step.runningParity : '--'}</td>
+                  <td className="py-2 px-3">{isPast ? step.seenSumAhead : '—'}</td>
+                  <td className="py-2 px-3">{isPast ? step.runningParity : '—'}</td>
                   <td className="py-2 px-3">
                     {isPast ? (
-                      <span className="inline-flex items-center gap-1 font-bold text-slate-900">
-                        <span
-                          className="h-2.5 w-2.5 rounded-full border border-slate-300"
-                          style={{ backgroundColor: spokenMeta.bgHex }}
-                        />
-                        <span>{spokenMeta.label}</span>
-                      </span>
+                      <span className="font-bold text-blue-700">{spokenMeta.label}</span>
                     ) : (
-                      '--'
+                      '—'
                     )}
                   </td>
                   <td className="py-2 px-3 text-center">
                     {isPast ? (
                       step.isCorrect ? (
-                        <span className="inline-flex items-center gap-1 text-emerald-600 font-bold">
-                          <Check className="h-3.5 w-3.5" /> {t.correct_label}
+                        <span className="inline-flex items-center gap-1 font-semibold text-emerald-700 font-sans">
+                          <Check className="h-3.5 w-3.5 text-emerald-600" />
+                          {t.correct_label}
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 text-rose-600 font-bold">
-                          <X className="h-3.5 w-3.5" /> {t.wrong_label}
+                        <span className="inline-flex items-center gap-1 font-semibold text-rose-600 font-sans">
+                          <X className="h-3.5 w-3.5 text-rose-600" />
+                          {t.wrong_label}
                         </span>
                       )
                     ) : (
-                      <span className="text-slate-400">{t.waiting_label}</span>
+                      <span className="text-slate-400 font-sans">{t.waiting_label}</span>
                     )}
                   </td>
                 </tr>
@@ -176,21 +216,15 @@ export function ParityBlackboard({
         </table>
       </div>
 
-      {/* Note about parity subtraction */}
-      <div className="flex items-start gap-2 text-xs text-slate-500 font-sans bg-slate-50 p-2.5 rounded-md border border-slate-200">
-        <ArrowRight className="h-4 w-4 text-blue-600 shrink-0 mt-0.5" />
-        <span>
-          <strong>{t.subtraction_rule_title}</strong>{' '}
-          {t.subtraction_rule_desc.includes('{formula}') ? (
-            <>
-              {t.subtraction_rule_desc.split('{formula}')[0]}
-              <code className="text-blue-700 font-bold">{'P_{k-1} = (P_k - c_k) mod K'}</code>
-              {t.subtraction_rule_desc.split('{formula}')[1]}
-            </>
-          ) : (
-            t.subtraction_rule_desc
+      {/* Subtraction Rule Footer Note */}
+      <div className="rounded-lg border border-slate-200 bg-slate-50/70 p-3 text-xs text-slate-600 font-sans space-y-1">
+        <span className="font-semibold text-slate-800">{t.subtraction_rule_title}</span>
+        <p className="leading-relaxed">
+          {t.subtraction_rule_desc.replace(
+            '{formula}',
+            colorCount === 2 ? 'P = P ⊕ c_trước' : 'S = (S - c_trước) mod 3',
           )}
-        </span>
+        </p>
       </div>
     </div>
   );
