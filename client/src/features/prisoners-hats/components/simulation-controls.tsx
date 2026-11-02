@@ -208,15 +208,15 @@ export function SimulationControls({
               className={cn(
                 'flex items-center justify-center gap-2 py-2 px-2.5 rounded-lg text-xs font-medium border transition-all',
                 colorCount === 2
-                  ? 'border-slate-900 bg-slate-900 text-white font-bold shadow-xs'
+                  ? 'border-blue-600 bg-blue-600 text-white font-bold shadow-xs'
                   : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:border-slate-300',
               )}
             >
               <span className="flex items-center gap-1 shrink-0">
-                <span className="inline-block h-3 w-3 rounded-full bg-white border border-slate-400" />
-                <span className="inline-block h-3 w-3 rounded-full bg-slate-900 border border-slate-600" />
+                <span className="inline-block h-3 w-3 rounded-full bg-white border border-slate-300" />
+                <span className="inline-block h-3 w-3 rounded-full bg-[#1e3a8a] border border-blue-300" />
               </span>
-              <span className="truncate">2 Màu (0, 1)</span>
+              <span className="truncate">2 Màu (Trắng / Đậm)</span>
             </button>
 
             <button
@@ -225,13 +225,13 @@ export function SimulationControls({
               className={cn(
                 'flex items-center justify-center gap-2 py-2 px-2.5 rounded-lg text-xs font-medium border transition-all',
                 colorCount === 3
-                  ? 'border-indigo-600 bg-indigo-600 text-white font-bold shadow-xs'
+                  ? 'border-blue-600 bg-blue-600 text-white font-bold shadow-xs'
                   : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:border-slate-300',
               )}
             >
               <span className="flex items-center gap-1 shrink-0">
                 <span className="inline-block h-2.5 w-2.5 rounded-full bg-rose-500" />
-                <span className="inline-block h-2.5 w-2.5 rounded-full bg-blue-500" />
+                <span className="inline-block h-2.5 w-2.5 rounded-full bg-blue-400" />
                 <span className="inline-block h-2.5 w-2.5 rounded-full bg-amber-400" />
               </span>
               <span className="truncate">3 Màu (Mod 3)</span>
@@ -246,7 +246,7 @@ export function SimulationControls({
               <FastForward className="h-4 w-4 text-slate-600" />
               <span>{t.speed_label}</span>
             </span>
-            <span className="font-mono text-xs font-bold text-slate-700 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded">
+            <span className="font-mono text-xs font-bold text-blue-700 bg-blue-50 border border-blue-200/80 px-2 py-0.5 rounded">
               {playbackSpeed}x
             </span>
           </div>
@@ -259,7 +259,7 @@ export function SimulationControls({
                 className={cn(
                   'py-1.5 rounded-lg text-xs font-mono font-semibold border transition-all text-center',
                   playbackSpeed === speed
-                    ? 'border-slate-800 bg-slate-800 text-white font-bold shadow-xs'
+                    ? 'border-blue-600 bg-blue-600 text-white font-bold shadow-xs'
                     : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:border-slate-300',
                 )}
               >

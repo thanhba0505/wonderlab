@@ -41,12 +41,12 @@ export const prisonersHatsEn: PrisonersHatsSimulationDictionary = {
   your_spot_badge: '[Your spot]',
   legend_title: 'Legend:',
   white_hat_0: 'White Hat (0)',
-  black_hat_1: 'Black Hat (1)',
+  black_hat_1: 'Dark Hat (1)',
   red_hat_0: 'Red (0)',
   blue_hat_1: 'Blue (1)',
   yellow_hat_2: 'Yellow (2)',
   legend_parity_callout:
-    'In 2-color mode: Odd = Black (1), Even = White (0). In 3-color mode: Total sum Modulo 3 encodes corresponding color (Red = 0, Blue = 1, Yellow = 2).',
+    'In 2-color mode: Odd = Dark Hat (1), Even = White Hat (0). In 3-color mode: Total sum Modulo 3 encodes corresponding color (Red = 0, Blue = 1, Yellow = 2).',
   hover_field_of_view_hint: '* Hover over any person to highlight their forward field of view',
   blackboard_title: 'Parity Decoding Blackboard & Modulo Subtraction',
   blackboard_desc: 'Observe real-time reduction in information entropy across each spoken turn',
@@ -93,7 +93,7 @@ export const prisonersHatsEn: PrisonersHatsSimulationDictionary = {
   hats_visible_in_front: 'Hats visible in front:',
   nobody_ahead: 'Nobody ahead (you are the front person #1).',
   person_tooltip: 'Person #{id}: {label}',
-  sum_black_label: 'Σ Black = {sum}, mod 2 = {mod}',
+  sum_black_label: 'Σ Dark = {sum}, mod 2 = {mod}',
   your_turn_prompt: '🎯 It is your turn! Select your hat color:',
   waiting_turn_prompt: 'Waiting for your turn in the lineup...',
   hide_hint: 'Hide hint',
@@ -102,7 +102,7 @@ export const prisonersHatsEn: PrisonersHatsSimulationDictionary = {
   deduction_tip_body:
     'Subtract the hats spoken behind you and hats you see in front from the parity signal of Person #{n}!',
   tip_sacrifice_2:
-    'You are at the back of the lineup! Count total visible Black hats in front. If the count is Even call White (0), if Odd call Black (1).',
+    'You are at the back of the lineup! Count total visible Dark hats in front. If the count is Even call White (0), if Odd call Dark (1).',
   tip_sacrifice_3:
     'You are at the back of the lineup! Count total visible hats in front, take sum mod 3 and call corresponding color.',
   tip_deduction_formula:
@@ -182,7 +182,7 @@ export const prisonersHatsEn: PrisonersHatsSimulationDictionary = {
   prisoners_count_label: 'Number of prisoners (N):',
   people_unit: 'people',
   color_space_label: 'Hat color space:',
-  color_space_2: '2 Colors (B/W)',
+  color_space_2: '2 Colors (White / Dark)',
   color_space_3: '3 Colors (Mod 3)',
   speed_label: 'Playback speed:',
   // Stage & Visual Motion

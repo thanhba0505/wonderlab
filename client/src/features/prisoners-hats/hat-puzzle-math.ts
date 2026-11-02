@@ -31,11 +31,11 @@ export const TWO_COLORS_PALETTE: ColorMeta[] = [
   },
   {
     id: 1,
-    label: 'Đen',
-    shortLabel: '1 (Đen)',
-    bgHex: '#0f172a',
+    label: 'Màu Đậm',
+    shortLabel: '1 (Đậm)',
+    bgHex: '#1e3a8a',
     textHex: '#ffffff',
-    badgeClass: 'bg-slate-900 text-white border-slate-800 shadow-xs',
+    badgeClass: 'bg-blue-900 text-white border-blue-800 shadow-xs',
   },
 ];
 
@@ -317,7 +317,7 @@ export function evaluateUserGuess(
     if (userGuess === optimalGuess) {
       explanation = `Tuyệt vời! Bạn là người hy sinh ở vị trí số ${n}. Bạn đã đếm đúng tổng phía trước (${seenSumAhead}) và phát tín hiệu "${userGuessLabel}" chuẩn xác cho đồng đội. ${isCorrect ? 'Và bạn cũng cực kỳ may mắn đoán trúng luôn mũ của mình!' : 'Dù mũ bạn không trùng màu, 9 đồng đội còn lại sẽ chắc chắn được cứu!'}`;
     } else {
-      explanation = `Bạn đã hô "${userGuessLabel}", nhưng tổng ${colorCount === 2 ? 'số mũ Đen' : 'màu'} nhìn thấy phía trước là ${seenSumAhead} (mod ${colorCount} = ${optimalGuess} - "${optimalLabel}"). Nếu bạn hô sai tín hiệu, tất cả đồng đội phía trước có thể bị ảnh hưởng dây chuyền!`;
+      explanation = `Bạn đã hô "${userGuessLabel}", nhưng tổng ${colorCount === 2 ? 'số mũ Đậm' : 'màu'} nhìn thấy phía trước là ${seenSumAhead} (mod ${colorCount} = ${optimalGuess} - "${optimalLabel}"). Nếu bạn hô sai tín hiệu, tất cả đồng đội phía trước có thể bị ảnh hưởng dây chuyền!`;
     }
   } else {
     if (isCorrect) {

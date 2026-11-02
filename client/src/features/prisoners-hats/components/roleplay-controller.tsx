@@ -184,7 +184,7 @@ export function RoleplayController({
                   className="inline-flex items-center justify-center h-6 min-w-7 px-1.5 rounded-md border text-xs font-mono font-bold shadow-2xs"
                   style={{
                     backgroundColor: meta.bgHex,
-                    borderColor: meta.id === 0 ? '#cbd5e1' : '#0f172a',
+                    borderColor: meta.id === 0 ? '#cbd5e1' : '#172554',
                     color: meta.textHex,
                   }}
                   title={t.person_tooltip
@@ -202,7 +202,7 @@ export function RoleplayController({
           <div className="pt-1.5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-600 font-mono">
             <span>
               {colorCount === 2
-                ? `Σ Mũ đen = ${seenBlackCount}`
+                ? `Σ Mũ đậm = ${seenBlackCount}`
                 : `Tổng mod 3 = ${seenSumTotal % 3}`}
             </span>
             <span className="font-sans text-slate-500">
@@ -319,8 +319,11 @@ export function RoleplayController({
                   className="flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white py-2.5 px-3 font-sans text-xs font-bold text-slate-800 shadow-2xs transition-all hover:border-blue-500 hover:bg-blue-50/50 hover:shadow-xs active:scale-[0.98]"
                 >
                   <span
-                    className="h-3.5 w-3.5 rounded-full border border-slate-400 shrink-0"
-                    style={{ backgroundColor: color.bgHex }}
+                    className="h-3.5 w-3.5 rounded-full border shrink-0"
+                    style={{
+                      backgroundColor: color.bgHex,
+                      borderColor: color.id === 0 ? '#cbd5e1' : '#172554',
+                    }}
                   />
                   <span className="truncate">
                     {color.label} ({color.id})

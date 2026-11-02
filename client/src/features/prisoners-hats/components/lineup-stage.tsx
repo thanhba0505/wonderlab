@@ -149,6 +149,18 @@ export function LineupStage({
                 (prisoner.guessedColor === null || currentStepIndex < n - personId + 1);
 
               const colorMeta: ColorMeta = getColorMeta(prisoner.actualColor, colorCount);
+              const hatBorderColor =
+                colorMeta.id === 0 ? '#cbd5e1' : colorCount === 2 ? '#172554' : '#1e293b';
+              const hatRibbonColor =
+                colorCount === 2
+                  ? colorMeta.id === 0
+                    ? '#94a3b8'
+                    : '#3b82f6'
+                  : colorMeta.id === 0
+                    ? '#991b1b'
+                    : colorMeta.id === 1
+                      ? '#1d4ed8'
+                      : '#a16207';
 
               // Position speech bubble safely on screen edges
               const bubbleAlignClass =
@@ -250,14 +262,14 @@ export function LineupStage({
                             className="relative flex h-6 w-8 sm:h-8 sm:w-11 flex-col items-center justify-center rounded-t-md border shadow-xs transition-colors duration-200"
                             style={{
                               backgroundColor: colorMeta.bgHex,
-                              borderColor: colorMeta.id === 0 ? '#cbd5e1' : '#0f172a',
+                              borderColor: hatBorderColor,
                             }}
                           >
                             {/* Decorative Ribbon */}
                             <div
-                              className="absolute bottom-0 inset-x-0 h-1.5 opacity-80 border-t border-black/10"
+                              className="absolute bottom-0 inset-x-0 h-1.5 opacity-90 border-t border-black/10"
                               style={{
-                                backgroundColor: colorMeta.id === 0 ? '#94a3b8' : '#334155',
+                                backgroundColor: hatRibbonColor,
                               }}
                             />
                             <span
@@ -273,7 +285,7 @@ export function LineupStage({
                             className="h-1.5 w-10 sm:w-13 rounded-full border shadow-2xs -mt-0.5"
                             style={{
                               backgroundColor: colorMeta.bgHex,
-                              borderColor: colorMeta.id === 0 ? '#cbd5e1' : '#0f172a',
+                              borderColor: hatBorderColor,
                             }}
                           />
                         </div>
@@ -383,7 +395,10 @@ export function LineupStage({
                 <span>{t.white_hat_0}</span>
               </span>
               <span className="inline-flex items-center gap-1.5">
-                <span className="h-3.5 w-3.5 rounded border border-slate-800 bg-slate-900 shadow-2xs" />
+                <span
+                  className="h-3.5 w-3.5 rounded border shadow-2xs"
+                  style={{ backgroundColor: '#1e3a8a', borderColor: '#172554' }}
+                />
                 <span>{t.black_hat_1}</span>
               </span>
             </>
