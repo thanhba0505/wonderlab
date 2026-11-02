@@ -7,6 +7,7 @@ import {
   computeVisibilityPolygon,
   calculateCoveragePercentage,
   generateRandomPolygon,
+  isSimplePolygon,
   GALLERY_PRESETS,
   Point,
 } from './art-gallery-math';
@@ -90,5 +91,31 @@ describe('Art Gallery Mathematical Engine', () => {
     const randPoly = generateRandomPolygon(8);
     expect(randPoly.length).toBe(8);
     expect(calculatePolygonArea(randPoly)).toBeGreaterThan(0);
+  });
+
+  it('detects simple vs self-intersecting polygons accurately', () => {
+    expect(isSimplePolygon(square)).toBe(true);
+    expect(isSimplePolygon(lShaped)).toBe(true);
+
+    // Self-intersecting bowtie polygon (hourglass)
+    const bowtie: Point[] = [
+      { x: 0, y: 0 },
+      { x: 100, y: 100 },
+      { x: 100, y: 0 },
+      { x: 0, y: 100 },
+    ];
+    expect(isSimplePolygon(bowtie)).toBe(false);
+  });
+
+  it('contains Star Polygon and Fortress Maze presets with valid bounds', () => {
+    const star = GALLERY_PRESETS.find(p => p.id === 'star-polygon');
+    expect(star).toBeDefined();
+    expect(star?.vertices.length).toBe(10);
+    expect(isSimplePolygon(star!.vertices)).toBe(true);
+
+    const fortress = GALLERY_PRESETS.find(p => p.id === 'fortress-maze');
+    expect(fortress).toBeDefined();
+    expect(fortress?.vertices.length).toBe(12);
+    expect(isSimplePolygon(fortress!.vertices)).toBe(true);
   });
 });

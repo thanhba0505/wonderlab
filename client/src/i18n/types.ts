@@ -888,6 +888,17 @@ export interface ArtGallerySimulationDictionary {
   placement_mode_title: string;
   mode_vertices_only: string;
   mode_anywhere: string;
+  mode_drag_vertices: string;
+  mode_drag_hint: string;
+  drag_self_intersect_error: string;
+  blind_spots_toggle: string;
+  blind_spots_desc: string;
+  sound_toggle: string;
+  challenge_title: string;
+  medal_legendary: string;
+  medal_optimal: string;
+  medal_chvatal: string;
+  medal_safe: string;
   auto_fisk_btn: string;
   reset_default_btn: string;
   canvas_title: string;

@@ -6,21 +6,29 @@ import {
   FiskProofResult,
   computeVisibilityPolygon,
   isPointInsidePolygon,
+  isSimplePolygon,
   VertexColor,
 } from '../art-gallery-math';
-import { Eye, Trash2, Sparkles, MapPin } from 'lucide-react';
+import { Eye, EyeOff, Trash2, Sparkles, MapPin, AlertCircle, Volume2, VolumeX } from 'lucide-react';
 import { MathFraction } from '@/features/simulations/components';
 import { useTranslation } from '@/i18n';
+import { GalleryInteractionMode } from './gallery-controls';
+import { useGallerySound } from '../utils/gallery-audio';
 
 export interface GalleryCanvasProps {
   polygon: Point[];
   guards: Point[];
   onAddGuard: (point: Point) => void;
   onRemoveGuard: (index: number) => void;
+  onUpdatePolygon: (newPolygon: Point[]) => void;
   showTriangulation: boolean;
   showColoring: boolean;
+  showBlindSpots: boolean;
+  onToggleBlindSpots: () => void;
+  isSoundEnabled: boolean;
+  onToggleSound: () => void;
   fiskProof: FiskProofResult;
-  isVertexOnlyMode: boolean;
+  mode: GalleryInteractionMode;
 }
 
 export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
@@ -28,12 +36,19 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
   guards,
   onAddGuard,
   onRemoveGuard,
+  onUpdatePolygon,
   showTriangulation,
   showColoring,
+  showBlindSpots,
+  onToggleBlindSpots,
+  isSoundEnabled,
+  onToggleSound,
   fiskProof,
-  isVertexOnlyMode,
+  mode,
 }) => {
   const { dict } = useTranslation();
+  const sound = useGallerySound(isSoundEnabled);
+
   const colorMap: Record<
     VertexColor,
     { label: string; fill: string; ring: string; badge: string }
@@ -57,49 +72,100 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
       badge: 'bg-indigo-100 text-indigo-800 border-indigo-300',
     },
   };
+
   const svgRef = React.useRef<SVGSVGElement | null>(null);
   const [hoveredVertexIdx, setHoveredVertexIdx] = React.useState<number | null>(null);
+  const [draggingVertexIdx, setDraggingVertexIdx] = React.useState<number | null>(null);
+  const [isSelfIntersecting, setIsSelfIntersecting] = React.useState<boolean>(false);
 
   // Compute visibility polygons for all placed guards
   const visibilityPolygons = React.useMemo(() => {
     return guards.map(guard => computeVisibilityPolygon(guard, polygon));
   }, [guards, polygon]);
 
-  // Convert SVG coordinate from mouse click
-  const handleSvgClick = (e: React.MouseEvent<SVGSVGElement>) => {
-    if (!svgRef.current) return;
+  // Convert client coordinate to SVG viewBox (500x420)
+  const getSvgCoordinates = (clientX: number, clientY: number): Point | null => {
+    if (!svgRef.current) return null;
     const rect = svgRef.current.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) return null;
     const scaleX = 500 / rect.width;
     const scaleY = 420 / rect.height;
 
-    const clickX = Math.round((e.clientX - rect.left) * scaleX);
-    const clickY = Math.round((e.clientY - rect.top) * scaleY);
-    const clickPoint: Point = { x: clickX, y: clickY };
+    const x = Math.round((clientX - rect.left) * scaleX);
+    const y = Math.round((clientY - rect.top) * scaleY);
+    return {
+      x: Math.max(10, Math.min(490, x)),
+      y: Math.max(10, Math.min(410, y)),
+    };
+  };
 
-    // If vertex-only mode, only allow clicking near vertices
-    if (isVertexOnlyMode) {
-      return;
-    }
+  // Click on SVG background
+  const handleSvgClick = (e: React.MouseEvent<SVGSVGElement>) => {
+    if (mode === 'drag' || draggingVertexIdx !== null) return;
+    if (mode === 'vertex') return;
 
-    // Check if clicked point is inside room
+    const clickPoint = getSvgCoordinates(e.clientX, e.clientY);
+    if (!clickPoint) return;
+
     if (isPointInsidePolygon(clickPoint, polygon)) {
       onAddGuard(clickPoint);
+      sound.playDeployGuard(guards.length);
     }
   };
 
-  const handleVertexClick = (e: React.MouseEvent, vIdx: number) => {
+  // Click or drag vertex
+  const handleVertexMouseDown = (e: React.MouseEvent, vIdx: number) => {
     e.stopPropagation();
+    if (mode === 'drag') {
+      setDraggingVertexIdx(vIdx);
+      sound.playVertexDrag();
+      return;
+    }
+
     const v = polygon[vIdx];
     if (!v) return;
 
     // Check if a guard already exists at or very near this vertex
-    const existingGuardIdx = guards.findIndex(g => Math.hypot(g.x - v.x, g.y - v.y) < 10);
+    const existingGuardIdx = guards.findIndex(g => Math.hypot(g.x - v.x, g.y - v.y) < 12);
     if (existingGuardIdx !== -1) {
       onRemoveGuard(existingGuardIdx);
+      sound.playRemoveGuard();
     } else {
       onAddGuard(v);
+      sound.playDeployGuard(guards.length);
     }
   };
+
+  // Mouse move on SVG canvas for dragging
+  const handleMouseMove = (e: React.MouseEvent<SVGSVGElement>) => {
+    if (draggingVertexIdx === null || mode !== 'drag') return;
+
+    const point = getSvgCoordinates(e.clientX, e.clientY);
+    if (!point) return;
+
+    const nextPolygon = polygon.map((p, i) => (i === draggingVertexIdx ? point : p));
+    const simple = isSimplePolygon(nextPolygon);
+    setIsSelfIntersecting(!simple);
+    onUpdatePolygon(nextPolygon);
+  };
+
+  // Mouse up to finish dragging
+  const handleMouseUp = () => {
+    if (draggingVertexIdx !== null) {
+      setDraggingVertexIdx(null);
+      sound.playVertexDrag();
+    }
+  };
+
+  React.useEffect(() => {
+    const handleGlobalMouseUp = () => {
+      if (draggingVertexIdx !== null) {
+        setDraggingVertexIdx(null);
+      }
+    };
+    window.addEventListener('mouseup', handleGlobalMouseUp);
+    return () => window.removeEventListener('mouseup', handleGlobalMouseUp);
+  }, [draggingVertexIdx]);
 
   const polygonSvgPoints = polygon.map(p => `${p.x},${p.y}`).join(' ');
 
@@ -108,30 +174,75 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
       {/* Canvas Header / Status Bar */}
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200/80 px-4 py-2.5 bg-slate-50/70 text-xs text-slate-600 font-sans">
         <div className="flex items-center gap-2">
-          <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+          <span
+            className={`flex h-2 w-2 rounded-full ${
+              isSelfIntersecting ? 'bg-rose-500 animate-ping' : 'bg-emerald-500 animate-pulse'
+            }`}
+          />
           <span className="font-semibold text-slate-800">{dict.sim_art_gallery.canvas_title}</span>
           <span className="text-slate-400">|</span>
-          <span className="text-slate-500">
-            {isVertexOnlyMode
+          <span className="text-slate-600 font-medium">
+            {mode === 'vertex'
               ? dict.sim_art_gallery.mode_vertex_placement
-              : dict.sim_art_gallery.mode_free_placement}
+              : mode === 'free'
+                ? dict.sim_art_gallery.mode_free_placement
+                : dict.sim_art_gallery.mode_drag_vertices}
           </span>
         </div>
 
-        <div className="flex items-center gap-3 font-mono text-xs text-slate-500">
-          <span>
-            {polygon.length} {dict.sim_art_gallery.vertices_count}
-          </span>
-          <span>&bull;</span>
-          <span>
-            {guards.length} {dict.sim_art_gallery.guards_count}
-          </span>
-          <span>&bull;</span>
-          <span className="text-amber-700 font-semibold inline-flex items-center">
-            <span>{dict.sim_art_gallery.chvatal_bound_label}&lfloor;</span>
-            <MathFraction numerator={polygon.length} denominator="3" />
-            <span>&rfloor; = {Math.floor(polygon.length / 3)}</span>
-          </span>
+        <div className="flex items-center gap-3">
+          {/* Quick Audio Mute & Blind Spot Toggles */}
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={onToggleBlindSpots}
+              className={`p-1 rounded-md border text-xs transition-colors ${
+                showBlindSpots
+                  ? 'border-rose-300 bg-rose-50 text-rose-700'
+                  : 'border-slate-200 bg-white text-slate-500 hover:bg-slate-100'
+              }`}
+              title={dict.sim_art_gallery.blind_spots_toggle}
+            >
+              {showBlindSpots ? (
+                <Eye className="h-3.5 w-3.5 text-rose-600" />
+              ) : (
+                <EyeOff className="h-3.5 w-3.5 text-slate-400" />
+              )}
+            </button>
+
+            <button
+              type="button"
+              onClick={onToggleSound}
+              className={`p-1 rounded-md border text-xs transition-colors ${
+                isSoundEnabled
+                  ? 'border-blue-300 bg-blue-50 text-blue-700'
+                  : 'border-slate-200 bg-white text-slate-400 hover:bg-slate-100'
+              }`}
+              title={dict.sim_art_gallery.sound_toggle}
+            >
+              {isSoundEnabled ? (
+                <Volume2 className="h-3.5 w-3.5 text-blue-600" />
+              ) : (
+                <VolumeX className="h-3.5 w-3.5 text-slate-400" />
+              )}
+            </button>
+          </div>
+
+          <div className="hidden sm:flex items-center gap-3 font-mono text-xs text-slate-500">
+            <span>
+              {polygon.length} {dict.sim_art_gallery.vertices_count}
+            </span>
+            <span>&bull;</span>
+            <span>
+              {guards.length} {dict.sim_art_gallery.guards_count}
+            </span>
+            <span>&bull;</span>
+            <span className="text-amber-700 font-semibold inline-flex items-center">
+              <span>{dict.sim_art_gallery.chvatal_bound_label}&lfloor;</span>
+              <MathFraction numerator={polygon.length} denominator="3" />
+              <span>&rfloor; = {Math.floor(polygon.length / 3)}</span>
+            </span>
+          </div>
         </div>
       </div>
 
@@ -140,8 +251,16 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
         <svg
           ref={svgRef}
           viewBox="0 0 500 420"
-          className="w-full h-full cursor-crosshair"
+          className={`w-full h-full ${
+            mode === 'drag'
+              ? draggingVertexIdx !== null
+                ? 'cursor-grabbing'
+                : 'cursor-grab'
+              : 'cursor-crosshair'
+          }`}
           onClick={handleSvgClick}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
         >
           <defs>
             {/* Subtle Laboratory Coordinate Grid */}
@@ -151,6 +270,25 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
                 fill="none"
                 stroke="rgba(148, 163, 184, 0.15)"
                 strokeWidth="1"
+              />
+            </pattern>
+
+            {/* Blind Spots Hatched Pattern (Rose Corridor) */}
+            <pattern
+              id="blind-spots-pattern"
+              width="8"
+              height="8"
+              patternTransform="rotate(45 0 0)"
+              patternUnits="userSpaceOnUse"
+            >
+              <line
+                x1="0"
+                y1="0"
+                x2="0"
+                y2="8"
+                stroke="#f43f5e"
+                strokeWidth="2"
+                strokeOpacity="0.45"
               />
             </pattern>
 
@@ -164,11 +302,21 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
           {/* Grid Background */}
           <rect width="500" height="420" fill="url(#lab-grid-pattern)" />
 
-          {/* 1. Base Room Interior (Unlit / Shadowed Area) */}
+          {/* 1. Base Room Interior */}
+          {/* Layer A: Base unlit floor */}
           <polygon
             points={polygonSvgPoints}
-            className="fill-slate-200/50 stroke-none transition-all duration-200"
+            className="fill-slate-200/60 stroke-none transition-all duration-200"
           />
+
+          {/* Layer B: Blind Spots Hatched Overlay (if enabled) */}
+          {showBlindSpots && (
+            <polygon
+              points={polygonSvgPoints}
+              fill="url(#blind-spots-pattern)"
+              className="pointer-events-none transition-all duration-300"
+            />
+          )}
 
           {/* 2. Illuminated Visibility Polygons (Additive Light Overlay) */}
           {visibilityPolygons.map((vis, idx) => {
@@ -176,11 +324,14 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
             const pointsStr = vis.points.map(p => `${p.x},${p.y}`).join(' ');
             return (
               <g key={`vis-${idx}`} className="pointer-events-none">
+                {/* Solid light tint masks blind spot hatch */}
+                {showBlindSpots && <polygon points={pointsStr} fill="#fef9c3" fillOpacity="0.85" />}
+                {/* Golden illuminated vision cone */}
                 <polygon
                   points={pointsStr}
-                  fill="rgba(245, 158, 11, 0.22)"
-                  stroke="rgba(217, 119, 6, 0.45)"
-                  strokeWidth="1"
+                  fill="rgba(245, 158, 11, 0.28)"
+                  stroke="rgba(217, 119, 6, 0.55)"
+                  strokeWidth="1.2"
                   className="transition-all duration-300"
                 />
               </g>
@@ -204,19 +355,21 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
               />
             ))}
 
-          {/* 4. Room Exterior Boundary Walls (Crisp Dark Slate Border) */}
+          {/* 4. Room Exterior Boundary Walls (Crisp Dark Slate or Alert Red if Self-Intersecting) */}
           <polygon
             points={polygonSvgPoints}
             fill="none"
-            stroke="#1e293b"
-            strokeWidth="2.5"
+            stroke={isSelfIntersecting ? '#e11d48' : '#1e293b'}
+            strokeWidth={isSelfIntersecting ? 3 : 2.5}
+            strokeDasharray={isSelfIntersecting ? '6 4' : 'none'}
             strokeLinejoin="round"
-            className="pointer-events-none"
+            className="pointer-events-none transition-colors duration-200"
           />
 
           {/* 5. Polygon Vertices (Interactive Dots) */}
           {polygon.map((v, idx) => {
             const isHovered = hoveredVertexIdx === idx;
+            const isDragging = draggingVertexIdx === idx;
             const vertexColor = fiskProof.vertexColors[idx] ?? 0;
             const isOptimalGuardVertex = showColoring && fiskProof.guardVertexIndices.includes(idx);
 
@@ -239,8 +392,8 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
             return (
               <g
                 key={`vertex-${idx}`}
-                className="cursor-pointer group"
-                onClick={e => handleVertexClick(e, idx)}
+                className={`${mode === 'drag' ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'} group`}
+                onMouseDown={e => handleVertexMouseDown(e, idx)}
                 onMouseEnter={() => setHoveredVertexIdx(idx)}
                 onMouseLeave={() => setHoveredVertexIdx(null)}
               >
@@ -257,16 +410,16 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
                   />
                 )}
 
-                {/* Outer Ring on Hover */}
-                {isHovered && (
+                {/* Outer Ring on Hover or Drag */}
+                {(isHovered || isDragging) && (
                   <circle
                     cx={v.x}
                     cy={v.y}
-                    r="9"
+                    r={mode === 'drag' ? 12 : 9}
                     fill="none"
-                    stroke="#2563eb"
+                    stroke={mode === 'drag' ? '#f59e0b' : '#2563eb'}
                     strokeWidth="2"
-                    className="opacity-80"
+                    className={isDragging ? 'opacity-90 animate-pulse' : 'opacity-80'}
                   />
                 )}
 
@@ -274,9 +427,9 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
                 <circle
                   cx={v.x}
                   cy={v.y}
-                  r={isHovered ? 6 : showColoring ? 5.5 : 4}
+                  r={isDragging ? 7.5 : isHovered ? 6.5 : showColoring ? 5.5 : 4.5}
                   fill={fillColor}
-                  stroke={strokeColor}
+                  stroke={mode === 'drag' ? '#b45309' : strokeColor}
                   strokeWidth="2"
                   className="transition-all duration-150"
                 />
@@ -284,9 +437,9 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
                 {/* Vertex Index Label */}
                 <text
                   x={v.x}
-                  y={v.y - 8}
+                  y={v.y - 9}
                   textAnchor="middle"
-                  className="font-mono text-xs fill-slate-500 font-bold pointer-events-none select-none"
+                  className="font-mono text-xs fill-slate-600 font-bold pointer-events-none select-none"
                 >
                   {idx + 1}
                 </text>
@@ -302,6 +455,7 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
               onClick={e => {
                 e.stopPropagation();
                 onRemoveGuard(idx);
+                sound.playRemoveGuard();
               }}
             >
               {/* Outer Pulse Ring */}
@@ -342,15 +496,27 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
           ))}
         </svg>
 
+        {/* Self-Intersection Alert Overlay */}
+        {isSelfIntersecting && (
+          <div className="absolute top-3 inset-x-3 flex justify-center pointer-events-none">
+            <div className="inline-flex items-center gap-2 rounded-lg bg-rose-50 px-3.5 py-1.5 border border-rose-300 shadow-xs text-xs text-rose-800 font-semibold animate-pulse">
+              <AlertCircle className="h-4 w-4 text-rose-600 shrink-0" />
+              <span>{dict.sim_art_gallery.drag_self_intersect_error}</span>
+            </div>
+          </div>
+        )}
+
         {/* Empty State Overlay */}
         {guards.length === 0 && (
           <div className="absolute inset-x-0 bottom-4 flex justify-center pointer-events-none">
             <div className="inline-flex items-center gap-2 rounded-lg bg-white/95 px-3 py-1.5 border border-slate-300 shadow-xs text-xs text-slate-600">
               <Eye className="h-4 w-4 text-amber-600 animate-pulse" />
               <span>
-                {isVertexOnlyMode
+                {mode === 'vertex'
                   ? dict.sim_art_gallery.empty_vertex_guide
-                  : dict.sim_art_gallery.empty_free_guide}
+                  : mode === 'free'
+                    ? dict.sim_art_gallery.empty_free_guide
+                    : dict.sim_art_gallery.mode_drag_hint}
               </span>
             </div>
           </div>
@@ -408,7 +574,11 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
         </div>
         {guards.length > 0 && (
           <button
-            onClick={() => onRemoveGuard(-1)} // -1 to trigger clear all
+            type="button"
+            onClick={() => {
+              onRemoveGuard(-1); // -1 to trigger clear all
+              sound.playRemoveGuard();
+            }}
             className="inline-flex items-center gap-1 text-xs text-rose-600 hover:text-rose-700 font-medium transition-colors"
           >
             <Trash2 className="h-3.5 w-3.5" />

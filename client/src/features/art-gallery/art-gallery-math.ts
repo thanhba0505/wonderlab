@@ -559,6 +559,34 @@ export function calculateCoveragePercentage(guards: Point[], polygon: Point[]): 
 }
 
 /**
+ * Checks if a polygon is simple (no self-intersecting non-adjacent edges).
+ */
+export function isSimplePolygon(polygon: Point[]): boolean {
+  const n = polygon.length;
+  if (n < 3) return false;
+
+  for (let i = 0; i < n; i++) {
+    const a1 = polygon[i]!;
+    const a2 = polygon[(i + 1) % n]!;
+
+    for (let j = i + 1; j < n; j++) {
+      // Skip adjacent edges and same edges
+      if (Math.abs(i - j) <= 1 || (i === 0 && j === n - 1)) {
+        continue;
+      }
+      const b1 = polygon[j]!;
+      const b2 = polygon[(j + 1) % n]!;
+
+      if (doSegmentsIntersect(a1, a2, b1, b2)) {
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+
+/**
  * Standard Presets illustrating key theorems and edge cases.
  */
 export const GALLERY_PRESETS: PolygonPreset[] = [
@@ -577,8 +605,8 @@ export const GALLERY_PRESETS: PolygonPreset[] = [
       { x: 330, y: 90 },
       { x: 390, y: 270 },
       { x: 440, y: 350 },
-      { x: 60, y: 350 },
-    ].slice(0, 8), // 8 or 9 vertices
+      { x: 250, y: 350 },
+    ],
   },
   {
     id: 'chvatal-comb-4',
@@ -597,6 +625,8 @@ export const GALLERY_PRESETS: PolygonPreset[] = [
       { x: 370, y: 80 },
       { x: 410, y: 260 },
       { x: 450, y: 340 },
+      { x: 250, y: 340 },
+      { x: 150, y: 340 },
     ],
   },
   {
@@ -646,6 +676,46 @@ export const GALLERY_PRESETS: PolygonPreset[] = [
       { x: 90, y: 360 },
       { x: 90, y: 220 },
       { x: 70, y: 220 },
+    ],
+  },
+  {
+    id: 'star-polygon',
+    name: 'Phòng Ngôi Sao 5 Cánh (10 đỉnh)',
+    description:
+      'Đa giác dạng sao đối xứng: ⌊10/3⌋ = 3 theo cận trên, nhưng 1 lính đặt ở tâm có thể bao quát toàn bộ!',
+    recommendedGuards: 1,
+    vertices: [
+      { x: 250, y: 70 },
+      { x: 282, y: 165 },
+      { x: 383, y: 167 },
+      { x: 295, y: 227 },
+      { x: 332, y: 323 },
+      { x: 250, y: 265 },
+      { x: 168, y: 323 },
+      { x: 205, y: 227 },
+      { x: 117, y: 167 },
+      { x: 218, y: 165 },
+    ],
+  },
+  {
+    id: 'fortress-maze',
+    name: 'Pháo Đài Đa Giác Phức Hợp (12 đỉnh)',
+    description:
+      'Nhiều góc khuất và tường nhô ra che chắn, thử thách khả năng tìm vị trí đặt lính gác tối thiểu.',
+    recommendedGuards: 3,
+    vertices: [
+      { x: 80, y: 80 },
+      { x: 240, y: 80 },
+      { x: 240, y: 160 },
+      { x: 340, y: 160 },
+      { x: 340, y: 80 },
+      { x: 440, y: 80 },
+      { x: 440, y: 350 },
+      { x: 340, y: 350 },
+      { x: 340, y: 250 },
+      { x: 180, y: 250 },
+      { x: 180, y: 350 },
+      { x: 80, y: 350 },
     ],
   },
 ];
