@@ -105,18 +105,33 @@ export function LineupStage({
         </div>
       </div>
 
-      {/* Main Visual Stage */}
-      <div className="relative mt-2 pb-2 pt-4">
-        {/* Visual Line of Sight Horizon */}
-        <div className="absolute bottom-10 left-0 right-0 h-1 bg-slate-200/60 rounded-full" />
+      {/* Main Visual Stage (strictly stationary & locked: no overflow scrolling) */}
+      <div className="relative mt-2 pb-2 pt-4 overflow-hidden select-none">
+        {/* Dynamic Line-of-Sight Conical Light Beam radiating to the right from the speaker's eyes */}
+        {spotlightPrisonerId !== null && spotlightPrisonerId > 1 && (
+          <div
+            className="absolute pointer-events-none z-0 h-24 -translate-y-1/2 overflow-hidden transition-all duration-300"
+            style={{
+              top: '80px',
+              left: `${((n - spotlightPrisonerId) / Math.max(1, n - 1)) * 90 + 5}%`,
+              right: '2%',
+              background:
+                'linear-gradient(90deg, rgba(59, 130, 246, 0.22) 0%, rgba(59, 130, 246, 0.08) 60%, transparent 100%)',
+              clipPath: 'polygon(0% 45%, 100% 0%, 100% 100%, 0% 55%)',
+            }}
+          />
+        )}
 
-        {/* Row of Prisoners: proportional distribution, zero scrollbars */}
+        {/* Visual Line of Sight Horizon */}
+        <div className="absolute bottom-9 left-0 right-0 h-1 bg-slate-200/60 rounded-full" />
+
+        {/* Row of Prisoners: strictly fixed layout, NO overflow-x-auto, no scrolling whatsoever */}
         {/* Line convention: Person N on the LEFT, facing RIGHT towards Person 1 */}
-        <div className="relative z-10 flex items-end justify-between w-full gap-1 sm:gap-2 pb-3 pt-12 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+        <div className="relative z-10 flex items-end justify-between w-full gap-1 sm:gap-2 pb-3 pt-12">
           {prisoners
             .slice()
             .reverse() // Display Person N first on the left down to Person 1 on the right
-            .map(prisoner => {
+            .map((prisoner, idx) => {
               const personId = prisoner.id;
               const isTurnActive = activePrisonerId === personId;
               const isTargetOfSpotlight =
@@ -135,35 +150,32 @@ export function LineupStage({
 
               const colorMeta: ColorMeta = getColorMeta(prisoner.actualColor, colorCount);
 
+              // Position speech bubble safely on screen edges
+              const bubbleAlignClass =
+                idx === 0
+                  ? 'left-0'
+                  : idx === prisoners.length - 1
+                    ? 'right-0'
+                    : 'left-1/2 -translate-x-1/2';
+
               return (
                 <div
                   key={prisoner.id}
-                  className="relative flex flex-1 min-w-[44px] max-w-[76px] flex-col items-center group"
+                  className="relative flex flex-1 min-w-0 max-w-[76px] flex-col items-center group"
                   onMouseEnter={() => setHoveredPrisonerId(personId)}
                   onMouseLeave={() => setHoveredPrisonerId(null)}
                 >
-                  {/* Dynamic Line-of-Sight Conical Light Beam radiating to the right edge */}
-                  {isSpotlightSource && (
-                    <div
-                      className="absolute top-14 left-1/2 right-0 h-28 pointer-events-none z-0 -translate-y-1/2 overflow-hidden"
-                      style={{
-                        background:
-                          'radial-gradient(ellipse at left, rgba(59, 130, 246, 0.22) 0%, rgba(59, 130, 246, 0.08) 60%, transparent 95%)',
-                        clipPath: 'polygon(0% 45%, 100% 0%, 100% 100%, 0% 55%)',
-                      }}
-                    />
-                  )}
-
                   {/* Speech Bubble / Spoken Callout */}
                   <div
                     className={cn(
                       'absolute -top-14 transition-all duration-300 z-30 whitespace-nowrap',
+                      bubbleAlignClass,
                       isTurnActive
                         ? 'opacity-100 scale-100 -translate-y-1'
                         : 'opacity-0 scale-90 pointer-events-none',
                     )}
                   >
-                    <div className="flex items-center gap-1.5 rounded-lg border border-slate-900 bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white shadow-xl">
+                    <div className="flex items-center gap-1.5 rounded-lg border border-slate-900 bg-slate-900 px-2.5 py-1 text-xs font-semibold text-white shadow-xl">
                       <Volume2 className="h-3.5 w-3.5 text-amber-400 animate-pulse" />
                       <span>
                         {t.calls_label}&quot;
@@ -189,7 +201,7 @@ export function LineupStage({
 
                   {/* Target of Field of View Highlight */}
                   {isTargetOfSpotlight && (
-                    <div className="absolute -inset-x-1 -inset-y-2 rounded-xl bg-blue-100/70 border border-blue-200/90 -z-10 animate-in fade-in-0 duration-200" />
+                    <div className="absolute -inset-x-0.5 -inset-y-2 rounded-xl bg-blue-100/70 border border-blue-200/90 -z-10 animate-in fade-in-0 duration-200" />
                   )}
 
                   {/* Character Avatar Wrapper */}
@@ -200,7 +212,7 @@ export function LineupStage({
                       }
                     }}
                     className={cn(
-                      'relative flex flex-col items-center cursor-pointer transition-all duration-200',
+                      'relative flex flex-col items-center cursor-pointer transition-all duration-200 w-full',
                       canEditHats && 'hover:scale-105 active:scale-95',
                       isTurnActive &&
                         'ring-2 ring-blue-500 ring-offset-2 rounded-xl p-0.5 bg-blue-50/50',
@@ -221,7 +233,7 @@ export function LineupStage({
                     <div className="relative z-10 -mb-1 flex items-center justify-center">
                       {isHatHidden ? (
                         // Hidden hat with mysterious question mark in roleplay mode
-                        <div className="flex h-8 w-10 sm:h-9 sm:w-12 items-center justify-center rounded-t-lg border-2 border-dashed border-amber-500 bg-amber-50 shadow-xs animate-pulse">
+                        <div className="flex h-7 w-9 sm:h-8 sm:w-11 items-center justify-center rounded-t-lg border-2 border-dashed border-amber-500 bg-amber-50 shadow-xs animate-pulse">
                           <HelpCircle className="h-4 w-4 text-amber-600" />
                         </div>
                       ) : (
@@ -235,7 +247,7 @@ export function LineupStage({
                         >
                           {/* Crown */}
                           <div
-                            className="relative flex h-7 w-9 sm:h-8 sm:w-11 flex-col items-center justify-center rounded-t-md border shadow-xs transition-colors duration-200"
+                            className="relative flex h-6 w-8 sm:h-8 sm:w-11 flex-col items-center justify-center rounded-t-md border shadow-xs transition-colors duration-200"
                             style={{
                               backgroundColor: colorMeta.bgHex,
                               borderColor: colorMeta.id === 0 ? '#cbd5e1' : '#0f172a',
@@ -258,7 +270,7 @@ export function LineupStage({
 
                           {/* Hat Brim */}
                           <div
-                            className="h-1.5 w-12 sm:w-14 rounded-full border shadow-2xs -mt-0.5"
+                            className="h-1.5 w-10 sm:w-13 rounded-full border shadow-2xs -mt-0.5"
                             style={{
                               backgroundColor: colorMeta.bgHex,
                               borderColor: colorMeta.id === 0 ? '#cbd5e1' : '#0f172a',
@@ -272,7 +284,7 @@ export function LineupStage({
                     <div className="relative flex flex-col items-center mt-0.5">
                       <svg
                         viewBox="0 0 48 54"
-                        className="w-10 h-12 sm:w-12 sm:h-14"
+                        className="w-8 h-10 sm:w-11 sm:h-13"
                         fill="none"
                         xmlns="http://www.w3.org/2000/svg"
                       >
@@ -339,17 +351,17 @@ export function LineupStage({
                   </div>
 
                   {/* Character Position Label & Role Tag */}
-                  <div className="mt-1.5 text-center select-none">
+                  <div className="mt-1 text-center select-none w-full">
                     <span className="font-mono text-xs font-semibold text-slate-800">
                       #{personId}
                     </span>
                     {personId === n && (
-                      <span className="block text-xs font-semibold text-amber-700 font-sans">
+                      <span className="block text-xs font-semibold text-amber-700 font-sans truncate">
                         {t.sacrifice_badge}
                       </span>
                     )}
                     {isUserRole && (
-                      <span className="block text-xs font-bold text-blue-600 font-sans">
+                      <span className="block text-xs font-bold text-blue-600 font-sans truncate">
                         {t.your_spot_badge}
                       </span>
                     )}
@@ -361,7 +373,7 @@ export function LineupStage({
       </div>
 
       {/* Stage Legend & Controls Note */}
-      <div className="mt-2 flex flex-wrap items-center justify-between gap-3 border-t border-slate-200/80 pt-2.5 text-xs text-slate-500">
+      <div className="mt-2 flex flex-wrap items-center justify-between gap-3 border-t border-slate-200/80 pt-2 text-xs text-slate-500">
         <div className="flex flex-wrap items-center gap-3">
           <span className="font-semibold text-slate-700">{t.legend_title}</span>
           {colorCount === 2 ? (
