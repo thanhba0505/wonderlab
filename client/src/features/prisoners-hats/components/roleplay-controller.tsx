@@ -13,9 +13,11 @@ import {
   AlertTriangle,
   Calculator,
   Heart,
+  Users,
 } from 'lucide-react';
 import { useTranslation } from '@/i18n';
 import { useHatSound } from '../utils/hat-audio';
+import { cn } from '@/lib/utils';
 
 interface RoleplayControllerProps {
   n: number;
@@ -28,6 +30,7 @@ interface RoleplayControllerProps {
   userGuessedColor: number | null;
   onUserSubmitGuess: (color: number) => void;
   onResetChallenge: () => void;
+  className?: string;
 }
 
 export function RoleplayController({
@@ -41,6 +44,7 @@ export function RoleplayController({
   userGuessedColor,
   onUserSubmitGuess,
   onResetChallenge,
+  className = '',
 }: RoleplayControllerProps) {
   const { dict } = useTranslation();
   const t = dict.sim_prisoners_hats;
@@ -88,125 +92,141 @@ export function RoleplayController({
   const seenSumTotal = seenHatsAhead.reduce((acc, h) => acc + h, 0);
 
   return (
-    <div className="rounded-xl border border-slate-200/80 bg-slate-50/60 p-4 sm:p-5 space-y-4">
-      {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-3">
+    <div
+      className={cn(
+        'rounded-xl border border-indigo-200/90 bg-indigo-50/30 p-4 sm:p-5 space-y-4 shadow-2xs',
+        className,
+      )}
+    >
+      {/* 1. Header */}
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-indigo-100 pb-3">
         <div className="flex items-center gap-2">
-          <div className="p-1.5 rounded-lg bg-indigo-50 text-indigo-600">
+          <div className="p-1.5 rounded-lg bg-indigo-100/80 text-indigo-700">
             <UserCheck className="h-4 w-4" />
           </div>
           <div>
-            <h3 className="font-heading text-sm font-bold text-slate-900">
+            <h3 className="font-heading text-xs font-bold uppercase tracking-wider text-slate-900">
               {t.roleplay_panel_title}
             </h3>
             <p className="text-xs text-slate-500 font-sans">{t.roleplay_panel_desc}</p>
           </div>
         </div>
 
-        {/* Position Selector */}
-        <div className="flex items-center gap-1.5 text-xs font-sans">
-          <span className="text-slate-500 font-medium">{t.select_position}</span>
-          <div className="flex items-center gap-1 overflow-x-auto max-w-[200px] sm:max-w-none">
-            {Array.from({ length: n }, (_, i) => i + 1).map(pos => (
-              <button
-                key={pos}
-                type="button"
-                onClick={() => {
-                  onSelectPosition(pos);
-                  setShowHint(false);
-                }}
-                className={`h-7 w-7 rounded-md font-mono text-xs font-semibold transition-all ${
-                  rolePlayPosition === pos
-                    ? 'bg-blue-600 text-white shadow-xs'
-                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                }`}
-              >
-                #{pos}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Roleplay Situation Card */}
-      <div className="rounded-lg border border-slate-200 bg-slate-50/80 p-3.5 space-y-3">
-        <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
-          <div className="flex items-center gap-2">
-            <span className="font-semibold text-slate-800">
-              {t.your_position_label}
-              <span className="text-blue-700 font-bold">
-                {t.person_tag.replace('{id}', String(rolePlayPosition))}
-              </span>
+        <div>
+          {isMyTurn && !hasUserGuessed ? (
+            <span className="flex items-center gap-1.5 text-xs font-bold text-rose-700 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded-full animate-pulse">
+              <Heart className="h-3.5 w-3.5 text-rose-500 fill-rose-500" />
+              <span>Đến lượt bạn</span>
             </span>
-            {rolePlayPosition === n && (
-              <span className="bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-medium text-xs">
-                {t.sacrifice_transmitting_badge}
-              </span>
-            )}
-          </div>
-
-          <div className="flex items-center gap-2 text-slate-500">
-            <Eye className="h-3.5 w-3.5 text-slate-400" />
-            <span>
-              {t.visible_ahead_label}
-              <strong>{t.people_count.replace('{count}', String(seenHatsAhead.length))}</strong>
-            </span>
-          </div>
-        </div>
-
-        {/* Visible hats summary */}
-        <div className="text-xs text-slate-600 font-sans flex flex-wrap items-center gap-2 bg-white p-2.5 rounded border border-slate-200">
-          <span className="text-slate-500">{t.hats_visible_in_front}</span>
-          {seenHatsAhead.length === 0 ? (
-            <span className="italic text-slate-400">{t.nobody_ahead}</span>
           ) : (
-            <div className="flex items-center gap-1.5 flex-wrap">
-              {seenHatsAhead.map((color, idx) => {
-                const meta = palette.find(c => c.id === color) ?? palette[0]!;
-                return (
-                  <span
-                    key={idx}
-                    className="inline-flex items-center justify-center h-6 w-7 rounded border text-xs font-mono font-bold shadow-2xs"
-                    style={{
-                      backgroundColor: meta.bgHex,
-                      borderColor: meta.id === 0 ? '#cbd5e1' : '#0f172a',
-                      color: meta.textHex,
-                    }}
-                    title={t.person_tooltip
-                      .replace('{id}', String(idx + 1))
-                      .replace('{label}', meta.label)}
-                  >
-                    {meta.id}
-                  </span>
-                );
-              })}
-              {colorCount === 2 && (
-                <span className="ml-2 font-mono text-slate-700">
-                  (
-                  {t.sum_black_label
-                    .replace('{sum}', String(seenBlackCount))
-                    .replace('{mod}', String(seenBlackCount % 2))}
-                  )
-                </span>
-              )}
-            </div>
+            <span className="text-xs font-mono text-slate-500 bg-white px-2 py-0.5 rounded border border-slate-200">
+              {hasUserGuessed ? 'Đã dự đoán' : 'Đang chờ lượt'}
+            </span>
           )}
         </div>
       </div>
 
-      {/* Decision Section */}
-      <div className="space-y-3 pt-1">
+      {/* 2. Position Selector */}
+      <div className="space-y-1.5">
+        <div className="flex items-center justify-between text-xs font-sans">
+          <span className="text-slate-700 font-semibold flex items-center gap-1.5">
+            <Users className="h-3.5 w-3.5 text-indigo-600" />
+            <span>{t.select_position}</span>
+          </span>
+          <span className="font-mono text-xs font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200/60">
+            Người #{rolePlayPosition} {rolePlayPosition === n ? '(Hy sinh)' : ''}
+          </span>
+        </div>
+
+        <div className="flex items-center gap-1.5 flex-wrap">
+          {Array.from({ length: n }, (_, i) => i + 1).map(pos => (
+            <button
+              key={pos}
+              type="button"
+              onClick={() => {
+                onSelectPosition(pos);
+                setShowHint(false);
+              }}
+              className={cn(
+                'h-8 w-8 sm:h-8 sm:w-9 rounded-lg font-mono text-xs font-bold transition-all border text-center flex items-center justify-center',
+                rolePlayPosition === pos
+                  ? 'bg-blue-600 text-white border-blue-600 shadow-xs scale-105'
+                  : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100',
+              )}
+            >
+              #{pos}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* 3. Observation Field (Hats in front) */}
+      <div className="rounded-lg border border-slate-200/90 bg-white p-3 space-y-2">
+        <div className="flex items-center justify-between text-xs text-slate-600">
+          <span className="font-medium flex items-center gap-1.5">
+            <Eye className="h-3.5 w-3.5 text-slate-500" />
+            <span>{t.hats_visible_in_front}</span>
+          </span>
+          <span className="font-mono text-xs font-semibold text-slate-700">
+            {seenHatsAhead.length} {t.people_unit || 'người'}
+          </span>
+        </div>
+
+        {seenHatsAhead.length === 0 ? (
+          <p className="text-xs italic text-slate-400 py-1">{t.nobody_ahead}</p>
+        ) : (
+          <div className="flex items-center gap-1.5 flex-wrap pt-0.5">
+            {seenHatsAhead.map((color, idx) => {
+              const meta = palette.find(c => c.id === color) ?? palette[0]!;
+              return (
+                <span
+                  key={idx}
+                  className="inline-flex items-center justify-center h-6 min-w-7 px-1.5 rounded-md border text-xs font-mono font-bold shadow-2xs"
+                  style={{
+                    backgroundColor: meta.bgHex,
+                    borderColor: meta.id === 0 ? '#cbd5e1' : '#0f172a',
+                    color: meta.textHex,
+                  }}
+                  title={t.person_tooltip
+                    .replace('{id}', String(idx + 1))
+                    .replace('{label}', meta.label)}
+                >
+                  #{idx + 1}:{meta.id}
+                </span>
+              );
+            })}
+          </div>
+        )}
+
+        {seenHatsAhead.length > 0 && (
+          <div className="pt-1.5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-600 font-mono">
+            <span>
+              {colorCount === 2
+                ? `Σ Mũ đen = ${seenBlackCount}`
+                : `Tổng mod 3 = ${seenSumTotal % 3}`}
+            </span>
+            <span className="font-sans text-slate-500">
+              {colorCount === 2
+                ? `(mod 2 = ${seenBlackCount % 2} → ${seenBlackCount % 2 === 0 ? 'Chẵn' : 'Lẻ'})`
+                : `(mod 3 = ${seenSumTotal % 3})`}
+            </span>
+          </div>
+        )}
+      </div>
+
+      {/* 4. Decision & Guessing Section */}
+      <div className="space-y-2.5 pt-1">
         {!hasUserGuessed ? (
-          <div>
-            <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+          <div className="space-y-2.5">
+            <div className="flex items-center justify-between gap-2">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-800 font-heading flex items-center gap-1.5">
                 {isMyTurn ? (
                   <>
                     <Heart className="h-3.5 w-3.5 text-rose-500 animate-pulse" />
-                    <span>{t.your_turn_prompt}</span>
+                    <span className="text-rose-700">Đến lượt bạn chọn màu mũ:</span>
                   </>
                 ) : (
-                  <span>{t.waiting_turn_prompt}</span>
+                  <span className="text-slate-600">{t.waiting_turn_prompt}</span>
                 )}
               </span>
 
@@ -216,10 +236,10 @@ export function RoleplayController({
                   variant="outline"
                   size="sm"
                   onClick={() => setShowScratchpad(prev => !prev)}
-                  className="text-xs text-indigo-600 hover:text-indigo-700 h-7 px-2 border-indigo-200"
+                  className="text-xs text-indigo-600 hover:text-indigo-700 h-7 px-2 border-indigo-200 bg-white"
                 >
                   <Calculator className="mr-1 h-3.5 w-3.5 text-indigo-500" />
-                  {showScratchpad ? 'Đóng nháp' : t.scratchpad_toggle_btn}
+                  {showScratchpad ? 'Đóng nháp' : 'Nháp tính'}
                 </Button>
 
                 {/* Hint Button */}
@@ -230,14 +250,14 @@ export function RoleplayController({
                   className="text-xs text-blue-600 hover:text-blue-700 h-7 px-2"
                 >
                   <Lightbulb className="mr-1 h-3.5 w-3.5 text-amber-500" />
-                  {showHint ? t.hide_hint : t.open_hint}
+                  {showHint ? t.hide_hint : 'Gợi ý'}
                 </Button>
               </div>
             </div>
 
             {/* Interactive Scratchpad Calculator */}
             {showScratchpad && (
-              <div className="mb-3 rounded-lg border border-indigo-200 bg-indigo-50/60 p-3 text-xs text-indigo-950 space-y-2 animate-in fade-in-0 duration-200">
+              <div className="rounded-lg border border-indigo-200 bg-indigo-50/70 p-3 text-xs text-indigo-950 space-y-2 animate-in fade-in-0 duration-200">
                 <div className="font-semibold flex items-center gap-1 text-indigo-900">
                   <Calculator className="h-3.5 w-3.5 text-indigo-600" />
                   <span>{t.scratchpad_title}</span>
@@ -276,7 +296,7 @@ export function RoleplayController({
 
             {/* Hint Box */}
             {showHint && (
-              <div className="mb-3 rounded-lg border border-amber-200 bg-amber-50/70 p-3 text-xs text-amber-900 space-y-1.5 animate-in fade-in-0 duration-200 font-sans">
+              <div className="rounded-lg border border-amber-200 bg-amber-50/70 p-3 text-xs text-amber-900 space-y-1.5 animate-in fade-in-0 duration-200 font-sans">
                 <div className="font-semibold flex items-center gap-1">
                   <Sparkles className="h-3.5 w-3.5 text-amber-600" />
                   <span>{t.deduction_tip_title}</span>
@@ -290,22 +310,20 @@ export function RoleplayController({
             )}
 
             {/* Guessing Buttons */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+            <div className={cn('grid gap-2', colorCount === 2 ? 'grid-cols-2' : 'grid-cols-3')}>
               {palette.map(color => (
                 <button
                   key={color.id}
                   type="button"
                   onClick={() => handleGuess(color.id)}
-                  className="flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white py-3 px-4 font-sans text-xs sm:text-sm font-bold text-slate-800 shadow-xs transition-all hover:border-blue-500 hover:bg-blue-50/40 active:scale-[0.98]"
+                  className="flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white py-2.5 px-3 font-sans text-xs font-bold text-slate-800 shadow-2xs transition-all hover:border-blue-500 hover:bg-blue-50/50 hover:shadow-xs active:scale-[0.98]"
                 >
                   <span
-                    className="h-4 w-4 rounded-full border border-slate-400 shadow-2xs"
+                    className="h-3.5 w-3.5 rounded-full border border-slate-400 shrink-0"
                     style={{ backgroundColor: color.bgHex }}
                   />
-                  <span>
-                    {t.guess_color_btn
-                      .replace('{color}', color.label)
-                      .replace('{id}', String(color.id))}
+                  <span className="truncate">
+                    {color.label} ({color.id})
                   </span>
                 </button>
               ))}
@@ -315,9 +333,9 @@ export function RoleplayController({
           /* Feedback Result After Guessing */
           <div className="space-y-3 animate-in zoom-in-95 duration-200">
             {evalResult?.isCorrect ? (
-              <div className="rounded-lg border border-emerald-300 bg-emerald-50/70 p-4 text-emerald-900 space-y-2">
-                <div className="flex items-center gap-2 font-bold text-sm">
-                  <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+              <div className="rounded-lg border border-emerald-300 bg-emerald-50/80 p-3.5 text-emerald-900 space-y-1.5">
+                <div className="flex items-center gap-2 font-bold text-xs sm:text-sm">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
                   <span>{t.congrats_correct}</span>
                 </div>
                 <p className="text-xs text-emerald-800 font-sans leading-relaxed">
@@ -325,9 +343,9 @@ export function RoleplayController({
                 </p>
               </div>
             ) : (
-              <div className="rounded-lg border border-rose-300 bg-rose-50/70 p-4 text-rose-900 space-y-2">
-                <div className="flex items-center gap-2 font-bold text-sm">
-                  <AlertTriangle className="h-5 w-5 text-rose-600" />
+              <div className="rounded-lg border border-rose-300 bg-rose-50/80 p-3.5 text-rose-900 space-y-1.5">
+                <div className="flex items-center gap-2 font-bold text-xs sm:text-sm">
+                  <AlertTriangle className="h-4 w-4 text-rose-600 shrink-0" />
                   <span>{t.oops_incorrect}</span>
                 </div>
                 <p className="text-xs text-rose-800 font-sans leading-relaxed">
@@ -342,7 +360,7 @@ export function RoleplayController({
                 variant="outline"
                 size="sm"
                 onClick={onResetChallenge}
-                className="text-xs border-slate-300 hover:bg-slate-100"
+                className="text-xs border-slate-300 hover:bg-slate-100 h-8"
               >
                 <RotateCcw className="mr-1.5 h-3.5 w-3.5 text-slate-500" />
                 {t.try_again_btn}
