@@ -302,6 +302,7 @@ export function ArtGallerySimulation() {
                 onToggleSound={() => setIsSoundEnabled(prev => !prev)}
                 fiskProof={fiskProof}
                 mode={mode}
+                onChangeMode={setMode}
               />
 
               <FiskStepper

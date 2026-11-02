@@ -16,11 +16,12 @@ import {
   VolumeX,
   Trophy,
   Award,
+  Hand,
 } from 'lucide-react';
 import { MathFraction } from '@/features/simulations/components';
 import { useTranslation } from '@/i18n';
 
-export type GalleryInteractionMode = 'free' | 'vertex' | 'drag';
+export type GalleryInteractionMode = 'pan' | 'vertex' | 'free' | 'drag';
 
 export interface GalleryControlsProps {
   currentPresetId: string | null;
@@ -196,19 +197,34 @@ export const GalleryControls: React.FC<GalleryControlsProps> = ({
           {dict.sim_art_gallery.placement_mode_title}
         </label>
 
-        {/* 3-Way Mode Segmented Switcher */}
-        <div className="grid grid-cols-3 gap-1.5 p-1 rounded-lg bg-slate-100">
+        {/* 4-Tool Segmented Action Switcher */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 p-1 rounded-lg bg-slate-100">
+          <button
+            type="button"
+            onClick={() => onChangeMode('pan')}
+            className={`flex items-center justify-center gap-1.5 py-2 px-1 rounded-md text-xs font-medium transition-all ${
+              mode === 'pan'
+                ? 'bg-white text-blue-900 shadow-xs font-semibold ring-1 ring-slate-200'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+            }`}
+            title={dict.sim_art_gallery.tool_pan_desc}
+          >
+            <Hand className="h-3.5 w-3.5 text-blue-600 shrink-0" />
+            <span className="truncate">{dict.sim_art_gallery.tool_pan}</span>
+          </button>
+
           <button
             type="button"
             onClick={() => onChangeMode('vertex')}
             className={`flex items-center justify-center gap-1.5 py-2 px-1 rounded-md text-xs font-medium transition-all ${
               mode === 'vertex'
-                ? 'bg-white text-blue-900 shadow-xs font-semibold'
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'bg-white text-blue-900 shadow-xs font-semibold ring-1 ring-slate-200'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
             }`}
+            title={dict.sim_art_gallery.tool_vertex_desc}
           >
             <Shield className="h-3.5 w-3.5 text-blue-600 shrink-0" />
-            <span className="truncate">{dict.sim_art_gallery.mode_vertices_only}</span>
+            <span className="truncate">{dict.sim_art_gallery.tool_vertex}</span>
           </button>
 
           <button
@@ -216,12 +232,13 @@ export const GalleryControls: React.FC<GalleryControlsProps> = ({
             onClick={() => onChangeMode('free')}
             className={`flex items-center justify-center gap-1.5 py-2 px-1 rounded-md text-xs font-medium transition-all ${
               mode === 'free'
-                ? 'bg-white text-blue-900 shadow-xs font-semibold'
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'bg-white text-blue-900 shadow-xs font-semibold ring-1 ring-slate-200'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
             }`}
+            title={dict.sim_art_gallery.tool_free_desc}
           >
             <Crosshair className="h-3.5 w-3.5 text-blue-600 shrink-0" />
-            <span className="truncate">{dict.sim_art_gallery.mode_anywhere}</span>
+            <span className="truncate">{dict.sim_art_gallery.tool_free}</span>
           </button>
 
           <button
@@ -229,21 +246,32 @@ export const GalleryControls: React.FC<GalleryControlsProps> = ({
             onClick={() => onChangeMode('drag')}
             className={`flex items-center justify-center gap-1.5 py-2 px-1 rounded-md text-xs font-medium transition-all ${
               mode === 'drag'
-                ? 'bg-white text-blue-900 shadow-xs font-semibold'
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'bg-white text-blue-900 shadow-xs font-semibold ring-1 ring-slate-200'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
             }`}
+            title={dict.sim_art_gallery.tool_drag_desc}
           >
             <Move className="h-3.5 w-3.5 text-amber-600 shrink-0" />
-            <span className="truncate">{dict.sim_art_gallery.mode_drag_vertices}</span>
+            <span className="truncate">{dict.sim_art_gallery.tool_drag}</span>
           </button>
         </div>
 
-        {/* Dynamic Mode Helper Hint */}
-        {mode === 'drag' && (
-          <div className="text-xs text-amber-800 bg-amber-50/90 border border-amber-200/80 rounded-lg p-2.5 font-sans leading-relaxed">
-            {dict.sim_art_gallery.mode_drag_hint}
-          </div>
-        )}
+        {/* Dynamic Tool Helper Hint */}
+        <div className="text-xs text-slate-600 bg-slate-50/80 border border-slate-200/80 rounded-lg p-2.5 font-sans leading-relaxed flex items-center gap-2">
+          {mode === 'pan' && <Hand className="h-3.5 w-3.5 text-blue-600 shrink-0" />}
+          {mode === 'vertex' && <Shield className="h-3.5 w-3.5 text-blue-600 shrink-0" />}
+          {mode === 'free' && <Crosshair className="h-3.5 w-3.5 text-blue-600 shrink-0" />}
+          {mode === 'drag' && <Move className="h-3.5 w-3.5 text-amber-600 shrink-0" />}
+          <span>
+            {mode === 'pan'
+              ? dict.sim_art_gallery.tool_pan_desc
+              : mode === 'vertex'
+                ? dict.sim_art_gallery.tool_vertex_desc
+                : mode === 'free'
+                  ? dict.sim_art_gallery.tool_free_desc
+                  : dict.sim_art_gallery.tool_drag_desc}
+          </span>
+        </div>
 
         {/* Toggles: Lớp phủ điểm mù & Âm thanh */}
         <div className="grid grid-cols-2 gap-2 pt-1">

@@ -22,6 +22,9 @@ import {
   ZoomOut,
   RotateCcw,
   Hand,
+  Shield,
+  Crosshair,
+  Move,
 } from 'lucide-react';
 import { MathFraction } from '@/features/simulations/components';
 import { useTranslation } from '@/i18n';
@@ -42,6 +45,7 @@ export interface GalleryCanvasProps {
   onToggleSound: () => void;
   fiskProof: FiskProofResult;
   mode: GalleryInteractionMode;
+  onChangeMode: (mode: GalleryInteractionMode) => void;
 }
 
 export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
@@ -58,6 +62,7 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
   onToggleSound,
   fiskProof,
   mode,
+  onChangeMode,
 }) => {
   const { dict } = useTranslation();
   const sound = useGallerySound(isSoundEnabled);
@@ -104,7 +109,7 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
     isMoving: boolean;
   } | null>(null);
 
-  // Dynamic ViewBox calculations
+  // Dynamic ViewBox calculations centered on (250, 210)
   const baseWidth = 600;
   const baseHeight = 500;
   const viewBoxWidth = baseWidth / zoom;
@@ -170,7 +175,14 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
 
   // Mousedown on a vertex
   const handleVertexMouseDown = (e: React.MouseEvent, vIdx: number) => {
+    // In Pan mode, do not intercept click so canvas can pan without conflict
+    if (mode === 'pan') {
+      return;
+    }
+
     e.stopPropagation();
+
+    // In Reshape mode, start dragging this vertex
     if (mode === 'drag') {
       setDraggingVertexIdx(vIdx);
       sound.playVertexDrag();
@@ -180,7 +192,7 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
     const v = polygon[vIdx];
     if (!v) return;
 
-    // Check if a guard already exists at or very near this vertex
+    // In Vertex or Free mode, clicking a vertex toggles a guard
     const existingGuardIdx = guards.findIndex(g => Math.hypot(g.x - v.x, g.y - v.y) < 14);
     if (existingGuardIdx !== -1) {
       onRemoveGuard(existingGuardIdx);
@@ -193,6 +205,9 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
 
   // Mousedown on an existing guard
   const handleGuardMouseDown = (e: React.MouseEvent, idx: number) => {
+    if (mode === 'pan') {
+      return;
+    }
     e.stopPropagation();
     onRemoveGuard(idx);
     sound.playRemoveGuard();
@@ -200,7 +215,7 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
 
   // Mouse move on SVG canvas for dragging vertex or panning map
   const handleSvgMouseMove = (e: React.MouseEvent<SVGSVGElement>) => {
-    // 1. Vertex Dragging
+    // 1. Vertex Dragging (Only active in 'drag' mode)
     if (draggingVertexIdx !== null && mode === 'drag') {
       const point = getSvgCoordinates(e.clientX, e.clientY);
       if (!point) return;
@@ -217,7 +232,7 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
       return;
     }
 
-    // 2. Map Panning
+    // 2. Map Panning (Active in 'pan' mode, or when dragging background in any mode)
     if (panStartRef.current) {
       const deltaX = e.clientX - panStartRef.current.clientX;
       const deltaY = e.clientY - panStartRef.current.clientY;
@@ -250,8 +265,9 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
       panStartRef.current = null;
       setIsPanning(false);
 
-      // If mouse didn't drag/pan, it was a deliberate click on the floor
+      // If mouse didn't drag/pan, it was a deliberate click
       if (!wasMoving) {
+        // Only in 'free' mode can clicking empty floor place a guard
         if (mode === 'free') {
           const clickPoint = getSvgCoordinates(e.clientX, e.clientY);
           if (clickPoint && isPointInsidePolygon(clickPoint, polygon)) {
@@ -278,6 +294,22 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
     return () => window.removeEventListener('mouseup', handleGlobalMouseUp);
   }, [draggingVertexIdx]);
 
+  // Context-aware cursor computation
+  const getCanvasCursorClass = () => {
+    if (isPanning || draggingVertexIdx !== null) return 'cursor-grabbing';
+    if (mode === 'pan') return 'cursor-grab';
+    if (mode === 'drag') return 'cursor-grab';
+    return 'cursor-default';
+  };
+
+  const getFloorCursorClass = () => {
+    if (isPanning) return 'cursor-grabbing';
+    if (mode === 'pan') return 'cursor-grab';
+    if (mode === 'free') return 'cursor-crosshair';
+    if (mode === 'drag') return 'cursor-grab';
+    return 'cursor-default';
+  };
+
   const polygonSvgPoints = polygon.map(p => `${p.x},${p.y}`).join(' ');
 
   return (
@@ -292,12 +324,20 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
           />
           <span className="font-semibold text-slate-800">{dict.sim_art_gallery.canvas_title}</span>
           <span className="text-slate-400">|</span>
-          <span className="text-slate-600 font-medium">
-            {mode === 'vertex'
-              ? dict.sim_art_gallery.mode_vertex_placement
-              : mode === 'free'
-                ? dict.sim_art_gallery.mode_free_placement
-                : dict.sim_art_gallery.mode_drag_vertices}
+          <span className="text-slate-700 font-medium inline-flex items-center gap-1.5">
+            {mode === 'pan' && <Hand className="h-3.5 w-3.5 text-blue-600" />}
+            {mode === 'vertex' && <Shield className="h-3.5 w-3.5 text-blue-600" />}
+            {mode === 'free' && <Crosshair className="h-3.5 w-3.5 text-blue-600" />}
+            {mode === 'drag' && <Move className="h-3.5 w-3.5 text-amber-600" />}
+            <span>
+              {mode === 'pan'
+                ? dict.sim_art_gallery.tool_pan
+                : mode === 'vertex'
+                  ? dict.sim_art_gallery.tool_vertex
+                  : mode === 'free'
+                    ? dict.sim_art_gallery.tool_free
+                    : dict.sim_art_gallery.tool_drag}
+            </span>
           </span>
         </div>
 
@@ -357,26 +397,121 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
         </div>
       </div>
 
-      {/* Main Spacious Interactive SVG Canvas with Pan & Zoom */}
+      {/* Main Spacious Interactive SVG Canvas with Action Toolbar & Pan/Zoom */}
       <div className="relative w-full h-[520px] sm:h-[580px] lg:h-[620px] select-none bg-slate-50/40 overflow-hidden">
+        {/* Floating Action Toolbar Dock on the Canvas */}
+        <div className="absolute top-3 left-3 flex items-center gap-1 p-1 rounded-xl bg-white/95 backdrop-blur-xs border border-slate-300/85 shadow-sm z-10">
+          <button
+            type="button"
+            onClick={() => onChangeMode('pan')}
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all active:scale-95 ${
+              mode === 'pan'
+                ? 'bg-blue-600 text-white shadow-xs font-semibold'
+                : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900'
+            }`}
+            title={dict.sim_art_gallery.tool_pan_desc}
+          >
+            <Hand className="h-4 w-4" />
+            <span className="hidden sm:inline font-sans">{dict.sim_art_gallery.tool_pan}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => onChangeMode('vertex')}
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all active:scale-95 ${
+              mode === 'vertex'
+                ? 'bg-blue-600 text-white shadow-xs font-semibold'
+                : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900'
+            }`}
+            title={dict.sim_art_gallery.tool_vertex_desc}
+          >
+            <Shield className="h-4 w-4" />
+            <span className="hidden sm:inline font-sans">{dict.sim_art_gallery.tool_vertex}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => onChangeMode('free')}
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all active:scale-95 ${
+              mode === 'free'
+                ? 'bg-blue-600 text-white shadow-xs font-semibold'
+                : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900'
+            }`}
+            title={dict.sim_art_gallery.tool_free_desc}
+          >
+            <Crosshair className="h-4 w-4" />
+            <span className="hidden sm:inline font-sans">{dict.sim_art_gallery.tool_free}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => onChangeMode('drag')}
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all active:scale-95 ${
+              mode === 'drag'
+                ? 'bg-amber-600 text-white shadow-xs font-semibold'
+                : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900'
+            }`}
+            title={dict.sim_art_gallery.tool_drag_desc}
+          >
+            <Move className="h-4 w-4" />
+            <span className="hidden sm:inline font-sans">{dict.sim_art_gallery.tool_drag}</span>
+          </button>
+        </div>
+
+        {/* Floating Zoom & Pan Controls in Top-Right */}
+        <div className="absolute top-3 right-3 flex items-center gap-1.5 p-1 rounded-lg bg-white/95 backdrop-blur-xs border border-slate-300/80 shadow-xs text-xs text-slate-700 z-10">
+          <button
+            type="button"
+            onClick={handleZoomIn}
+            className="p-1.5 rounded-md hover:bg-slate-100 text-slate-700 hover:text-slate-900 transition-colors active:scale-95"
+            title={dict.sim_art_gallery.zoom_in}
+          >
+            <ZoomIn className="h-4 w-4" />
+          </button>
+
+          <button
+            type="button"
+            onClick={handleResetView}
+            className="px-2 py-1 rounded-md hover:bg-slate-100 font-mono text-xs font-semibold text-slate-700 hover:text-slate-900 transition-colors"
+            title={dict.sim_art_gallery.reset_view}
+          >
+            {Math.round(zoom * 100)}%
+          </button>
+
+          <button
+            type="button"
+            onClick={handleZoomOut}
+            className="p-1.5 rounded-md hover:bg-slate-100 text-slate-700 hover:text-slate-900 transition-colors active:scale-95"
+            title={dict.sim_art_gallery.zoom_out}
+          >
+            <ZoomOut className="h-4 w-4" />
+          </button>
+
+          <div className="h-4 w-px bg-slate-200" />
+
+          <button
+            type="button"
+            onClick={handleResetView}
+            className="p-1.5 rounded-md hover:bg-slate-100 text-slate-600 hover:text-slate-900 transition-colors active:scale-95"
+            title={dict.sim_art_gallery.reset_view}
+          >
+            <RotateCcw className="h-3.5 w-3.5" />
+          </button>
+        </div>
+
+        {/* Interactive SVG Canvas */}
         <svg
           ref={svgRef}
           viewBox={`${viewBoxX} ${viewBoxY} ${viewBoxWidth} ${viewBoxHeight}`}
           preserveAspectRatio="xMidYMid meet"
-          className={`w-full h-full ${
-            isPanning || draggingVertexIdx !== null
-              ? 'cursor-grabbing'
-              : mode === 'drag'
-                ? 'cursor-grab'
-                : 'cursor-grab'
-          }`}
+          className={`w-full h-full ${getCanvasCursorClass()}`}
           onMouseDown={handleSvgMouseDown}
           onMouseMove={handleSvgMouseMove}
           onMouseUp={handleSvgMouseUp}
           onWheel={handleWheel}
         >
           <defs>
-            {/* Subtle Laboratory Coordinate Grid (Infinite repeat) */}
+            {/* Laboratory Coordinate Grid (Infinite repeat) */}
             <pattern id="lab-grid-pattern" width="25" height="25" patternUnits="userSpaceOnUse">
               <path
                 d="M 25 0 L 0 0 0 25"
@@ -425,9 +560,7 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
           {/* Layer A: Base unlit floor */}
           <polygon
             points={polygonSvgPoints}
-            className={`fill-slate-200/65 stroke-none transition-all duration-200 ${
-              mode === 'free' ? 'cursor-crosshair' : mode === 'drag' ? 'cursor-grab' : ''
-            }`}
+            className={`fill-slate-200/65 stroke-none transition-all duration-200 ${getFloorCursorClass()}`}
           />
 
           {/* Layer B: Blind Spots Hatched Overlay (if enabled) */}
@@ -513,12 +646,18 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
             return (
               <g
                 key={`vertex-${idx}`}
-                className={`${mode === 'drag' ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'} group`}
+                className={
+                  mode === 'pan'
+                    ? 'cursor-grab'
+                    : mode === 'drag'
+                      ? 'cursor-grab active:cursor-grabbing'
+                      : 'cursor-pointer'
+                }
                 onMouseDown={e => handleVertexMouseDown(e, idx)}
                 onMouseEnter={() => setHoveredVertexIdx(idx)}
                 onMouseLeave={() => setHoveredVertexIdx(null)}
               >
-                {/* Expanded Invisible Hitbox for effortless grabbing */}
+                {/* Expanded Invisible Hitbox for effortless interaction */}
                 <circle cx={v.x} cy={v.y} r="16" fill="transparent" />
 
                 {/* Optimal Guard Pulse Halo */}
@@ -575,7 +714,7 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
           {guards.map((g, idx) => (
             <g
               key={`guard-${idx}`}
-              className="cursor-pointer group"
+              className={mode === 'pan' ? 'cursor-grab' : 'cursor-pointer group'}
               onMouseDown={e => handleGuardMouseDown(e, idx)}
             >
               {/* Expanded Hitbox */}
@@ -619,56 +758,26 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
           ))}
         </svg>
 
-        {/* Floating Canvas Navigation Dock (Zoom & Pan Controls) */}
-        <div className="absolute top-3 right-3 flex items-center gap-1.5 p-1 rounded-lg bg-white/95 backdrop-blur-xs border border-slate-300/80 shadow-xs text-xs text-slate-700 z-10">
-          <button
-            type="button"
-            onClick={handleZoomIn}
-            className="p-1.5 rounded-md hover:bg-slate-100 text-slate-700 hover:text-slate-900 transition-colors active:scale-95"
-            title={dict.sim_art_gallery.zoom_in}
-          >
-            <ZoomIn className="h-4 w-4" />
-          </button>
-
-          <button
-            type="button"
-            onClick={handleResetView}
-            className="px-2 py-1 rounded-md hover:bg-slate-100 font-mono text-xs font-semibold text-slate-700 hover:text-slate-900 transition-colors"
-            title={dict.sim_art_gallery.reset_view}
-          >
-            {Math.round(zoom * 100)}%
-          </button>
-
-          <button
-            type="button"
-            onClick={handleZoomOut}
-            className="p-1.5 rounded-md hover:bg-slate-100 text-slate-700 hover:text-slate-900 transition-colors active:scale-95"
-            title={dict.sim_art_gallery.zoom_out}
-          >
-            <ZoomOut className="h-4 w-4" />
-          </button>
-
-          <div className="h-4 w-px bg-slate-200" />
-
-          <button
-            type="button"
-            onClick={handleResetView}
-            className="p-1.5 rounded-md hover:bg-slate-100 text-slate-600 hover:text-slate-900 transition-colors active:scale-95"
-            title={dict.sim_art_gallery.reset_view}
-          >
-            <RotateCcw className="h-3.5 w-3.5" />
-          </button>
-        </div>
-
         {/* Bottom Floating Interaction Hint Pill */}
-        <div className="absolute bottom-3 left-3 hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/90 backdrop-blur-xs border border-slate-300/80 shadow-xs text-xs text-slate-600 pointer-events-none z-10">
-          <Hand className="h-3.5 w-3.5 text-blue-600 shrink-0" />
-          <span>{dict.sim_art_gallery.pan_hint}</span>
+        <div className="absolute bottom-3 left-3 hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/95 backdrop-blur-xs border border-slate-300/80 shadow-xs text-xs text-slate-700 pointer-events-none z-10">
+          {mode === 'pan' && <Hand className="h-3.5 w-3.5 text-blue-600 shrink-0" />}
+          {mode === 'vertex' && <Shield className="h-3.5 w-3.5 text-blue-600 shrink-0" />}
+          {mode === 'free' && <Crosshair className="h-3.5 w-3.5 text-blue-600 shrink-0" />}
+          {mode === 'drag' && <Move className="h-3.5 w-3.5 text-amber-600 shrink-0" />}
+          <span className="font-medium font-sans">
+            {mode === 'pan'
+              ? dict.sim_art_gallery.tool_pan_desc
+              : mode === 'vertex'
+                ? dict.sim_art_gallery.tool_vertex_desc
+                : mode === 'free'
+                  ? dict.sim_art_gallery.tool_free_desc
+                  : dict.sim_art_gallery.tool_drag_desc}
+          </span>
         </div>
 
         {/* Self-Intersection Alert Overlay */}
         {isSelfIntersecting && (
-          <div className="absolute top-3 inset-x-3 flex justify-center pointer-events-none z-10">
+          <div className="absolute top-14 inset-x-3 flex justify-center pointer-events-none z-10">
             <div className="inline-flex items-center gap-2 rounded-lg bg-rose-50 px-3.5 py-1.5 border border-rose-300 shadow-xs text-xs text-rose-800 font-semibold animate-pulse">
               <AlertCircle className="h-4 w-4 text-rose-600 shrink-0" />
               <span>{dict.sim_art_gallery.drag_self_intersect_error}</span>

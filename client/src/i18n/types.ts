@@ -890,6 +890,14 @@ export interface ArtGallerySimulationDictionary {
   mode_anywhere: string;
   mode_drag_vertices: string;
   mode_drag_hint: string;
+  tool_pan: string;
+  tool_pan_desc: string;
+  tool_vertex: string;
+  tool_vertex_desc: string;
+  tool_free: string;
+  tool_free_desc: string;
+  tool_drag: string;
+  tool_drag_desc: string;
   drag_self_intersect_error: string;
   blind_spots_toggle: string;
   blind_spots_desc: string;
