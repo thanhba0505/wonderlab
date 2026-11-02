@@ -44,8 +44,6 @@ export function LineupStage({
   const { isMuted, toggleMute, playBeaconSignal, playSurvivalChime } = useHatSound();
 
   const [hoveredPrisonerId, setHoveredPrisonerId] = React.useState<number | null>(null);
-  const containerRef = React.useRef<HTMLDivElement>(null);
-  const itemRefs = React.useRef<Map<number, HTMLDivElement>>(new Map());
 
   const n = prisoners.length;
   // Current active prisoner ID (who is speaking now)
@@ -64,21 +62,8 @@ export function LineupStage({
     }
   }, [currentStep, currentStepIndex, n, playBeaconSignal, playSurvivalChime]);
 
-  // Auto-scroll to center the active prisoner in viewport when N >= 8
-  React.useEffect(() => {
-    if (activePrisonerId === null || !containerRef.current) return;
-    const targetEl = itemRefs.current.get(activePrisonerId);
-    if (targetEl) {
-      targetEl.scrollIntoView({
-        behavior: 'smooth',
-        block: 'nearest',
-        inline: 'center',
-      });
-    }
-  }, [activePrisonerId]);
-
   return (
-    <div className="relative w-full overflow-hidden rounded-xl border border-slate-300/85 bg-white p-4 sm:p-6 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.06),0_1px_3px_0_rgba(15,23,42,0.04)]">
+    <div className="relative w-full overflow-hidden rounded-xl border border-slate-200/90 bg-slate-50/60 p-4 sm:p-5">
       {/* Stage Header & Direction Indicator */}
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200/80 pb-3 text-xs text-slate-500 font-sans">
         <div className="flex items-center gap-2">
@@ -100,7 +85,7 @@ export function LineupStage({
             className={cn(
               'flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-mono font-medium border transition-colors',
               isMuted
-                ? 'bg-slate-50 border-slate-200 text-slate-400 hover:text-slate-600'
+                ? 'bg-white border-slate-200 text-slate-400 hover:text-slate-600'
                 : 'bg-blue-50 border-blue-200 text-blue-700 font-semibold',
             )}
             title={isMuted ? 'Bật âm thanh mô phỏng' : 'Tắt âm thanh mô phỏng'}
@@ -113,7 +98,7 @@ export function LineupStage({
             <span>{isMuted ? 'MUTE' : 'SOUND'}</span>
           </button>
 
-          <div className="flex items-center gap-1.5 font-mono text-xs text-slate-600 bg-slate-50 px-2.5 py-1 rounded-md border border-slate-200">
+          <div className="flex items-center gap-1.5 font-mono text-xs text-slate-600 bg-white px-2.5 py-1 rounded-md border border-slate-200">
             <Radio className="h-3.5 w-3.5 text-blue-600" />
             <span>{t.sight_direction.replace('{n}', String(n))}</span>
           </div>
@@ -121,16 +106,13 @@ export function LineupStage({
       </div>
 
       {/* Main Visual Stage */}
-      <div className="relative mt-4 pb-2 pt-6">
+      <div className="relative mt-2 pb-2 pt-4">
         {/* Visual Line of Sight Horizon */}
-        <div className="absolute bottom-10 left-0 right-0 h-1 bg-slate-100 rounded-full border-b border-slate-200" />
+        <div className="absolute bottom-10 left-0 right-0 h-1 bg-slate-200/60 rounded-full" />
 
-        {/* Scrollable Row of Prisoners */}
+        {/* Row of Prisoners: proportional distribution, zero scrollbars */}
         {/* Line convention: Person N on the LEFT, facing RIGHT towards Person 1 */}
-        <div
-          ref={containerRef}
-          className="relative z-10 flex items-end justify-between gap-3 sm:gap-4 overflow-x-auto pb-4 pt-12 scroll-smooth"
-        >
+        <div className="relative z-10 flex items-end justify-between w-full gap-1 sm:gap-2 pb-3 pt-12 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
           {prisoners
             .slice()
             .reverse() // Display Person N first on the left down to Person 1 on the right
@@ -156,21 +138,17 @@ export function LineupStage({
               return (
                 <div
                   key={prisoner.id}
-                  ref={el => {
-                    if (el) itemRefs.current.set(personId, el);
-                    else itemRefs.current.delete(personId);
-                  }}
-                  className="relative flex flex-col items-center group shrink-0"
+                  className="relative flex flex-1 min-w-[44px] max-w-[76px] flex-col items-center group"
                   onMouseEnter={() => setHoveredPrisonerId(personId)}
                   onMouseLeave={() => setHoveredPrisonerId(null)}
                 >
-                  {/* Dynamic Line-of-Sight Conical Light Beam radiating to the right */}
+                  {/* Dynamic Line-of-Sight Conical Light Beam radiating to the right edge */}
                   {isSpotlightSource && (
                     <div
-                      className="absolute top-14 left-1/2 w-[700px] h-28 pointer-events-none z-0 -translate-y-1/2"
+                      className="absolute top-14 left-1/2 right-0 h-28 pointer-events-none z-0 -translate-y-1/2 overflow-hidden"
                       style={{
                         background:
-                          'radial-gradient(ellipse at left, rgba(59, 130, 246, 0.22) 0%, rgba(59, 130, 246, 0.08) 50%, transparent 80%)',
+                          'radial-gradient(ellipse at left, rgba(59, 130, 246, 0.22) 0%, rgba(59, 130, 246, 0.08) 60%, transparent 95%)',
                         clipPath: 'polygon(0% 45%, 100% 0%, 100% 100%, 0% 55%)',
                       }}
                     />
@@ -211,7 +189,7 @@ export function LineupStage({
 
                   {/* Target of Field of View Highlight */}
                   {isTargetOfSpotlight && (
-                    <div className="absolute -inset-x-2 -inset-y-3 rounded-xl bg-blue-50/80 border border-blue-200/90 -z-10 animate-in fade-in-0 duration-200" />
+                    <div className="absolute -inset-x-1 -inset-y-2 rounded-xl bg-blue-100/70 border border-blue-200/90 -z-10 animate-in fade-in-0 duration-200" />
                   )}
 
                   {/* Character Avatar Wrapper */}
@@ -225,8 +203,8 @@ export function LineupStage({
                       'relative flex flex-col items-center cursor-pointer transition-all duration-200',
                       canEditHats && 'hover:scale-105 active:scale-95',
                       isTurnActive &&
-                        'ring-2 ring-blue-500 ring-offset-2 rounded-xl p-1 bg-blue-50/40',
-                      !isTurnActive && 'p-1',
+                        'ring-2 ring-blue-500 ring-offset-2 rounded-xl p-0.5 bg-blue-50/50',
+                      !isTurnActive && 'p-0.5',
                     )}
                   >
                     {/* Blind Spot indicator on speaker's own hat */}
@@ -243,7 +221,7 @@ export function LineupStage({
                     <div className="relative z-10 -mb-1 flex items-center justify-center">
                       {isHatHidden ? (
                         // Hidden hat with mysterious question mark in roleplay mode
-                        <div className="flex h-9 w-12 items-center justify-center rounded-t-lg border-2 border-dashed border-amber-500 bg-amber-50 shadow-xs animate-pulse">
+                        <div className="flex h-8 w-10 sm:h-9 sm:w-12 items-center justify-center rounded-t-lg border-2 border-dashed border-amber-500 bg-amber-50 shadow-xs animate-pulse">
                           <HelpCircle className="h-4 w-4 text-amber-600" />
                         </div>
                       ) : (
@@ -257,7 +235,7 @@ export function LineupStage({
                         >
                           {/* Crown */}
                           <div
-                            className="relative flex h-8 w-11 flex-col items-center justify-center rounded-t-md border shadow-xs transition-colors duration-200"
+                            className="relative flex h-7 w-9 sm:h-8 sm:w-11 flex-col items-center justify-center rounded-t-md border shadow-xs transition-colors duration-200"
                             style={{
                               backgroundColor: colorMeta.bgHex,
                               borderColor: colorMeta.id === 0 ? '#cbd5e1' : '#0f172a',
@@ -280,7 +258,7 @@ export function LineupStage({
 
                           {/* Hat Brim */}
                           <div
-                            className="h-1.5 w-14 rounded-full border shadow-2xs -mt-0.5"
+                            className="h-1.5 w-12 sm:w-14 rounded-full border shadow-2xs -mt-0.5"
                             style={{
                               backgroundColor: colorMeta.bgHex,
                               borderColor: colorMeta.id === 0 ? '#cbd5e1' : '#0f172a',
@@ -291,10 +269,10 @@ export function LineupStage({
                     </div>
 
                     {/* Character Body (Vector Lab Silhouette) */}
-                    <div className="relative flex flex-col items-center mt-1">
+                    <div className="relative flex flex-col items-center mt-0.5">
                       <svg
                         viewBox="0 0 48 54"
-                        className="w-12 h-14"
+                        className="w-10 h-12 sm:w-12 sm:h-14"
                         fill="none"
                         xmlns="http://www.w3.org/2000/svg"
                       >
@@ -361,7 +339,7 @@ export function LineupStage({
                   </div>
 
                   {/* Character Position Label & Role Tag */}
-                  <div className="mt-2 text-center select-none">
+                  <div className="mt-1.5 text-center select-none">
                     <span className="font-mono text-xs font-semibold text-slate-800">
                       #{personId}
                     </span>
@@ -382,51 +360,8 @@ export function LineupStage({
         </div>
       </div>
 
-      {/* Mini-map Jumper Bar for larger N */}
-      {n >= 8 && (
-        <div className="mt-2 flex items-center justify-between border-t border-slate-100 pt-2 text-xs">
-          <span className="text-slate-400 font-mono text-xs">MINIMAP</span>
-          <div className="flex items-center gap-1">
-            {prisoners
-              .slice()
-              .reverse()
-              .map(p => {
-                const isActive = activePrisonerId === p.id;
-                return (
-                  <button
-                    key={p.id}
-                    type="button"
-                    onClick={() => {
-                      const el = itemRefs.current.get(p.id);
-                      if (el) {
-                        el.scrollIntoView({
-                          behavior: 'smooth',
-                          block: 'nearest',
-                          inline: 'center',
-                        });
-                      }
-                    }}
-                    className={cn(
-                      'h-5 px-1.5 rounded font-mono text-xs font-semibold transition-all',
-                      isActive
-                        ? 'bg-blue-600 text-white shadow-xs'
-                        : p.isCorrect === true
-                          ? 'bg-emerald-100 text-emerald-800'
-                          : p.isCorrect === false
-                            ? 'bg-rose-100 text-rose-800'
-                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200',
-                    )}
-                  >
-                    #{p.id}
-                  </button>
-                );
-              })}
-          </div>
-        </div>
-      )}
-
       {/* Stage Legend & Controls Note */}
-      <div className="mt-3 flex flex-wrap items-center justify-between gap-3 border-t border-slate-200/80 pt-3 text-xs text-slate-500">
+      <div className="mt-2 flex flex-wrap items-center justify-between gap-3 border-t border-slate-200/80 pt-2.5 text-xs text-slate-500">
         <div className="flex flex-wrap items-center gap-3">
           <span className="font-semibold text-slate-700">{t.legend_title}</span>
           {colorCount === 2 ? (

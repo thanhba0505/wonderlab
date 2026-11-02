@@ -51,7 +51,7 @@ export function SimulationControls({
   const { dict } = useTranslation();
 
   return (
-    <div className="rounded-xl border border-slate-300/85 bg-white p-4 sm:p-5 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.06),0_1px_3px_0_rgba(15,23,42,0.04)] space-y-4">
+    <div className="rounded-xl border border-slate-200/80 bg-slate-50/70 p-4 sm:p-5 space-y-4">
       {/* Top Row: Mode Selection Tabs */}
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-3">
         <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-lg border border-slate-200">
