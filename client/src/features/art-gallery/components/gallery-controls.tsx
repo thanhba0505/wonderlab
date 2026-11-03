@@ -93,7 +93,7 @@ export const GalleryControls: React.FC<GalleryControlsProps> = ({
   }, [isFullyCovered, guardsCount, currentPreset, chvatalBound, dict.sim_art_gallery]);
 
   return (
-    <div className="flex flex-col gap-5 rounded-xl border border-slate-300/85 bg-white p-5 shadow-xs">
+    <div className="flex flex-col gap-5">
       {/* 1. Thư viện phòng mẫu (Presets) */}
       <div className="space-y-2.5">
         <div className="flex items-center justify-between">

@@ -31,7 +31,7 @@ export const FiskStepper: React.FC<FiskStepperProps> = ({
   };
 
   return (
-    <div className="flex flex-col gap-4 rounded-xl border border-slate-300/85 bg-white p-5 shadow-xs">
+    <div className="flex flex-col gap-4 rounded-xl border border-slate-200/80 bg-slate-50/60 p-4 sm:p-5">
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200/80 pb-3">
         <div className="flex items-center gap-2">

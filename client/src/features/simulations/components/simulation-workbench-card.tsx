@@ -89,9 +89,11 @@ export function SimulationWorkbenchCard({
     if (hasSplitSlots) {
       if (normalLayout === 'split') {
         return (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            <div className="lg:col-span-4 space-y-6">{controls}</div>
-            <div className="lg:col-span-8 space-y-6">{stage}</div>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-0 lg:divide-x divide-slate-200/80">
+            <div className="lg:col-span-4 space-y-6 lg:pr-6 pb-6 lg:pb-0 border-b lg:border-b-0 border-slate-200/80">
+              {controls}
+            </div>
+            <div className="lg:col-span-8 space-y-6 lg:pl-6 pt-6 lg:pt-0">{stage}</div>
           </div>
         );
       }

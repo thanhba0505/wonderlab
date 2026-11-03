@@ -278,7 +278,7 @@ export function ArtGallerySimulation() {
               />
 
               {/* Thông tin nhanh về lính gác */}
-              <div className="rounded-xl border border-slate-300/85 bg-slate-50/60 p-4 space-y-2 text-xs text-slate-600">
+              <div className="rounded-xl border border-slate-200/80 bg-slate-50/70 p-4 space-y-1.5 text-xs text-slate-600">
                 <div className="font-heading font-bold text-slate-800 uppercase tracking-wider">
                   {dict.sim_art_gallery.guard_tip_title}
                 </div>
