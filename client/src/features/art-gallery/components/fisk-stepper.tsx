@@ -12,7 +12,6 @@ export interface FiskStepperProps {
   onStepChange: (step: number) => void;
   fiskProof: FiskProofResult;
   numVertices: number;
-  isSoundEnabled?: boolean;
 }
 
 export const FiskStepper: React.FC<FiskStepperProps> = ({
@@ -20,10 +19,9 @@ export const FiskStepper: React.FC<FiskStepperProps> = ({
   onStepChange,
   fiskProof,
   numVertices,
-  isSoundEnabled = true,
 }) => {
   const { dict } = useTranslation();
-  const sound = useGallerySound(isSoundEnabled);
+  const sound = useGallerySound();
   const steps = dict.sim_art_gallery.fisk_steps;
   const activeStep = steps[currentStep] ?? steps[0]!;
 

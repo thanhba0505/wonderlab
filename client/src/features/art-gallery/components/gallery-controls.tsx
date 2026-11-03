@@ -11,8 +11,6 @@ import {
   Move,
   Eye,
   EyeOff,
-  Volume2,
-  VolumeX,
   Trophy,
   Award,
   Hand,
@@ -32,8 +30,6 @@ export interface GalleryControlsProps {
   onChangeMode: (mode: GalleryInteractionMode) => void;
   showBlindSpots: boolean;
   onToggleBlindSpots: () => void;
-  isSoundEnabled: boolean;
-  onToggleSound: () => void;
   numVertices: number;
   guardsCount: number;
   coveragePercentage: number;
@@ -49,8 +45,6 @@ export const GalleryControls: React.FC<GalleryControlsProps> = ({
   onChangeMode,
   showBlindSpots,
   onToggleBlindSpots,
-  isSoundEnabled,
-  onToggleSound,
   numVertices,
   guardsCount,
   coveragePercentage,
@@ -255,49 +249,27 @@ export const GalleryControls: React.FC<GalleryControlsProps> = ({
           </span>
         </div>
 
-        {/* Toggles: Lớp phủ điểm mù & Âm thanh */}
-        <div className="grid grid-cols-2 gap-2 pt-1">
+        {/* Toggle: Lớp phủ điểm mù */}
+        <div className="pt-1">
           <button
             type="button"
             onClick={onToggleBlindSpots}
-            className={`flex items-center justify-between p-2.5 rounded-lg border text-xs font-medium transition-all ${
+            className={`w-full flex items-center justify-between p-2.5 rounded-lg border text-xs font-medium transition-all ${
               showBlindSpots
                 ? 'border-rose-400 bg-rose-50/80 text-rose-900 font-semibold'
                 : 'border-slate-200 bg-slate-50/60 text-slate-700 hover:bg-slate-100'
             }`}
           >
-            <span className="inline-flex items-center gap-1.5">
+            <span className="inline-flex items-center gap-2">
               {showBlindSpots ? (
-                <Eye className="h-3.5 w-3.5 text-rose-600" />
+                <Eye className="h-4 w-4 text-rose-600 shrink-0" />
               ) : (
-                <EyeOff className="h-3.5 w-3.5 text-slate-400" />
+                <EyeOff className="h-4 w-4 text-slate-400 shrink-0" />
               )}
               <span>{dict.sim_art_gallery.blind_spots_toggle}</span>
             </span>
             <span
-              className={`h-2 w-2 rounded-full ${showBlindSpots ? 'bg-rose-500' : 'bg-slate-300'}`}
-            />
-          </button>
-
-          <button
-            type="button"
-            onClick={onToggleSound}
-            className={`flex items-center justify-between p-2.5 rounded-lg border text-xs font-medium transition-all ${
-              isSoundEnabled
-                ? 'border-blue-400 bg-blue-50/80 text-blue-900 font-semibold'
-                : 'border-slate-200 bg-slate-50/60 text-slate-700 hover:bg-slate-100'
-            }`}
-          >
-            <span className="inline-flex items-center gap-1.5">
-              {isSoundEnabled ? (
-                <Volume2 className="h-3.5 w-3.5 text-blue-600" />
-              ) : (
-                <VolumeX className="h-3.5 w-3.5 text-slate-400" />
-              )}
-              <span>{dict.sim_art_gallery.sound_toggle}</span>
-            </span>
-            <span
-              className={`h-2 w-2 rounded-full ${isSoundEnabled ? 'bg-blue-500' : 'bg-slate-300'}`}
+              className={`h-2.5 w-2.5 rounded-full ${showBlindSpots ? 'bg-rose-500' : 'bg-slate-300'}`}
             />
           </button>
         </div>

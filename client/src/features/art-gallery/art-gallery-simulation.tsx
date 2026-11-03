@@ -46,11 +46,10 @@ export function ArtGallerySimulation() {
   const [guards, setGuards] = React.useState<Point[]>([]);
   const [mode, setMode] = React.useState<GalleryInteractionMode>('guard');
   const [showBlindSpots, setShowBlindSpots] = React.useState<boolean>(false);
-  const [isSoundEnabled, setIsSoundEnabled] = React.useState<boolean>(false);
   const [fiskStep, setFiskStep] = React.useState<number>(0);
   const [copiedType, setCopiedType] = React.useState<'report' | null>(null);
 
-  const sound = useGallerySound(isSoundEnabled);
+  const sound = useGallerySound();
 
   // Intuition Challenge State
   const [, setUserPrediction] = React.useState<{
@@ -273,8 +272,6 @@ export function ArtGallerySimulation() {
                 onChangeMode={setMode}
                 showBlindSpots={showBlindSpots}
                 onToggleBlindSpots={() => setShowBlindSpots(prev => !prev)}
-                isSoundEnabled={isSoundEnabled}
-                onToggleSound={() => setIsSoundEnabled(prev => !prev)}
                 numVertices={polygon.length}
                 guardsCount={guards.length}
                 coveragePercentage={coveragePercentage}
@@ -301,8 +298,6 @@ export function ArtGallerySimulation() {
                 showColoring={showColoring}
                 showBlindSpots={showBlindSpots}
                 onToggleBlindSpots={() => setShowBlindSpots(prev => !prev)}
-                isSoundEnabled={isSoundEnabled}
-                onToggleSound={() => setIsSoundEnabled(prev => !prev)}
                 fiskProof={fiskProof}
                 mode={mode}
                 onChangeMode={setMode}
@@ -313,7 +308,6 @@ export function ArtGallerySimulation() {
                 onStepChange={handleStepChange}
                 fiskProof={fiskProof}
                 numVertices={polygon.length}
-                isSoundEnabled={isSoundEnabled}
               />
             </div>
           }

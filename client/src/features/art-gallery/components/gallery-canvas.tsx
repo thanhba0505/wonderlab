@@ -15,8 +15,6 @@ import {
   Trash2,
   Sparkles,
   AlertCircle,
-  Volume2,
-  VolumeX,
   ZoomIn,
   ZoomOut,
   RotateCcw,
@@ -39,8 +37,6 @@ export interface GalleryCanvasProps {
   showColoring: boolean;
   showBlindSpots: boolean;
   onToggleBlindSpots: () => void;
-  isSoundEnabled: boolean;
-  onToggleSound: () => void;
   fiskProof: FiskProofResult;
   mode: GalleryInteractionMode;
   onChangeMode: (mode: GalleryInteractionMode) => void;
@@ -56,14 +52,12 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
   showColoring,
   showBlindSpots,
   onToggleBlindSpots,
-  isSoundEnabled,
-  onToggleSound,
   fiskProof,
   mode,
   onChangeMode,
 }) => {
   const { dict } = useTranslation();
-  const sound = useGallerySound(isSoundEnabled);
+  const sound = useGallerySound();
 
   const colorMap: Record<
     VertexColor,
@@ -423,42 +417,23 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
         </div>
 
         <div className="flex items-center gap-3">
-          {/* Quick Audio Mute & Blind Spot Toggles */}
-          <div className="flex items-center gap-1">
-            <button
-              type="button"
-              onClick={onToggleBlindSpots}
-              className={`p-1 rounded-md border text-xs transition-colors ${
-                showBlindSpots
-                  ? 'border-rose-300 bg-rose-50 text-rose-700'
-                  : 'border-slate-200 bg-white text-slate-500 hover:bg-slate-100'
-              }`}
-              title={dict.sim_art_gallery.blind_spots_toggle}
-            >
-              {showBlindSpots ? (
-                <Eye className="h-3.5 w-3.5 text-rose-600" />
-              ) : (
-                <EyeOff className="h-3.5 w-3.5 text-slate-400" />
-              )}
-            </button>
-
-            <button
-              type="button"
-              onClick={onToggleSound}
-              className={`p-1 rounded-md border text-xs transition-colors ${
-                isSoundEnabled
-                  ? 'border-blue-300 bg-blue-50 text-blue-700'
-                  : 'border-slate-200 bg-white text-slate-400 hover:bg-slate-100'
-              }`}
-              title={dict.sim_art_gallery.sound_toggle}
-            >
-              {isSoundEnabled ? (
-                <Volume2 className="h-3.5 w-3.5 text-blue-600" />
-              ) : (
-                <VolumeX className="h-3.5 w-3.5 text-slate-400" />
-              )}
-            </button>
-          </div>
+          {/* Quick Blind Spot Toggle */}
+          <button
+            type="button"
+            onClick={onToggleBlindSpots}
+            className={`p-1 rounded-md border text-xs transition-colors ${
+              showBlindSpots
+                ? 'border-rose-300 bg-rose-50 text-rose-700'
+                : 'border-slate-200 bg-white text-slate-500 hover:bg-slate-100'
+            }`}
+            title={dict.sim_art_gallery.blind_spots_toggle}
+          >
+            {showBlindSpots ? (
+              <Eye className="h-3.5 w-3.5 text-rose-600" />
+            ) : (
+              <EyeOff className="h-3.5 w-3.5 text-slate-400" />
+            )}
+          </button>
 
           <div className="hidden sm:flex items-center gap-3 font-mono text-xs text-slate-500">
             <span>

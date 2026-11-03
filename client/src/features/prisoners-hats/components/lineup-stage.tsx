@@ -2,16 +2,7 @@
 
 import * as React from 'react';
 import { PrisonerState, ColorMeta, getColorMeta, SimulationStep } from '../hat-puzzle-math';
-import {
-  CheckCircle2,
-  XCircle,
-  HelpCircle,
-  Volume2,
-  EyeOff,
-  Sparkles,
-  Radio,
-  VolumeX,
-} from 'lucide-react';
+import { CheckCircle2, XCircle, HelpCircle, Volume2, EyeOff, Sparkles, Radio } from 'lucide-react';
 import { useTranslation } from '@/i18n';
 import { cn } from '@/lib/utils';
 import { useHatSound } from '../utils/hat-audio';
@@ -41,7 +32,7 @@ export function LineupStage({
 }: LineupStageProps) {
   const { dict } = useTranslation();
   const t = dict.sim_prisoners_hats;
-  const { isMuted, toggleMute, playBeaconSignal, playSurvivalChime } = useHatSound();
+  const { playBeaconSignal, playSurvivalChime } = useHatSound();
 
   const [hoveredPrisonerId, setHoveredPrisonerId] = React.useState<number | null>(null);
 
@@ -78,26 +69,6 @@ export function LineupStage({
         </div>
 
         <div className="flex items-center gap-2">
-          {/* Quick Audio Mute Toggle Button */}
-          <button
-            type="button"
-            onClick={toggleMute}
-            className={cn(
-              'flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-mono font-medium border transition-colors',
-              isMuted
-                ? 'bg-white border-slate-200 text-slate-400 hover:text-slate-600'
-                : 'bg-blue-50 border-blue-200 text-blue-700 font-semibold',
-            )}
-            title={isMuted ? 'Bật âm thanh mô phỏng' : 'Tắt âm thanh mô phỏng'}
-          >
-            {isMuted ? (
-              <VolumeX className="h-3.5 w-3.5" />
-            ) : (
-              <Volume2 className="h-3.5 w-3.5 text-blue-600" />
-            )}
-            <span>{isMuted ? 'MUTE' : 'SOUND'}</span>
-          </button>
-
           <div className="flex items-center gap-1.5 font-mono text-xs text-slate-600 bg-white px-2.5 py-1 rounded-md border border-slate-200">
             <Radio className="h-3.5 w-3.5 text-blue-600" />
             <span>{t.sight_direction.replace('{n}', String(n))}</span>
