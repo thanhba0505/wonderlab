@@ -84,6 +84,7 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
   };
 
   const svgRef = React.useRef<SVGSVGElement | null>(null);
+  const canvasContainerRef = React.useRef<HTMLDivElement | null>(null);
   const [hoveredVertexIdx, setHoveredVertexIdx] = React.useState<number | null>(null);
   const [draggingVertexIdx, setDraggingVertexIdx] = React.useState<number | null>(null);
   const [isSelfIntersecting, setIsSelfIntersecting] = React.useState<boolean>(false);
@@ -92,6 +93,8 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
   const [pan, setPan] = React.useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [zoom, setZoom] = React.useState<number>(1.0);
   const [isPanning, setIsPanning] = React.useState<boolean>(false);
+  const [showCtrlZoomHint, setShowCtrlZoomHint] = React.useState<boolean>(false);
+  const hintTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Track guards attached to the currently dragged vertex
   const attachedGuardIndicesRef = React.useRef<number[]>([]);
@@ -151,14 +154,42 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
     setZoom(1.0);
   };
 
-  const handleWheel = (e: React.WheelEvent<SVGSVGElement>) => {
-    e.preventDefault();
-    const zoomFactor = e.deltaY < 0 ? 1.15 : 0.87;
-    setZoom(prev => {
-      const next = Math.max(0.5, Math.min(3.0, prev * zoomFactor));
-      return Number(next.toFixed(2));
-    });
-  };
+  // Non-passive wheel listener: Require Ctrl or Cmd key to zoom canvas, allowing natural page scrolling otherwise
+  React.useEffect(() => {
+    const container = canvasContainerRef.current;
+    if (!container) return;
+
+    const onWheel = (e: WheelEvent) => {
+      if (e.ctrlKey || e.metaKey) {
+        // Zoom canvas and prevent default browser page zoom
+        e.preventDefault();
+        const zoomFactor = e.deltaY < 0 ? 1.15 : 0.87;
+        setZoom(prev => {
+          const next = Math.max(0.5, Math.min(3.0, prev * zoomFactor));
+          return Number(next.toFixed(2));
+        });
+      } else {
+        // Allow default page scrolling without interruption
+        // Briefly show hint overlay explaining how to zoom
+        setShowCtrlZoomHint(true);
+        if (hintTimeoutRef.current) {
+          clearTimeout(hintTimeoutRef.current);
+        }
+        hintTimeoutRef.current = setTimeout(() => {
+          setShowCtrlZoomHint(false);
+        }, 1500);
+      }
+    };
+
+    container.addEventListener('wheel', onWheel, { passive: false });
+
+    return () => {
+      container.removeEventListener('wheel', onWheel);
+      if (hintTimeoutRef.current) {
+        clearTimeout(hintTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Mousedown on SVG background to initiate Panning or Click
   const handleSvgMouseDown = (e: React.MouseEvent<SVGSVGElement>) => {
@@ -455,7 +486,29 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
 
       {/* Main Spacious Interactive SVG Canvas with Action Toolbar & Pan/Zoom */}
       <div className="relative flex flex-col rounded-xl border border-slate-200/90 bg-white overflow-hidden">
-        <div className="relative w-full h-[520px] sm:h-[580px] lg:h-[620px] select-none bg-slate-50/40 overflow-hidden">
+        <div
+          ref={canvasContainerRef}
+          className="relative w-full h-[520px] sm:h-[580px] lg:h-[620px] select-none bg-slate-50/40 overflow-hidden"
+        >
+          {/* Ctrl + Scroll Zoom Hint Overlay (Like Google Maps / Figma) */}
+          {showCtrlZoomHint && (
+            <div className="absolute inset-0 z-30 flex items-center justify-center bg-slate-900/20 backdrop-blur-2xs transition-all pointer-events-none animate-in fade-in duration-150">
+              <div className="flex items-center gap-2 rounded-xl bg-slate-900/90 text-white px-4 py-2.5 text-xs font-sans shadow-lg border border-slate-700/80">
+                <span className="flex items-center gap-1">
+                  <kbd className="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-600 font-mono font-bold text-xs text-slate-200">
+                    Ctrl
+                  </kbd>
+                  <span className="text-slate-400">/</span>
+                  <kbd className="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-600 font-mono font-bold text-xs text-slate-200">
+                    ⌘
+                  </kbd>
+                </span>
+                <span>+</span>
+                <span>{dict.sim_art_gallery.ctrl_zoom_hint}</span>
+              </div>
+            </div>
+          )}
+
           {/* Floating Action Toolbar Dock on the Canvas */}
           <div className="absolute top-3 left-3 flex items-center gap-1 p-1 rounded-xl bg-white/95 backdrop-blur-xs border border-slate-300/85 shadow-sm z-10">
             <button
@@ -551,7 +604,6 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
             onMouseDown={handleSvgMouseDown}
             onMouseMove={handleSvgMouseMove}
             onMouseUp={handleSvgMouseUp}
-            onWheel={handleWheel}
           >
             <defs>
               {/* Laboratory Coordinate Grid (Infinite repeat) */}
