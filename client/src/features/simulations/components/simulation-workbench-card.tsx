@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
-import { Maximize2, Minimize2, Sliders, Sparkles, FlaskConical } from 'lucide-react';
+import { Maximize2, Sliders, Sparkles, FlaskConical, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/i18n';
 
@@ -208,7 +208,7 @@ export function SimulationWorkbenchCard({
                         className="h-8 gap-1.5 border-slate-300 bg-white font-mono text-xs text-slate-700 hover:bg-slate-50 hover:text-slate-900 shadow-2xs active:scale-[0.98]"
                         title={dict.simulations.fullscreen_exit}
                       >
-                        <Minimize2 className="h-3.5 w-3.5 text-slate-600" />
+                        <X className="h-3.5 w-3.5 text-slate-600" />
                         <span className="font-sans font-medium">
                           {dict.simulations.fullscreen_exit}
                         </span>
