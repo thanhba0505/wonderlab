@@ -35,7 +35,7 @@ export interface GalleryCanvasProps {
   guards: Point[];
   onAddGuard: (point: Point) => void;
   onRemoveGuard: (index: number) => void;
-  onUpdatePolygon: (newPolygon: Point[]) => void;
+  onUpdatePolygon: (newPolygon: Point[], newGuards?: Point[]) => void;
   showTriangulation: boolean;
   showColoring: boolean;
   showBlindSpots: boolean;
@@ -99,6 +99,13 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
   const [pan, setPan] = React.useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [zoom, setZoom] = React.useState<number>(1.0);
   const [isPanning, setIsPanning] = React.useState<boolean>(false);
+
+  // Track guards attached to the currently dragged vertex
+  const attachedGuardIndicesRef = React.useRef<number[]>([]);
+  const polygonRef = React.useRef<Point[]>(polygon);
+  polygonRef.current = polygon;
+  const guardsRef = React.useRef<Point[]>(guards);
+  guardsRef.current = guards;
 
   const panStartRef = React.useRef<{
     clientX: number;
@@ -181,9 +188,19 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
 
     e.stopPropagation();
 
-    // In Reshape mode, start dragging this vertex
+    // In Reshape mode, start dragging this vertex and any attached guard(s)
     if (mode === 'drag') {
       setDraggingVertexIdx(vIdx);
+      const v = polygonRef.current[vIdx];
+      if (v) {
+        const attached = guardsRef.current
+          .map((g, idx) => ({ idx, dist: Math.hypot(g.x - v.x, g.y - v.y) }))
+          .filter(item => item.dist <= 14)
+          .map(item => item.idx);
+        attachedGuardIndicesRef.current = attached;
+      } else {
+        attachedGuardIndicesRef.current = [];
+      }
       sound.playVertexDrag();
       return;
     }
@@ -208,6 +225,42 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
       return;
     }
     e.stopPropagation();
+
+    // In Reshape mode, dragging a guard placed at a vertex drags the vertex & guard together
+    if (mode === 'drag') {
+      const g = guardsRef.current[idx];
+      if (!g) return;
+
+      let closestVIdx = -1;
+      let minDist = 14;
+      polygonRef.current.forEach((v, vIdx) => {
+        const d = Math.hypot(v.x - g.x, v.y - g.y);
+        if (d <= minDist) {
+          minDist = d;
+          closestVIdx = vIdx;
+        }
+      });
+
+      if (closestVIdx !== -1) {
+        setDraggingVertexIdx(closestVIdx);
+        const v = polygonRef.current[closestVIdx];
+        if (v) {
+          const attached = guardsRef.current
+            .map((guardItem, gIdx) => ({
+              idx: gIdx,
+              dist: Math.hypot(guardItem.x - v.x, guardItem.y - v.y),
+            }))
+            .filter(item => item.dist <= 14)
+            .map(item => item.idx);
+          attachedGuardIndicesRef.current = attached;
+        } else {
+          attachedGuardIndicesRef.current = [idx];
+        }
+        sound.playVertexDrag();
+      }
+      return;
+    }
+
     onRemoveGuard(idx);
     sound.playRemoveGuard();
   };
@@ -224,10 +277,21 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
         y: Math.max(-100, Math.min(520, point.y)),
       };
 
-      const nextPolygon = polygon.map((p, i) => (i === draggingVertexIdx ? clampedPoint : p));
+      const currentPoly = polygonRef.current;
+      const currentGuards = guardsRef.current;
+
+      const nextPolygon = currentPoly.map((p, i) => (i === draggingVertexIdx ? clampedPoint : p));
       const simple = isSimplePolygon(nextPolygon);
       setIsSelfIntersecting(!simple);
-      onUpdatePolygon(nextPolygon);
+
+      let nextGuards = currentGuards;
+      if (attachedGuardIndicesRef.current.length > 0) {
+        nextGuards = currentGuards.map((g, i) =>
+          attachedGuardIndicesRef.current.includes(i) ? clampedPoint : g,
+        );
+      }
+
+      onUpdatePolygon(nextPolygon, nextGuards);
       return;
     }
 
@@ -256,6 +320,7 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
   const handleSvgMouseUp = (e: React.MouseEvent<SVGSVGElement>) => {
     if (draggingVertexIdx !== null) {
       setDraggingVertexIdx(null);
+      attachedGuardIndicesRef.current = [];
       sound.playVertexDrag();
     }
 
@@ -283,6 +348,7 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
     const handleGlobalMouseUp = () => {
       if (draggingVertexIdx !== null) {
         setDraggingVertexIdx(null);
+        attachedGuardIndicesRef.current = [];
       }
       if (panStartRef.current) {
         panStartRef.current = null;
@@ -710,51 +776,81 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
           })}
 
           {/* 6. Active Guard Markers (Icons / Illuminated Beacons) */}
-          {guards.map((g, idx) => (
-            <g
-              key={`guard-${idx}`}
-              className={mode === 'pan' ? 'cursor-grab' : 'cursor-pointer group'}
-              onMouseDown={e => handleGuardMouseDown(e, idx)}
-            >
-              {/* Expanded Hitbox */}
-              <circle cx={g.x} cy={g.y} r="18" fill="transparent" />
+          {guards.map((g, idx) => {
+            const isAttachedDragging =
+              draggingVertexIdx !== null && attachedGuardIndicesRef.current.includes(idx);
 
-              {/* Outer Pulse Ring */}
-              <circle
-                cx={g.x}
-                cy={g.y}
-                r="18"
-                fill="none"
-                stroke="#f59e0b"
-                strokeWidth="1.5"
-                className="animate-ping opacity-40 pointer-events-none"
-              />
-
-              {/* Guard Background Badge */}
-              <circle
-                cx={g.x}
-                cy={g.y}
-                r="12"
-                fill="#b45309"
-                stroke="#ffffff"
-                strokeWidth="2"
-                className="shadow-sm group-hover:fill-rose-600 transition-colors duration-150 pointer-events-none"
-              />
-
-              {/* Guard Inner Core */}
-              <circle cx={g.x} cy={g.y} r="4.5" fill="#ffffff" className="pointer-events-none" />
-
-              {/* Guard Number / Label */}
-              <text
-                x={g.x}
-                y={g.y + 24}
-                textAnchor="middle"
-                className="font-mono text-xs font-bold fill-slate-900 drop-shadow-xs pointer-events-none select-none"
+            return (
+              <g
+                key={`guard-${idx}`}
+                className={
+                  mode === 'pan'
+                    ? 'cursor-grab'
+                    : mode === 'drag'
+                      ? 'cursor-grab active:cursor-grabbing group'
+                      : 'cursor-pointer group'
+                }
+                onMouseDown={e => handleGuardMouseDown(e, idx)}
+                onMouseEnter={() => {
+                  if (mode === 'drag') {
+                    const vIdx = polygon.findIndex(v => Math.hypot(v.x - g.x, v.y - g.y) <= 14);
+                    if (vIdx !== -1) {
+                      setHoveredVertexIdx(vIdx);
+                    }
+                  }
+                }}
+                onMouseLeave={() => {
+                  if (mode === 'drag') {
+                    setHoveredVertexIdx(null);
+                  }
+                }}
               >
-                G{idx + 1}
-              </text>
-            </g>
-          ))}
+                {/* Expanded Hitbox */}
+                <circle cx={g.x} cy={g.y} r="18" fill="transparent" />
+
+                {/* Outer Pulse Ring */}
+                <circle
+                  cx={g.x}
+                  cy={g.y}
+                  r={isAttachedDragging ? 20 : 18}
+                  fill="none"
+                  stroke="#f59e0b"
+                  strokeWidth={isAttachedDragging ? '2.5' : '1.5'}
+                  className={`${isAttachedDragging ? 'opacity-90 animate-pulse' : 'animate-ping opacity-40'} pointer-events-none`}
+                />
+
+                {/* Guard Background Badge */}
+                <circle
+                  cx={g.x}
+                  cy={g.y}
+                  r={isAttachedDragging ? 13 : 12}
+                  fill="#b45309"
+                  stroke="#ffffff"
+                  strokeWidth="2"
+                  className={`shadow-sm transition-colors duration-150 pointer-events-none ${
+                    mode === 'drag'
+                      ? 'group-hover:fill-amber-600'
+                      : mode === 'vertex' || mode === 'free'
+                        ? 'group-hover:fill-rose-600'
+                        : ''
+                  }`}
+                />
+
+                {/* Guard Inner Core */}
+                <circle cx={g.x} cy={g.y} r="4.5" fill="#ffffff" className="pointer-events-none" />
+
+                {/* Guard Number / Label */}
+                <text
+                  x={g.x}
+                  y={g.y + 24}
+                  textAnchor="middle"
+                  className="font-mono text-xs font-bold fill-slate-900 drop-shadow-xs pointer-events-none select-none"
+                >
+                  G{idx + 1}
+                </text>
+              </g>
+            );
+          })}
         </svg>
 
         {/* Self-Intersection Alert Overlay */}

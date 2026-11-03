@@ -108,8 +108,11 @@ export function ArtGallerySimulation() {
     }
   };
 
-  const handleUpdatePolygon = (newPoly: Point[]) => {
+  const handleUpdatePolygon = (newPoly: Point[], newGuards?: Point[]) => {
     setPolygon(newPoly);
+    if (newGuards) {
+      setGuards(newGuards);
+    }
     setCurrentPresetId(null);
   };
 
