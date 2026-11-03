@@ -14,7 +14,6 @@ import {
   EyeOff,
   Trash2,
   Sparkles,
-  MapPin,
   AlertCircle,
   Volume2,
   VolumeX,
@@ -758,45 +757,12 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
           ))}
         </svg>
 
-        {/* Bottom Floating Interaction Hint Pill */}
-        <div className="absolute bottom-3 left-3 hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/95 backdrop-blur-xs border border-slate-300/80 shadow-xs text-xs text-slate-700 pointer-events-none z-10">
-          {mode === 'pan' && <Hand className="h-3.5 w-3.5 text-blue-600 shrink-0" />}
-          {mode === 'vertex' && <Shield className="h-3.5 w-3.5 text-blue-600 shrink-0" />}
-          {mode === 'free' && <Crosshair className="h-3.5 w-3.5 text-blue-600 shrink-0" />}
-          {mode === 'drag' && <Move className="h-3.5 w-3.5 text-amber-600 shrink-0" />}
-          <span className="font-medium font-sans">
-            {mode === 'pan'
-              ? dict.sim_art_gallery.tool_pan_desc
-              : mode === 'vertex'
-                ? dict.sim_art_gallery.tool_vertex_desc
-                : mode === 'free'
-                  ? dict.sim_art_gallery.tool_free_desc
-                  : dict.sim_art_gallery.tool_drag_desc}
-          </span>
-        </div>
-
         {/* Self-Intersection Alert Overlay */}
         {isSelfIntersecting && (
           <div className="absolute top-14 inset-x-3 flex justify-center pointer-events-none z-10">
             <div className="inline-flex items-center gap-2 rounded-lg bg-rose-50 px-3.5 py-1.5 border border-rose-300 shadow-xs text-xs text-rose-800 font-semibold animate-pulse">
               <AlertCircle className="h-4 w-4 text-rose-600 shrink-0" />
               <span>{dict.sim_art_gallery.drag_self_intersect_error}</span>
-            </div>
-          </div>
-        )}
-
-        {/* Empty State Overlay */}
-        {guards.length === 0 && (
-          <div className="absolute inset-x-0 bottom-4 flex justify-center pointer-events-none z-10">
-            <div className="inline-flex items-center gap-2 rounded-lg bg-white/95 px-3 py-1.5 border border-slate-300 shadow-xs text-xs text-slate-600">
-              <Eye className="h-4 w-4 text-amber-600 animate-pulse" />
-              <span>
-                {mode === 'vertex'
-                  ? dict.sim_art_gallery.empty_vertex_guide
-                  : mode === 'free'
-                    ? dict.sim_art_gallery.empty_free_guide
-                    : dict.sim_art_gallery.mode_drag_hint}
-              </span>
             </div>
           </div>
         )}
@@ -845,13 +811,9 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
         </div>
       )}
 
-      {/* Interactive Helper Footer */}
-      <div className="flex flex-wrap items-center justify-between gap-2 border-t border-slate-200/80 px-4 py-2 bg-white text-xs text-slate-500">
-        <div className="flex items-center gap-2">
-          <MapPin className="h-3.5 w-3.5 text-blue-600" />
-          <span>{dict.sim_art_gallery.canvas_helper_hint}</span>
-        </div>
-        {guards.length > 0 && (
+      {/* Action Footer (Only shown when guards exist to clear) */}
+      {guards.length > 0 && (
+        <div className="flex items-center justify-end border-t border-slate-200/80 px-4 py-2 bg-white text-xs">
           <button
             type="button"
             onClick={() => {
@@ -863,8 +825,8 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
             <Trash2 className="h-3.5 w-3.5" />
             <span>{dict.sim_art_gallery.clear_all_guards_btn}</span>
           </button>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };
