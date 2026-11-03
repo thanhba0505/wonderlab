@@ -46,6 +46,8 @@ export const artGalleryVi: ArtGallerySimulationDictionary = {
   mode_drag_hint: 'Bấm giữ và kéo điểm đỉnh bất kỳ để biến đổi hình học phòng trưng bày',
   tool_pan: 'Di chuyển map',
   tool_pan_desc: 'Kéo chuột để di chuyển góc nhìn bản đồ mà không lo bấm nhầm',
+  tool_guard: 'Đặt người gác',
+  tool_guard_desc: 'Nhấp vào đỉnh hoặc sàn phòng để đặt/xóa người gác',
   tool_vertex: 'Đặt tại đỉnh',
   tool_vertex_desc: 'Nhấn vào các chấm tròn đỉnh để đặt lính gác',
   tool_free: 'Đặt tự do',

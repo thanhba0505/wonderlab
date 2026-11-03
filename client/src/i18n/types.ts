@@ -892,6 +892,8 @@ export interface ArtGallerySimulationDictionary {
   mode_drag_hint: string;
   tool_pan: string;
   tool_pan_desc: string;
+  tool_guard: string;
+  tool_guard_desc: string;
   tool_vertex: string;
   tool_vertex_desc: string;
   tool_free: string;

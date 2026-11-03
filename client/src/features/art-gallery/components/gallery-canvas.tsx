@@ -22,7 +22,6 @@ import {
   RotateCcw,
   Hand,
   Shield,
-  Crosshair,
   Move,
 } from 'lucide-react';
 import { MathFraction } from '@/features/simulations/components';
@@ -208,14 +207,16 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
     const v = polygon[vIdx];
     if (!v) return;
 
-    // In Vertex or Free mode, clicking a vertex toggles a guard
-    const existingGuardIdx = guards.findIndex(g => Math.hypot(g.x - v.x, g.y - v.y) < 14);
-    if (existingGuardIdx !== -1) {
-      onRemoveGuard(existingGuardIdx);
-      sound.playRemoveGuard();
-    } else {
-      onAddGuard(v);
-      sound.playDeployGuard(guards.length);
+    // In Guard mode, clicking a vertex toggles a guard
+    if (mode === 'guard') {
+      const existingGuardIdx = guards.findIndex(g => Math.hypot(g.x - v.x, g.y - v.y) < 14);
+      if (existingGuardIdx !== -1) {
+        onRemoveGuard(existingGuardIdx);
+        sound.playRemoveGuard();
+      } else {
+        onAddGuard(v);
+        sound.playDeployGuard(guards.length);
+      }
     }
   };
 
@@ -261,8 +262,11 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
       return;
     }
 
-    onRemoveGuard(idx);
-    sound.playRemoveGuard();
+    // In Guard mode, clicking an existing guard removes it
+    if (mode === 'guard') {
+      onRemoveGuard(idx);
+      sound.playRemoveGuard();
+    }
   };
 
   // Mouse move on SVG canvas for dragging vertex or panning map
@@ -331,12 +335,27 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
 
       // If mouse didn't drag/pan, it was a deliberate click
       if (!wasMoving) {
-        // Only in 'free' mode can clicking empty floor place a guard
-        if (mode === 'free') {
+        // In 'guard' mode, clicking the floor places a guard (snapping to vertex if nearby)
+        if (mode === 'guard') {
           const clickPoint = getSvgCoordinates(e.clientX, e.clientY);
           if (clickPoint && isPointInsidePolygon(clickPoint, polygon)) {
-            onAddGuard(clickPoint);
-            sound.playDeployGuard(guards.length);
+            // Check if click was close to a vertex (within 14px)
+            const nearVertex = polygon.find(
+              v => Math.hypot(v.x - clickPoint.x, v.y - clickPoint.y) < 14,
+            );
+            const targetPoint = nearVertex ?? clickPoint;
+
+            // Check if guard already exists here
+            const existingIdx = guards.findIndex(
+              g => Math.hypot(g.x - targetPoint.x, g.y - targetPoint.y) < 14,
+            );
+            if (existingIdx !== -1) {
+              onRemoveGuard(existingIdx);
+              sound.playRemoveGuard();
+            } else {
+              onAddGuard(targetPoint);
+              sound.playDeployGuard(guards.length);
+            }
           }
         }
       }
@@ -370,7 +389,7 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
   const getFloorCursorClass = () => {
     if (isPanning) return 'cursor-grabbing';
     if (mode === 'pan') return 'cursor-grab';
-    if (mode === 'free') return 'cursor-crosshair';
+    if (mode === 'guard') return 'cursor-crosshair';
     if (mode === 'drag') return 'cursor-grab';
     return 'cursor-default';
   };
@@ -391,17 +410,14 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
           <span className="text-slate-400">|</span>
           <span className="text-slate-700 font-medium inline-flex items-center gap-1.5">
             {mode === 'pan' && <Hand className="h-3.5 w-3.5 text-blue-600" />}
-            {mode === 'vertex' && <Shield className="h-3.5 w-3.5 text-blue-600" />}
-            {mode === 'free' && <Crosshair className="h-3.5 w-3.5 text-blue-600" />}
+            {mode === 'guard' && <Shield className="h-3.5 w-3.5 text-blue-600" />}
             {mode === 'drag' && <Move className="h-3.5 w-3.5 text-amber-600" />}
             <span>
               {mode === 'pan'
                 ? dict.sim_art_gallery.tool_pan
-                : mode === 'vertex'
-                  ? dict.sim_art_gallery.tool_vertex
-                  : mode === 'free'
-                    ? dict.sim_art_gallery.tool_free
-                    : dict.sim_art_gallery.tool_drag}
+                : mode === 'guard'
+                  ? dict.sim_art_gallery.tool_guard
+                  : dict.sim_art_gallery.tool_drag}
             </span>
           </span>
         </div>
@@ -482,30 +498,16 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
 
           <button
             type="button"
-            onClick={() => onChangeMode('vertex')}
+            onClick={() => onChangeMode('guard')}
             className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all active:scale-95 ${
-              mode === 'vertex'
+              mode === 'guard'
                 ? 'bg-blue-600 text-white shadow-xs font-semibold'
                 : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900'
             }`}
-            title={dict.sim_art_gallery.tool_vertex_desc}
+            title={dict.sim_art_gallery.tool_guard_desc}
           >
             <Shield className="h-4 w-4" />
-            <span className="hidden sm:inline font-sans">{dict.sim_art_gallery.tool_vertex}</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => onChangeMode('free')}
-            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all active:scale-95 ${
-              mode === 'free'
-                ? 'bg-blue-600 text-white shadow-xs font-semibold'
-                : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900'
-            }`}
-            title={dict.sim_art_gallery.tool_free_desc}
-          >
-            <Crosshair className="h-4 w-4" />
-            <span className="hidden sm:inline font-sans">{dict.sim_art_gallery.tool_free}</span>
+            <span className="hidden sm:inline font-sans">{dict.sim_art_gallery.tool_guard}</span>
           </button>
 
           <button
@@ -830,7 +832,7 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
                   className={`shadow-sm transition-colors duration-150 pointer-events-none ${
                     mode === 'drag'
                       ? 'group-hover:fill-amber-600'
-                      : mode === 'vertex' || mode === 'free'
+                      : mode === 'guard'
                         ? 'group-hover:fill-rose-600'
                         : ''
                   }`}

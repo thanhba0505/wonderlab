@@ -44,7 +44,7 @@ export function ArtGallerySimulation() {
   const [polygon, setPolygon] = React.useState<Point[]>(GALLERY_PRESETS[0]!.vertices);
   const [currentPresetId, setCurrentPresetId] = React.useState<string | null>('chvatal-comb-3');
   const [guards, setGuards] = React.useState<Point[]>([]);
-  const [mode, setMode] = React.useState<GalleryInteractionMode>('vertex');
+  const [mode, setMode] = React.useState<GalleryInteractionMode>('guard');
   const [showBlindSpots, setShowBlindSpots] = React.useState<boolean>(false);
   const [isSoundEnabled, setIsSoundEnabled] = React.useState<boolean>(false);
   const [fiskStep, setFiskStep] = React.useState<number>(0);

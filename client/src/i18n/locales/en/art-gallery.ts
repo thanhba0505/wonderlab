@@ -47,6 +47,8 @@ export const artGalleryEn: ArtGallerySimulationDictionary = {
   mode_drag_hint: 'Click and drag any vertex to dynamically reshape the room geometry',
   tool_pan: 'Pan Map',
   tool_pan_desc: 'Drag canvas to pan view without accidental clicks',
+  tool_guard: 'Place Guard',
+  tool_guard_desc: 'Click on any vertex or room floor to place/remove guards',
   tool_vertex: 'Vertex Guard',
   tool_vertex_desc: 'Click on room vertices to toggle guards',
   tool_free: 'Free Placement',
