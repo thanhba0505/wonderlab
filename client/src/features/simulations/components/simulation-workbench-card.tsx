@@ -200,11 +200,6 @@ export function SimulationWorkbenchCard({
                     </div>
 
                     <div className="flex items-center gap-2 shrink-0">
-                      <span className="hidden md:inline-flex items-center gap-1 text-xs font-mono text-slate-500 bg-slate-100 px-2 py-1 rounded border border-slate-200">
-                        <kbd className="font-bold text-slate-700">Esc</kbd>
-                        <span>{dict.simulations.fullscreen_esc_hint}</span>
-                      </span>
-
                       <Button
                         type="button"
                         variant="outline"
