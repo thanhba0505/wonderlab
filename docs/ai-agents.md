@@ -41,7 +41,7 @@ To eliminate repetitive instructions and prevent regressions across sessions, ag
    - A new technical subsystem or feature category is introduced that brings ongoing guidelines (e.g., SEO metadata protocols when SEO is added, caching strategies, state management patterns, error reporting).
    - An architectural decision or engineering workflow is finalized or modified.
 2. **Action Plan**:
-   - **Repository-Wide Rules**: Add or update the rule directly in [AGENTS.md](file:///Users/lethanhba/workspace/app/Wonderlab/AGENTS.md) under Section 9 (Non-Negotiable Agent Rules) or the corresponding topical section.
+   - **Repository-Wide Rules**: Add or update the rule directly in [AGENTS.md](file:///Users/lethanhba/workspace/app/Wonderlab/AGENTS.md) under Section 8 (Non-Negotiable Agent Rules) or the corresponding topical section.
    - **Subsystem & Technical Details**: Update the matching file under `docs/` (e.g. `frontend.md`, `backend.md`, `architecture.md`, `testing.md`).
    - **Specialized Playbooks**: If the rule dictates agent workflows or domain design, update or create the relevant playbook in `.agents/skills/`.
 3. **Zero-Reminder Invariant**:
