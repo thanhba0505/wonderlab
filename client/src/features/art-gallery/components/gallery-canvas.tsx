@@ -93,8 +93,6 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
   const [pan, setPan] = React.useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [zoom, setZoom] = React.useState<number>(1.0);
   const [isPanning, setIsPanning] = React.useState<boolean>(false);
-  const [showCtrlZoomHint, setShowCtrlZoomHint] = React.useState<boolean>(false);
-  const hintTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Track guards attached to the currently dragged vertex
   const attachedGuardIndicesRef = React.useRef<number[]>([]);
@@ -168,16 +166,6 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
           const next = Math.max(0.5, Math.min(3.0, prev * zoomFactor));
           return Number(next.toFixed(2));
         });
-      } else {
-        // Allow default page scrolling without interruption
-        // Briefly show hint overlay explaining how to zoom
-        setShowCtrlZoomHint(true);
-        if (hintTimeoutRef.current) {
-          clearTimeout(hintTimeoutRef.current);
-        }
-        hintTimeoutRef.current = setTimeout(() => {
-          setShowCtrlZoomHint(false);
-        }, 1500);
       }
     };
 
@@ -185,9 +173,6 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
 
     return () => {
       container.removeEventListener('wheel', onWheel);
-      if (hintTimeoutRef.current) {
-        clearTimeout(hintTimeoutRef.current);
-      }
     };
   }, []);
 
@@ -490,25 +475,6 @@ export const GalleryCanvas: React.FC<GalleryCanvasProps> = ({
           ref={canvasContainerRef}
           className="relative w-full h-[520px] sm:h-[580px] lg:h-[620px] select-none bg-slate-50/40 overflow-hidden"
         >
-          {/* Ctrl + Scroll Zoom Hint Overlay (Like Google Maps / Figma) */}
-          {showCtrlZoomHint && (
-            <div className="absolute inset-0 z-30 flex items-center justify-center bg-slate-900/20 backdrop-blur-2xs transition-all pointer-events-none animate-in fade-in duration-150">
-              <div className="flex items-center gap-2 rounded-xl bg-slate-900/90 text-white px-4 py-2.5 text-xs font-sans shadow-lg border border-slate-700/80">
-                <span className="flex items-center gap-1">
-                  <kbd className="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-600 font-mono font-bold text-xs text-slate-200">
-                    Ctrl
-                  </kbd>
-                  <span className="text-slate-400">/</span>
-                  <kbd className="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-600 font-mono font-bold text-xs text-slate-200">
-                    ⌘
-                  </kbd>
-                </span>
-                <span>+</span>
-                <span>{dict.sim_art_gallery.ctrl_zoom_hint}</span>
-              </div>
-            </div>
-          )}
-
           {/* Floating Action Toolbar Dock on the Canvas */}
           <div className="absolute top-3 left-3 flex items-center gap-1 p-1 rounded-xl bg-white/95 backdrop-blur-xs border border-slate-300/85 shadow-sm z-10">
             <button

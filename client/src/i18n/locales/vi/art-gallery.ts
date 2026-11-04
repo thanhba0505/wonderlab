@@ -67,7 +67,6 @@ export const artGalleryVi: ArtGallerySimulationDictionary = {
   zoom_out: 'Thu nhỏ bản đồ',
   reset_view: 'Đặt lại góc nhìn (100%)',
   pan_hint: 'Kéo nền để di chuyển bản đồ • Giữ Ctrl hoặc ⌘ + cuộn chuột để phóng to/thu nhỏ',
-  ctrl_zoom_hint: 'cuộn chuột để phóng to / thu nhỏ bản đồ',
   auto_fisk_btn: 'Tự Đặt Lính (Steve Fisk)',
   reset_default_btn: 'Đặt Lại Về Mặc Định',
   canvas_title: 'Bản Vẽ Phòng & Không Gian Tầm Nhìn',

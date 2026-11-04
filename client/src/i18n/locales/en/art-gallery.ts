@@ -68,7 +68,6 @@ export const artGalleryEn: ArtGallerySimulationDictionary = {
   zoom_out: 'Zoom Out Map',
   reset_view: 'Reset View (100%)',
   pan_hint: 'Drag canvas background to pan • Hold Ctrl or ⌘ + scroll to zoom',
-  ctrl_zoom_hint: 'scroll to zoom the map',
   auto_fisk_btn: 'Auto-place Guards (Fisk)',
   reset_default_btn: 'Reset to Default',
   canvas_title: 'Floor Plan & Visibility Field',

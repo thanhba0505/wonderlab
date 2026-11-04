@@ -913,7 +913,6 @@ export interface ArtGallerySimulationDictionary {
   zoom_out: string;
   reset_view: string;
   pan_hint: string;
-  ctrl_zoom_hint: string;
   auto_fisk_btn: string;
   reset_default_btn: string;
   canvas_title: string;
