@@ -18,6 +18,7 @@ import {
   BodyguardExplainer,
 } from './components';
 import { ViewMode, RayMode } from './components/control-deck';
+import { useBodyguardAudio } from './utils/bodyguard-audio';
 import {
   SimulationSection,
   SimulationWorkbenchCard,
@@ -40,6 +41,7 @@ import { FileSpreadsheet, FileJson, Copy, Check } from 'lucide-react';
 export function BodyguardSimulation(): React.JSX.Element {
   const { dict } = useTranslation();
   const meta = useSimulationMeta('bodyguard-problem');
+  const audio = useBodyguardAudio();
 
   // Simulation Parameters
   const [activePresetId, setActivePresetId] = React.useState<string>('generic');
@@ -51,6 +53,8 @@ export function BodyguardSimulation(): React.JSX.Element {
   const [maxBounces, setMaxBounces] = React.useState<number>(25);
   const [rayCount, setRayCount] = React.useState<number>(72);
   const [manualAngle, setManualAngle] = React.useState<number>(45);
+  const [snapToGrid, setSnapToGrid] = React.useState<boolean>(false);
+  const [hoveredGuardIndex, setHoveredGuardIndex] = React.useState<number | null>(null);
   const [copiedType, setCopiedType] = React.useState<'report' | null>(null);
 
   // Intuition Challenge State
@@ -150,6 +154,7 @@ export function BodyguardSimulation(): React.JSX.Element {
     setActivePresetId(preset.id);
     setSource(preset.source);
     setTarget(preset.target);
+    setHoveredGuardIndex(null);
   };
 
   // Handle Reset
@@ -162,6 +167,9 @@ export function BodyguardSimulation(): React.JSX.Element {
     setViewMode('dual');
     setRayMode('targeted');
     setMaxBounces(25);
+    setSnapToGrid(false);
+    setHoveredGuardIndex(null);
+    audio.playPresetChange();
   };
 
   // Handle Reload from History
@@ -176,6 +184,7 @@ export function BodyguardSimulation(): React.JSX.Element {
       setMaxBounces(params['maxBounces']);
     }
     setShowGuards(true);
+    setHoveredGuardIndex(null);
   };
 
   // Export handlers
@@ -261,6 +270,7 @@ ${guards.map((g, i) => `  - G${i + 1}: (${g.x.toFixed(4)}, ${g.y.toFixed(4)})`).
       >
         <SimulationWorkbenchCard
           title={dict.sim_bodyguard.sim_title}
+          normalLayout="split"
           controls={
             <ControlDeck
               source={source}
@@ -281,6 +291,13 @@ ${guards.map((g, i) => `  - G${i + 1}: (${g.x.toFixed(4)}, ${g.y.toFixed(4)})`).
               activePresetId={activePresetId}
               onSelectPreset={handleSelectPreset}
               onReset={handleReset}
+              snapToGrid={snapToGrid}
+              setSnapToGrid={setSnapToGrid}
+              onAudioShieldToggle={active =>
+                active ? audio.playShieldActivate() : audio.playShieldDeactivate()
+              }
+              onAudioPresetChange={audio.playPresetChange}
+              onAudioModeChange={audio.playModeChange}
             />
           }
           stage={
@@ -290,7 +307,7 @@ ${guards.map((g, i) => `  - G${i + 1}: (${g.x.toFixed(4)}, ${g.y.toFixed(4)})`).
                 <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
                   <div className="flex flex-col gap-2">
                     <span className="text-xs font-mono font-bold uppercase tracking-widest text-slate-700">
-                      Phòng Gương Thực Tế [0, 1]² (Tia Phản Xạ Gấp Khúc)
+                      Phòng Gương Thực Tế [0, 1]<sup>2</sup> (Tia Phản Xạ)
                     </span>
                     <RoomCanvas
                       source={source}
@@ -300,18 +317,24 @@ ${guards.map((g, i) => `  - G${i + 1}: (${g.x.toFixed(4)}, ${g.y.toFixed(4)})`).
                       showGuards={showGuards}
                       onSourceMove={setSource}
                       onTargetMove={setTarget}
+                      snapToGrid={snapToGrid}
+                      hoveredGuardIndex={hoveredGuardIndex}
+                      onHoverGuard={setHoveredGuardIndex}
+                      onDragTick={audio.playNodeDrag}
                     />
                   </div>
 
                   <div className="flex flex-col gap-2">
                     <span className="text-xs font-mono font-bold uppercase tracking-widest text-slate-700">
-                      Lưới Trải Phẳng Vô Hạn 5×5 (Tia Thẳng & Trung Điểm)
+                      Lưới Trải Phẳng 5 × 5 (Tia Thẳng & Trung Điểm)
                     </span>
                     <UnfoldingCanvas
                       source={source}
                       target={target}
                       guards={showGuards ? guards : []}
                       showGuards={showGuards}
+                      hoveredGuardIndex={hoveredGuardIndex}
+                      onHoverGuard={setHoveredGuardIndex}
                     />
                   </div>
                 </div>
@@ -320,7 +343,7 @@ ${guards.map((g, i) => `  - G${i + 1}: (${g.x.toFixed(4)}, ${g.y.toFixed(4)})`).
               {viewMode === 'room' && (
                 <div className="flex flex-col items-center gap-2">
                   <span className="text-xs font-mono font-bold uppercase tracking-widest text-slate-700">
-                    Căn Phòng Gương Thực Tế [0, 1]² (Tia Phản Xạ Gấp Khúc)
+                    Căn Phòng Gương Thực Tế [0, 1]<sup>2</sup> (Tia Phản Xạ)
                   </span>
                   <RoomCanvas
                     source={source}
@@ -330,6 +353,10 @@ ${guards.map((g, i) => `  - G${i + 1}: (${g.x.toFixed(4)}, ${g.y.toFixed(4)})`).
                     showGuards={showGuards}
                     onSourceMove={setSource}
                     onTargetMove={setTarget}
+                    snapToGrid={snapToGrid}
+                    hoveredGuardIndex={hoveredGuardIndex}
+                    onHoverGuard={setHoveredGuardIndex}
+                    onDragTick={audio.playNodeDrag}
                     className="w-full max-w-[620px]"
                   />
                 </div>
@@ -338,13 +365,15 @@ ${guards.map((g, i) => `  - G${i + 1}: (${g.x.toFixed(4)}, ${g.y.toFixed(4)})`).
               {viewMode === 'unfolded' && (
                 <div className="flex flex-col items-center gap-2">
                   <span className="text-xs font-mono font-bold uppercase tracking-widest text-slate-700">
-                    Lưới Trải Phẳng Vô Hạn 5×5 (Tia Thẳng & Trung Điểm Bảo Vệ)
+                    Lưới Trải Phẳng Vô Hạn 5 × 5 (Tia Thẳng & Trung Điểm Bảo Vệ)
                   </span>
                   <UnfoldingCanvas
                     source={source}
                     target={target}
                     guards={showGuards ? guards : []}
                     showGuards={showGuards}
+                    hoveredGuardIndex={hoveredGuardIndex}
+                    onHoverGuard={setHoveredGuardIndex}
                     className="w-full max-w-[620px]"
                   />
                 </div>
@@ -359,6 +388,8 @@ ${guards.map((g, i) => `  - G${i + 1}: (${g.x.toFixed(4)}, ${g.y.toFixed(4)})`).
                 blockedCount={simulationResults.blockedCount}
                 totalTargetedRays={simulationResults.totalTargeted}
                 protectionRate={simulationResults.protectionRate}
+                hoveredGuardIndex={hoveredGuardIndex}
+                onHoverGuard={setHoveredGuardIndex}
               />
             </div>
           }
@@ -368,7 +399,7 @@ ${guards.map((g, i) => `  - G${i + 1}: (${g.x.toFixed(4)}, ${g.y.toFixed(4)})`).
                 variant="outline"
                 size="sm"
                 onClick={handleExportCsv}
-                className="h-8 border-slate-300 text-xs"
+                className="h-8 border-slate-300 text-xs shadow-2xs"
               >
                 <FileSpreadsheet className="mr-1.5 h-3.5 w-3.5 text-emerald-600" />
                 {dict.simulations.export.csv}
@@ -377,7 +408,7 @@ ${guards.map((g, i) => `  - G${i + 1}: (${g.x.toFixed(4)}, ${g.y.toFixed(4)})`).
                 variant="outline"
                 size="sm"
                 onClick={handleExportJson}
-                className="h-8 border-slate-300 text-xs"
+                className="h-8 border-slate-300 text-xs shadow-2xs"
               >
                 <FileJson className="mr-1.5 h-3.5 w-3.5 text-blue-600" />
                 {dict.simulations.export.json}
@@ -386,7 +417,7 @@ ${guards.map((g, i) => `  - G${i + 1}: (${g.x.toFixed(4)}, ${g.y.toFixed(4)})`).
                 variant="outline"
                 size="sm"
                 onClick={handleCopyReport}
-                className="h-8 border-slate-300 text-xs"
+                className="h-8 border-slate-300 text-xs shadow-2xs"
               >
                 {copiedType === 'report' ? (
                   <Check className="mr-1.5 h-3.5 w-3.5 text-emerald-600" />
@@ -398,113 +429,17 @@ ${guards.map((g, i) => `  - G${i + 1}: (${g.x.toFixed(4)}, ${g.y.toFixed(4)})`).
             </div>
           }
           telemetry={
-            <div className="flex items-center gap-3">
-              <span>Định lý Gutkin (2005): |G| ≤ 16</span>
+            <div className="flex items-center gap-3 font-mono text-xs text-slate-600">
+              <span>Định lý Eugene Gutkin (2005): |G| ≤ 16</span>
               <span>•</span>
-              <span className="font-semibold text-emerald-700">
-                {showGuards ? 'Bảo Vệ Hoàn Toàn' : 'Mục Tiêu Bị Lộ Sáng'}
+              <span
+                className={`font-semibold ${showGuards ? 'text-emerald-700' : 'text-amber-700'}`}
+              >
+                {showGuards ? 'Bảo Vệ Hoàn Toàn 100%' : 'Mục Tiêu Bị Lộ Sáng'}
               </span>
             </div>
           }
-        >
-          {/* Bảng điều khiển tham số */}
-          <ControlDeck
-            source={source}
-            target={target}
-            guardsCount={guards.length}
-            showGuards={showGuards}
-            setShowGuards={setShowGuards}
-            viewMode={viewMode}
-            setViewMode={setViewMode}
-            rayMode={rayMode}
-            setRayMode={setRayMode}
-            maxBounces={maxBounces}
-            setMaxBounces={setMaxBounces}
-            rayCount={rayCount}
-            setRayCount={setRayCount}
-            manualAngle={manualAngle}
-            setManualAngle={setManualAngle}
-            activePresetId={activePresetId}
-            onSelectPreset={handleSelectPreset}
-            onReset={handleReset}
-          />
-
-          {/* Vùng hiển thị Canvas theo View Mode */}
-          {viewMode === 'dual' && (
-            <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-              <div className="flex flex-col gap-2">
-                <span className="text-xs font-mono font-bold uppercase tracking-widest text-slate-700">
-                  Phòng Gương Thực Tế [0, 1]² (Tia Phản Xạ Gấp Khúc)
-                </span>
-                <RoomCanvas
-                  source={source}
-                  target={target}
-                  guards={showGuards ? guards : []}
-                  rays={simulationResults.rays}
-                  showGuards={showGuards}
-                  onSourceMove={setSource}
-                  onTargetMove={setTarget}
-                />
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <span className="text-xs font-mono font-bold uppercase tracking-widest text-slate-700">
-                  Lưới Trải Phẳng Vô Hạn 5×5 (Tia Thẳng & Trung Điểm)
-                </span>
-                <UnfoldingCanvas
-                  source={source}
-                  target={target}
-                  guards={showGuards ? guards : []}
-                  showGuards={showGuards}
-                />
-              </div>
-            </div>
-          )}
-
-          {viewMode === 'room' && (
-            <div className="flex flex-col items-center gap-2">
-              <span className="text-xs font-mono font-bold uppercase tracking-widest text-slate-700">
-                Căn Phòng Gương Thực Tế [0, 1]² (Tia Phản Xạ Gấp Khúc)
-              </span>
-              <RoomCanvas
-                source={source}
-                target={target}
-                guards={showGuards ? guards : []}
-                rays={simulationResults.rays}
-                showGuards={showGuards}
-                onSourceMove={setSource}
-                onTargetMove={setTarget}
-                className="w-full max-w-[620px]"
-              />
-            </div>
-          )}
-
-          {viewMode === 'unfolded' && (
-            <div className="flex flex-col items-center gap-2">
-              <span className="text-xs font-mono font-bold uppercase tracking-widest text-slate-700">
-                Lưới Trải Phẳng Vô Hạn 5×5 (Tia Thẳng & Trung Điểm Bảo Vệ)
-              </span>
-              <UnfoldingCanvas
-                source={source}
-                target={target}
-                guards={showGuards ? guards : []}
-                showGuards={showGuards}
-                className="w-full max-w-[620px]"
-              />
-            </div>
-          )}
-
-          {/* Telemetry & Bảng đo đạc */}
-          <TelemetryPanel
-            source={source}
-            target={target}
-            guards={guards}
-            showGuards={showGuards}
-            blockedCount={simulationResults.blockedCount}
-            totalTargetedRays={simulationResults.totalTargeted}
-            protectionRate={simulationResults.protectionRate}
-          />
-        </SimulationWorkbenchCard>
+        />
       </SimulationSection>
 
       {/* 3. GIẢI MÃ BẢN CHẤT TOÁN HỌC & ĐỊNH LÝ GUTKIN */}

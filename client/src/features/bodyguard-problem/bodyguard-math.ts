@@ -24,6 +24,7 @@ export interface RayTraceResult {
   hitTarget: boolean;
   blockedByGuard: boolean;
   blockedGuardPoint: Point | null;
+  blockedGuardIndex?: number | null;
   totalDistance: number;
   bounces: number;
 }
@@ -123,6 +124,14 @@ export function foldToUnit(v: number): number {
  */
 export function distanceBetween(p1: Point, p2: Point): number {
   return Math.hypot(p1.x - p2.x, p1.y - p2.y);
+}
+
+/**
+ * Snaps a normalized coordinate to a fine grid (e.g. 0.05 step).
+ */
+export function snapCoordinate(val: number, step: number = 0.05): number {
+  const snapped = Math.round(val / step) * step;
+  return Math.min(0.96, Math.max(0.04, Math.round(snapped * 1000) / 1000));
 }
 
 /**
@@ -274,6 +283,7 @@ export function traceRay(
       hitTarget: false,
       blockedByGuard: false,
       blockedGuardPoint: null,
+      blockedGuardIndex: null,
       totalDistance: 0,
       bounces: 0,
     };
@@ -285,6 +295,7 @@ export function traceRay(
   let hitTarget = false;
   let blockedByGuard = false;
   let blockedGuardPoint: Point | null = null;
+  let blockedGuardIndex: number | null = null;
   let totalDistance = 0;
   let bounceCount = 0;
 
@@ -312,6 +323,7 @@ export function traceRay(
       t: number;
       type: 'target' | 'guard';
       guardPoint?: Point;
+      guardIndex?: number;
     }
 
     let earliestCollision: CollisionEvent | null = null;
@@ -333,7 +345,8 @@ export function traceRay(
     }
 
     // Check guard collisions
-    for (const guard of guards) {
+    for (let gIdx = 0; gIdx < guards.length; gIdx++) {
+      const guard = guards[gIdx]!;
       const toGuardX = guard.x - curX;
       const toGuardY = guard.y - curY;
       const tGuardProj = toGuardX * dirX + toGuardY * dirY;
@@ -344,7 +357,7 @@ export function traceRay(
           const offset = Math.sqrt(Math.max(0, hitRadius * hitRadius - perpDistSq));
           const tHit = Math.max(1e-4, tGuardProj - offset);
           if (tHit <= tWall && (earliestCollision === null || tHit < earliestCollision.t)) {
-            earliestCollision = { t: tHit, type: 'guard', guardPoint: guard };
+            earliestCollision = { t: tHit, type: 'guard', guardPoint: guard, guardIndex: gIdx };
           }
         }
       }
@@ -360,6 +373,7 @@ export function traceRay(
       if (earliestCollision.type === 'guard') {
         blockedByGuard = true;
         blockedGuardPoint = earliestCollision.guardPoint ?? null;
+        blockedGuardIndex = earliestCollision.guardIndex ?? null;
       } else {
         hitTarget = true;
       }
@@ -391,6 +405,7 @@ export function traceRay(
     hitTarget,
     blockedByGuard,
     blockedGuardPoint,
+    blockedGuardIndex,
     totalDistance,
     bounces: bounceCount,
   };
