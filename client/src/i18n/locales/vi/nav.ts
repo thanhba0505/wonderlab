@@ -21,6 +21,10 @@ export const headerVi: HeaderDictionary = {
   language: 'Ngôn ngữ',
   switch_to: 'Chuyển sang {lang}',
   current_lang: 'Tiếng Việt',
+  sound_toggle: 'Bật / tắt âm thanh',
+  sound_muted: 'Âm thanh: Đang tắt',
+  sound_unmuted: 'Âm thanh: Đang bật',
+  sound_volume: 'Âm lượng: {vol}%',
 };
 
 export const footerVi: FooterDictionary = {

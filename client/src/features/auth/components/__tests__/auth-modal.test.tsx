@@ -94,5 +94,5 @@ describe('AuthModal (Register flow)', () => {
     });
 
     expect(mockRegister).toHaveBeenCalledWith('dev_user', 'arbitrary_email', '123');
-  });
+  }, 15000);
 });

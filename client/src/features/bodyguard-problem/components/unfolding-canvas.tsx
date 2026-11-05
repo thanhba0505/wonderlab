@@ -1,13 +1,15 @@
 'use client';
 
 import React, { useRef, useEffect } from 'react';
-import { Point } from '@/features/bodyguard-problem/bodyguard-math';
+import { Point, foldToUnit } from '@/features/bodyguard-problem/bodyguard-math';
 
 interface UnfoldingCanvasProps {
   source: Point;
   target: Point;
   guards: Point[];
   showGuards: boolean;
+  hoveredGuardIndex?: number | null;
+  onHoverGuard?: (index: number | null) => void;
   className?: string;
 }
 
@@ -34,6 +36,8 @@ export function UnfoldingCanvas({
   target,
   guards,
   showGuards,
+  hoveredGuardIndex = null,
+  onHoverGuard,
   className = '',
 }: UnfoldingCanvasProps): React.JSX.Element {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -129,9 +133,31 @@ export function UnfoldingCanvas({
         const imgX = toCanvasPxX(img.x);
         const imgY = toCanvasPxY(img.y);
 
+        // Calculate folded midpoint for this image
+        const midUnitX = (source.x + img.x) / 2;
+        const midUnitY = (source.y + img.y) / 2;
+        const foldedX = foldToUnit(midUnitX);
+        const foldedY = foldToUnit(midUnitY);
+
+        // Find corresponding guard index
+        const guardIdx = guards.findIndex(
+          g => Math.abs(g.x - foldedX) < 1e-3 && Math.abs(g.y - foldedY) < 1e-3,
+        );
+
+        const isHighlighted = hoveredGuardIndex !== null && guardIdx === hoveredGuardIndex;
+
         // Draw straight ray
-        ctx.strokeStyle = showGuards ? 'rgba(239, 68, 68, 0.35)' : 'rgba(6, 182, 212, 0.35)';
-        ctx.lineWidth = 1;
+        if (isHighlighted) {
+          ctx.strokeStyle = '#10b981';
+          ctx.lineWidth = 2.2;
+        } else if (hoveredGuardIndex !== null) {
+          ctx.strokeStyle = 'rgba(148, 163, 184, 0.18)';
+          ctx.lineWidth = 0.8;
+        } else {
+          ctx.strokeStyle = showGuards ? 'rgba(239, 68, 68, 0.35)' : 'rgba(6, 182, 212, 0.35)';
+          ctx.lineWidth = 1;
+        }
+
         ctx.beginPath();
         ctx.moveTo(srcX, srcY);
         ctx.lineTo(imgX, imgY);
@@ -142,10 +168,22 @@ export function UnfoldingCanvas({
           const midX = (srcX + imgX) / 2;
           const midY = (srcY + imgY) / 2;
 
-          ctx.fillStyle = '#059669';
-          ctx.beginPath();
-          ctx.arc(midX, midY, 3, 0, Math.PI * 2);
-          ctx.fill();
+          if (isHighlighted) {
+            ctx.fillStyle = 'rgba(16, 185, 129, 0.3)';
+            ctx.beginPath();
+            ctx.arc(midX, midY, 7, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#047857';
+            ctx.beginPath();
+            ctx.arc(midX, midY, 4.5, 0, Math.PI * 2);
+            ctx.fill();
+          } else {
+            ctx.fillStyle = '#059669';
+            ctx.beginPath();
+            ctx.arc(midX, midY, 3, 0, Math.PI * 2);
+            ctx.fill();
+          }
         }
       }
     }
@@ -184,13 +222,22 @@ export function UnfoldingCanvas({
 
     // 6. Draw Guard Points in the Central Room for visual reference
     if (showGuards) {
-      guards.forEach(g => {
+      guards.forEach((g, idx) => {
         const gx = toCanvasPxX(g.x);
         const gy = toCanvasPxY(g.y);
-        ctx.fillStyle = '#10b981';
-        ctx.beginPath();
-        ctx.arc(gx, gy, 3, 0, Math.PI * 2);
-        ctx.fill();
+        const isHovered = hoveredGuardIndex === idx;
+
+        if (isHovered) {
+          ctx.fillStyle = '#047857';
+          ctx.beginPath();
+          ctx.arc(gx, gy, 5, 0, Math.PI * 2);
+          ctx.fill();
+        } else {
+          ctx.fillStyle = '#10b981';
+          ctx.beginPath();
+          ctx.arc(gx, gy, 3, 0, Math.PI * 2);
+          ctx.fill();
+        }
       });
     }
 
@@ -208,16 +255,71 @@ export function UnfoldingCanvas({
     ctx.textAlign = 'center';
     ctx.textBaseline = 'top';
     ctx.fillText('A', srcX, srcY + 8);
-  }, [source, target, guards, showGuards]);
+  }, [source, target, guards, showGuards, hoveredGuardIndex]);
+
+  // Pointer hover detection to highlight corresponding guard
+  const handlePointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+    if (!canvas || !showGuards) return;
+    const rect = canvas.getBoundingClientRect();
+    const px = e.clientX - rect.left;
+    const py = e.clientY - rect.top;
+
+    const padding = 24;
+    const availSize = Math.min(rect.width, rect.height) - padding * 2;
+    const cellSize = Math.max(30, availSize / TOTAL_CELLS);
+    const gridOriginX = (rect.width - cellSize * TOTAL_CELLS) / 2;
+    const gridOriginY = (rect.height - cellSize * TOTAL_CELLS) / 2;
+
+    const toCanvasPxX = (x: number): number => gridOriginX + (x + GRID_EXTENT) * cellSize;
+    const toCanvasPxY = (y: number): number => gridOriginY + (y + GRID_EXTENT) * cellSize;
+
+    let nearestGuardIdx: number | null = null;
+    let minDistance = 16; // pixel threshold
+
+    for (let u = -GRID_EXTENT; u <= GRID_EXTENT; u++) {
+      for (let w = -GRID_EXTENT; w <= GRID_EXTENT; w++) {
+        const img = getUnfoldedTargetImage(target, u, w);
+        const midX = (toCanvasPxX(source.x) + toCanvasPxX(img.x)) / 2;
+        const midY = (toCanvasPxY(source.y) + toCanvasPxY(img.y)) / 2;
+
+        const dist = Math.hypot(px - midX, py - midY);
+        if (dist < minDistance) {
+          minDistance = dist;
+          const midUnitX = (source.x + img.x) / 2;
+          const midUnitY = (source.y + img.y) / 2;
+          const foldedX = foldToUnit(midUnitX);
+          const foldedY = foldToUnit(midUnitY);
+          const idx = guards.findIndex(
+            g => Math.abs(g.x - foldedX) < 1e-3 && Math.abs(g.y - foldedY) < 1e-3,
+          );
+          if (idx !== -1) {
+            nearestGuardIdx = idx;
+          }
+        }
+      }
+    }
+
+    onHoverGuard?.(nearestGuardIdx);
+  };
+
+  const handlePointerLeave = () => {
+    onHoverGuard?.(null);
+  };
 
   return (
     <div
-      className={`relative flex flex-col items-center justify-center overflow-hidden rounded-xl border border-slate-300 bg-white p-2 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.06)] ${className}`}
+      className={`relative flex flex-col items-center justify-center overflow-hidden rounded-xl border border-slate-200/90 bg-slate-50/50 p-2 ${className}`}
     >
-      <canvas ref={canvasRef} className="h-[420px] w-full max-w-[500px] rounded-lg" />
+      <canvas
+        ref={canvasRef}
+        onPointerMove={handlePointerMove}
+        onPointerLeave={handlePointerLeave}
+        className="h-[420px] w-full max-w-[500px] touch-none select-none rounded-lg cursor-crosshair"
+      />
       <div className="mt-1 flex w-full items-center justify-between px-2 text-xs font-mono text-slate-500">
         <span>Lưới 5×5 trải phẳng (Unfolding Lattice)</span>
-        <span>Chấm xanh lá: Trung điểm bảo vệ</span>
+        <span>Rê chuột vào tia để soi điểm vệ sĩ</span>
       </div>
     </div>
   );

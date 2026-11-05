@@ -5,6 +5,7 @@ import {
   Point,
   RayTraceResult,
   distanceBetween,
+  snapCoordinate,
 } from '@/features/bodyguard-problem/bodyguard-math';
 
 interface RoomCanvasProps {
@@ -15,10 +16,14 @@ interface RoomCanvasProps {
   showGuards: boolean;
   onSourceMove: (p: Point) => void;
   onTargetMove: (p: Point) => void;
+  snapToGrid?: boolean;
+  hoveredGuardIndex?: number | null;
+  onHoverGuard?: (index: number | null) => void;
+  onDragTick?: () => void;
   className?: string;
 }
 
-const HIT_RADIUS = 0.04; // Hit test radius in unit coordinates for dragging
+const HIT_RADIUS = 0.05; // Hit test radius in unit coordinates for dragging
 const PADDING = 28; // Padding around the room in canvas pixels
 
 export function RoomCanvas({
@@ -29,6 +34,10 @@ export function RoomCanvas({
   showGuards,
   onSourceMove,
   onTargetMove,
+  snapToGrid = false,
+  hoveredGuardIndex = null,
+  onHoverGuard,
+  onDragTick,
   className = '',
 }: RoomCanvasProps): React.JSX.Element {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -43,7 +52,7 @@ export function RoomCanvas({
 
   // Convert canvas pixel coords to unit [0, 1]
   const toUnitCoord = useCallback((px: number, roomSize: number, offset: number): number => {
-    return Math.min(0.98, Math.max(0.02, (px - offset) / roomSize));
+    return Math.min(0.96, Math.max(0.04, (px - offset) / roomSize));
   }, []);
 
   // Render loop
@@ -104,7 +113,7 @@ export function RoomCanvas({
     // Draw optical mirror hatch marks (slanted lines behind the wall)
     ctx.strokeStyle = '#94a3b8';
     ctx.lineWidth = 1;
-    const hatchCount = 12;
+    const hatchCount = 14;
     const hatchLen = 6;
     for (let i = 0; i <= hatchCount; i++) {
       const frac = i / hatchCount;
@@ -150,12 +159,18 @@ export function RoomCanvas({
     for (const ray of rays) {
       if (ray.segments.length === 0) continue;
 
-      let strokeStyle = '#94a3b8'; // Default bouncing ray
+      const isHoveredGuardBlocked =
+        hoveredGuardIndex !== null && ray.blockedGuardIndex === hoveredGuardIndex;
+
+      let strokeStyle = '#cbd5e1'; // Default bouncing ray
       let lineWidth = 1;
 
-      if (ray.blockedByGuard) {
-        strokeStyle = 'rgba(239, 68, 68, 0.75)'; // Red for intercepted ray
-        lineWidth = 1.4;
+      if (isHoveredGuardBlocked) {
+        strokeStyle = '#ef4444'; // Bright Red when corresponding to hovered guard
+        lineWidth = 2.4;
+      } else if (ray.blockedByGuard) {
+        strokeStyle = 'rgba(239, 68, 68, 0.65)'; // Intercepted ray
+        lineWidth = 1.3;
       } else if (ray.hitTarget) {
         strokeStyle = 'rgba(6, 182, 212, 0.9)'; // Cyan for target hit
         lineWidth = 1.8;
@@ -182,9 +197,11 @@ export function RoomCanvas({
       if (ray.blockedByGuard && ray.blockedGuardPoint) {
         const gx = toCanvasPx(ray.blockedGuardPoint.x, roomSize, offsetX);
         const gy = toCanvasPx(ray.blockedGuardPoint.y, roomSize, offsetY);
-        ctx.fillStyle = 'rgba(239, 68, 68, 0.4)';
+        ctx.fillStyle = isHoveredGuardBlocked
+          ? 'rgba(239, 68, 68, 0.7)'
+          : 'rgba(239, 68, 68, 0.35)';
         ctx.beginPath();
-        ctx.arc(gx, gy, 7, 0, Math.PI * 2);
+        ctx.arc(gx, gy, isHoveredGuardBlocked ? 8 : 6, 0, Math.PI * 2);
         ctx.fill();
       }
     }
@@ -194,28 +211,31 @@ export function RoomCanvas({
       guards.forEach((g, idx) => {
         const gx = toCanvasPx(g.x, roomSize, offsetX);
         const gy = toCanvasPx(g.y, roomSize, offsetY);
+        const isHovered = hoveredGuardIndex === idx;
 
         // Guard aura ring
-        ctx.fillStyle = 'rgba(16, 185, 129, 0.15)';
+        ctx.fillStyle = isHovered ? 'rgba(16, 185, 129, 0.35)' : 'rgba(16, 185, 129, 0.15)';
         ctx.beginPath();
-        ctx.arc(gx, gy, 9, 0, Math.PI * 2);
+        ctx.arc(gx, gy, isHovered ? 13 : 9, 0, Math.PI * 2);
         ctx.fill();
 
         // Guard core
-        ctx.fillStyle = '#059669';
+        ctx.fillStyle = isHovered ? '#047857' : '#059669';
         ctx.beginPath();
-        ctx.arc(gx, gy, 4.5, 0, Math.PI * 2);
+        ctx.arc(gx, gy, isHovered ? 6 : 4.5, 0, Math.PI * 2);
         ctx.fill();
 
         // Inner white dot
         ctx.fillStyle = '#ffffff';
         ctx.beginPath();
-        ctx.arc(gx, gy, 1.5, 0, Math.PI * 2);
+        ctx.arc(gx, gy, isHovered ? 2 : 1.5, 0, Math.PI * 2);
         ctx.fill();
 
         // Minimal guard label
-        ctx.fillStyle = '#065f46';
-        ctx.font = '12px JetBrains Mono, monospace';
+        ctx.fillStyle = isHovered ? '#064e3b' : '#065f46';
+        ctx.font = isHovered
+          ? 'bold 12px JetBrains Mono, monospace'
+          : '12px JetBrains Mono, monospace';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'top';
         ctx.fillText(`G${idx + 1}`, gx, gy + 7);
@@ -246,7 +266,7 @@ export function RoomCanvas({
     ctx.font = 'bold 12px JetBrains Mono, monospace';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'bottom';
-    ctx.fillText(`Mục tiêu B (${target.x.toFixed(2)}, ${target.y.toFixed(2)})`, bx, by - 12);
+    ctx.fillText(`Đích B (${target.x.toFixed(2)}, ${target.y.toFixed(2)})`, bx, by - 12);
 
     // 4. Draw Source Point A (Amber)
     const ax = toCanvasPx(source.x, roomSize, offsetX);
@@ -273,7 +293,36 @@ export function RoomCanvas({
     ctx.textAlign = 'center';
     ctx.textBaseline = 'bottom';
     ctx.fillText(`Nguồn A (${source.x.toFixed(2)}, ${source.y.toFixed(2)})`, ax, ay - 14);
-  }, [source, target, guards, rays, showGuards, toCanvasPx]);
+
+    // 5. Floating Badge while dragging
+    if (activeDrag === 'source') {
+      ctx.fillStyle = '#0f172a';
+      ctx.font = 'bold 12px JetBrains Mono, monospace';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      const text = `A: (${source.x.toFixed(2)}, ${source.y.toFixed(2)})`;
+      const textWidth = ctx.measureText(text).width;
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
+      ctx.beginPath();
+      ctx.roundRect(ax - textWidth / 2 - 8, ay - 42, textWidth + 16, 22, 6);
+      ctx.fill();
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText(text, ax, ay - 25);
+    } else if (activeDrag === 'target') {
+      ctx.fillStyle = '#0f172a';
+      ctx.font = 'bold 12px JetBrains Mono, monospace';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      const text = `B: (${target.x.toFixed(2)}, ${target.y.toFixed(2)})`;
+      const textWidth = ctx.measureText(text).width;
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
+      ctx.beginPath();
+      ctx.roundRect(bx - textWidth / 2 - 8, by - 42, textWidth + 16, 22, 6);
+      ctx.fill();
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText(text, bx, by - 25);
+    }
+  }, [source, target, guards, rays, showGuards, hoveredGuardIndex, activeDrag, toCanvasPx]);
 
   // Pointer event handlers for drag & drop
   const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
@@ -318,28 +367,58 @@ export function RoomCanvas({
     const offsetX = (rect.width - roomSize) / 2;
     const offsetY = (rect.height - roomSize) / 2;
 
-    const newX = toUnitCoord(px, roomSize, offsetX);
-    const newY = toUnitCoord(py, roomSize, offsetY);
+    let unitX = toUnitCoord(px, roomSize, offsetX);
+    let unitY = toUnitCoord(py, roomSize, offsetY);
+
+    const shouldSnap = snapToGrid || e.shiftKey;
+    if (shouldSnap) {
+      unitX = snapCoordinate(unitX, 0.05);
+      unitY = snapCoordinate(unitY, 0.05);
+    } else {
+      unitX = Math.round(unitX * 100) / 100;
+      unitY = Math.round(unitY * 100) / 100;
+    }
 
     if (activeDrag === 'source') {
-      onSourceMove({ x: Math.round(newX * 100) / 100, y: Math.round(newY * 100) / 100 });
+      if (unitX !== source.x || unitY !== source.y) {
+        onSourceMove({ x: unitX, y: unitY });
+        onDragTick?.();
+      }
       return;
     }
 
     if (activeDrag === 'target') {
-      onTargetMove({ x: Math.round(newX * 100) / 100, y: Math.round(newY * 100) / 100 });
+      if (unitX !== target.x || unitY !== target.y) {
+        onTargetMove({ x: unitX, y: unitY });
+        onDragTick?.();
+      }
       return;
     }
 
-    // Hover state detection
-    const unitX = (px - offsetX) / roomSize;
-    const unitY = (py - offsetY) / roomSize;
-    if (distanceBetween({ x: unitX, y: unitY }, source) < HIT_RADIUS) {
+    // Hover state detection on A and B
+    const rawUnitX = (px - offsetX) / roomSize;
+    const rawUnitY = (py - offsetY) / roomSize;
+    if (distanceBetween({ x: rawUnitX, y: rawUnitY }, source) < HIT_RADIUS) {
       setHoveredNode('source');
-    } else if (distanceBetween({ x: unitX, y: unitY }, target) < HIT_RADIUS) {
+      onHoverGuard?.(null);
+    } else if (distanceBetween({ x: rawUnitX, y: rawUnitY }, target) < HIT_RADIUS) {
       setHoveredNode('target');
+      onHoverGuard?.(null);
     } else {
       setHoveredNode(null);
+
+      // Check hover on guards
+      if (showGuards) {
+        let nearestGuardIdx: number | null = null;
+        for (let i = 0; i < guards.length; i++) {
+          const g = guards[i]!;
+          if (distanceBetween({ x: rawUnitX, y: rawUnitY }, g) < 0.035) {
+            nearestGuardIdx = i;
+            break;
+          }
+        }
+        onHoverGuard?.(nearestGuardIdx);
+      }
     }
   };
 
@@ -348,6 +427,11 @@ export function RoomCanvas({
       canvasRef.current?.releasePointerCapture(e.pointerId);
       setActiveDrag(null);
     }
+  };
+
+  const handlePointerLeave = () => {
+    setHoveredNode(null);
+    onHoverGuard?.(null);
   };
 
   const cursorClass = activeDrag
@@ -359,7 +443,7 @@ export function RoomCanvas({
   return (
     <div
       ref={containerRef}
-      className={`relative flex flex-col items-center justify-center overflow-hidden rounded-xl border border-slate-300 bg-white p-2 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.06)] ${className}`}
+      className={`relative flex flex-col items-center justify-center overflow-hidden rounded-xl border border-slate-200/90 bg-slate-50/50 p-2 ${className}`}
     >
       <canvas
         ref={canvasRef}
@@ -367,11 +451,12 @@ export function RoomCanvas({
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerUp}
+        onPointerLeave={handlePointerLeave}
         className={`h-[420px] w-full max-w-[500px] touch-none select-none rounded-lg ${cursorClass}`}
       />
       <div className="mt-1 flex w-full items-center justify-between px-2 text-xs font-mono text-slate-500">
-        <span>Kéo A hoặc B để dịch chuyển</span>
-        <span>Kích thước: 1.0 × 1.0</span>
+        <span>Kéo A hoặc B (giữ Shift để bắt lưới 0.05)</span>
+        <span>Phòng chuẩn: 1.0 × 1.0</span>
       </div>
     </div>
   );

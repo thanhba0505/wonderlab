@@ -36,12 +36,12 @@ export const prisonersHatsVi: PrisonersHatsSimulationDictionary = {
   your_spot_badge: '[Vị trí bạn]',
   legend_title: 'Chú thích:',
   white_hat_0: 'Mũ Trắng (0)',
-  black_hat_1: 'Mũ Đen (1)',
+  black_hat_1: 'Mũ Đậm (1)',
   red_hat_0: 'Đỏ (0)',
   blue_hat_1: 'Xanh (1)',
   yellow_hat_2: 'Vàng (2)',
   legend_parity_callout:
-    'Trong hệ 2 màu: Lẻ (Odd) = Mũ Đen (1), Chẵn (Even) = Mũ Trắng (0). Trong hệ 3 màu: Tổng số dư Modulo 3 mã hóa thành màu tương ứng (Đỏ = 0, Xanh = 1, Vàng = 2).',
+    'Trong hệ 2 màu: Lẻ (Odd) = Mũ Đậm (1), Chẵn (Even) = Mũ Trắng (0). Trong hệ 3 màu: Tổng số dư Modulo 3 mã hóa thành màu tương ứng (Đỏ = 0, Xanh = 1, Vàng = 2).',
   hover_field_of_view_hint: '* Rê chuột vào từng người để xem trường tầm nhìn phía trước',
   blackboard_title: 'Bảng Giải Mã Parity & Chuỗi Trừ Lùi Modulo',
   blackboard_desc: 'Theo dõi trực tiếp sự suy giảm entropy thông tin qua từng lượt phát biểu',
@@ -88,7 +88,7 @@ export const prisonersHatsVi: PrisonersHatsSimulationDictionary = {
   hats_visible_in_front: 'Mũ bạn nhìn thấy phía trước:',
   nobody_ahead: 'Không có ai phía trước (bạn là người đầu hàng #1).',
   person_tooltip: 'Người #{id}: {label}',
-  sum_black_label: 'Σ Đen = {sum}, mod 2 = {mod}',
+  sum_black_label: 'Σ Đậm = {sum}, mod 2 = {mod}',
   your_turn_prompt: '🎯 Đã đến lượt bạn! Hãy bấm chọn màu mũ của mình:',
   waiting_turn_prompt: 'Đang chờ đến lượt bạn trong hàng...',
   hide_hint: 'Ẩn gợi ý',
@@ -97,7 +97,7 @@ export const prisonersHatsVi: PrisonersHatsSimulationDictionary = {
   deduction_tip_body:
     'Lấy tín hiệu chẵn lẻ của người #{n} trừ đi tổng các mũ bạn đã nghe và tổng các mũ bạn đang nhìn thấy phía trước!',
   tip_sacrifice_2:
-    'Bạn là người cuối hàng! Hãy đếm tổng số mũ Đen phía trước. Nếu số lượng là Chẵn thì hô Trắng (0), Lẻ thì hô Đen (1).',
+    'Bạn là người cuối hàng! Hãy đếm tổng số mũ Đậm phía trước. Nếu số lượng là Chẵn thì hô Trắng (0), Lẻ thì hô Đậm (1).',
   tip_sacrifice_3:
     'Bạn là người cuối hàng! Hãy đếm tổng số mũ phía trước, tính tổng mod 3 và hô màu tương ứng.',
   tip_deduction_formula:
@@ -161,7 +161,7 @@ export const prisonersHatsVi: PrisonersHatsSimulationDictionary = {
     'Trong các trung tâm dữ liệu, RAID 5 phân phối các khối parity trên tất cả ổ cứng. Nếu bất kỳ một ổ cứng vật lý nào đột ngột bị cháy hoặc hư hỏng cơ học, toàn bộ 100% dữ liệu của ổ đó được tính toán lại ngay lập tức thông qua phép XOR giữa các ổ còn sống.',
   exp_core_parity_title: '1. Bản Chất Toán Học: Bài Toán Chia Sẻ Thông Tin Tập Thể',
   exp_core_parity_body:
-    'Nếu mỗi tù nhân đoán độc lập, xác suất cả đoàn sống sót là (1/2)¹⁰ ≈ 0.097%. Nhưng khi hợp tác bằng bit chẵn lẻ (Parity Bit), người cuối cùng mã hóa tổng số mũ đen của cả đoàn thành 1 bit duy nhất. 9 người còn lại chỉ cần nghe âm thanh đó để suy luận chính xác 100% màu mũ của mình!',
+    'Nếu mỗi tù nhân đoán độc lập, xác suất cả đoàn sống sót là (1/2)¹⁰ ≈ 0.097%. Nhưng khi hợp tác bằng bit chẵn lẻ (Parity Bit), người cuối cùng mã hóa tổng số mũ đậm của cả đoàn thành 1 bit duy nhất. 9 người còn lại chỉ cần nghe âm thanh đó để suy luận chính xác 100% màu mũ của mình!',
   exp_cs_ecc_title: '2. Ứng Dụng Trong Bộ Nhớ RAM ECC (Error-Correcting Code)',
   exp_cs_ecc_body:
     'Trong máy chủ dữ liệu, tia vũ trụ có thể làm lật ngẫu nhiên 1 bit trong RAM (bit flip). Bằng cách bổ sung các bit Parity theo mã Hamming, hệ thống phát hiện và tự sửa lỗi 1-bit ngay lập tức mà không làm sập máy.',
@@ -178,7 +178,45 @@ export const prisonersHatsVi: PrisonersHatsSimulationDictionary = {
   prisoners_count_label: 'Số lượng người (N):',
   people_unit: 'người',
   color_space_label: 'Không gian màu mũ:',
-  color_space_2: '2 Màu (Đen / Trắng)',
+  color_space_2: '2 Màu (Trắng / Đậm)',
   color_space_3: '3 Màu (Mod 3)',
   speed_label: 'Tốc độ diễn hoạt:',
+  // Stage & Visual Motion
+  sight_cone_label: 'Nón tầm nhìn (Trường quan sát)',
+  blind_spot_label: 'Điểm mù (Không thấy mũ của mình)',
+  particle_transmitted: 'Đã truyền tín hiệu Parity',
+  sound_effect_toggle: 'Âm thanh mô phỏng',
+  cinematic_prologue_title: 'Đêm Trước Ngày Phán Quyết: Thử Thách Trí Tuệ Tập Thể',
+  cinematic_prologue_body:
+    '10 nhà khoa học có đúng một giờ trong đêm để thống nhất một quy ước cứu mạng. Nếu từng người đoán mò độc lập, xác suất sống sót của cả đoàn là (1/2)¹⁰ ≈ 0.098%. Làm thế nào bit chẵn lẻ biến điều bất khả thành sự cứu rỗi tuyệt đối?',
+  // Modulo Equation Balance Bar
+  equation_balance_title: 'Cán Cân Đại Số Đồng Dư Trực Quan',
+  equation_balance_desc:
+    'Màu mũ của bạn = [Tín hiệu gốc] − [Tổng màu đã nghe] − [Tổng màu nhìn thấy trước mặt] (mod k)',
+  root_signal_box: 'Tín hiệu gốc',
+  heard_sum_box: 'Tổng đã nghe',
+  seen_ahead_box: 'Thấy trước mặt',
+  my_color_result_box: 'Màu mũ giải mã',
+  // Scratchpad
+  scratchpad_title: 'Sổ Tay Thử Nhẩm Tính (Scratchpad)',
+  scratchpad_desc:
+    'Cộng dồn số mũ bạn quan sát được phía trước để nhẩm tính mod k trước khi chốt đáp án:',
+  scratchpad_toggle_btn: 'Mở nháp nhẩm tính',
+  scratchpad_sum_label: 'Tổng mũ thấy trước',
+  scratchpad_parity_result: 'Số dư Modulo',
+  // Hamming Code & Cosmic Ray
+  hamming_variant_title: 'Biến Thể Mở Rộng: Đoán Đồng Thời & Mã Hamming [7, 4]',
+  hamming_variant_desc:
+    'Nếu cả 7 người phải hô cùng một lúc mà không được nghe ai, mã sửa sai Hamming đảm bảo cứu toàn đội với xác suất 75%!',
+  hamming_sphere_title: 'Phân Vùng Quả Cầu Hamming Trong Không Gian 2⁷',
+  hamming_sphere_desc:
+    '128 trạng thái mũ được gom thành 16 quả cầu Hamming bán kính 1. Mỗi người suy luận dựa trên giả thiết cấu hình rơi vào bề mặt quả cầu thay vì tâm.',
+  ecc_interactive_title: 'Thực Nghiệm Tương Tác: Tia Vũ Trụ & Lật Bit ECC RAM',
+  ecc_interactive_desc:
+    'Nhấp vào ô nhớ bất kỳ để phóng tia vũ trụ làm đảo bit 0 ↔ 1. Quan sát thuật toán Parity phát hiện vị trí sai và tự động khôi phục dữ liệu gốc!',
+  flip_bit_btn: 'Bắn tia vũ trụ (Lật ngẫu nhiên 1 bit)',
+  repair_bit_btn: 'Tự động sửa lỗi (Parity Correction)',
+  memory_intact: 'Bộ nhớ toàn vẹn (0 lỗi bit)',
+  memory_error_detected: 'CẢNH BÁO: Phát hiện lỗi tại Ô #{bit}! Đang khôi phục...',
+  memory_repaired: 'Đã sửa chữa thành công lỗi bit nhờ Parity Bit!',
 };

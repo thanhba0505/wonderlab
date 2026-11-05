@@ -20,3 +20,4 @@ export * from './badge';
 export * from './card';
 export * from './brand-logo';
 export * from './language-switcher';
+export * from './sound-control';

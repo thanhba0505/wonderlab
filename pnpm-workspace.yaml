@@ -13,3 +13,6 @@ allowBuilds:
   sharp: true
   unrs-resolver: true
   workerd: false
+
+patchedDependencies:
+  next@15.1.7: patches/next@15.1.7.patch

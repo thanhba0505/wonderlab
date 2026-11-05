@@ -27,17 +27,18 @@ export function ControlsPanel({ params, onParamsChange, onReset }: ControlsPanel
   };
 
   return (
-    <div className="flex flex-col gap-4 pt-6 border-t border-slate-200/80">
+    <div className="flex flex-col gap-4">
       {/* 1. Header */}
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200/80 pb-3">
         <div className="flex items-center gap-2">
           <Sliders className="h-4 w-4 text-violet-600" />
-          <h4 className="font-heading text-sm font-bold text-slate-900">
+          <h4 className="font-heading text-xs font-bold uppercase tracking-wider text-slate-800">
             {dict.sim_zeno.controls_title}
           </h4>
         </div>
 
         <Button
+          type="button"
           variant="ghost"
           size="sm"
           onClick={onReset}
@@ -49,7 +50,7 @@ export function ControlsPanel({ params, onParamsChange, onReset }: ControlsPanel
       </div>
 
       {/* 2. Sliders Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="flex flex-col gap-3.5">
         {/* Achilles Speed */}
         <div className="space-y-1.5 rounded-xl border border-slate-200 bg-slate-50/60 p-3">
           <div className="flex items-center justify-between text-xs">

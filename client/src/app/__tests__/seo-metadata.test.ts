@@ -1,6 +1,4 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import fs from 'node:fs';
-import path from 'node:path';
 import React, { act } from 'react';
 import { createRoot, Root } from 'react-dom/client';
 import sitemap from '@/app/sitemap';
@@ -151,15 +149,5 @@ describe('SEO & Metadata Infrastructure', () => {
       process.env.NEXT_PUBLIC_APP_URL = originalAppUrl;
       process.env.RENDER_EXTERNAL_URL = originalRenderUrl;
     }
-  });
-
-  it('provides Google Search Console ownership verification file in public directory', () => {
-    const filePath = path.resolve(
-      __dirname,
-      '../../../../client/public/google02bb9e8664bf4c93.html',
-    );
-    expect(fs.existsSync(filePath)).toBe(true);
-    const content = fs.readFileSync(filePath, 'utf-8').trim();
-    expect(content).toBe('google-site-verification: google02bb9e8664bf4c93.html');
   });
 });

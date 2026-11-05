@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   foldToUnit,
+  snapCoordinate,
   calculateBodyguardPoints,
   calculateUnfoldedRays,
   traceRay,
@@ -36,6 +37,19 @@ describe('Bodyguard Mathematical Engine (Eugene Gutkin 2005)', () => {
       expect(foldToUnit(2.35)).toBeCloseTo(0.35);
       expect(foldToUnit(4.35)).toBeCloseTo(0.35);
       expect(foldToUnit(-2.35)).toBeCloseTo(0.35);
+    });
+  });
+
+  describe('snapCoordinate (Fine Grid Snapping)', () => {
+    it('snaps coordinates to nearest 0.05 step', () => {
+      expect(snapCoordinate(0.23, 0.05)).toBeCloseTo(0.25);
+      expect(snapCoordinate(0.21, 0.05)).toBeCloseTo(0.2);
+      expect(snapCoordinate(0.48, 0.05)).toBeCloseTo(0.5);
+    });
+
+    it('clamps values inside [0.04, 0.96] safe zone', () => {
+      expect(snapCoordinate(0.01, 0.05)).toBeGreaterThanOrEqual(0.04);
+      expect(snapCoordinate(0.99, 0.05)).toBeLessThanOrEqual(0.96);
     });
   });
 

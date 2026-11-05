@@ -24,6 +24,10 @@ export interface HeaderDictionary {
   language: string;
   switch_to: string;
   current_lang: string;
+  sound_toggle: string;
+  sound_muted: string;
+  sound_unmuted: string;
+  sound_volume: string;
 }
 
 export interface FooterDictionary {
@@ -554,6 +558,11 @@ export interface SimulationsDictionary {
   telemetry: SimulationTelemetryDictionary;
   export: SimulationExportDictionary;
   explainer: SimulationExplainerSectionDictionary;
+  fullscreen_enter: string;
+  fullscreen_exit: string;
+  fullscreen_controls_title: string;
+  fullscreen_stage_title: string;
+  fullscreen_esc_hint: string;
 }
 
 export interface BirthdaySimulationDictionary {
@@ -879,6 +888,31 @@ export interface ArtGallerySimulationDictionary {
   placement_mode_title: string;
   mode_vertices_only: string;
   mode_anywhere: string;
+  mode_drag_vertices: string;
+  mode_drag_hint: string;
+  tool_pan: string;
+  tool_pan_desc: string;
+  tool_guard: string;
+  tool_guard_desc: string;
+  tool_vertex: string;
+  tool_vertex_desc: string;
+  tool_free: string;
+  tool_free_desc: string;
+  tool_drag: string;
+  tool_drag_desc: string;
+  drag_self_intersect_error: string;
+  blind_spots_toggle: string;
+  blind_spots_desc: string;
+  sound_toggle: string;
+  challenge_title: string;
+  medal_legendary: string;
+  medal_optimal: string;
+  medal_chvatal: string;
+  medal_safe: string;
+  zoom_in: string;
+  zoom_out: string;
+  reset_view: string;
+  pan_hint: string;
   auto_fisk_btn: string;
   reset_default_btn: string;
   canvas_title: string;
@@ -1106,6 +1140,38 @@ export interface PrisonersHatsSimulationDictionary {
   color_space_2: string;
   color_space_3: string;
   speed_label: string;
+  // Stage & Visual Motion
+  sight_cone_label: string;
+  blind_spot_label: string;
+  particle_transmitted: string;
+  sound_effect_toggle: string;
+  cinematic_prologue_title: string;
+  cinematic_prologue_body: string;
+  // Modulo Equation Balance Bar
+  equation_balance_title: string;
+  equation_balance_desc: string;
+  root_signal_box: string;
+  heard_sum_box: string;
+  seen_ahead_box: string;
+  my_color_result_box: string;
+  // Scratchpad
+  scratchpad_title: string;
+  scratchpad_desc: string;
+  scratchpad_toggle_btn: string;
+  scratchpad_sum_label: string;
+  scratchpad_parity_result: string;
+  // Hamming Code & Cosmic Ray
+  hamming_variant_title: string;
+  hamming_variant_desc: string;
+  hamming_sphere_title: string;
+  hamming_sphere_desc: string;
+  ecc_interactive_title: string;
+  ecc_interactive_desc: string;
+  flip_bit_btn: string;
+  repair_bit_btn: string;
+  memory_intact: string;
+  memory_error_detected: string;
+  memory_repaired: string;
 }
 
 export interface TranslationDictionary {

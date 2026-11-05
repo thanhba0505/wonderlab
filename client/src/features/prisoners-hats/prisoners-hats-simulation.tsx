@@ -27,10 +27,12 @@ import { useSimulationTelemetry } from '@/lib/hooks/use-simulation-telemetry';
 import { useSimulationMeta } from '@/features/simulations/hooks';
 import { useTranslation } from '@/i18n';
 import { HypothesisOption } from '@/features/simulations/types';
+import { useHatSound } from './utils/hat-audio';
 
 export function PrisonersHatsSimulation() {
   const { dict } = useTranslation();
   const meta = useSimulationMeta('prisoners-hats');
+  const { playShuffleDrop, playPop } = useHatSound();
 
   // Parameters
   const [n, setN] = React.useState<number>(10);
@@ -54,7 +56,8 @@ export function PrisonersHatsSimulation() {
   } | null>(null);
 
   // Telemetry Hook
-  const { history, recordRun } = useSimulationTelemetry('prisoners-hats');
+  const { history, recordRun, page, pageSize, total, onPageChange, onPageSizeChange } =
+    useSimulationTelemetry('prisoners-hats');
 
   // Solved Result Memo
   const solveResult: SimulationSolveResult = React.useMemo(() => {
@@ -167,6 +170,7 @@ export function PrisonersHatsSimulation() {
     setCurrentStepIndex(-1);
     setUserGuessedColor(null);
     setActualHats(generateRandomHats(n, colorCount));
+    playShuffleDrop();
   };
 
   const handleReset = () => {
@@ -194,6 +198,7 @@ export function PrisonersHatsSimulation() {
   const handleSelectHatColor = (personIndex: number) => {
     if (currentStepIndex >= 0 && !isCompleted) return; // don't edit mid-run
 
+    playPop();
     setActualHats(prev => {
       const next = [...prev];
       const currentColor = next[personIndex] ?? 0;
@@ -248,7 +253,75 @@ export function PrisonersHatsSimulation() {
         title={dict.sim_prisoners_hats.sim_title}
         subtitle={dict.sim_prisoners_hats.sim_desc}
       >
-        <SimulationWorkbenchCard>
+        <SimulationWorkbenchCard
+          title={dict.sim_prisoners_hats.sim_title}
+          controls={
+            <div className="space-y-5">
+              <SimulationControls
+                n={n}
+                onChangeN={handleChangeN}
+                colorCount={colorCount}
+                onChangeColorCount={handleChangeColorCount}
+                mode={mode}
+                onChangeMode={setMode}
+                isPlaying={isPlaying}
+                onTogglePlay={() => setIsPlaying(prev => !prev)}
+                onStepNext={handleStepNext}
+                onReset={handleReset}
+                onRandomize={handleRandomize}
+                playbackSpeed={playbackSpeed}
+                onChangeSpeed={setPlaybackSpeed}
+                isCompleted={isCompleted}
+              />
+
+              {mode === 'roleplay' && (
+                <RoleplayController
+                  n={n}
+                  colorCount={colorCount}
+                  actualHats={actualHats}
+                  rolePlayPosition={rolePlayPosition}
+                  onSelectPosition={pos => {
+                    setRolePlayPosition(pos);
+                    setUserGuessedColor(null);
+                    handleReset();
+                  }}
+                  isMyTurn={isMyTurn}
+                  hasUserGuessed={userGuessedColor !== null}
+                  userGuessedColor={userGuessedColor}
+                  onUserSubmitGuess={handleUserSubmitGuess}
+                  onResetChallenge={() => {
+                    setUserGuessedColor(null);
+                    handleReset();
+                  }}
+                />
+              )}
+            </div>
+          }
+          stage={
+            <div className="space-y-6">
+              <LineupStage
+                prisoners={visualPrisoners}
+                colorCount={colorCount}
+                currentStepIndex={currentStepIndex}
+                currentStep={
+                  currentStepIndex >= 0 ? (solveResult.steps[currentStepIndex] ?? null) : null
+                }
+                rolePlayPosition={mode === 'roleplay' ? rolePlayPosition : null}
+                isRolePlayActive={mode === 'roleplay'}
+                userGuessedColor={userGuessedColor}
+                onSelectHatColor={handleSelectHatColor}
+                canEditHats={currentStepIndex === -1 || isCompleted}
+              />
+
+              <ParityBlackboard
+                steps={solveResult.steps}
+                currentStepIndex={currentStepIndex}
+                prisoners={solveResult.prisoners}
+                colorCount={colorCount}
+              />
+            </div>
+          }
+        >
           <div className="space-y-5">
             {/* Control Panel */}
             <SimulationControls
@@ -381,7 +454,16 @@ export function PrisonersHatsSimulation() {
             }}
           />
 
-          <SimulationHistoryTable runs={history} onReloadParams={handleReloadParams} />
+          <SimulationHistoryTable
+            simulationSlug="prisoners-hats"
+            runs={history}
+            page={page}
+            pageSize={pageSize}
+            total={total}
+            onPageChange={onPageChange}
+            onPageSizeChange={onPageSizeChange}
+            onReloadParams={handleReloadParams}
+          />
         </div>
       </SimulationSection>
     </div>

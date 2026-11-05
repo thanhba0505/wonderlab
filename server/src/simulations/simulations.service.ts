@@ -29,6 +29,14 @@ export interface SimulationRunRecord {
   createdAt: Date;
 }
 
+export interface PaginatedSimulationRuns {
+  data: SimulationRunRecord[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
 @Injectable()
 export class SimulationsService {
   private readonly logger = new Logger(SimulationsService.name);
@@ -137,12 +145,12 @@ export class SimulationsService {
   }
 
   /**
-   * Retrieves recent simulation runs filtered by session or authenticated user.
+   * Retrieves recent simulation runs filtered by session or authenticated user with pagination.
    */
   async getRecentHistory(
     query: SimulationHistoryQueryDto,
     userId?: string,
-  ): Promise<SimulationRunRecord[]> {
+  ): Promise<PaginatedSimulationRuns> {
     const where: Prisma.SimulationRunWhereInput = {};
 
     if (query.simulationSlug) {
@@ -157,27 +165,38 @@ export class SimulationsService {
     }
 
     const page = Math.max(1, Number(query.page) || 1);
-    const limit = Math.max(1, Number(query.limit) || 20);
+    const limit = Math.max(1, Number(query.limit) || 10);
     const skip = (page - 1) * limit;
 
-    const runs = await this.prisma.simulationRun.findMany({
-      where,
-      orderBy: { createdAt: 'desc' },
-      skip,
-      take: limit,
-      select: {
-        id: true,
-        simulationSlug: true,
-        parameters: true,
-        results: true,
-        trialsCount: true,
-        durationMs: true,
-        clientSession: true,
-        createdAt: true,
-      },
-    });
+    const [total, runs] = await Promise.all([
+      this.prisma.simulationRun.count({ where }),
+      this.prisma.simulationRun.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+        select: {
+          id: true,
+          simulationSlug: true,
+          parameters: true,
+          results: true,
+          trialsCount: true,
+          durationMs: true,
+          clientSession: true,
+          createdAt: true,
+        },
+      }),
+    ]);
 
-    return runs;
+    const totalPages = Math.max(1, Math.ceil(total / limit));
+
+    return {
+      data: runs,
+      total,
+      page,
+      limit,
+      totalPages,
+    };
   }
 
   /**

@@ -12,6 +12,7 @@ import {
 import {
   GalleryCanvas,
   GalleryControls,
+  GalleryInteractionMode,
   FiskStepper,
   GalleryMetrics,
   GalleryExplainer,
@@ -34,6 +35,7 @@ import {
 } from '@/features/simulations/utils/export-data';
 import { Button } from '@/components/ui/button';
 import { FileSpreadsheet, FileJson, Copy, Check } from 'lucide-react';
+import { useGallerySound } from './utils/gallery-audio';
 
 export function ArtGallerySimulation() {
   const { dict } = useTranslation();
@@ -42,9 +44,12 @@ export function ArtGallerySimulation() {
   const [polygon, setPolygon] = React.useState<Point[]>(GALLERY_PRESETS[0]!.vertices);
   const [currentPresetId, setCurrentPresetId] = React.useState<string | null>('chvatal-comb-3');
   const [guards, setGuards] = React.useState<Point[]>([]);
-  const [isVertexOnlyMode, setIsVertexOnlyMode] = React.useState<boolean>(true);
+  const [mode, setMode] = React.useState<GalleryInteractionMode>('guard');
+  const [showBlindSpots, setShowBlindSpots] = React.useState<boolean>(false);
   const [fiskStep, setFiskStep] = React.useState<number>(0);
   const [copiedType, setCopiedType] = React.useState<'report' | null>(null);
+
+  const sound = useGallerySound();
 
   // Intuition Challenge State
   const [, setUserPrediction] = React.useState<{
@@ -53,7 +58,8 @@ export function ArtGallerySimulation() {
   } | null>(null);
 
   // Background Telemetry Hook
-  const { history, recordRun } = useSimulationTelemetry('art-gallery');
+  const { history, recordRun, page, pageSize, total, onPageChange, onPageSizeChange } =
+    useSimulationTelemetry('art-gallery');
 
   // Compute Steve Fisk's 3-Coloring and Triangulation
   const fiskProof = React.useMemo(() => {
@@ -65,17 +71,18 @@ export function ArtGallerySimulation() {
     return calculateCoveragePercentage(guards, polygon);
   }, [guards, polygon]);
 
-  // Record telemetry when user achieves 100% coverage
+  // Record telemetry & play celebratory audio when user achieves 100% coverage
   const hasRecordedRef = React.useRef<boolean>(false);
   React.useEffect(() => {
     if (coveragePercentage >= 99.5 && guards.length > 0 && !hasRecordedRef.current) {
       hasRecordedRef.current = true;
+      sound.playCoverageVictory();
       recordRun(
         {
           numVertices: polygon.length,
           guardsUsed: guards.length,
           chvatalBound: Math.floor(polygon.length / 3),
-          preset: currentPresetId ?? 'random',
+          preset: currentPresetId ?? 'custom',
         },
         {
           coveragePercentage,
@@ -86,7 +93,7 @@ export function ArtGallerySimulation() {
     } else if (coveragePercentage < 95) {
       hasRecordedRef.current = false;
     }
-  }, [coveragePercentage, guards.length, polygon.length, currentPresetId, recordRun]);
+  }, [coveragePercentage, guards.length, polygon.length, currentPresetId, recordRun, sound]);
 
   // Handlers
   const handleAddGuard = (point: Point) => {
@@ -101,11 +108,20 @@ export function ArtGallerySimulation() {
     }
   };
 
+  const handleUpdatePolygon = (newPoly: Point[], newGuards?: Point[]) => {
+    setPolygon(newPoly);
+    if (newGuards) {
+      setGuards(newGuards);
+    }
+    setCurrentPresetId(null);
+  };
+
   const handleSelectPreset = (preset: PolygonPreset) => {
     setPolygon(preset.vertices);
     setCurrentPresetId(preset.id);
     setGuards([]);
     setFiskStep(0);
+    sound.playPresetSelect();
   };
 
   const handleGenerateRandom = (numVertices: number) => {
@@ -114,12 +130,14 @@ export function ArtGallerySimulation() {
     setCurrentPresetId(null);
     setGuards([]);
     setFiskStep(0);
+    sound.playPresetSelect();
   };
 
   const handleApplyFiskGuards = () => {
     const fiskGuards = fiskProof.guardVertexIndices.map(idx => polygon[idx]!);
     setGuards(fiskGuards);
     setFiskStep(4); // Move stepper to 100% verified step
+    sound.playDeployGuard(fiskGuards.length);
   };
 
   const handleReset = () => {
@@ -127,6 +145,7 @@ export function ArtGallerySimulation() {
     setCurrentPresetId('chvatal-comb-3');
     setGuards([]);
     setFiskStep(0);
+    sound.playRemoveGuard();
   };
 
   // Sync Fisk step with canvas visual layers
@@ -233,6 +252,8 @@ export function ArtGallerySimulation() {
         subtitle={dict.sim_art_gallery.sim_desc}
       >
         <SimulationWorkbenchCard
+          title={dict.sim_art_gallery.sim_title}
+          normalLayout="split"
           metricsBar={
             <GalleryMetrics
               numVertices={polygon.length}
@@ -240,20 +261,47 @@ export function ArtGallerySimulation() {
               coveragePercentage={coveragePercentage}
             />
           }
-        >
-          {/* Bento Grid 2 cột: Cột chính Canvas + Stepper, Cột phụ Controls */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 pt-2">
-            {/* Cột chính (8 cols): Canvas hình học & Trình diễn Steve Fisk */}
-            <div className="lg:col-span-8 flex flex-col gap-5">
+          controls={
+            <div className="flex flex-col gap-5">
+              <GalleryControls
+                currentPresetId={currentPresetId}
+                onSelectPreset={handleSelectPreset}
+                onGenerateRandom={handleGenerateRandom}
+                onApplyFiskGuards={handleApplyFiskGuards}
+                onReset={handleReset}
+                mode={mode}
+                onChangeMode={setMode}
+                showBlindSpots={showBlindSpots}
+                onToggleBlindSpots={() => setShowBlindSpots(prev => !prev)}
+                numVertices={polygon.length}
+                guardsCount={guards.length}
+                coveragePercentage={coveragePercentage}
+              />
+
+              {/* Thông tin nhanh về lính gác */}
+              <div className="rounded-xl border border-slate-200/80 bg-slate-50/70 p-4 space-y-1.5 text-xs text-slate-600">
+                <div className="font-heading font-bold text-slate-800 uppercase tracking-wider">
+                  {dict.sim_art_gallery.guard_tip_title}
+                </div>
+                <p className="leading-relaxed">{dict.sim_art_gallery.guard_tip_body}</p>
+              </div>
+            </div>
+          }
+          stage={
+            <div className="flex flex-col gap-5">
               <GalleryCanvas
                 polygon={polygon}
                 guards={guards}
                 onAddGuard={handleAddGuard}
                 onRemoveGuard={handleRemoveGuard}
+                onUpdatePolygon={handleUpdatePolygon}
                 showTriangulation={showTriangulation}
                 showColoring={showColoring}
+                showBlindSpots={showBlindSpots}
+                onToggleBlindSpots={() => setShowBlindSpots(prev => !prev)}
                 fiskProof={fiskProof}
-                isVertexOnlyMode={isVertexOnlyMode}
+                mode={mode}
+                onChangeMode={setMode}
               />
 
               <FiskStepper
@@ -263,29 +311,8 @@ export function ArtGallerySimulation() {
                 numVertices={polygon.length}
               />
             </div>
-
-            {/* Cột phụ (4 cols): Bộ điều khiển, Presets, Sinh ngẫu nhiên */}
-            <div className="lg:col-span-4 flex flex-col gap-5">
-              <GalleryControls
-                currentPresetId={currentPresetId}
-                onSelectPreset={handleSelectPreset}
-                onGenerateRandom={handleGenerateRandom}
-                onApplyFiskGuards={handleApplyFiskGuards}
-                onReset={handleReset}
-                isVertexOnlyMode={isVertexOnlyMode}
-                onToggleVertexMode={setIsVertexOnlyMode}
-              />
-
-              {/* Thông tin nhanh về lính gác */}
-              <div className="rounded-xl border border-slate-300/85 bg-slate-50/60 p-4 space-y-2 text-xs text-slate-600">
-                <div className="font-heading font-bold text-slate-800 uppercase tracking-wider">
-                  {dict.sim_art_gallery.guard_tip_title}
-                </div>
-                <p className="leading-relaxed">{dict.sim_art_gallery.guard_tip_body}</p>
-              </div>
-            </div>
-          </div>
-        </SimulationWorkbenchCard>
+          }
+        />
       </SimulationSection>
 
       {/* 3. BẢNG XUẤT DỮ LIỆU & BÁO CÁO KHOA HỌC */}
@@ -299,6 +326,7 @@ export function ArtGallerySimulation() {
 
         <div className="flex flex-wrap items-center gap-2">
           <Button
+            type="button"
             variant="outline"
             onClick={handleExportCsv}
             disabled={guards.length === 0}
@@ -309,6 +337,7 @@ export function ArtGallerySimulation() {
           </Button>
 
           <Button
+            type="button"
             variant="outline"
             onClick={handleExportJson}
             disabled={guards.length === 0}
@@ -319,6 +348,7 @@ export function ArtGallerySimulation() {
           </Button>
 
           <Button
+            type="button"
             variant="outline"
             onClick={handleCopyReport}
             className="border-slate-300 text-slate-700 text-xs flex items-center gap-1.5 active:scale-[0.98]"
@@ -354,7 +384,23 @@ export function ArtGallerySimulation() {
         title={dict.simulations.history.title}
         subtitle={dict.simulations.history.subtitle}
       >
-        <SimulationHistoryTable runs={history} />
+        <SimulationHistoryTable
+          simulationSlug="art-gallery"
+          runs={history}
+          page={page}
+          pageSize={pageSize}
+          total={total}
+          onPageChange={onPageChange}
+          onPageSizeChange={onPageSizeChange}
+          onReloadParams={params => {
+            if (typeof params.preset === 'string' && params.preset !== 'custom') {
+              const found = GALLERY_PRESETS.find(p => p.id === params.preset);
+              if (found) {
+                handleSelectPreset(found);
+              }
+            }
+          }}
+        />
       </SimulationSection>
     </div>
   );

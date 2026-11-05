@@ -27,6 +27,7 @@ import {
   AppDropdownGroup,
   AppTag,
   LanguageSwitcher,
+  SoundControl,
 } from '@/components/ui';
 import { useAuth } from '@/lib/auth-context';
 import { useTranslation } from '@/i18n';
@@ -94,7 +95,8 @@ export function Header() {
         </nav>
 
         {/* Header Right Actions */}
-        <div className="hidden md:flex items-center gap-3">
+        <div className="hidden md:flex items-center gap-2.5">
+          <SoundControl />
           <LanguageSwitcher />
 
           {user ? (
@@ -216,6 +218,7 @@ export function Header() {
 
         {/* Mobile menu trigger */}
         <div className="flex items-center gap-2 md:hidden">
+          <SoundControl />
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-300 bg-white text-slate-700 hover:bg-slate-100 focus:outline-none"
@@ -230,7 +233,13 @@ export function Header() {
       {isMobileMenuOpen && (
         <div className="border-b border-slate-200 bg-white px-4 py-4 md:hidden animate-in fade-in slide-in-from-top-2 shadow-lg">
           <nav className="flex flex-col gap-2 text-sm font-medium">
-            {/* Language Switcher in Mobile Drawer */}
+            {/* Audio & Language Switcher in Mobile Drawer */}
+            <div className="flex items-center justify-between pb-2.5 mb-1 border-b border-slate-100">
+              <span className="text-xs font-mono font-semibold uppercase tracking-wider text-slate-500">
+                {dict.header.sound_toggle || 'Âm thanh'}
+              </span>
+              <SoundControl />
+            </div>
             <div className="flex items-center justify-between pb-3 mb-1 border-b border-slate-100">
               <span className="text-xs font-mono font-semibold uppercase tracking-wider text-slate-500">
                 {dict.header.language}

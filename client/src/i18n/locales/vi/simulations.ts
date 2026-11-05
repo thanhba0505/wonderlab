@@ -206,4 +206,9 @@ export const simulationsVi: SimulationsDictionary = {
     title: 'Góc Tri Thức Khoa Học',
     subtitle: 'Giải thích bản chất toán học & ứng dụng thực tiễn',
   },
+  fullscreen_enter: 'Phóng to',
+  fullscreen_exit: 'Đóng',
+  fullscreen_controls_title: 'Cài đặt tham số & Điều khiển',
+  fullscreen_stage_title: 'Trình diễn mô phỏng trực quan',
+  fullscreen_esc_hint: 'Nhấn Esc để thu nhỏ',
 };

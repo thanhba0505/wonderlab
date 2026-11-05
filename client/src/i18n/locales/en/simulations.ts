@@ -203,4 +203,9 @@ export const simulationsEn: SimulationsDictionary = {
     title: 'Scientific Insights',
     subtitle: 'Mathematical foundations & real-world applications',
   },
+  fullscreen_enter: 'Maximize',
+  fullscreen_exit: 'Close',
+  fullscreen_controls_title: 'Parameters & Controls',
+  fullscreen_stage_title: 'Simulation Visual Stage',
+  fullscreen_esc_hint: 'Press Esc to exit',
 };

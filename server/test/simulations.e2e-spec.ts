@@ -80,14 +80,19 @@ describe('Simulations API (e2e)', () => {
   });
 
   describe('GET /api/v1/simulations/runs/history', () => {
-    it('should return recent runs filtered by client session', async () => {
+    it('should return recent runs filtered by client session with pagination', async () => {
       const res = await request(app.getHttpServer())
         .get(`/api/v1/simulations/runs/history?clientSession=${testSessionId}`)
         .expect(200);
 
-      expect(Array.isArray(res.body)).toBe(true);
-      expect(res.body.length).toBeGreaterThanOrEqual(1);
-      expect(res.body[0].clientSession).toBe(testSessionId);
+      expect(res.body).toBeDefined();
+      expect(Array.isArray(res.body.data)).toBe(true);
+      expect(res.body.data.length).toBeGreaterThanOrEqual(1);
+      expect(res.body.data[0].clientSession).toBe(testSessionId);
+      expect(typeof res.body.total).toBe('number');
+      expect(res.body.page).toBe(1);
+      expect(res.body.limit).toBe(10);
+      expect(typeof res.body.totalPages).toBe('number');
     });
   });
 });

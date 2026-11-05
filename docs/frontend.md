@@ -54,6 +54,12 @@ client/
   - **Body Text**: `Be Vietnam Pro` — tối ưu cho dấu tiếng Việt với x-height cân đối và trải nghiệm đọc thư thái.
   - **Headings & Display**: `Space Grotesk` — font sans hình học chuẩn xác với tracking chặt chẽ (`tracking-tight text-slate-900`) mang âm hưởng tạp chí khoa học.
   - **Data & Mathematics**: `JetBrains Mono` kết hợp `tabular-nums` cho các bộ đếm số liệu, tỷ lệ xác suất và công thức vật lý ($P(A)$, $\lambda = 532nm$).
+  - **Biểu Diễn Biểu Thức Toán Học Chuẩn Mực (Beautiful Mathematical Expressions Standard)**:
+    - Tuyệt đối nghiêm cấm việc dùng ký hiệu ASCII thô (`/`, `^`, `sqrt`, `sum`) để biểu diễn các biểu thức toán học chứa biến số (ví dụ: cấm viết `n/3`, `(n-1)/n`, `(x_A ± x_B)/2`, `x^2`, `2^4`, `O(n^2)`, `⌊n/4⌋`).
+    - Bắt buộc áp dụng định dạng toán học trực quan và cao cấp: phân số dùng `<MathFraction>`, số mũ dùng `<sup>` hoặc `MathPower`, căn thức dùng `&radic;` hoặc `MathSqrt`, chỉ số dưới dùng `<sub>` hoặc `MathSub`, và chuỗi LaTeX chuẩn (`\frac{...}{...}`) cho metadata.
+    - **Ngoại lệ duy nhất được phép**: Các tỉ số hằng số số học đơn giản không chứa biến trong văn cảnh tự nhiên (ví dụ: `2/3`, `1/3`, `50/50`).
+  - **Tiêu Chuẩn Cỡ Chữ Tối Thiểu ($\ge 12\text{px}$)**: Tuyệt đối không dùng cỡ chữ dưới 12px (`text-xs`). Mọi chú thích, số mũ, chỉ số, badge đều phải từ 12px trở lên.
+  - **Tiêu Chuẩn Tiêu Đề Mục (18px)**: Mọi tiêu đề section chính (`h2`) trong buồng thử nghiệm được chuẩn hóa ở 18px (`text-[18px]` hoặc `text-lg`).
 - **Anti-AI Slop Guardrails**:
   - _Không dùng gradient tím/hồng tùy tiện_ trên nút bấm hoặc chữ. Mọi màu sắc mang ý nghĩa ngữ nghĩa chuẩn:
     - 🔵 **Cobalt Blue (`#2563eb`)**: Vật lý, quang học và hành động chính.
@@ -160,3 +166,28 @@ Nhằm tối ưu hóa khả năng thu thập dữ liệu công cụ tìm kiếm 
   - Sinh ảnh 1200x630 thời gian thực (hỗ trợ SSG prerender qua `generateStaticParams`) bằng `ImageResponse` từ `next/og`.
   - Tuân thủ phong cách **"Clean Paper & Lab Editorial"**: canvas Slate-100 với lưới tọa độ kỹ thuật, thẻ trắng với hairline viền sắc nét, badge danh mục phân màu ngữ nghĩa, dấu chứng nhận "Interactive Science Simulation".
   - Đóng gói cục bộ font chữ `Be Vietnam Pro` (Bold & Regular) trong `client/src/assets/fonts/` đảm bảo hiển thị 100% tiếng Việt có dấu hoàn hảo mà không bị gãy phông hoặc phụ thuộc mạng ngoài lúc build.
+
+---
+
+## 8. Quản Lý Trạng Thái React & Chuẩn Mực Tối Ưu Hóa Re-render (Anti-Re-render Standard)
+
+Nhằm đảm bảo hiệu năng 60 FPS mượt mà cho các buồng thực nghiệm khoa học, mô phỏng Monte Carlo quy mô lớn và giao diện người dùng phức tạp, toàn bộ mã nguồn React tuân thủ nghiêm ngặt các nguyên tắc kiểm soát re-render:
+
+- **Nghiêm cấm Đồng bộ Trạng thái Phái sinh qua `useEffect` (Zero Derived State in `useEffect`)**:
+  - Tuyệt đối không dùng `useEffect` để cập nhật một state dựa trên props hoặc state khác (ví dụ: `useEffect(() => { setFiltered(items.filter(...)) }, [items])`).
+  - Toàn bộ dữ liệu phái sinh phải được tính toán trực tiếp trong pha render (`const filtered = items.filter(...)`), hoặc bọc qua `useMemo` khi xử lý thuật toán phức tạp.
+  - Triệt tiêu hoàn toàn chu kỳ render 2 pha lãng phí (render lần 1 với state cũ $\to$ effect kích hoạt $\to$ render lần 2 với state mới).
+- **Hành động Hướng Sự kiện (Event-Driven Side Effects)**:
+  - Mọi thao tác đột biến dữ liệu, gọi API, phát telemetry, hoặc hiển thị thông báo phải được kích hoạt trực tiếp từ trình xử lý sự kiện của người dùng (`onClick`, `onChange`, `onSubmit`).
+  - Không tạo state cờ trung gian (flag) chỉ để gián tiếp kích hoạt một `useEffect`.
+  - Chỉ sử dụng `useEffect` cho việc đồng bộ với hệ thống ngoại vi độc lập (lắng nghe sự kiện DOM toàn cục, kết nối WebSocket, Web Worker, Canvas context, hoặc AudioContext).
+- **Cô lập Vùng Quan sát Form (`useWatch` / `watch`)**:
+  - Trong các biểu mẫu hoặc bảng điều khiển tham số (như React Hook Form), việc gọi `useWatch` hoặc `watch()` ở component gốc sẽ ép toàn bộ cây component và các ô nhập liệu re-render theo từng ký tự gõ phím.
+  - Luôn cô lập các trường cần theo dõi trực tiếp vào các component lá chuyên biệt (ví dụ: `<SubmitButtonWithWatch control={control} />`).
+  - Ưu tiên sử dụng `getValues()` để đọc giá trị tức thời khi người dùng bấm nút thay vì đăng ký lắng nghe liên tục nếu không thực sự cần cập nhật giao diện thời gian thực.
+- **Sử dụng `useRef` cho Biến Tần số Cao & Trạng thái Không Hiển thị**:
+  - Trong các mô phỏng Canvas, vòng lặp Monte Carlo và bộ đếm thời gian thực, lưu trữ `requestAnimationFrame` ID, tham chiếu Canvas rendering context, worker handle, timer ID và chỉ số vòng lặp trong `useRef` thay vì `useState`.
+  - Gom cụm (batch) hoặc điều tiết (throttle) tần suất cập nhật state giao diện (ví dụ: cập nhật số liệu thống kê sau mỗi $N$ vòng lặp hoặc theo từng frame màn hình) thay vì kích hoạt `setState` hàng trăm lần mỗi giây.
+- **Phân tách Component Hạt mịn (Granular Components) & Ổn định Hàm Callback**:
+  - Chia nhỏ các thẻ Workbench mô phỏng lớn thành các component hạt mịn để thao tác thay đổi tham số cục bộ (như thanh trượt slider, nút toggle) không làm render lại các bề mặt Canvas hoặc bảng dữ liệu nặng bên cạnh.
+  - Sử dụng `useCallback` khi truyền hàm callback xuống các component con đã được ghi nhớ (`React.memo`).

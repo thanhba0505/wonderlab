@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { BookOpen, Lightbulb, Compass, Award } from 'lucide-react';
+import { MathFraction } from '@/features/simulations/components';
 
 export function BodyguardExplainer(): React.JSX.Element {
   return (
@@ -51,7 +52,7 @@ export function BodyguardExplainer(): React.JSX.Element {
             <strong>Ảnh ảo của mục tiêu:</strong> Trong mỗi ô vuông (u, w), mục tiêu B có một ảnh ảo
             B&apos; với tọa độ phụ thuộc vào tính chẵn/lẻ của chỉ số ô:
             <span className="block my-1 font-mono text-xs bg-slate-100 p-2 rounded text-slate-800">
-              B&apos;(u, w) = (2n ± x_B, 2p ± y_B)
+              B&apos;(u, w) = (2n &plusmn; x<sub>B</sub>, 2p &plusmn; y<sub>B</sub>)
             </span>
           </li>
         </ul>
@@ -69,24 +70,49 @@ export function BodyguardExplainer(): React.JSX.Element {
           Bất kỳ tia sáng nào từ A tới ảnh ảo B&apos; đều là một đoạn thẳng nối A và B&apos;. Trung
           điểm của đoạn thẳng này chính là:
         </p>
-        <div className="my-2 rounded-lg border border-slate-200 bg-slate-50 p-3 font-mono text-xs text-slate-800">
-          M = (A + B&apos;) / 2 = ((x_A ± x_B)/2 + n, (y_A ± y_B)/2 + p)
+        <div className="my-2 rounded-lg border border-slate-200 bg-slate-50 p-3 font-mono text-xs text-slate-800 flex items-center flex-wrap gap-2">
+          <span>M =</span>
+          <MathFraction numerator="A + B'" denominator="2" />
+          <span>=</span>
+          <span>(</span>
+          <MathFraction
+            numerator={
+              <span>
+                x<sub>A</sub> &plusmn; x<sub>B</sub>
+              </span>
+            }
+            denominator="2"
+          />
+          <span>+ n,</span>
+          <MathFraction
+            numerator={
+              <span>
+                y<sub>A</sub> &plusmn; y<sub>B</sub>
+              </span>
+            }
+            denominator="2"
+          />
+          <span>+ p)</span>
         </div>
         <p className="text-slate-600">
-          Khi ta gập ngược mặt phẳng trở lại phòng gốc [0, 1]² qua phép chiếu modulo 2, các số
-          nguyên n và p chỉ phụ thuộc vào tính chẵn lẻ (n mod 2 ∈ &#123;0, 1&#125;, p mod 2 ∈
-          &#123;0, 1&#125;). Do đó:
+          Khi ta gập ngược mặt phẳng trở lại phòng gốc [0, 1]<sup>2</sup> qua phép chiếu modulo 2,
+          các số nguyên n và p chỉ phụ thuộc vào tính chẵn lẻ (n mod 2 &isin; &#123;0, 1&#125;, p
+          mod 2 &isin; &#123;0, 1&#125;). Do đó:
         </p>
         <ul className="list-disc space-y-1.5 pl-5 text-slate-600">
-          <li>2 lựa chọn cho dấu của x: ±x_B</li>
-          <li>2 lựa chọn cho dấu của y: ±y_B</li>
-          <li>2 lựa chọn cho độ dịch chẵn lẻ theo x: k ∈ &#123;0, 1&#125;</li>
-          <li>2 lựa chọn cho độ dịch chẵn lẻ theo y: m ∈ &#123;0, 1&#125;</li>
+          <li>
+            2 lựa chọn cho dấu của x: &plusmn; x<sub>B</sub>
+          </li>
+          <li>
+            2 lựa chọn cho dấu của y: &plusmn; y<sub>B</sub>
+          </li>
+          <li>2 lựa chọn cho độ dịch chẵn lẻ theo x: k &isin; &#123;0, 1&#125;</li>
+          <li>2 lựa chọn cho độ dịch chẵn lẻ theo y: m &isin; &#123;0, 1&#125;</li>
         </ul>
         <p className="font-semibold text-emerald-800">
-          Tổng cộng: 2 × 2 × 2 × 2 = 16 điểm trung điểm duy nhất trong phòng! Vì mọi đường nối A tới
-          bất kỳ ảnh ảo nào của B đều buộc phải đi qua một trung điểm, việc đặt 16 vật cản tại 16 vị
-          trí này bảo đảm 100% tia sáng đều bị triệt tiêu!
+          Tổng cộng: 2 &times; 2 &times; 2 &times; 2 = 2<sup>4</sup> = 16 điểm trung điểm duy nhất
+          trong phòng! Vì mọi đường nối A tới bất kỳ ảnh ảo nào của B đều buộc phải đi qua một trung
+          điểm, việc đặt 16 vật cản tại 16 vị trí này bảo đảm 100% tia sáng đều bị triệt tiêu!
         </p>
       </div>
 

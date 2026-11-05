@@ -3,6 +3,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { Binary, Sparkles, Orbit, ArrowRight } from 'lucide-react';
+import { MathFraction } from '@/features/simulations/components';
 
 interface NodeData {
   id: number;
@@ -11,7 +12,7 @@ interface NodeData {
   label: string;
   r: number;
   color: string;
-  formula: string;
+  formula: string | React.ReactNode;
   insight: string;
   tag: string;
   href?: string;
@@ -52,7 +53,12 @@ export function HeroVisual() {
       label: 'Nghịch Lý Fermi',
       r: 16,
       color: '#d97706',
-      formula: 'N = R* · fp · ne · fl · fi',
+      formula: (
+        <span>
+          N = R* &middot; f<sub>p</sub> &middot; n<sub>e</sub> &middot; f<sub>l</sub> &middot; f
+          <sub>i</sub>
+        </span>
+      ),
       insight: 'Nếu vũ trụ bao la, tại sao chúng ta chưa thấy tín hiệu nào?',
       tag: 'THIÊN VĂN & TRIẾT HỌC',
     },
@@ -63,7 +69,12 @@ export function HeroVisual() {
       label: 'Cân Bằng Nash',
       r: 16,
       color: '#059669',
-      formula: 'ui(si*, s-i*) ≥ ui(si, s-i*)',
+      formula: (
+        <span>
+          u<sub>i</sub>(s<sub>i</sub>*, s<sub>&minus;i</sub>*) &ge; u<sub>i</sub>(s<sub>i</sub>, s
+          <sub>&minus;i</sub>*)
+        </span>
+      ),
       insight: 'Trạng thái không bên nào có động lực đơn phương thay đổi.',
       tag: 'LÝ THUYẾT TRÒ CHƠI',
       href: '/simulations/prisoners-dilemma',
@@ -75,7 +86,12 @@ export function HeroVisual() {
       label: 'Định Lý Bayes',
       r: 19,
       color: '#0284c7',
-      formula: 'P(A|B) = [P(B|A) · P(A)] / P(B)',
+      formula: (
+        <span className="inline-flex items-center">
+          <span>P(A|B) =</span>
+          <MathFraction numerator="P(B|A) &middot; P(A)" denominator="P(B)" />
+        </span>
+      ),
       insight: 'Cách cập nhật niềm tin duy lý khi có bằng chứng mới.',
       tag: 'SUY LUẬN XÁC SUẤT',
     },
@@ -269,7 +285,7 @@ export function HeroVisual() {
           <span className="text-sm font-bold text-slate-900 tracking-tight font-heading">
             {currentNode.label}
           </span>
-          <span className="inline-block text-xs font-mono font-semibold text-slate-700 bg-white px-2 py-0.5 rounded border border-slate-200 shadow-2xs tabular-nums">
+          <span className="inline-flex items-center text-xs font-mono font-semibold text-slate-700 bg-white px-2 py-0.5 rounded border border-slate-200 shadow-2xs tabular-nums">
             {currentNode.formula}
           </span>
         </div>

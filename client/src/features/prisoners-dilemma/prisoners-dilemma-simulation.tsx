@@ -35,12 +35,15 @@ import {
   exportToJson,
   copyToClipboard,
 } from '@/features/simulations/utils/export-data';
+import { useGameTheoryAudio } from './utils/game-theory-audio';
 
 type GameMode = 'duel' | 'tournament';
 
 export function PrisonersDilemmaSimulation() {
   const { locale, dict } = useTranslation();
   const meta = useSimulationMeta('prisoners-dilemma');
+  const audio = useGameTheoryAudio();
+
   const [activeMode, setActiveMode] = React.useState<GameMode>('duel');
   const [lastMove1, setLastMove1] = React.useState<Move | null>(null);
   const [lastMove2, setLastMove2] = React.useState<Move | null>(null);
@@ -59,7 +62,8 @@ export function PrisonersDilemmaSimulation() {
   } | null>(null);
 
   // Background Telemetry Hook
-  const { history, globalStats, recordRun } = useSimulationTelemetry('prisoners-dilemma');
+  const { history, globalStats, recordRun, page, pageSize, total, onPageChange, onPageSizeChange } =
+    useSimulationTelemetry('prisoners-dilemma');
 
   // Sync mode with URL param
   React.useEffect(() => {
@@ -72,6 +76,7 @@ export function PrisonersDilemmaSimulation() {
   }, []);
 
   const handleModeChange = (mode: GameMode) => {
+    audio.playModeSwitch();
     setActiveMode(mode);
     if (typeof window === 'undefined') return;
     try {
@@ -83,14 +88,19 @@ export function PrisonersDilemmaSimulation() {
     }
   };
 
-  const handleRoundPlayed = React.useCallback((record: RoundRecord) => {
-    setLastMove1(record.move1);
-    setLastMove2(record.move2);
-    setRecentRounds(prev => [...prev.slice(-99), record]);
-  }, []);
+  const handleRoundPlayed = React.useCallback(
+    (record: RoundRecord) => {
+      audio.playRoundPayoff(record.move1, record.move2);
+      setLastMove1(record.move1);
+      setLastMove2(record.move2);
+      setRecentRounds(prev => [...prev.slice(-99), record]);
+    },
+    [audio],
+  );
 
   const handleMatchFinished = React.useCallback(
     (p1Score: number, p2Score: number, matchRecords: RoundRecord[]) => {
+      audio.playTournamentEnd();
       setLastMatchStats({
         userScore: p1Score,
         opponentScore: p2Score,
@@ -113,11 +123,12 @@ export function PrisonersDilemmaSimulation() {
         120,
       );
     },
-    [userPrediction, recordRun],
+    [userPrediction, recordRun, audio],
   );
 
   const handleTournamentRecorded = React.useCallback(
     (generation: number, dominantStrategy: StrategyId) => {
+      audio.playTournamentEnd();
       recordRun(
         {
           mode: 'tournament',
@@ -134,7 +145,7 @@ export function PrisonersDilemmaSimulation() {
         180,
       );
     },
-    [userPrediction, recordRun],
+    [userPrediction, recordRun, audio],
   );
 
   const handleExportCsv = () => {
@@ -187,10 +198,7 @@ export function PrisonersDilemmaSimulation() {
 
   return (
     <div className="flex flex-col gap-8">
-      {/* Line phân cách sau intro/formula */}
-      <hr className="border-slate-200/80 -mt-2" />
-
-      {/* 1. TITLE CÂU HỎI & CÂU HỎI TRỰC GIÁC */}
+      {/* 1. Khảo Sát Trực Giác Trước Thực Nghiệm */}
       <SimulationSection
         dotColor="amber"
         title={dict.sim_prisoners_dilemma.survey_title}
@@ -207,13 +215,93 @@ export function PrisonersDilemmaSimulation() {
         )}
       </SimulationSection>
 
-      {/* 2. TITLE CHỖ THÍ NGHIỆM & BLOCK THÍ NGHIỆM HỢP NHẤT */}
+      {/* 2. Buồng Thí Nghiệm & Đấu Trường Lý Thuyết Trò Chơi Chuẩn Split Layout */}
       <SimulationSection
         dotColor="blue"
         title={dict.sim_prisoners_dilemma.sim_title}
         subtitle={dict.sim_prisoners_dilemma.sim_desc}
       >
         <SimulationWorkbenchCard
+          title={dict.sim_prisoners_dilemma.sim_title}
+          normalLayout="split"
+          controls={
+            <div className="flex flex-col gap-5">
+              {/* Thanh chuyển đổi chế độ Duel / Tournament */}
+              <div className="space-y-2">
+                <label className="text-xs font-bold uppercase tracking-wider text-slate-800 font-heading">
+                  {dict.sim_prisoners_dilemma.game_mode}
+                </label>
+                <div className="flex items-center gap-1.5 rounded-lg border border-slate-300/85 bg-slate-100 p-1 w-full">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleModeChange('duel')}
+                    className={`flex-1 h-8 gap-1.5 px-3 text-xs font-medium transition-all ${
+                      activeMode === 'duel'
+                        ? 'bg-white text-slate-900 shadow-xs font-semibold'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+                    }`}
+                  >
+                    <Swords className="h-3.5 w-3.5 text-blue-600" />
+                    <span>{dict.sim_prisoners_dilemma.mode_duel}</span>
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleModeChange('tournament')}
+                    className={`flex-1 h-8 gap-1.5 px-3 text-xs font-medium transition-all ${
+                      activeMode === 'tournament'
+                        ? 'bg-white text-slate-900 shadow-xs font-semibold'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+                    }`}
+                  >
+                    <Users className="h-3.5 w-3.5 text-emerald-600" />
+                    <span>{dict.sim_prisoners_dilemma.mode_tournament}</span>
+                  </Button>
+                </div>
+              </div>
+
+              {/* Ma trận lợi ích Payoff Matrix tương tác */}
+              <div className="p-3.5 rounded-xl border border-slate-200/90 bg-slate-50/50">
+                <PayoffMatrixView lastMove1={lastMove1} lastMove2={lastMove2} />
+              </div>
+
+              {/* Nash Equilibrium Badge */}
+              <div className="flex items-center justify-between text-xs p-2.5 rounded-lg bg-white border border-slate-200 text-slate-600">
+                <div className="flex items-center gap-1.5 font-sans">
+                  <Sparkles className="h-3.5 w-3.5 text-amber-500 shrink-0" />
+                  <span className="font-semibold text-slate-800">
+                    {dict.sim_prisoners_dilemma.nash_equilibrium}:
+                  </span>
+                  <span>(D, D) = 1 điểm</span>
+                </div>
+                <Badge
+                  variant="outline"
+                  className="text-xs font-mono border-amber-300 bg-amber-50 text-amber-800"
+                >
+                  {dict.sim_prisoners_dilemma.dominant_strategy}
+                </Badge>
+              </div>
+            </div>
+          }
+          stage={
+            <div className="space-y-6">
+              {activeMode === 'duel' ? (
+                <DuelArena
+                  onRoundPlayed={handleRoundPlayed}
+                  onMatchFinished={handleMatchFinished}
+                  onMovesChanged={(m1, m2) => {
+                    setLastMove1(m1);
+                    setLastMove2(m2);
+                  }}
+                />
+              ) : (
+                <AxelrodTournament onTournamentRecorded={handleTournamentRecorded} />
+              )}
+            </div>
+          }
           metricsBar={
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 pb-5 border-b border-slate-200/80">
               <div className="space-y-1">
@@ -272,6 +360,7 @@ export function PrisonersDilemmaSimulation() {
           tools={
             <>
               <Button
+                type="button"
                 variant="outline"
                 size="sm"
                 onClick={handleExportCsv}
@@ -279,9 +368,10 @@ export function PrisonersDilemmaSimulation() {
                 title={dict.simulations.export.csv}
               >
                 <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-600" />
-                {dict.simulations.export.csv}
+                <span>{dict.simulations.export.csv}</span>
               </Button>
               <Button
+                type="button"
                 variant="outline"
                 size="sm"
                 onClick={handleExportJson}
@@ -289,9 +379,10 @@ export function PrisonersDilemmaSimulation() {
                 title={dict.simulations.export.json}
               >
                 <FileJson className="h-3.5 w-3.5 text-blue-600" />
-                {dict.simulations.export.json}
+                <span>{dict.simulations.export.json}</span>
               </Button>
               <Button
+                type="button"
                 variant="outline"
                 size="sm"
                 onClick={handleCopyReport}
@@ -308,7 +399,7 @@ export function PrisonersDilemmaSimulation() {
                 ) : (
                   <>
                     <Copy className="h-3.5 w-3.5 text-slate-500" />
-                    {dict.simulations.export.copy_report}
+                    <span>{dict.simulations.export.copy_report}</span>
                   </>
                 )}
               </Button>
@@ -342,82 +433,33 @@ export function PrisonersDilemmaSimulation() {
               </div>
             )
           }
-        >
-          <div className="space-y-6">
-            {/* Thanh chuyển đổi chế độ */}
-            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200/80 pb-4">
-              <div className="flex items-center gap-1.5 rounded-lg border border-slate-300/85 bg-slate-100/80 p-1">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleModeChange('duel')}
-                  className={`h-8 gap-2 px-3 text-xs font-medium transition-all ${
-                    activeMode === 'duel'
-                      ? 'bg-white text-slate-900 shadow-xs font-semibold'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
-                  }`}
-                >
-                  <Swords className="h-3.5 w-3.5 text-blue-600" />
-                  {dict.sim_prisoners_dilemma.mode_duel}
-                </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleModeChange('tournament')}
-                  className={`h-8 gap-2 px-3 text-xs font-medium transition-all ${
-                    activeMode === 'tournament'
-                      ? 'bg-white text-slate-900 shadow-xs font-semibold'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
-                  }`}
-                >
-                  <Users className="h-3.5 w-3.5 text-emerald-600" />
-                  {dict.sim_prisoners_dilemma.mode_tournament}
-                </Button>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <Badge
-                  variant="outline"
-                  className="text-xs font-mono border-slate-300 text-slate-600"
-                >
-                  <Sparkles className="mr-1 h-3 w-3 text-amber-500" />
-                  {dict.sim_prisoners_dilemma.nash_badge}
-                </Badge>
-              </div>
-            </div>
-
-            {/* Ma trận lợi ích Payoff Matrix */}
-            <PayoffMatrixView lastMove1={lastMove1} lastMove2={lastMove2} />
-
-            {/* Đấu trường theo chế độ */}
-            {activeMode === 'duel' ? (
-              <DuelArena
-                onRoundPlayed={handleRoundPlayed}
-                onMatchFinished={handleMatchFinished}
-                onMovesChanged={(m1, m2) => {
-                  setLastMove1(m1);
-                  setLastMove2(m2);
-                }}
-              />
-            ) : (
-              <AxelrodTournament onTournamentRecorded={handleTournamentRecorded} />
-            )}
-          </div>
-        </SimulationWorkbenchCard>
+        />
       </SimulationSection>
 
-      {/* 3. TITLE NHẬT KÝ & NHẬT KÝ THỰC NGHIỆM */}
+      {/* 3. Nhật Ký Lượt Chạy Thực Nghiệm Phân Trang */}
       <SimulationSection
         dotColor="emerald"
         title={dict.simulations.history.title}
         subtitle={dict.simulations.history.subtitle}
       >
-        <SimulationHistoryTable runs={history} isLoading={false} />
+        <SimulationHistoryTable
+          simulationSlug="prisoners-dilemma"
+          runs={history}
+          page={page}
+          pageSize={pageSize}
+          total={total}
+          onPageChange={onPageChange}
+          onPageSizeChange={onPageSizeChange}
+          isLoading={false}
+          onReloadParams={params => {
+            if (params.mode === 'tournament' || params.mode === 'duel') {
+              handleModeChange(params.mode as GameMode);
+            }
+          }}
+        />
       </SimulationSection>
 
-      {/* 4. TITLE GIẢI THÍCH & GIẢI THÍCH KHOA HỌC */}
+      {/* 4. Giải Thích Khoa Học & Cân Bằng Nash */}
       <SimulationSection
         dotColor="blue"
         title={dict.simulations.explainer.title}
