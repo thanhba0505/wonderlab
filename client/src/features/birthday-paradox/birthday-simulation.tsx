@@ -42,6 +42,7 @@ import { useSimulationMeta } from '@/features/simulations/hooks';
 import { useTranslation } from '@/i18n';
 import { HypothesisOption } from '@/features/simulations/types';
 import { exportToCsv, exportToJson, copyToClipboard } from '../simulations/utils/export-data';
+import { useBirthdayAudio } from './utils/birthday-audio';
 
 function createDeterministicRng(seed = 2026) {
   let s = seed % 2147483647;
@@ -54,6 +55,7 @@ function createDeterministicRng(seed = 2026) {
 
 export const BirthdaySimulation: React.FC = () => {
   const { locale, dict } = useTranslation();
+  const audio = useBirthdayAudio();
   const bDict = dict.sim_birthday;
   const exp = dict.simulations.export;
   const tel = dict.simulations.telemetry;
@@ -105,9 +107,11 @@ export const BirthdaySimulation: React.FC = () => {
           empiricalRate: partial.empiricalRate,
           theoreticalRate: partial.theoreticalRate ?? theoreticalP,
         });
+        audio.playBatchTick();
       }
     },
     onComplete: finalRes => {
+      audio.playBatchComplete();
       const duration = Math.round(performance.now() - startTimeRef.current);
       const result: MonteCarloBatchResult = {
         trials: finalRes.trials,
@@ -205,6 +209,7 @@ export const BirthdaySimulation: React.FC = () => {
     if (newRoom.hasCollision) {
       setSessionCollisionCount(prev => prev + 1);
     }
+    audio.playRandomizeRoom(newRoom.hasCollision);
   };
 
   // Sinh phòng ngẫu nhiên mới với n hiện tại
@@ -217,6 +222,7 @@ export const BirthdaySimulation: React.FC = () => {
     if (newRoom.hasCollision) {
       setSessionCollisionCount(prev => prev + 1);
     }
+    audio.playRandomizeRoom(newRoom.hasCollision);
   };
 
   // Chạy mô phỏng hàng nghìn phòng (Monte Carlo) qua Web Worker
@@ -239,6 +245,7 @@ export const BirthdaySimulation: React.FC = () => {
     setMonteCarloResult(null);
     setSessionRoomsCount(1);
     setSessionCollisionCount(newRoom.hasCollision ? 1 : 0);
+    audio.playReset();
   };
 
   const currentEmpiricalRate = monteCarloResult
@@ -353,6 +360,7 @@ export const BirthdaySimulation: React.FC = () => {
         {/* 🧪 BLOCK THÍ NGHIỆM HỢP NHẤT (SimulationWorkbenchCard hỗ trợ Toàn màn hình & 2 Cột) */}
         <SimulationWorkbenchCard
           title={bDict.sim_title}
+          normalLayout="split"
           metricsBar={
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 pb-5 border-b border-slate-200/80">
               {/* Metric 1: Group size n */}
@@ -580,76 +588,7 @@ export const BirthdaySimulation: React.FC = () => {
               </div>
             )
           }
-        >
-          {/* Bento grid cho chế độ bình thường */}
-          <div className="grid gap-6 lg:grid-cols-12">
-            {/* Cột trái: Bộ điều khiển & Vòng tròn radar */}
-            <div className="flex flex-col gap-6 lg:col-span-5">
-              <div className="space-y-3">
-                <div className="flex items-center justify-between pb-1">
-                  <div className="flex items-center gap-2">
-                    <Sliders className="h-4 w-4 text-blue-600" />
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800 font-heading">
-                      {bDict.lab_parameters}
-                    </h3>
-                  </div>
-                  {room.hasCollision && (
-                    <Badge className="bg-amber-100 text-amber-800 border-amber-300 text-xs">
-                      <Sparkles className="mr-1 h-3 w-3" />
-                      {bDict.collision_exclamation}
-                    </Badge>
-                  )}
-                </div>
-
-                <ControlsPanel
-                  n={n}
-                  onChangeN={handleNChange}
-                  onRandomizeRoom={handleRandomizeRoom}
-                  onRunBatch={handleRunBatch}
-                  onAbortBatch={abortWorkerBirthday}
-                  onReset={handleReset}
-                  isSimulatingBatch={isSimulatingBatch}
-                  batchProgress={batchProgress}
-                  completedTrials={workerPartial?.completedTrials}
-                  targetTrials={targetTrials}
-                />
-              </div>
-
-              <div className="space-y-3 pt-6 border-t border-slate-200/80">
-                <div className="flex items-center gap-2 pb-1">
-                  <Radar className="h-4 w-4 text-violet-600" />
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800 font-heading">
-                    {bDict.spatial_radar}
-                  </h3>
-                </div>
-                <div className="flex justify-center pt-1">
-                  <ChamberRadar
-                    people={room.people}
-                    collisionPairs={room.collisionPairs}
-                    selectedPersonId={selectedPersonId}
-                    onSelectPerson={setSelectedPersonId}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Cột phải: Đồ thị xác suất & Lịch phân bổ */}
-            <div className="flex flex-col gap-6 lg:col-span-7 lg:border-l lg:border-slate-200/80 lg:pl-6">
-              <div>
-                <ProbabilityChart currentN={n} monteCarloResult={monteCarloResult} />
-              </div>
-
-              <div className="pt-6 border-t border-slate-200/80">
-                <CalendarHeatmap
-                  people={room.people}
-                  sharedDates={room.sharedDates}
-                  selectedPersonId={selectedPersonId}
-                  onSelectPerson={setSelectedPersonId}
-                />
-              </div>
-            </div>
-          </div>
-        </SimulationWorkbenchCard>
+        />
       </SimulationSection>
 
       {/* 4. TITLE NHẬT KÝ & NHẬT KÝ THỰC NGHIỆM */}
