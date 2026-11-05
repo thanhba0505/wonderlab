@@ -18,32 +18,18 @@ updates:
       - 'dependencies'
       - 'automated'
     groups:
-      dependencies:
-        patterns:
-          - '*'
+      production-dependencies:
+        dependency-type: 'production'
+        update-types:
+          - 'minor'
+          - 'patch'
+      development-dependencies:
+        dependency-type: 'development'
         update-types:
           - 'minor'
           - 'patch'
     ignore:
-      - dependency-name: 'next'
-        update-types: ['version-update:semver-major']
-      - dependency-name: '@nestjs/*'
-        update-types: ['version-update:semver-major']
-      - dependency-name: 'eslint*'
-        update-types: ['version-update:semver-major']
-      - dependency-name: 'prisma'
-        update-types: ['version-update:semver-major']
-      - dependency-name: '@prisma/*'
-        update-types: ['version-update:semver-major']
-      - dependency-name: 'tailwindcss'
-        update-types: ['version-update:semver-major']
-      - dependency-name: 'typescript'
-        update-types: ['version-update:semver-major']
-      - dependency-name: 'vitest'
-        update-types: ['version-update:semver-major']
-      - dependency-name: 'motion'
-        update-types: ['version-update:semver-major']
-      - dependency-name: 'lucide-react'
+      - dependency-name: '*'
         update-types: ['version-update:semver-major']
 
   # 2. GitHub Actions CI/CD workflows
@@ -65,6 +51,6 @@ updates:
       - 'dependencies'
       - 'automated'
     groups:
-      actions:
+      github-actions:
         patterns:
           - '*'
