@@ -59,7 +59,8 @@ export function PrisonersDilemmaSimulation() {
   } | null>(null);
 
   // Background Telemetry Hook
-  const { history, globalStats, recordRun } = useSimulationTelemetry('prisoners-dilemma');
+  const { history, globalStats, recordRun, page, pageSize, total, onPageChange, onPageSizeChange } =
+    useSimulationTelemetry('prisoners-dilemma');
 
   // Sync mode with URL param
   React.useEffect(() => {
@@ -470,7 +471,16 @@ export function PrisonersDilemmaSimulation() {
         title={dict.simulations.history.title}
         subtitle={dict.simulations.history.subtitle}
       >
-        <SimulationHistoryTable runs={history} isLoading={false} />
+        <SimulationHistoryTable
+          simulationSlug="prisoners-dilemma"
+          runs={history}
+          page={page}
+          pageSize={pageSize}
+          total={total}
+          onPageChange={onPageChange}
+          onPageSizeChange={onPageSizeChange}
+          isLoading={false}
+        />
       </SimulationSection>
 
       {/* 4. TITLE GIẢI THÍCH & GIẢI THÍCH KHOA HỌC */}

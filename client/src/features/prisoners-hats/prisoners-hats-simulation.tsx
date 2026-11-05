@@ -56,7 +56,8 @@ export function PrisonersHatsSimulation() {
   } | null>(null);
 
   // Telemetry Hook
-  const { history, recordRun } = useSimulationTelemetry('prisoners-hats');
+  const { history, recordRun, page, pageSize, total, onPageChange, onPageSizeChange } =
+    useSimulationTelemetry('prisoners-hats');
 
   // Solved Result Memo
   const solveResult: SimulationSolveResult = React.useMemo(() => {
@@ -453,7 +454,16 @@ export function PrisonersHatsSimulation() {
             }}
           />
 
-          <SimulationHistoryTable runs={history} onReloadParams={handleReloadParams} />
+          <SimulationHistoryTable
+            simulationSlug="prisoners-hats"
+            runs={history}
+            page={page}
+            pageSize={pageSize}
+            total={total}
+            onPageChange={onPageChange}
+            onPageSizeChange={onPageSizeChange}
+            onReloadParams={handleReloadParams}
+          />
         </div>
       </SimulationSection>
     </div>

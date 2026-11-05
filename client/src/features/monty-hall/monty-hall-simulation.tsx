@@ -65,7 +65,8 @@ export function MontyHallSimulation({ showHistory = true }: MontyHallSimulationP
   } | null>(null);
   const [copiedType, setCopiedType] = React.useState<'report' | null>(null);
 
-  const { history, globalStats, recordRun } = useSimulationTelemetry('monty-hall');
+  const { history, globalStats, recordRun, page, pageSize, total, onPageChange, onPageSizeChange } =
+    useSimulationTelemetry('monty-hall');
   const [carDoor, setCarDoor] = React.useState<number>(0);
   const [selectedDoor, setSelectedDoor] = React.useState<number | null>(null);
   const [revealedGoatDoor, setRevealedGoatDoor] = React.useState<number | null>(null);
@@ -913,7 +914,15 @@ export function MontyHallSimulation({ showHistory = true }: MontyHallSimulationP
           title={dict.simulations.history.title}
           subtitle={dict.simulations.history.auto_synced}
         >
-          <SimulationHistoryTable runs={history} />
+          <SimulationHistoryTable
+            simulationSlug="monty-hall"
+            runs={history}
+            page={page}
+            pageSize={pageSize}
+            total={total}
+            onPageChange={onPageChange}
+            onPageSizeChange={onPageSizeChange}
+          />
         </SimulationSection>
       )}
 

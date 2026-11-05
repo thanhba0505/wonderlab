@@ -74,7 +74,8 @@ export const BirthdaySimulation: React.FC = () => {
   const [copiedType, setCopiedType] = useState<'report' | 'url' | null>(null);
 
   // Background Telemetry Hook
-  const { history, globalStats, recordRun } = useSimulationTelemetry('birthday-paradox');
+  const { history, globalStats, recordRun, page, pageSize, total, onPageChange, onPageSizeChange } =
+    useSimulationTelemetry('birthday-paradox');
 
   // Thống kê phiên người dùng hiện tại
   const [sessionRoomsCount, setSessionRoomsCount] = useState<number>(1);
@@ -658,7 +659,13 @@ export const BirthdaySimulation: React.FC = () => {
         subtitle={dict.simulations.history.auto_synced}
       >
         <SimulationHistoryTable
+          simulationSlug="birthday-paradox"
           runs={history}
+          page={page}
+          pageSize={pageSize}
+          total={total}
+          onPageChange={onPageChange}
+          onPageSizeChange={onPageSizeChange}
           onReloadParams={params => {
             const reloadedN = params.groupSize ?? params.n;
             if (typeof reloadedN === 'number') {

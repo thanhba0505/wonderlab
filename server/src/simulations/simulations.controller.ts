@@ -16,6 +16,7 @@ import {
   SimulationsService,
   GlobalTelemetryStats,
   SimulationRunRecord,
+  PaginatedSimulationRuns,
 } from './simulations.service';
 import { CreateSimulationRunDto } from './dto/create-simulation-run.dto';
 import { SimulationStatsQueryDto } from './dto/simulation-stats-query.dto';
@@ -101,8 +102,9 @@ export class SimulationsController {
 
   @Get('runs/history')
   @ApiOperation({
-    summary: 'Retrieve recent simulation runs',
-    description: 'Returns the most recent runs filtered by client session or authenticated user.',
+    summary: 'Retrieve recent simulation runs with pagination',
+    description:
+      'Returns recent runs filtered by client session or authenticated user with pagination.',
   })
   @ApiHeader({
     name: 'x-session-id',
@@ -111,13 +113,13 @@ export class SimulationsController {
   })
   @ApiResponse({
     status: 200,
-    description: 'Array of recent simulation runs.',
+    description: 'Paginated list of recent simulation runs.',
   })
   async getHistory(
     @Query() query: SimulationHistoryQueryDto,
     @Headers('x-session-id') sessionHeader?: string,
     @Req() req?: AuthenticatedRequest,
-  ): Promise<SimulationRunRecord[]> {
+  ): Promise<PaginatedSimulationRuns> {
     if (!query.clientSession && sessionHeader) {
       query.clientSession = sessionHeader;
     }

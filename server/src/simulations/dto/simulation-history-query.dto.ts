@@ -35,8 +35,8 @@ export class SimulationHistoryQueryDto {
 
   @ApiPropertyOptional({
     description: 'Maximum number of records to return',
-    example: 20,
-    default: 20,
+    example: 10,
+    default: 10,
     minimum: 1,
     maximum: 100,
   })
@@ -45,5 +45,5 @@ export class SimulationHistoryQueryDto {
   @IsInt()
   @Min(1)
   @Max(100)
-  limit = 20;
+  limit = 10;
 }

@@ -119,13 +119,22 @@ export async function fetchSimulationStats(slug?: string): Promise<SimulationGlo
   }
 }
 
+export interface PaginatedSimulationHistory {
+  data: SimulationRunItem[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
 /**
- * Fetches recent simulation runs for the current anonymous session.
+ * Fetches recent simulation runs for the current anonymous session with pagination.
  */
 export async function fetchSimulationHistory(
   slug?: string,
-  limit = 20,
-): Promise<SimulationRunItem[]> {
+  page: number = 1,
+  limit: number = 10,
+): Promise<PaginatedSimulationHistory> {
   try {
     const sessionId = getClientSessionId();
     const url = new URL(`${getApiBaseUrl()}/simulations/runs/history`);
@@ -133,6 +142,7 @@ export async function fetchSimulationHistory(
       url.searchParams.set('simulationSlug', slug);
     }
     url.searchParams.set('clientSession', sessionId);
+    url.searchParams.set('page', String(page));
     url.searchParams.set('limit', String(limit));
 
     const res = await fetch(url.toString(), {
@@ -141,11 +151,28 @@ export async function fetchSimulationHistory(
     });
 
     if (!res.ok) {
-      return [];
+      return { data: [], total: 0, page, limit, totalPages: 1 };
     }
 
-    return await res.json();
+    const json = await res.json();
+    if (Array.isArray(json)) {
+      return {
+        data: json,
+        total: json.length,
+        page,
+        limit,
+        totalPages: Math.max(1, Math.ceil(json.length / limit)),
+      };
+    }
+
+    return {
+      data: Array.isArray(json.data) ? json.data : [],
+      total: typeof json.total === 'number' ? json.total : 0,
+      page: typeof json.page === 'number' ? json.page : page,
+      limit: typeof json.limit === 'number' ? json.limit : limit,
+      totalPages: typeof json.totalPages === 'number' ? json.totalPages : 1,
+    };
   } catch {
-    return [];
+    return { data: [], total: 0, page, limit, totalPages: 1 };
   }
 }

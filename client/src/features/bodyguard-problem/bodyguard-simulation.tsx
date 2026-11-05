@@ -64,7 +64,8 @@ export function BodyguardSimulation(): React.JSX.Element {
   } | null>(null);
 
   // Telemetry Session Logging
-  const { history, recordRun, isSyncing } = useSimulationTelemetry('bodyguard-problem');
+  const { history, recordRun, isSyncing, page, pageSize, total, onPageChange, onPageSizeChange } =
+    useSimulationTelemetry('bodyguard-problem');
 
   // Compute bodyguard positions whenever source or target moves
   const guards = React.useMemo(() => {
@@ -460,7 +461,13 @@ ${guards.map((g, i) => `  - G${i + 1}: (${g.x.toFixed(4)}, ${g.y.toFixed(4)})`).
         subtitle={dict.simulations.history.subtitle}
       >
         <SimulationHistoryTable
+          simulationSlug="bodyguard-problem"
           runs={history}
+          page={page}
+          pageSize={pageSize}
+          total={total}
+          onPageChange={onPageChange}
+          onPageSizeChange={onPageSizeChange}
           isLoading={isSyncing}
           onReloadParams={handleReloadParameters}
         />

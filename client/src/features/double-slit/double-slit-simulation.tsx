@@ -50,7 +50,8 @@ export function DoubleSlitSimulation() {
   } | null>(null);
 
   // Background Telemetry Hook
-  const { history, globalStats, recordRun } = useSimulationTelemetry('double-slit');
+  const { history, globalStats, recordRun, page, pageSize, total, onPageChange, onPageSizeChange } =
+    useSimulationTelemetry('double-slit');
 
   // Sync parameters with URL if present
   React.useEffect(() => {
@@ -406,7 +407,35 @@ export function DoubleSlitSimulation() {
         title={dict.simulations.history.title}
         subtitle={dict.simulations.history.auto_synced}
       >
-        <SimulationHistoryTable runs={history} isLoading={false} />
+        <SimulationHistoryTable
+          simulationSlug="double-slit"
+          runs={history}
+          page={page}
+          pageSize={pageSize}
+          total={total}
+          onPageChange={onPageChange}
+          onPageSizeChange={onPageSizeChange}
+          onReloadParams={params => {
+            if (typeof params.wavelengthNm === 'number') {
+              setParams(prev => ({
+                ...prev,
+                wavelength: (params.wavelengthNm as number) * 1e-9,
+                slitDistance:
+                  typeof params.slitDistanceUm === 'number'
+                    ? (params.slitDistanceUm as number) * 1e-6
+                    : prev.slitDistance,
+                screenDistance:
+                  typeof params.screenDistanceM === 'number'
+                    ? (params.screenDistanceM as number)
+                    : prev.screenDistance,
+                isObserverActive:
+                  typeof params.isObserverActive === 'boolean'
+                    ? (params.isObserverActive as boolean)
+                    : prev.isObserverActive,
+              }));
+            }
+          }}
+        />
       </SimulationSection>
 
       {/* 4. TITLE GIẢI THÍCH & GIẢI THÍCH KHOA HỌC */}

@@ -45,7 +45,8 @@ export function ZenoSimulation() {
   } | null>(null);
 
   // Background Telemetry Hook
-  const { history, globalStats, recordRun } = useSimulationTelemetry('zeno-paradox');
+  const { history, globalStats, recordRun, page, pageSize, total, onPageChange, onPageSizeChange } =
+    useSimulationTelemetry('zeno-paradox');
 
   // Synchronize with URL query if present
   React.useEffect(() => {
@@ -400,7 +401,35 @@ export function ZenoSimulation() {
         title={dict.simulations.history.title}
         subtitle={dict.simulations.history.subtitle}
       >
-        <SimulationHistoryTable runs={history} isLoading={false} />
+        <SimulationHistoryTable
+          simulationSlug="zeno-paradox"
+          runs={history}
+          page={page}
+          pageSize={pageSize}
+          total={total}
+          onPageChange={onPageChange}
+          onPageSizeChange={onPageSizeChange}
+          onReloadParams={params => {
+            if (typeof params.achillesSpeed === 'number') {
+              setParams(prev => ({
+                ...prev,
+                achillesSpeed: params.achillesSpeed as number,
+                tortoiseSpeed:
+                  typeof params.tortoiseSpeed === 'number'
+                    ? (params.tortoiseSpeed as number)
+                    : prev.tortoiseSpeed,
+                headStart:
+                  typeof params.headStart === 'number'
+                    ? (params.headStart as number)
+                    : prev.headStart,
+              }));
+            }
+            if (typeof params.subdivisionStep === 'number') {
+              setCurrentStepIndex(params.subdivisionStep as number);
+            }
+          }}
+          isLoading={false}
+        />
       </SimulationSection>
 
       {/* 4. TITLE GIẢI THÍCH & GIẢI THÍCH KHOA HỌC */}

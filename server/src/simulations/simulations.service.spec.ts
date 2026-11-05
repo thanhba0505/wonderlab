@@ -168,6 +168,7 @@ describe('SimulationsService', () => {
       ];
 
       prisma.simulationRun.findMany.mockResolvedValue(mockRuns);
+      prisma.simulationRun.count.mockResolvedValue(1);
 
       const history = await service.getRecentHistory({
         clientSession: 'sess_abc',
@@ -195,8 +196,10 @@ describe('SimulationsService', () => {
         },
       });
 
-      expect(history).toHaveLength(1);
-      expect(history[0].id).toBe('run-1');
+      expect(history.data).toHaveLength(1);
+      expect(history.data[0].id).toBe('run-1');
+      expect(history.total).toBe(1);
+      expect(history.totalPages).toBe(1);
     });
   });
 });

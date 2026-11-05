@@ -58,7 +58,8 @@ export function ArtGallerySimulation() {
   } | null>(null);
 
   // Background Telemetry Hook
-  const { history, recordRun } = useSimulationTelemetry('art-gallery');
+  const { history, recordRun, page, pageSize, total, onPageChange, onPageSizeChange } =
+    useSimulationTelemetry('art-gallery');
 
   // Compute Steve Fisk's 3-Coloring and Triangulation
   const fiskProof = React.useMemo(() => {
@@ -383,7 +384,23 @@ export function ArtGallerySimulation() {
         title={dict.simulations.history.title}
         subtitle={dict.simulations.history.subtitle}
       >
-        <SimulationHistoryTable runs={history} />
+        <SimulationHistoryTable
+          simulationSlug="art-gallery"
+          runs={history}
+          page={page}
+          pageSize={pageSize}
+          total={total}
+          onPageChange={onPageChange}
+          onPageSizeChange={onPageSizeChange}
+          onReloadParams={params => {
+            if (typeof params.preset === 'string' && params.preset !== 'custom') {
+              const found = GALLERY_PRESETS.find(p => p.id === params.preset);
+              if (found) {
+                handleSelectPreset(found);
+              }
+            }
+          }}
+        />
       </SimulationSection>
     </div>
   );
