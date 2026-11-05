@@ -314,7 +314,7 @@ export const BirthdaySimulation: React.FC = () => {
       `- **Xác suất Thực nghiệm**: \`${(currentEmpiricalRate * 100).toFixed(2)}%\``,
       `- **Phòng hiện tại có trùng**: \`${room.hasCollision ? 'Có' : 'Không'}\``,
       '',
-      `> Trích xuất từ Wonderlab (https://wonderlab.local/simulations/birthday-paradox)`,
+      `> Trích xuất từ Wonderlab (${typeof window !== 'undefined' ? window.location.href : 'https://wonderlab.io.vn/simulations/birthday-paradox'})`,
     ].join('\n');
 
     const ok = await copyToClipboard(markdown);

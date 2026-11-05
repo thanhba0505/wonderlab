@@ -10,7 +10,7 @@ SERVICE="all"
 TARGET_VERSION=""
 TARGET_COMMIT=""
 SERVER_URL="https://wonderlab-server.onrender.com"
-CLIENT_URL="https://wonderlab-client.onrender.com"
+CLIENT_URL="https://wonderlab.io.vn"
 TIMEOUT_SECONDS=600
 POLL_INTERVAL=10
 INITIAL_DELAY=15
@@ -65,7 +65,7 @@ done
 # Fallback to environment variables or defaults
 SERVICE="${SERVICE:-${TARGET_SERVICE:-all}}"
 SERVER_URL="${SERVER_URL:-${RENDER_SERVER_URL:-https://wonderlab-server.onrender.com}}"
-CLIENT_URL="${CLIENT_URL:-${RENDER_CLIENT_URL:-https://wonderlab-client.onrender.com}}"
+CLIENT_URL="${CLIENT_URL:-${RENDER_CLIENT_URL:-https://wonderlab.io.vn}}"
 TIMEOUT_SECONDS="${TIMEOUT_SECONDS:-600}"
 POLL_INTERVAL="${POLL_INTERVAL:-10}"
 INITIAL_DELAY="${INITIAL_DELAY:-15}"

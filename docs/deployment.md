@@ -32,7 +32,7 @@ Wonderlab defines three managed infrastructure resources in `render.yaml`:
   - `SERVER_PORT`: `10000` (Render default web port)
   - `DATABASE_URL`: Liên kết tự động qua `fromDatabase` của `wonderlab-db`
   - `JWT_SECRET`: Tự động sinh ngẫu nhiên an toàn qua Render (`generateValue: true`)
-  - `CORS_ORIGINS`: Cấu hình qua Render dashboard trỏ về client domain (`https://wonderlab-client.onrender.com`)
+  - `CORS_ORIGINS`: Cấu hình qua Render dashboard trỏ về client domain (`https://wonderlab.io.vn`, kèm dự phòng `https://wonderlab-client.onrender.com`)
 
 ### 3. `wonderlab-client` (Next.js App Router Web Service)
 
@@ -64,7 +64,7 @@ Thay vì kích hoạt rebuild trên từng commit nhỏ lẻ, Render được t�
      - Workflow `🚀 Deploy to Render` (`.github/workflows/deploy.yml`) được kích hoạt.
      - GitHub Actions tạo một deployment duy nhất thuộc môi trường **`Production`** và đặt trạng thái ban đầu là `In Progress` (đang xử lý).
      - Gửi yêu cầu kích hoạt đồng thời 2 webhook Deploy Hook của Render.
-     - Khởi chạy script giám sát [`scripts/verify-deployment.sh`](file:///Users/lethanhba/workspace/app/Wonderlab/scripts/verify-deployment.sh) liên tục thăm dò các endpoint sức khỏe thực tế (`https://wonderlab-server.onrender.com/health` và `https://wonderlab-client.onrender.com/health`).
+     - Khởi chạy script giám sát [`scripts/verify-deployment.sh`](../scripts/verify-deployment.sh) liên tục thăm dò các endpoint sức khỏe thực tế (`https://wonderlab-server.onrender.com/api/v1/health` và `https://wonderlab.io.vn/health`).
      - **Chỉ khi cả Server và Client đều phản hồi `HTTP 200`, `status: "ok"`, `database: "connected"` và phiên bản khớp với `vX.Y.Z`**, deployment mới được GitHub Actions cập nhật sang trạng thái **Success / Active** (xanh lá).
      - Nếu quá trình build hoặc rollout trên Render bị lỗi hay timeout quá 10 phút, deployment sẽ được đánh dấu **Failed** (đỏ) kèm bảng chẩn đoán lỗi chi tiết trong GitHub Actions Step Summary.
 
@@ -75,7 +75,7 @@ Thay vì kích hoạt rebuild trên từng commit nhỏ lẻ, Render được t�
 Deployments trên GitHub được tinh gọn và đồng bộ trực tiếp với Render GitHub App:
 
 - **2 môi trường duy nhất**:
-  1. `main - wonderlab-client` (trỏ đến `https://wonderlab-client.onrender.com`)
+  1. `main - wonderlab-client` (trỏ đến `https://wonderlab.io.vn` / `https://wonderlab-client.onrender.com`)
   2. `main - wonderlab-server` (trỏ đến `https://wonderlab-server.onrender.com`)
 - **Render GitHub App**: Tự động theo dõi tiến trình build theo thời gian thực (từ lúc bắt đầu build, hiển thị link log dashboard trực tiếp, cho đến khi rollout thành công hoặc thất bại) mà không cần tạo thêm các môi trường trùng lặp trên GitHub Actions.
 
@@ -84,6 +84,6 @@ Deployments trên GitHub được tinh gọn và đồng bộ trực tiếp vớ
 ## 5. Production Verification Checklist
 
 - [ ] Xác nhận `https://wonderlab-server.onrender.com/api/v1/health` trả về `{"status":"ok"}` với HTTP 200.
-- [ ] Xác nhận `https://wonderlab-client.onrender.com` tải trang chủ và mô phỏng Monty Hall hoạt động trực tiếp.
+- [ ] Xác nhận `https://wonderlab.io.vn` tải trang chủ và mô phỏng Monty Hall hoạt động trực tiếp.
 - [ ] Truy cập `/admin` và kiểm tra chức năng đăng nhập tài khoản quản trị viên.
 - [ ] Xác nhận không có lỗi CORS giữa Client và Server trong tab Console của trình duyệt.
