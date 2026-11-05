@@ -45,7 +45,7 @@ export function ControlsPanel({
   const fringeSpacingMm = (params.wavelength * params.screenDistance * 1000) / params.slitDistance;
 
   return (
-    <div className="flex flex-col gap-5 pt-6 border-t border-slate-200/80">
+    <div className="flex flex-col gap-5">
       {/* 1. THE QUANTUM OBSERVER TOGGLE (Highlight of the Experiment) */}
       <div
         className={`rounded-xl border border-slate-200/70 p-4 transition-all duration-300 ${

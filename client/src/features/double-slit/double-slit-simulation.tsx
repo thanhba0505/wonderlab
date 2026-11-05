@@ -6,7 +6,6 @@ import {
   DEFAULT_QUANTUM_PARAMS,
   sampleHitPosition,
   sampleBatchHits,
-  calculateIntensity,
 } from './quantum-math';
 import { SlitVisualizer } from './components/slit-visualizer';
 import { ControlsPanel } from './components/controls-panel';
@@ -30,6 +29,7 @@ import {
 } from '@/features/simulations/utils/export-data';
 import { Button } from '@/components/ui/button';
 import { FileSpreadsheet, FileJson, Copy, Check, Database, Sparkles, Activity } from 'lucide-react';
+import { useQuantumAudio } from './utils/quantum-audio';
 
 export function DoubleSlitSimulation() {
   const { locale, dict } = useTranslation();
@@ -37,6 +37,8 @@ export function DoubleSlitSimulation() {
   const exp = dict.simulations.export;
   const tel = dict.simulations.telemetry;
   const meta = useSimulationMeta('double-slit');
+  const audio = useQuantumAudio();
+
   const [params, setParams] = React.useState<QuantumParameters>(DEFAULT_QUANTUM_PARAMS);
   const [hits, setHits] = React.useState<number[]>([]);
   const [lastHitY, setLastHitY] = React.useState<number | null>(null);
@@ -84,6 +86,7 @@ export function DoubleSlitSimulation() {
       const next = updater(prev);
       if (next.isObserverActive !== prev.isObserverActive) {
         updateUrlParam(next.isObserverActive);
+        audio.playObserverToggle(next.isObserverActive);
       }
       return next;
     });
@@ -91,14 +94,16 @@ export function DoubleSlitSimulation() {
 
   // Fire 1 Single Photon
   const handleFireSingle = React.useCallback(() => {
+    audio.playPhotonFire();
     const y = sampleHitPosition(params, 0.05);
     setHits(prev => [...prev, y]);
     setLastHitY(y);
-  }, [params]);
+  }, [params, audio]);
 
   // Fire Fast Burst
   const handleFireBurst = React.useCallback(
     (count: number) => {
+      audio.playPhotonBurst();
       const batch = sampleBatchHits(count, params, 0.05);
       const newHitsArray = Array.from(batch);
 
@@ -123,7 +128,7 @@ export function DoubleSlitSimulation() {
         45,
       );
     },
-    [params, hits.length, recordRun],
+    [params, hits.length, recordRun, audio],
   );
 
   // Streaming Interval
@@ -131,6 +136,7 @@ export function DoubleSlitSimulation() {
     if (!isStreaming) return;
 
     const interval = setInterval(() => {
+      audio.playPhotonFire();
       const batch = sampleBatchHits(15, params, 0.05);
       const newHits = Array.from(batch);
       setHits(prev => [...prev, ...newHits]);
@@ -138,31 +144,29 @@ export function DoubleSlitSimulation() {
     }, 80);
 
     return () => clearInterval(interval);
-  }, [isStreaming, params]);
+  }, [isStreaming, params, audio]);
 
   // Reset Screen
   const handleReset = React.useCallback(() => {
+    audio.playReset();
     setIsStreaming(false);
     setHits([]);
     setLastHitY(null);
-  }, []);
+  }, [audio]);
 
   const handleExportCsv = () => {
-    const headers = ['Trial_ID', 'Hit_Position_mm', 'Intensity', 'Wavelength_nm', 'Observer_Mode'];
-    const rows = hits
-      .slice(-500)
-      .map((y, idx) => [
-        idx + 1,
-        (y * 1000).toFixed(2),
-        calculateIntensity(y, params).toFixed(4),
-        Math.round(params.wavelength * 1e9),
-        params.isObserverActive ? 'BẬT (Cổ điển)' : 'TẮT (Giao thoa)',
-      ]);
+    const headers = ['Hit_Index', 'Position_Y_Meters', 'Is_Observer_Active', 'Wavelength_Nm'];
+    const rows = hits.map((y, index) => [
+      String(index + 1),
+      y.toFixed(5),
+      params.isObserverActive ? 'YES (Particle)' : 'NO (Wave)',
+      String(Math.round(params.wavelength * 1e9)),
+    ]);
     exportToCsv('wonderlab-double-slit-hits.csv', headers, rows);
   };
 
   const handleExportJson = () => {
-    const data = {
+    const exportData = {
       simulation: 'double-slit',
       exportedAt: new Date().toISOString(),
       parameters: {
@@ -171,24 +175,27 @@ export function DoubleSlitSimulation() {
         screenDistanceM: params.screenDistance,
         isObserverActive: params.isObserverActive,
       },
-      results: {
+      stats: {
         totalHits: hits.length,
-        state: params.isObserverActive ? 'Hạt cổ điển (Đo lường)' : 'Sóng giao thoa (Chồng chập)',
       },
-      recentHits: hits.slice(-200),
-      runs: history,
+      hitsSample: hits.slice(-500),
     };
-    exportToJson('wonderlab-double-slit-data.json', data);
+    exportToJson('wonderlab-double-slit-data.json', exportData);
   };
 
   const handleCopyReport = async () => {
-    const report = `# Báo Cáo Thực Nghiệm: Thí nghiệm Hai khe Young
-- **Tổng số hạt đã bắn**: ${hits.length}
-- **Trạng thái quan sát (Observer)**: ${params.isObserverActive ? 'BẬT (Cổ điển, mất vân giao thoa)' : 'TẮT (Chồng chập lượng tử, xuất hiện vân sáng tối)'}
-- **Bước sóng quang học**: ${Math.round(params.wavelength * 1e9)} nm
-- **Khoảng cách 2 khe**: ${Math.round(params.slitDistance * 1e6)} µm
-- **Khoảng cách tới màn**: ${params.screenDistance} m
-- **Khoảng vân lý thuyết**: ${((params.wavelength * params.screenDistance * 1000) / params.slitDistance).toFixed(2)} mm`;
+    const fringeMm = (
+      (params.wavelength * params.screenDistance * 1000) /
+      params.slitDistance
+    ).toFixed(2);
+    const report = `# Báo Cáo Thực Nghiệm: Lưỡng Tính Sóng - Hạt (Thí Nghiệm Hai Khe)
+- **Tổng số photon va đập**: ${hits.length}
+- **Trạng thái máy dò (Observer)**: ${params.isObserverActive ? 'BẬT (Hạt cổ điển - 2 vạch)' : 'TẮT (Sóng lượng tử - Giao thoa)'}
+- **Bước sóng (lambda)**: ${Math.round(params.wavelength * 1e9)} nm
+- **Khoảng cách 2 khe (d)**: ${Math.round(params.slitDistance * 1e6)} um
+- **Khoảng cách tới màn (D)**: ${params.screenDistance} m
+- **Khoảng vân giao thoa lý thuyết (i)**: ${fringeMm} mm
+- **Kết luận thực nghiệm**: Hành vi lượng tử sụp đổ hàm sóng thành trạng thái hạt định xứ rõ rệt khi có tương tác quan sát.`;
     const success = await copyToClipboard(report);
     if (success) {
       setCopiedType('report');
@@ -197,27 +204,23 @@ export function DoubleSlitSimulation() {
   };
 
   return (
-    <div className="flex flex-col gap-8">
-      {/* Line phân cách sau intro/formula */}
-      <hr className="border-slate-200/80 -mt-2" />
-
-      {/* 1. TITLE CÂU HỎI & CÂU HỎI TRỰC GIÁC */}
+    <div className="flex flex-col gap-10 sm:gap-12">
+      {/* 1. Khảo Sát Trực Giác Trước Thực Nghiệm */}
       <SimulationSection dotColor="amber" title={dsDict.survey_title} subtitle={dsDict.survey_desc}>
         {meta?.hypothesis && (
           <IntuitionChallengeCard
             challenge={meta.hypothesis}
             simulationSlug="double-slit"
-            onPredictionSelected={(option: HypothesisOption, gap: number) => {
-              setUserPrediction({ option, gap });
-            }}
+            onPredictionSelected={(option, gap) => setUserPrediction({ option, gap })}
           />
         )}
       </SimulationSection>
 
-      {/* 2. TITLE CHỖ THÍ NGHIỆM & BLOCK THÍ NGHIỆM HỢP NHẤT */}
+      {/* 2. Buồng Thí Nghiệm & Mô Phỏng Trực Quan Chuẩn Split Layout */}
       <SimulationSection dotColor="blue" title={dsDict.sim_title} subtitle={dsDict.sim_desc}>
         <SimulationWorkbenchCard
           title={dsDict.sim_title}
+          normalLayout="split"
           controls={
             <ControlsPanel
               params={params}
@@ -231,7 +234,7 @@ export function DoubleSlitSimulation() {
             />
           }
           stage={
-            <div className="space-y-6">
+            <div className="flex flex-col gap-6">
               <SlitVisualizer
                 params={params}
                 hits={hits}
@@ -307,6 +310,7 @@ export function DoubleSlitSimulation() {
           tools={
             <>
               <Button
+                type="button"
                 variant="outline"
                 size="sm"
                 onClick={handleExportCsv}
@@ -314,9 +318,10 @@ export function DoubleSlitSimulation() {
                 title={exp.csv_title}
               >
                 <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-600" />
-                {exp.csv}
+                <span>{exp.csv}</span>
               </Button>
               <Button
+                type="button"
                 variant="outline"
                 size="sm"
                 onClick={handleExportJson}
@@ -324,9 +329,10 @@ export function DoubleSlitSimulation() {
                 title={exp.json_title}
               >
                 <FileJson className="h-3.5 w-3.5 text-blue-600" />
-                {exp.json}
+                <span>{exp.json}</span>
               </Button>
               <Button
+                type="button"
                 variant="outline"
                 size="sm"
                 onClick={handleCopyReport}
@@ -341,7 +347,7 @@ export function DoubleSlitSimulation() {
                 ) : (
                   <>
                     <Copy className="h-3.5 w-3.5 text-slate-500" />
-                    {exp.report}
+                    <span>{exp.report}</span>
                   </>
                 )}
               </Button>
@@ -375,33 +381,10 @@ export function DoubleSlitSimulation() {
               </div>
             )
           }
-        >
-          <div className="space-y-6">
-            <SlitVisualizer
-              params={params}
-              hits={hits}
-              lastHitY={lastHitY}
-              isStreaming={isStreaming}
-              totalHits={hits.length}
-            />
-
-            <ControlsPanel
-              params={params}
-              onParamsChange={handleParamsChange}
-              onFireSingle={handleFireSingle}
-              onFireBurst={handleFireBurst}
-              onReset={handleReset}
-              isStreaming={isStreaming}
-              onToggleStream={() => setIsStreaming(s => !s)}
-              totalHits={hits.length}
-            />
-
-            <IntensityChart params={params} hits={hits} />
-          </div>
-        </SimulationWorkbenchCard>
+        />
       </SimulationSection>
 
-      {/* 3. TITLE NHẬT KÝ & NHẬT KÝ THỰC NGHIỆM */}
+      {/* 3. Nhật Ký Lượt Chạy Thực Nghiệm Phân Trang */}
       <SimulationSection
         dotColor="emerald"
         title={dict.simulations.history.title}
@@ -438,7 +421,7 @@ export function DoubleSlitSimulation() {
         />
       </SimulationSection>
 
-      {/* 4. TITLE GIẢI THÍCH & GIẢI THÍCH KHOA HỌC */}
+      {/* 4. Giải Thích Khoa Học */}
       <SimulationSection
         dotColor="blue"
         title={dict.simulations.explanation}
