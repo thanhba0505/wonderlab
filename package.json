@@ -17,7 +17,7 @@
     "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm test:e2e && pnpm build"
   },
   "devDependencies": {
-    "concurrently": "^9.1.2",
+    "concurrently": "^10.0.6",
     "prettier": "^3.4.2"
   }
 }
