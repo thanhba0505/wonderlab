@@ -29,6 +29,9 @@ updates:
           - 'minor'
           - 'patch'
     ignore:
+      # Pinned due to local font loader patch (patches/next@15.1.7.patch)
+      - dependency-name: 'next'
+      # Prevent breaking major upgrades monorepo-wide
       - dependency-name: '*'
         update-types: ['version-update:semver-major']
 
