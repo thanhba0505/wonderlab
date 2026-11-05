@@ -78,6 +78,6 @@ Kích hoạt triển khai tự động lên Render khi một Release chính th�
     - `RENDER_CLIENT_DEPLOY_HOOK`: Webhook URL của `wonderlab-client` trên Render.
 - **Native Render GitHub App Integration**:
   - Quá trình deploy được theo dõi trực tiếp bởi Render GitHub App trên 2 môi trường chuẩn:
-    - `main - wonderlab-client` (`https://wonderlab-client.onrender.com`)
+    - `main - wonderlab-client` (`https://wonderlab.io.vn` / `https://wonderlab-client.onrender.com`)
     - `main - wonderlab-server` (`https://wonderlab-server.onrender.com`)
   - Render GitHub App tự động cập nhật trạng thái `in_progress`, cung cấp liên kết xem trực tiếp log build trên dashboard của Render và đánh dấu `success` khi rollout hoàn tất.

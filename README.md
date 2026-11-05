@@ -10,7 +10,7 @@
 [![Next.js 15](https://img.shields.io/badge/Next.js-15-000000?style=flat-square&logo=next.js&logoColor=white)](https://nextjs.org/)
 [![NestJS 10](https://img.shields.io/badge/NestJS-10-e0234e?style=flat-square&logo=nestjs&logoColor=white)](https://nestjs.com/)
 
-[🌐 Trải Nghiệm Trực Tuyến](https://wonderlab-client.onrender.com) • [📖 Kiến Trúc Kỹ Thuật](docs/architecture.md) • [📋 Báo Cáo Sự Cố](https://github.com/thanhba0505/wonderlab/issues)
+[🌐 Trải Nghiệm Trực Tuyến](https://wonderlab.io.vn) • [📖 Kiến Trúc Kỹ Thuật](docs/architecture.md) • [📋 Báo Cáo Sự Cố](https://github.com/thanhba0505/wonderlab/issues)
 
 </div>
 
@@ -34,7 +34,7 @@ Thay vì tiếp nhận kiến thức một chiều qua công thức lý thuyết
 
 ### 3. Liên Kết Truy Cập Nhanh
 
-- **Trang chủ ứng dụng**: [https://wonderlab-client.onrender.com](https://wonderlab-client.onrender.com)
+- **Trang chủ ứng dụng**: [https://wonderlab.io.vn](https://wonderlab.io.vn)
 - **Tài liệu API công khai**: [https://wonderlab-server.onrender.com/api/docs](https://wonderlab-server.onrender.com/api/docs)
 
 ---

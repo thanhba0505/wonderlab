@@ -28,4 +28,4 @@ This document describes all environment variables used by Wonderlab across Clien
 - **Database Loopback**: Port 5434 is strictly bound to `127.0.0.1` in `docker-compose.yml`, preventing external network connections.
 - **Production Overrides on Render**:
   - In Render, configure `NEXT_PUBLIC_API_BASE_URL` on the Client Web Service pointing to `https://<your-server-service>.onrender.com/api/v1`.
-  - Configure `CORS_ORIGINS` on the Server Web Service pointing to `https://<your-client-service>.onrender.com`.
+  - Configure `CORS_ORIGINS` on the Server Web Service pointing to `https://wonderlab.io.vn` (or `https://<your-client-service>.onrender.com`).
