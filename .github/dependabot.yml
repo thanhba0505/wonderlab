@@ -1,11 +1,8 @@
 version: 2
 updates:
-  # 1. Monorepo dependencies (pnpm workspaces: root, client, server)
+  # 1. Monorepo dependencies (pnpm root workspace)
   - package-ecosystem: 'npm'
-    directories:
-      - '/'
-      - '/client'
-      - '/server'
+    directory: '/'
     target-branch: 'develop'
     schedule:
       interval: 'weekly'
@@ -29,6 +26,24 @@ updates:
           - 'patch'
     ignore:
       - dependency-name: 'next'
+        update-types: ['version-update:semver-major']
+      - dependency-name: '@nestjs/*'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'eslint*'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'prisma'
+        update-types: ['version-update:semver-major']
+      - dependency-name: '@prisma/*'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'tailwindcss'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'typescript'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'vitest'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'motion'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'lucide-react'
         update-types: ['version-update:semver-major']
 
   # 2. GitHub Actions CI/CD workflows
