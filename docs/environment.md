@@ -26,6 +26,6 @@ This document describes all environment variables used by Wonderlab across Clien
 
 - **Client Bundle Safety**: Variables without the `NEXT_PUBLIC_` prefix are stripped by Next.js during build and never sent to client browsers. Never prefix database passwords or secrets with `NEXT_PUBLIC_`.
 - **Database Loopback**: Port 5434 is strictly bound to `127.0.0.1` in `docker-compose.yml`, preventing external network connections.
-- **Production Overrides on Render**:
-  - In Render, configure `NEXT_PUBLIC_API_BASE_URL` on the Client Web Service pointing to `https://<your-server-service>.onrender.com/api/v1`.
-  - Configure `CORS_ORIGINS` on the Server Web Service pointing to `https://wonderlab.io.vn` (or `https://<your-client-service>.onrender.com`).
+- **Production Overrides**:
+  - In Vercel, configure `NEXT_PUBLIC_API_BASE_URL` on the Client project pointing to `https://wonderlab-server.onrender.com/api/v1`.
+  - In Render, configure `CORS_ORIGINS` on the Server Web Service pointing to `https://wonderlab.io.vn,https://wonderlab-client.vercel.app`.
