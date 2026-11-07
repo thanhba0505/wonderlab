@@ -186,20 +186,25 @@ jobs:
           E_UP=$(echo "$E2E_STATUS" | tr "[:lower:]" "[:upper:]")
           B_UP=$(echo "$BUILD_STATUS" | tr "[:lower:]" "[:upper:]")
 
+          PAYLOAD=$(cat <<EOF
+          {
+            "project": "wonderlab",
+            "status": "$OVERALL_STATUS",
+            "branch": "$REF",
+            "commit": "$COMMIT",
+            "trigger": "$EVENT by @$AUTHOR",
+            "pipeline": {
+              "Quality & Types": "$Q_UP",
+              "Unit Tests": "$U_UP",
+              "E2E DB Tests": "$E_UP",
+              "Production Build": "$B_UP"
+            },
+            "runUrl": "$RUN_URL"
+          }
+          EOF
+          )
+
           curl -s -X POST "$GATEWAY_URL/notifications/slack/ci" \
             -H "Content-Type: application/json" \
             -H "Authorization: Bearer $GATEWAY_SECRET_KEY" \
-            -d '{
-              "project": "wonderlab",
-              "status": "'"$OVERALL_STATUS"'",
-              "branch": "'"$REF"'",
-              "commit": "'"$COMMIT"'",
-              "trigger": "'"$EVENT"' by @"'"$AUTHOR"'",
-              "pipeline": {
-                "Quality & Types": "'"$Q_UP"'",
-                "Unit Tests": "'"$U_UP"'",
-                "E2E DB Tests": "'"$E_UP"'",
-                "Production Build": "'"$B_UP"'"
-              },
-              "runUrl": "'"$RUN_URL"'"
-            }' || echo "CI notification skipped or failed"
+            -d "$PAYLOAD" || echo "CI notification skipped or failed"

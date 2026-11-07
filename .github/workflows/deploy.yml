@@ -73,18 +73,23 @@ jobs:
           AUTHOR="${{ github.actor }}"
           RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
 
+          PAYLOAD=$(cat <<EOF
+          {
+            "project": "wonderlab",
+            "status": "STARTED",
+            "version": "$VERSION",
+            "commit": "$COMMIT",
+            "target": "Production ($SERVICE)",
+            "actor": "$AUTHOR",
+            "runUrl": "$RUN_URL"
+          }
+          EOF
+          )
+
           curl -s -X POST "$GATEWAY_URL/notifications/slack/deploy" \
             -H "Content-Type: application/json" \
             -H "Authorization: Bearer $GATEWAY_SECRET_KEY" \
-            -d '{
-              "project": "wonderlab",
-              "status": "STARTED",
-              "version": "'"$VERSION"'",
-              "commit": "'"$COMMIT"'",
-              "target": "Production ('"$SERVICE"')",
-              "actor": "'"$AUTHOR"'",
-              "runUrl": "'"$RUN_URL"'"
-            }' || echo "Deployment started notification skipped or failed"
+            -d "$PAYLOAD" || echo "Deployment started notification skipped or failed"
 
       - name: Trigger Server Deploy Hook (Render)
         if: ${{ steps.targets.outputs.service == 'all' || steps.targets.outputs.service == 'server' }}
@@ -150,17 +155,22 @@ jobs:
           AUTHOR="${{ github.actor }}"
           RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
 
+          PAYLOAD=$(cat <<EOF
+          {
+            "project": "wonderlab",
+            "status": "$STATUS",
+            "version": "$VERSION",
+            "commit": "$COMMIT",
+            "target": "Production ($SERVICE)",
+            "actor": "$AUTHOR",
+            "appUrl": "https://wonderlab.io.vn",
+            "healthUrl": "https://wonderlab.io.vn/health",
+            "runUrl": "$RUN_URL"
+          }
+          EOF
+          )
+
           curl -s -X POST "$GATEWAY_URL/notifications/slack/deploy" \
             -H "Content-Type: application/json" \
             -H "Authorization: Bearer $GATEWAY_SECRET_KEY" \
-            -d '{
-              "project": "wonderlab",
-              "status": "'"$STATUS"'",
-              "version": "'"$VERSION"'",
-              "commit": "'"$COMMIT"'",
-              "target": "Production ('"$SERVICE"')",
-              "actor": "'"$AUTHOR"'",
-              "appUrl": "https://wonderlab.io.vn",
-              "healthUrl": "https://wonderlab.io.vn/health",
-              "runUrl": "'"$RUN_URL"'"
-            }' || echo "Deployment result notification skipped or failed"
+            -d "$PAYLOAD" || echo "Deployment result notification skipped or failed"
