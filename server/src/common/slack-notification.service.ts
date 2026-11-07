@@ -3,46 +3,50 @@ import { Injectable, Logger } from '@nestjs/common';
 @Injectable()
 export class SlackNotificationService {
   private readonly logger = new Logger(SlackNotificationService.name);
-  private readonly token = process.env.SLACK_BOT_TOKEN;
-
-  // Dedicated channels
-  private readonly userFeedbackChannel = process.env.SLACK_USER_FEEDBACK_CHANNEL || 'C0CFAFQH739';
-  private readonly commentsModerationChannel =
-    process.env.SLACK_COMMENTS_MODERATION_CHANNEL || 'C0CFAFQRU2K';
+  private readonly gatewayUrl =
+    process.env.GATEWAY_URL || 'https://central-gateway-server.onrender.com/api/v1';
+  private readonly secretKey = process.env.GATEWAY_SECRET_KEY;
 
   /**
-   * Internal dispatcher using standard fetch with graceful fallback
+   * Internal dispatcher calling Central Gateway
    */
-  private async postMessage(channel: string, payload: Record<string, unknown>): Promise<void> {
-    if (!this.token) {
-      this.logger.debug(`SLACK_BOT_TOKEN not configured. Skipped dispatch to channel ${channel}.`);
-      return;
-    }
-
+  private async dispatchCommunityNotification(payload: {
+    type: 'feedback' | 'comment';
+    title: string;
+    author: string;
+    content: string;
+    category?: string;
+    actionUrl?: string;
+    adminUrl?: string;
+  }): Promise<void> {
     try {
-      const response = await fetch('https://slack.com/api/chat.postMessage', {
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      if (this.secretKey) {
+        headers['Authorization'] = `Bearer ${this.secretKey}`;
+      }
+
+      const response = await fetch(`${this.gatewayUrl}/notifications/slack/community`, {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${this.token}`,
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify({
-          channel,
+          project: 'wonderlab',
           ...payload,
         }),
       });
 
-      const data = (await response.json()) as { ok?: boolean; error?: string };
-      if (!data.ok) {
-        this.logger.warn(`Slack API warning for channel ${channel}: ${data.error}`);
+      if (!response.ok) {
+        const errorText = await response.text();
+        this.logger.warn(`Central Gateway responded with HTTP ${response.status}: ${errorText}`);
       }
     } catch (error) {
-      this.logger.error(`Failed to send Slack notification to ${channel}`, error);
+      this.logger.error('Failed to dispatch notification to Central Gateway', error);
     }
   }
 
   /**
-   * Dispatches community simulation request alerts to #user-feedback
+   * Dispatches community simulation request alerts to #wonderlab-feedback via Central Gateway
    */
   async notifySimulationRequest(params: {
     title: string;
@@ -52,61 +56,19 @@ export class SlackNotificationService {
   }): Promise<void> {
     const { title, description, category = 'General', authorName = 'Anonymous Learner' } = params;
 
-    await this.postMessage(this.userFeedbackChannel, {
-      blocks: [
-        {
-          type: 'header',
-          text: {
-            type: 'plain_text',
-            text: '💡 [COMMUNITY] New Simulation Proposal',
-            emoji: true,
-          },
-        },
-      ],
-      attachments: [
-        {
-          color: '#0284c7',
-          blocks: [
-            {
-              type: 'section',
-              fields: [
-                { type: 'mrkdwn', text: `*Topic:*\n\`${title}\`` },
-                { type: 'mrkdwn', text: `*Category:*\n\`${category}\`` },
-                { type: 'mrkdwn', text: `*Author:*\n\`${authorName}\`` },
-                { type: 'mrkdwn', text: '*Source:*\n`Wonderlab Community`' },
-              ],
-            },
-            {
-              type: 'section',
-              text: {
-                type: 'mrkdwn',
-                text: `*Description:*\n\`\`\`\n${description.slice(0, 400)}${description.length > 400 ? '...' : ''}\n\`\`\``,
-              },
-            },
-            {
-              type: 'actions',
-              elements: [
-                {
-                  type: 'button',
-                  text: { type: 'plain_text', text: '📋 View All Requests' },
-                  url: 'https://wonderlab.io.vn/requests',
-                  style: 'primary',
-                },
-                {
-                  type: 'button',
-                  text: { type: 'plain_text', text: '🛡️ Admin Console' },
-                  url: 'https://wonderlab.io.vn/admin/requests',
-                },
-              ],
-            },
-          ],
-        },
-      ],
+    await this.dispatchCommunityNotification({
+      type: 'feedback',
+      title,
+      author: authorName,
+      content: description,
+      category,
+      actionUrl: 'https://wonderlab.io.vn/requests',
+      adminUrl: 'https://wonderlab.io.vn/admin/requests',
     });
   }
 
   /**
-   * Dispatches new discussion/comment alerts to #comments-moderation
+   * Dispatches new discussion/comment alerts to #wonderlab-comments via Central Gateway
    */
   async notifyNewComment(params: {
     simulationSlug: string;
@@ -116,54 +78,13 @@ export class SlackNotificationService {
   }): Promise<void> {
     const { simulationSlug, authorName, content, isReply = false } = params;
 
-    await this.postMessage(this.commentsModerationChannel, {
-      blocks: [
-        {
-          type: 'header',
-          text: {
-            type: 'plain_text',
-            text: `💬 [DISCUSSION] New Scientific ${isReply ? 'Reply' : 'Post'}`,
-            emoji: true,
-          },
-        },
-      ],
-      attachments: [
-        {
-          color: '#8b5cf6',
-          blocks: [
-            {
-              type: 'section',
-              fields: [
-                { type: 'mrkdwn', text: `*Simulation:*\n\`${simulationSlug}\`` },
-                { type: 'mrkdwn', text: `*Author:*\n\`${authorName}\`` },
-              ],
-            },
-            {
-              type: 'section',
-              text: {
-                type: 'mrkdwn',
-                text: `*Message:*\n\`\`\`\n${content.slice(0, 350)}${content.length > 350 ? '...' : ''}\n\`\`\``,
-              },
-            },
-            {
-              type: 'actions',
-              elements: [
-                {
-                  type: 'button',
-                  text: { type: 'plain_text', text: '🔬 Open Simulation Chamber' },
-                  url: `https://wonderlab.io.vn/simulations/${simulationSlug}`,
-                  style: 'primary',
-                },
-                {
-                  type: 'button',
-                  text: { type: 'plain_text', text: '⚖️ Moderate Comments' },
-                  url: 'https://wonderlab.io.vn/admin/comments',
-                },
-              ],
-            },
-          ],
-        },
-      ],
+    await this.dispatchCommunityNotification({
+      type: 'comment',
+      title: `${isReply ? 'Reply on' : 'Discussion on'} ${simulationSlug}`,
+      author: authorName,
+      content,
+      actionUrl: `https://wonderlab.io.vn/simulations/${simulationSlug}`,
+      adminUrl: 'https://wonderlab.io.vn/admin/comments',
     });
   }
 }

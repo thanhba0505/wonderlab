@@ -64,69 +64,27 @@ jobs:
 
       - name: Notify Slack Deployment Started (#deployments)
         env:
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          GATEWAY_URL: ${{ secrets.GATEWAY_URL || 'https://central-gateway-server.onrender.com/api/v1' }}
+          GATEWAY_SECRET_KEY: ${{ secrets.GATEWAY_SECRET_KEY }}
         run: |
-          if [ -z "$SLACK_BOT_TOKEN" ]; then
-            echo "SLACK_BOT_TOKEN not configured, skipping Slack notification."
-            exit 0
-          fi
           VERSION="${{ steps.targets.outputs.version }}"
           COMMIT="${{ steps.targets.outputs.commit }}"
           SERVICE="${{ steps.targets.outputs.service }}"
           AUTHOR="${{ github.actor }}"
           RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          SHORT_SHA=$(echo "$COMMIT" | cut -c1-7)
 
-          PAYLOAD=$(cat <<EOF
-          {
-            "channel": "C0CGL8EHU9E",
-            "blocks": [
-              {
-                "type": "header",
-                "text": {
-                  "type": "plain_text",
-                  "text": "🚀 [WONDERLAB] Production Deploy Started",
-                  "emoji": true
-                }
-              }
-            ],
-            "attachments": [
-              {
-                "color": "#f59e0b",
-                "blocks": [
-                  {
-                    "type": "section",
-                    "fields": [
-                      { "type": "mrkdwn", "text": "*Service Target:*\n\`$SERVICE\`" },
-                      { "type": "mrkdwn", "text": "*Release Version:*\n\`v$VERSION\`" },
-                      { "type": "mrkdwn", "text": "*Commit SHA:*\n<https://github.com/${{ github.repository }}/commit/$COMMIT|\`$SHORT_SHA\`>" },
-                      { "type": "mrkdwn", "text": "*Status:*\n\`STARTED\`" },
-                      { "type": "mrkdwn", "text": "*Environment:*\n\`Production\`" },
-                      { "type": "mrkdwn", "text": "*Triggered By:*\n\`@$AUTHOR\`" }
-                    ]
-                  },
-                  {
-                    "type": "actions",
-                    "elements": [
-                      {
-                        "type": "button",
-                        "text": { "type": "plain_text", "text": "🔍 View Deploy Logs" },
-                        "url": "$RUN_URL",
-                        "style": "primary"
-                      }
-                    ]
-                  }
-                ]
-              }
-            ]
-          }
-          EOF
-          )
-
-          curl -s -X POST https://slack.com/api/chat.postMessage \
-            -H "Authorization: Bearer $SLACK_BOT_TOKEN" \
+          curl -s -X POST "$GATEWAY_URL/notifications/slack/deploy" \
             -H "Content-Type: application/json" \
-            -d "$PAYLOAD"
+            -H "Authorization: Bearer $GATEWAY_SECRET_KEY" \
+            -d '{
+              "project": "wonderlab",
+              "status": "STARTED",
+              "version": "'"$VERSION"'",
+              "commit": "'"$COMMIT"'",
+              "target": "Production ('"$SERVICE"')",
+              "actor": "'"$AUTHOR"'",
+              "runUrl": "'"$RUN_URL"'"
+            }' || echo "Deployment started notification skipped or failed"
 
       - name: Trigger Server Deploy Hook (Render)
         if: ${{ steps.targets.outputs.service == 'all' || steps.targets.outputs.service == 'server' }}
@@ -175,93 +133,34 @@ jobs:
             --interval 10 \
             --initial-delay 15
 
-      - name: Notify Slack (#deployments)
+      - name: Notify Slack Deployment Result (#deployments)
         if: always()
         env:
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          GATEWAY_URL: ${{ secrets.GATEWAY_URL || 'https://central-gateway-server.onrender.com/api/v1' }}
+          GATEWAY_SECRET_KEY: ${{ secrets.GATEWAY_SECRET_KEY }}
         run: |
-          if [ -z "$SLACK_BOT_TOKEN" ]; then
-            echo "SLACK_BOT_TOKEN not configured, skipping Slack notification."
-            exit 0
+          STATUS="FAIL"
+          if [ "${{ job.status }}" = "success" ]; then
+            STATUS="SUCCESS"
           fi
-          DEPLOY_STATUS="${{ job.status }}"
-          if [ "$DEPLOY_STATUS" = "success" ]; then
-            COLOR="#10b981"
-            TITLE="✅ [WONDERLAB] Production Deploy Completed"
-            STATUS_TEXT="SUCCESS"
-            ACTIONS='[
-              {
-                "type": "button",
-                "text": { "type": "plain_text", "text": "🌐 Visit Wonderlab" },
-                "url": "https://wonderlab.io.vn",
-                "style": "primary"
-              },
-              {
-                "type": "button",
-                "text": { "type": "plain_text", "text": "🩺 Health Probe" },
-                "url": "https://wonderlab.io.vn/health"
-              }
-            ]'
-          else
-            COLOR="#ef4444"
-            TITLE="❌ [WONDERLAB] Production Deploy Failed"
-            STATUS_TEXT="FAIL"
-            RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-            ACTIONS='[
-              {
-                "type": "button",
-                "text": { "type": "plain_text", "text": "🔍 View Failure Logs" },
-                "url": "'"$RUN_URL"'",
-                "style": "primary"
-              }
-            ]'
-          fi
+
           VERSION="${{ steps.targets.outputs.version }}"
           COMMIT="${{ steps.targets.outputs.commit }}"
           SERVICE="${{ steps.targets.outputs.service }}"
           AUTHOR="${{ github.actor }}"
+          RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
 
-          SHORT_SHA=$(echo "$COMMIT" | cut -c1-7)
-          PAYLOAD=$(cat <<EOF
-          {
-            "channel": "C0CGL8EHU9E",
-            "blocks": [
-              {
-                "type": "header",
-                "text": {
-                  "type": "plain_text",
-                  "text": "$TITLE",
-                  "emoji": true
-                }
-              }
-            ],
-            "attachments": [
-              {
-                "color": "$COLOR",
-                "blocks": [
-                  {
-                    "type": "section",
-                    "fields": [
-                      { "type": "mrkdwn", "text": "*Service Target:*\n\`$SERVICE\`" },
-                      { "type": "mrkdwn", "text": "*Release Version:*\n\`v$VERSION\`" },
-                      { "type": "mrkdwn", "text": "*Commit SHA:*\n<https://github.com/${{ github.repository }}/commit/$COMMIT|\`$SHORT_SHA\`>" },
-                      { "type": "mrkdwn", "text": "*Status:*\n\`$STATUS_TEXT\`" },
-                      { "type": "mrkdwn", "text": "*Environment:*\n\`Production\`" },
-                      { "type": "mrkdwn", "text": "*Triggered By:*\n\`@$AUTHOR\`" }
-                    ]
-                  },
-                  {
-                    "type": "actions",
-                    "elements": $ACTIONS
-                  }
-                ]
-              }
-            ]
-          }
-          EOF
-          )
-
-          curl -s -X POST https://slack.com/api/chat.postMessage \
-            -H "Authorization: Bearer $SLACK_BOT_TOKEN" \
+          curl -s -X POST "$GATEWAY_URL/notifications/slack/deploy" \
             -H "Content-Type: application/json" \
-            -d "$PAYLOAD"
+            -H "Authorization: Bearer $GATEWAY_SECRET_KEY" \
+            -d '{
+              "project": "wonderlab",
+              "status": "'"$STATUS"'",
+              "version": "'"$VERSION"'",
+              "commit": "'"$COMMIT"'",
+              "target": "Production ('"$SERVICE"')",
+              "actor": "'"$AUTHOR"'",
+              "appUrl": "https://wonderlab.io.vn",
+              "healthUrl": "https://wonderlab.io.vn/health",
+              "runUrl": "'"$RUN_URL"'"
+            }' || echo "Deployment result notification skipped or failed"

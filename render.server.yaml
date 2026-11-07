@@ -20,3 +20,7 @@ services:
         generateValue: true
       - key: CORS_ORIGINS
         sync: false # Configured via Render dashboard: https://wonderlab.io.vn
+      - key: GATEWAY_URL
+        value: https://central-gateway-server.onrender.com/api/v1
+      - key: GATEWAY_SECRET_KEY
+        sync: false
