@@ -38,11 +38,6 @@ jobs:
         with:
           node-version: 24
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 12.11.2
-
       - name: Merge develop into main and Sync Release Version
         if: ${{ github.event_name == 'release' || startsWith(github.ref, 'refs/tags/v') }}
         run: |
@@ -85,19 +80,23 @@ jobs:
           fi
           echo "wonderlab-server deployment successfully initiated."
 
-      - name: Deploy Client to Vercel (Production)
+      - name: Trigger Client Deploy Hook (Render)
         if: ${{ steps.targets.outputs.service == 'all' || steps.targets.outputs.service == 'client' }}
         env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          RENDER_CLIENT_DEPLOY_HOOK: ${{ secrets.RENDER_CLIENT_DEPLOY_HOOK }}
         run: |
-          if [ -z "$VERCEL_TOKEN" ]; then
-            echo "::error::VERCEL_TOKEN is not configured in Repository Secrets."
+          if [ -z "$RENDER_CLIENT_DEPLOY_HOOK" ]; then
+            echo "::warning::RENDER_CLIENT_DEPLOY_HOOK is not configured in Repository Secrets."
+            exit 0
+          fi
+          echo "Triggering wonderlab-client deploy hook on Render..."
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST "$RENDER_CLIENT_DEPLOY_HOOK")
+          echo "Client deploy hook response: HTTP $HTTP_STATUS"
+          if [ "$HTTP_STATUS" -lt 200 ] || [ "$HTTP_STATUS" -ge 300 ]; then
+            echo "::error::Failed to trigger wonderlab-client deploy hook (HTTP $HTTP_STATUS)"
             exit 1
           fi
-          echo "Deploying wonderlab-client to Vercel Production..."
-          pnpm dlx vercel --prod --yes --token="$VERCEL_TOKEN"
+          echo "wonderlab-client deployment successfully initiated."
 
       - name: Monitor & Verify Live Deployment Rollout
         run: |

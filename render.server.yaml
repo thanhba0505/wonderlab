@@ -15,18 +15,8 @@ services:
       - key: SERVER_PORT
         value: 10000
       - key: DATABASE_URL
-        fromDatabase:
-          name: wonderlab-db
-          property: connectionString
+        sync: false # Configured via Render dashboard (supports external PostgreSQL, e.g. Supabase, Neon)
       - key: JWT_SECRET
         generateValue: true
       - key: CORS_ORIGINS
-        sync: false # Set via Render dashboard: https://wonderlab.io.vn,https://wonderlab-client.vercel.app
-
-databases:
-  # Wonderlab Managed PostgreSQL Database
-  - name: wonderlab-db
-    plan: free
-    region: oregon
-    databaseName: wonderlab
-    user: wonderlab_user
+        sync: false # Configured via Render dashboard: https://wonderlab.io.vn

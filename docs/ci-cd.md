@@ -2,16 +2,16 @@
 
 ## 1. Overview
 
-Wonderlab utilizes GitHub Actions for continuous integration, automated release drafting, and continuous production deployment:
+Wonderlab utilizes GitHub Actions for continuous integration, automated release drafting, and continuous production deployment across decoupled Render workspaces:
 
-- **Frontend Client (`client/`)**: Deployed to **Vercel** via CLI with token-based authentication.
-- **Backend Server (`server/`)**: Deployed to **Render** via Webhook Deploy Hook.
+- **Frontend Client (`client/`)**: Deployed to Render Frontend Workspace via `render.client.yaml` and Webhook Deploy Hook.
+- **Backend Server (`server/`)**: Deployed to Render Backend Workspace via `render.server.yaml` and Webhook Deploy Hook.
 
 Workflows reside in `.github/workflows/`:
 
 - **`ci.yml`** (`🧪 CI`): Kiểm thử, lint, typecheck và build tự động trên mỗi Pull Request và commit push lên nhánh `develop` hoặc `main` với containerized PostgreSQL 16.
 - **`release-drafter.yml`** (`📝 Release Drafter`): Tự động phân tích git commit log trên nhánh `develop` theo chuẩn Conventional Commits, tính toán phiên bản SemVer tiếp theo, và duy trì bản Draft Release đầy đủ danh sách commits nhắm tới `main`.
-- **`deploy.yml`** (`🚀 Deploy Production Services`): Tự động sáp nhập `origin/develop` vào `main` (`--no-ff`), đồng bộ `package.json`, gắn tag phiên bản chính thức, đồng bộ ngược về `develop`, và trigger triển khai đồng thời Client lên Vercel và Server lên Render khi một Release được xuất bản (`release: [published]`).
+- **`deploy.yml`** (`🚀 Deploy Production Services`): Tự động sáp nhập `origin/develop` vào `main` (`--no-ff`), đồng bộ `package.json`, gắn tag phiên bản chính thức, đồng bộ ngược về `develop`, và trigger triển khai đồng thời Client và Server lên Render khi một Release được xuất bản (`release: [published]`).
 
 ---
 
@@ -72,17 +72,15 @@ Kích hoạt triển khai tự động lên Production khi một Release chính 
     3. Gắn tag chính thức vào commit release trên `main`.
     4. Sáp nhập ngược commit release về `origin/develop` để giữ 2 nhánh đồng bộ 100%.
     5. Kích hoạt Render Deploy Hook cho Server (`RENDER_SERVER_DEPLOY_HOOK`).
-    6. Kích hoạt Vercel Production Deploy cho Client (`pnpm dlx vercel --prod`).
+    6. Kích hoạt Render Deploy Hook cho Client (`RENDER_CLIENT_DEPLOY_HOOK`).
     7. Chạy script giám sát `scripts/verify-deployment.sh` kiểm tra phản hồi từ cả hai dịch vụ.
   - `push: tags: ['v*']`: Tự động kích hoạt khi gắn tag phiên bản trực tiếp.
   - `workflow_dispatch`: Hỗ trợ kích hoạt deploy thủ công khẩn cấp cho từng dịch vụ (`client`, `server` hoặc `all`).
 
 - **Cấu hình Secrets trên GitHub Repository**:
   - `RENDER_SERVER_DEPLOY_HOOK`: Webhook URL của `wonderlab-server` trên Render.
-  - `VERCEL_TOKEN`: Vercel Authentication Token cho CI/CD.
-  - `VERCEL_ORG_ID`: ID tổ chức / team trên Vercel (`team_I5mbQKzPmj2EqUVTtUPsjZdW`).
-  - `VERCEL_PROJECT_ID`: ID dự án Vercel Client (`prj_wfaJIUv2R4wlty6QIJkZwaC8q6Qr`).
+  - `RENDER_CLIENT_DEPLOY_HOOK`: Webhook URL của `wonderlab-client` trên Render.
 
 - **Deployments Architecture trên GitHub**:
-  - `main - wonderlab-server` (`https://wonderlab-server.onrender.com` - Render GitHub App)
-  - Vercel GitHub Integration / CLI Deployment tracking cho frontend (`https://wonderlab.io.vn`).
+  - 🟢 `main - wonderlab-client` (`https://wonderlab.io.vn` - Render GitHub App)
+  - 🟢 `main - wonderlab-server` (`https://wonderlab-server.onrender.com` - Render GitHub App)
