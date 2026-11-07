@@ -196,18 +196,20 @@ jobs:
           PAYLOAD=$(cat <<EOF
           {
             "channel": "C0CGL8EBFT2",
+            "blocks": [
+              {
+                "type": "header",
+                "text": {
+                  "type": "plain_text",
+                  "text": "$TITLE",
+                  "emoji": true
+                }
+              }
+            ],
             "attachments": [
               {
                 "color": "$COLOR",
                 "blocks": [
-                  {
-                    "type": "header",
-                    "text": {
-                      "type": "plain_text",
-                      "text": "$TITLE",
-                      "emoji": true
-                    }
-                  },
                   {
                     "type": "section",
                     "fields": [

@@ -53,18 +53,20 @@ export class SlackNotificationService {
     const { title, description, category = 'General', authorName = 'Anonymous Learner' } = params;
 
     await this.postMessage(this.userFeedbackChannel, {
+      blocks: [
+        {
+          type: 'header',
+          text: {
+            type: 'plain_text',
+            text: '💡 [COMMUNITY] New Simulation Proposal',
+            emoji: true,
+          },
+        },
+      ],
       attachments: [
         {
           color: '#0284c7',
           blocks: [
-            {
-              type: 'header',
-              text: {
-                type: 'plain_text',
-                text: '💡 [COMMUNITY] New Simulation Proposal',
-                emoji: true,
-              },
-            },
             {
               type: 'section',
               fields: [
@@ -115,18 +117,20 @@ export class SlackNotificationService {
     const { simulationSlug, authorName, content, isReply = false } = params;
 
     await this.postMessage(this.commentsModerationChannel, {
+      blocks: [
+        {
+          type: 'header',
+          text: {
+            type: 'plain_text',
+            text: `💬 [DISCUSSION] New Scientific ${isReply ? 'Reply' : 'Post'}`,
+            emoji: true,
+          },
+        },
+      ],
       attachments: [
         {
           color: '#8b5cf6',
           blocks: [
-            {
-              type: 'header',
-              text: {
-                type: 'plain_text',
-                text: `💬 [DISCUSSION] New Scientific ${isReply ? 'Reply' : 'Post'}`,
-                emoji: true,
-              },
-            },
             {
               type: 'section',
               fields: [
