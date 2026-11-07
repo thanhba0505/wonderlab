@@ -3,6 +3,7 @@ import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { SimulationRequestStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { SimulationRequestsService } from './simulation-requests.service';
+import { SlackNotificationService } from '../common/slack-notification.service';
 import { CreateSimulationRequestDto } from './dto/create-simulation-request.dto';
 import {
   QuerySimulationRequestsDto,
@@ -88,6 +89,12 @@ describe('SimulationRequestsService', () => {
         {
           provide: PrismaService,
           useValue: prisma,
+        },
+        {
+          provide: SlackNotificationService,
+          useValue: {
+            notifySimulationRequest: jest.fn().mockResolvedValue(undefined),
+          },
         },
       ],
     }).compile();

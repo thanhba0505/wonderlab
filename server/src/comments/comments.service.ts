@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { Role, Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { SlackNotificationService } from '../common/slack-notification.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { CommentItemDto } from './dto/comment-response.dto';
 import { ListAdminCommentsQueryDto } from './dto/list-admin-comments-query.dto';
@@ -39,7 +40,10 @@ export interface PaginatedAdminCommentsResult {
 
 @Injectable()
 export class CommentsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly slackService?: SlackNotificationService,
+  ) {}
 
   /**
    * Lấy danh sách bình luận trên toàn hệ sinh thái phân trang phục vụ kiểm duyệt của Quản trị viên
@@ -187,6 +191,15 @@ export class CommentsService {
         },
       },
     });
+
+    if (this.slackService) {
+      void this.slackService.notifyNewComment({
+        simulationSlug,
+        authorName: created.user.username,
+        content: created.content,
+        isReply: Boolean(dto.parentId),
+      });
+    }
 
     return {
       ...created,

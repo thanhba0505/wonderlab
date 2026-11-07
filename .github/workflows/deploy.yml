@@ -131,7 +131,7 @@ jobs:
           VERSION="${{ steps.targets.outputs.version }}"
           COMMIT="${{ steps.targets.outputs.commit }}"
           SERVICE="${{ steps.targets.outputs.service }}"
-          
+
           PAYLOAD=$(cat <<EOF
           {
             "channel": "C0CGL8EHU9E",
@@ -177,9 +177,8 @@ jobs:
           }
           EOF
           )
-          
+
           curl -s -X POST https://slack.com/api/chat.postMessage \
             -H "Authorization: Bearer $SLACK_BOT_TOKEN" \
             -H "Content-Type: application/json" \
             -d "$PAYLOAD"
-
