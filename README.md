@@ -2,82 +2,86 @@
 
 # Wonderlab
 
-**Phòng thí nghiệm số tương tác khám phá khoa học, xác suất, nghịch lý và tư duy logic.**
+**Interactive digital laboratory exploring science, probability, paradoxes, and logical reasoning.**
 
 [![GitHub Release](https://img.shields.io/github/v/release/thanhba0505/wonderlab?style=flat-square&color=0284c7&label=version)](https://github.com/thanhba0505/wonderlab/releases)
 [![CI Status](https://img.shields.io/github/actions/workflow/status/thanhba0505/wonderlab/ci.yml?branch=main&style=flat-square&label=CI&color=10b981)](https://github.com/thanhba0505/wonderlab/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-6366f1?style=flat-square)](LICENSE)
 [![Next.js 15](https://img.shields.io/badge/Next.js-15-000000?style=flat-square&logo=next.js&logoColor=white)](https://nextjs.org/)
 [![NestJS 10](https://img.shields.io/badge/NestJS-10-e0234e?style=flat-square&logo=nestjs&logoColor=white)](https://nestjs.com/)
+[![Neon Database](https://img.shields.io/badge/Database-Neon_Postgres-00e599?style=flat-square&logo=postgresql&logoColor=white)](https://neon.tech/)
 
-[🌐 Trải Nghiệm Trực Tuyến](https://wonderlab.io.vn) • [📖 Kiến Trúc Kỹ Thuật](docs/architecture.md) • [📋 Báo Cáo Sự Cố](https://github.com/thanhba0505/wonderlab/issues)
+[🌐 Live Experience](https://wonderlab.io.vn) • [📖 Architecture Documentation](docs/architecture.md) • [📋 Contributing Guide](CONTRIBUTING.md) • [🐛 Report Issue](https://github.com/thanhba0505/wonderlab/issues)
 
 </div>
 
 ---
 
-## 🧭 Dành Cho Người Dùng & Học Giả (Explorer Guide)
+## 🧭 Explorer & Learner Guide
 
-### 1. Triết Lý & Mục Tiêu Dự Án
+### 1. Philosophy & Mission
 
-Wonderlab được xây dựng với mục tiêu biến những quy luật toán học trừu tượng, hiện tượng vật lý lượng tử và các bài toán quyết định phản trực giác thành những trải nghiệm tương tác sinh động.
+Wonderlab transforms abstract mathematical laws, quantum physics phenomena, and counterintuitive decision dilemmas into tactile, engaging digital experiments.
 
-Thay vì tiếp nhận kiến thức một chiều qua công thức lý thuyết, người học được trực tiếp điều khiển các thông số thí nghiệm, kích hoạt hàng nghìn lượt thử nghiệm Monte Carlo tốc độ cao, và tự mình chứng thực sự hội tụ giữa xác suất thực nghiệm và giải tích toán học.
+Rather than memorizing passive textbook equations, learners directly manipulate experimental parameters, trigger high-speed Monte Carlo simulations (up to 10,000+ trials), and witness firsthand the convergence between empirical data and analytical theory.
 
-### 2. Các Tính Năng Trải Nghiệm Cốt Lõi
+### 2. Core Interactive Features
 
-- **Buồng Thí Nghiệm & Mô Phỏng Động**: Không gian tương tác trực quan với phản hồi vật lý xúc giác, cho phép tinh chỉnh linh hoạt các biến số đầu vào và quan sát diễn biến tức thì.
-- **Thước Đo Độ Lệch Trực Giác (Intuition Gap Meter)**: Khảo sát trực giác và dự đoán của người học trước mỗi lần thực nghiệm, sau đó so sánh trực diện với kết quả tính toán khoa học để làm nổi bật các cạm bẫy tâm lý nhận thức phổ biến.
-- **Biểu Diễn Toán Học Tinh Gọn**: Trình bày bản chất giải tích thông qua các khối phân số toán học thanh lịch, kết hợp biểu đồ radar và đường cong phân phối dữ liệu trực quan.
-- **Không Gian Tranh Biện Học Thuật**: Diễn đàn trao đổi chuyên sâu cho phép cộng đồng học giả và người tò mò cùng thảo luận cơ chế, phân tích chiến lược và chia sẻ quan điểm.
-- **Bộ Công Cụ Xuất Dữ Liệu Nghiên Cứu**: Hỗ trợ tải toàn bộ lịch sử thử nghiệm, tham số và kết quả đo lường dưới dạng CSV hoặc JSON phục vụ nhu cầu học tập và đối soát dữ liệu.
+- **Interactive Science Lab & Dynamic Simulations**: Tactile visual benches with immediate physics feedback, enabling real-time variable tweaking and instant state transitions.
+- **Intuition Gap Challenge**: Assesses the learner's pre-conceived intuition against analytical reality, highlighting cognitive heuristics and probability biases.
+- **Clean Mathematical Typography**: Scientific equations rendered via calibrated fractions, mathematical notation, and interactive distribution curves.
+- **Academic Discussion & Peer Insights**: A threaded discussion engine for community learners, researchers, and educators to debate strategies and mechanistic explanations.
+- **Research Data Export Suite**: One-click export of experimental trials, runs, and parameters to CSV or JSON formats for statistical analysis.
 
-### 3. Liên Kết Truy Cập Nhanh
+### 3. Quick Links
 
-- **Trang chủ ứng dụng**: [https://wonderlab.io.vn](https://wonderlab.io.vn)
-- **Tài liệu API công khai**: [https://wonderlab-server.onrender.com/api/docs](https://wonderlab-server.onrender.com/api/docs)
+- **Production App**: [https://wonderlab.io.vn](https://wonderlab.io.vn)
+- **Interactive OpenAPI / Swagger Documentation**: [https://wonderlab-server.onrender.com/api/docs](https://wonderlab-server.onrender.com/api/docs)
+- **Service Health Probe**: [https://wonderlab.io.vn/health](https://wonderlab.io.vn/health)
 
 ---
 
-## 🛠️ Dành Cho Lập Trình Viên & Đóng Góp (Developer Guide)
+## 🛠️ Developer & Contributor Guide
 
-### 1. Kiến Trúc Monorepo
+### 1. Monorepo Architecture
 
-Dự án được xây dựng theo mô hình **pnpm workspace** monorepo tối ưu hóa cho hiệu năng và tính module:
+Wonderlab is structured as a unified **pnpm workspace** monorepo designed for performance, modularity, and strict type safety:
 
 ```text
 wonderlab/
 ├── client/              # Next.js 15 (App Router), React 19, Tailwind CSS, Lucide React, Motion
 ├── server/              # NestJS 10 REST API, Prisma ORM, Swagger OpenAPI, Terminus Health
-├── docs/                # Toàn bộ tài liệu kiến trúc, kiểm thử, CI/CD, deployment và ADRs
-├── .github/             # CI/CD Workflows song song, Issue & PR Templates, Release Drafter
-├── .agents/skills/      # Bộ quy chuẩn và playbook kỹ thuật dành cho AI Coding Agents
-├── scripts/             # Local verification & smoke test automation scripts
+├── docs/                # Architectural guides, testing policy, CI/CD, deployment, and ADRs
+├── .github/             # Parallel CI/CD workflows, issue templates, PR templates, release automation
+├── .agents/skills/      # Coding guidelines, design principles, and playbooks for AI agents
+├── scripts/             # Local verification and deployment verification scripts
 ├── docker-compose.yml   # PostgreSQL 16 Alpine container (Local loopback development)
-└── render.yaml          # Render Cloud Blueprint infrastructure specification
+├── render.client.yaml   # Dedicated Render Frontend Blueprint specification
+└── render.server.yaml   # Dedicated Render Backend Blueprint specification
 ```
 
-### 2. Ngăn Xếp Công Nghệ (Tech Stack)
+### 2. Modern Tech Stack
 
-| Tầng Kiến Trúc          | Công Nghệ Chính                              | Phiên Bản / Tiêu Chuẩn                 |
-| :---------------------- | :------------------------------------------- | :------------------------------------- |
-| **Giao Diện (Client)**  | Next.js App Router, React, Tailwind CSS      | Next.js 15.1.7, React 19, TS Strict    |
-| **Dịch Vụ (Server)**    | NestJS, TypeScript, class-validator, Swagger | NestJS 10.4.15, Node.js 24             |
-| **Cơ Sở Dữ Liệu**       | PostgreSQL 16 Alpine, Prisma ORM             | Prisma 5.22, Argon2id Password Hashing |
-| **Gói Phụ Thuộc**       | pnpm Workspace (pinned version)              | pnpm 12.11.2                           |
-| **Tự Động Hóa (CI/CD)** | GitHub Actions (4 Parallel Jobs), Render CD  | GitHub Actions v4, Docker Compose      |
+| Layer                    | Primary Technology                                        | Version / Standard                           |
+| :----------------------- | :-------------------------------------------------------- | :------------------------------------------- |
+| **Frontend (`client/`)** | Next.js App Router, React, Tailwind CSS                   | Next.js 15.5.29, React 19, TypeScript Strict |
+| **Backend (`server/`)**  | NestJS REST API, TypeScript, Swagger                      | NestJS 10.4.15, Node.js 24                   |
+| **Database**             | Neon Serverless PostgreSQL (Prod) / PostgreSQL 16 (Local) | Prisma ORM 6.x, Argon2id Password Hashing    |
+| **Package Manager**      | pnpm Workspace (pinned lockfile)                          | pnpm 12.11.2                                 |
+| **Deployment & Hosting** | Render (Frontend & Backend isolated workspaces)           | Render Web Services, Custom Domain SSL       |
+| **Automation & CI/CD**   | GitHub Actions (Parallel verification pipelines)          | GitHub Actions v4, Docker Compose            |
 
-### 3. Khởi Động Dự Án Cục Bộ (Local Setup)
+### 3. Local Development Setup
 
-#### Yêu Cầu Môi Trường
+#### Prerequisites
 
-- **Node.js**: `v24.x` / LTS (xem file `.nvmrc`).
-- **pnpm**: `12.11.2` (`npm i -g pnpm@12.11.2`).
-- **Docker & Docker Compose**: Để chạy PostgreSQL container local.
+- **Node.js**: `v24.x` / LTS (see `.nvmrc`)
+- **pnpm**: `12.11.2` (`npm i -g pnpm@12.11.2`)
+- **Docker & Docker Compose**: For local PostgreSQL container
 
-#### Các Bước Thực Hiện
+#### Getting Started
 
-1. **Clone repository và cài đặt thư viện**:
+1. **Clone repository and install dependencies**:
 
    ```bash
    git clone https://github.com/thanhba0505/wonderlab.git
@@ -86,58 +90,61 @@ wonderlab/
    pnpm install
    ```
 
-2. **Khởi chạy PostgreSQL Container**:
+2. **Start the Local PostgreSQL Container**:
 
    ```bash
    docker compose up -d postgres
    ```
 
-   _(PostgreSQL được bảo vệ chỉ bind nội bộ loopback tại `127.0.0.1:5434`)_
+   _(PostgreSQL securely binds to loopback `127.0.0.1:5434`)_
 
-3. **Chạy ứng dụng trong môi trường phát triển**:
+3. **Run Development Servers**:
    ```bash
-   # Chạy đồng thời cả Frontend và Backend:
+   # Concurrently run both Frontend and Backend:
    pnpm dev
 
-   # Hoặc chạy riêng từng dịch vụ:
-   pnpm dev:client   # Next.js Client tại http://localhost:4100
-   pnpm dev:server   # NestJS Server tại http://localhost:4101
+   # Or run individually:
+   pnpm dev:client   # Next.js Client on http://localhost:4100
+   pnpm dev:server   # NestJS Server on http://localhost:4101
    ```
 
-### 4. Quy Trình Kiểm Thử & Đảm Bảo Chất Lượng (Quality Assurance)
+### 4. Quality Assurance & Verification Pipeline
 
-Dự án áp dụng quy chuẩn kiểm thử nghiêm ngặt không cho phép bất kỳ cảnh báo hoặc lỗi type nào tồn tại:
+Every contribution is subject to a strict verification pipeline. Zero warnings and zero type errors are tolerated:
 
 ```bash
-pnpm check          # Chạy toàn bộ pipeline tuần tự: Format -> Lint -> Typecheck -> Unit -> E2E -> Build
-pnpm test           # Chạy Unit Tests (Vitest cho client, Jest cho server)
-pnpm test:e2e       # Chạy E2E Tests với cơ sở dữ liệu thật
-pnpm lint           # Kiểm tra quy chuẩn ESLint
-pnpm format:check   # Kiểm tra định dạng Prettier
+pnpm check          # Full pipeline: Format -> Lint -> Typecheck -> Unit Tests -> E2E Tests -> Build
+pnpm test           # Unit Tests (Vitest for client, Jest for server)
+pnpm test:e2e       # E2E Tests against isolated PostgreSQL database
+pnpm lint           # ESLint verification with 0 warnings policy
+pnpm format:check   # Prettier code formatting check
 ```
 
-### 5. Hạ Tầng CI/CD Song Song (Decoupled Parallel Pipeline)
+### 5. Decoupled Parallel CI/CD Pipelines
 
-Mỗi lần đẩy mã nguồn hoặc mở Pull Request lên nhánh `main`, hệ thống GitHub Actions tự động kích hoạt **4 jobs song song** độc lập:
+Upon pushing commits or opening Pull Requests to `main`, GitHub Actions automatically triggers **4 parallel jobs**:
 
-- **`🎨 Quality & Types`** (~40s): Kiểm tra Prettier, ESLint và TypeScript compiler.
-- **`🧪 Unit Tests`** (~31s): Thực thi toàn bộ bộ bài kiểm thử đơn vị độc lập.
-- **`🛡️ E2E Tests (Database)`** (~59s): Tự động bật container PostgreSQL 16 Alpine, migrate schema, seed dữ liệu và kiểm thử tích hợp.
-- **`📦 Build Applications`** (~57s): Kiểm tra đóng gói production build cho cả Next.js và NestJS sau khi các khâu kiểm thử mã nguồn đạt chuẩn.
+- **`🎨 Quality & Types`** (~40s): Prettier, ESLint, and strict TypeScript compilation.
+- **`🧪 Unit Tests`** (~31s): Runs isolated unit tests across client and server.
+- **`🛡️ E2E Tests (Database)`** (~59s): Spawns PostgreSQL 16 Alpine container, deploys Prisma migrations, seeds data, and runs API tests.
+- **`📦 Build Applications`** (~57s): Verifies production compilation for both Next.js and NestJS.
 
-### 6. Thư Mục Tài Liệu Kỹ Thuật (`docs/`)
+Production deployments trigger on published GitHub Releases (`v*`), rolling out backend migrations, deploying frontend assets, and verifying live health endpoints.
 
-Để tìm hiểu chi tiết các quyết định kiến trúc và hướng dẫn chuyên sâu, vui lòng tham khảo:
+### 6. Technical Documentation Index (`docs/`)
 
-- [Kiến trúc hệ thống (`docs/architecture.md`)](docs/architecture.md)
-- [Quy chuẩn Giao diện & Trải nghiệm (`docs/frontend.md`)](docs/frontend.md)
-- [Quy chuẩn Dịch vụ Backend & API (`docs/backend.md`)](docs/backend.md)
-- [Cơ sở dữ liệu & Prisma ORM (`docs/database.md`)](docs/database.md)
-- [Hạ tầng CI/CD & Render Deployment (`docs/ci-cd.md`)](docs/ci-cd.md)
-- [Hồ sơ Quyết định Kiến trúc (`docs/decisions/`)](docs/decisions/)
+Explore in-depth architectural decisions, guidelines, and specifications:
+
+- [System Architecture (`docs/architecture.md`)](docs/architecture.md)
+- [Frontend Engineering & UI Standards (`docs/frontend.md`)](docs/frontend.md)
+- [Backend Services & API Architecture (`docs/backend.md`)](docs/backend.md)
+- [Database Configuration & Operations (`docs/database.md`)](docs/database.md)
+- [Deployment & Cloud Infrastructure (`docs/deployment.md`)](docs/deployment.md)
+- [CI/CD Automation & Release Pipeline (`docs/ci-cd.md`)](docs/ci-cd.md)
+- [Architecture Decision Records (`docs/decisions/`)](docs/decisions/)
 
 ---
 
-## 📄 Bản Quyền & Giấy Phép (License)
+## 📄 License
 
-Mã nguồn được phát hành theo giấy phép [MIT License](LICENSE) © 2026 **thanhba0505**. Toàn quyền sử dụng, sửa đổi và phân phối phục vụ nghiên cứu, giáo dục và cộng đồng khoa học.
+Wonderlab is licensed under the [MIT License](LICENSE) © 2026 **thanhba0505**. Open source and freely usable for educational, research, and non-commercial scientific exploration.

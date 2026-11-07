@@ -49,145 +49,68 @@ client/
 
 ## 3. Design System, Human Craft & Anti-AI Guidelines
 
-- **Visual Aesthetic: Clean Paper & Lab Editorial**: Thiết kế xuất bản khoa học thủ công cao cấp với canvas nền slate-100 (`#f1f5f9`), thẻ phòng thí nghiệm trắng sáng (`#ffffff`), hairline viền kỹ thuật (`border-slate-300/85`), và đổ bóng phân tầng nhẹ nhàng (`shadow-[0_2px_8px_-2px_rgba(15,23,42,0.06),0_1px_3px_0_rgba(15,23,42,0.04)]`).
+- **Visual Aesthetic: Clean Paper & Lab Editorial**: High-craft editorial science design with a Slate-100 canvas (`#f1f5f9`), crisp white cards (`#ffffff`), hairline technical borders (`border-slate-300/85`), and soft layered shadows (`shadow-[0_2px_8px_-2px_rgba(15,23,42,0.06),0_1px_3px_0_rgba(15,23,42,0.04)]`).
 - **Typography Architecture**:
-  - **Body Text**: `Be Vietnam Pro` — tối ưu cho dấu tiếng Việt với x-height cân đối và trải nghiệm đọc thư thái.
-  - **Headings & Display**: `Space Grotesk` — font sans hình học chuẩn xác với tracking chặt chẽ (`tracking-tight text-slate-900`) mang âm hưởng tạp chí khoa học.
-  - **Data & Mathematics**: `JetBrains Mono` kết hợp `tabular-nums` cho các bộ đếm số liệu, tỷ lệ xác suất và công thức vật lý ($P(A)$, $\lambda = 532nm$).
-  - **Biểu Diễn Biểu Thức Toán Học Chuẩn Mực (Beautiful Mathematical Expressions Standard)**:
-    - Tuyệt đối nghiêm cấm việc dùng ký hiệu ASCII thô (`/`, `^`, `sqrt`, `sum`) để biểu diễn các biểu thức toán học chứa biến số (ví dụ: cấm viết `n/3`, `(n-1)/n`, `(x_A ± x_B)/2`, `x^2`, `2^4`, `O(n^2)`, `⌊n/4⌋`).
-    - Bắt buộc áp dụng định dạng toán học trực quan và cao cấp: phân số dùng `<MathFraction>`, số mũ dùng `<sup>` hoặc `MathPower`, căn thức dùng `&radic;` hoặc `MathSqrt`, chỉ số dưới dùng `<sub>` hoặc `MathSub`, và chuỗi LaTeX chuẩn (`\frac{...}{...}`) cho metadata.
-    - **Ngoại lệ duy nhất được phép**: Các tỉ số hằng số số học đơn giản không chứa biến trong văn cảnh tự nhiên (ví dụ: `2/3`, `1/3`, `50/50`).
-  - **Tiêu Chuẩn Cỡ Chữ Tối Thiểu ($\ge 12\text{px}$)**: Tuyệt đối không dùng cỡ chữ dưới 12px (`text-xs`). Mọi chú thích, số mũ, chỉ số, badge đều phải từ 12px trở lên.
-  - **Tiêu Chuẩn Tiêu Đề Mục (18px)**: Mọi tiêu đề section chính (`h2`) trong buồng thử nghiệm được chuẩn hóa ở 18px (`text-[18px]` hoặc `text-lg`).
+  - **Body Text**: `Be Vietnam Pro` — optimized for Vietnamese diacritics and relaxed, high-legibility reading.
+  - **Headings & Display**: `Space Grotesk` — precision geometric sans with tight tracking (`tracking-tight text-slate-900`) evoking editorial scientific publications.
+  - **Data & Mathematics**: `JetBrains Mono` with `tabular-nums` for counters, probability ratios, and physical constants ($P(A)$, $\lambda = 532\text{nm}$).
+  - **Mathematical Expressions Standard**:
+    - Strictly forbid raw ASCII math notation (`/`, `^`, `sqrt`, `sum`) for variable expressions (e.g., forbid `n/3`, `(n-1)/n`, `(x_A ± x_B)/2`, `x^2`, `2^4`, `O(n^2)`, `⌊n/4⌋`).
+    - Mandatory visual formatting: use `<MathFraction>` for fractions, `<sup>` or `MathPower` for exponents, `&radic;` or `MathSqrt` for roots, `<sub>` or `MathSub` for indices, and LaTeX strings (`\frac{...}{...}`) for metadata.
+    - **Single Allowed Exception**: Simple constant arithmetic ratios without variables in running prose (e.g., `2/3`, `1/3`, `50/50`).
+  - **Minimum Font Size Standard ($\ge 12\text{px}$)**: Strictly forbid font sizes below 12px (`text-xs`). All annotations, exponents, indices, and badges must be $\ge 12\text{px}$.
+  - **Section Heading Standard (18px)**: Standardize all primary section headings (`h2`) in workbench chambers to 18px (`text-[18px]` or `text-lg`).
 - **Anti-AI Slop Guardrails**:
-  - _Không dùng gradient tím/hồng tùy tiện_ trên nút bấm hoặc chữ. Mọi màu sắc mang ý nghĩa ngữ nghĩa chuẩn:
-    - 🔵 **Cobalt Blue (`#2563eb`)**: Vật lý, quang học và hành động chính.
-    - 🟠 **Warm Amber (`#d97706`)**: Xác suất, biến ngẫu nhiên và cảnh báo.
-    - 🟢 **Emerald Green (`#059669`)**: Kết quả tối ưu, định lý chứng minh và thành công.
-    - 🟣 **Deep Violet (`#7c3aed`)**: Nghịch lý, logic học và thí nghiệm tưởng tượng.
-  - _Không dùng kính mờ đục (muddy glassmorphism)_; sử dụng bề mặt phẳng rõ ràng, tương phản cao.
-  - _Không dùng lưới 3 cột rập khuôn_; Bento Grid bất đối xứng với các mô phỏng tương tác mini (chuyển đổi sóng 2 khe, gieo xúc xắc thời gian thực, ma trận Thế lưỡng nan của người tù).
-  - _Không dùng ngôn từ sáo rỗng kiểu AI (SaaS fluff copy)_; văn phong trực diện, kích thích tò mò và giàu tính học thuật.
-  - _Không phô diễn công nghệ nội bộ hoặc lộ endpoint ra UI_:
-    - Tuyệt đối không khoe tên thuật toán mã hóa (Argon2id, OWASP, HttpOnly Token) trên form đăng nhập hoặc chân trang.
-    - Tuyệt đối không đưa link dev localhost (`http://localhost:4101/api/docs`), không gắn badge trạng thái server API `/api/v1/health` hoặc phiên bản framework ra ngoài giao diện công khai.
-- **Tactile Laboratory Feel**: Phản hồi vật lý khi click (`active:scale-[0.98]`), bo góc chuẩn hóa (6px badge/input, 8px button, 12px card, 16px container), tọa độ kỹ thuật và chỉ báo xung nhịp.
-- **Border Architecture & Max 2-Layer Depth (Chống Đóng Khung Lồng Hộp)**:
-  - Tuyệt đối không đóng khung vượt quá 2 tầng viền (`Card` viền ngoài -> Phần tử tương tác/đo đạc viền trong).
-  - Nghiêm cấm bọc container trung gian bằng viền 4 cạnh khi bên trong đã có phần tử viền. Thay vào đó, sử dụng nền phân vùng không viền (`bg-slate-100/70`), thanh chỉ thị cạnh trái (`border-l-4`), hoặc đường kẻ phân cách một chiều.
-- **In-Body Authentication Architecture (Không Modal Popup)**:
-  - Khi người dùng bấm đăng nhập hoặc truy cập `/admin`, hệ thống điều hướng trực tiếp đến trang toàn màn hình với form đăng nhập nằm trong body của trang.
-  - Không sử dụng modal trôi nổi (floating dialog) để đảm bảo trải nghiệm đăng nhập liền mạch, an toàn và hỗ trợ trình quản lý mật khẩu của trình duyệt tối ưu.
+  - _No arbitrary purple/pink gradients_ on buttons or text. Color palettes map strictly to semantic domains:
+    - 🔵 **Cobalt Blue (`#2563eb`)**: Physics, optics, wave mechanics.
+    - 🟡 **Amber / Orange (`#d97706`)**: Probability, randomness, Monte Carlo.
+    - 🟣 **Violet (`#7c3aed`)**: Paradoxes, quantum mechanics, cognitive dilemmas.
+    - 🟢 **Emerald (`#059669`)**: Logic, game theory, algorithms.
+  - _No blurry glassmorphism_: avoid blindly stacking `backdrop-blur` layers. Use crisp, opaque white backgrounds with hairline technical borders.
+  - _No generic 3-column card grids_: layout features via asymmetric Bento Grids reflecting differing cognitive weights.
+  - _No artificial marketing buzzwords_: use intellectual, precise, and scientifically authentic copy.
+  - _Max 2 nested border boxes_: prevent nested box clutter; use borderless soft tints (`bg-slate-100/70`) or divider lines.
+  - _No internal dev leaks in public UI_: never display backend framework names, localhost URLs, or raw library names on public screens.
 
 ---
 
-## 4. Scrollbar Architecture & Accessibility
+## 4. State Management & Anti-Re-render Standard
 
-Nhằm loại bỏ thanh cuộn dày 17px thô kệch mặc định của hệ điều hành và đồng bộ với phong cách "Clean Paper & Lab Editorial", giao diện được trang bị thanh cuộn kỹ thuật tùy biến cao cấp:
+To ensure fluid 60 FPS performance during high-throughput Monte Carlo simulations and complex interactive visualizations, React components adhere strictly to these optimization rules:
 
-- **Thiết kế Floating Pill Thumb**:
-  - Kích thước thanh cuộn mảnh: **9px** (cả dọc và ngang).
-  - Con trượt (thumb) bo tròn hoàn toàn (`border-radius: 9999px`) với viền trong suốt `2px solid transparent` và `background-clip: content-box` tạo cảm giác con trượt nổi thanh thoát giữa rãnh cuộn.
-  - Bảng màu kỹ thuật:
-    - Thumb bình thường: Slate-400 (`rgba(148, 163, 184, 0.65)`).
-    - Thumb khi hover: Slate-500 (`rgba(100, 116, 139, 0.85)`).
-    - Thumb khi active (kéo giữ): Slate-600 (`rgba(71, 85, 105, 0.95)`).
-    - Track nền: Slate-100 (`rgba(241, 245, 249, 0.65)`).
-- **Hỗ trợ chuẩn W3C và Fallback WebKit**:
-  - Chuẩn W3C: `scrollbar-width: thin` và `scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track)` áp dụng toàn cục trên `html`, `body` và `*`.
-  - Bộ selector WebKit (`::-webkit-scrollbar`, `::-webkit-scrollbar-thumb`, `::-webkit-scrollbar-track`) đảm bảo hiển thị hoàn hảo trên Chromium, Edge, Safari và macOS.
-- **Tiêu chuẩn Trợ năng (Accessibility) & High Contrast**:
-  - Tích hợp `@media (prefers-contrast: more)` tự động kích hoạt thumb màu đen tuyền (`#0f172a`) trên track trắng sáng (`#f8fafc`) cho người dùng kích hoạt chế độ tương phản cao trong hệ điều hành.
-  - Không áp dụng animation/transition trên `scrollbar-color` để phòng ngừa lỗi giật nháy trên WebKit/macOS.
-- **Utility Classes**:
-  - `.no-scrollbar`: Ẩn hoàn toàn thanh cuộn nhưng vẫn duy trì khả năng trượt nội dung cho các thanh công cụ trượt ngang hoặc danh sách cuộn mượt.
-
----
-
-## 5. Simulation Telemetry & Scientific Export Suite
-
-Nhằm nâng cao tính khoa học và thực nghiệm có thể tái lặp (reproducibility), giao diện phòng lab được tích hợp bộ công cụ nền tảng:
-
-- **Client Telemetry Pipeline (`useSimulationTelemetry`)**:
-  - Tự động cấp phát và duy trì Session UUID ẩn danh trong `localStorage`.
-  - Non-blocking async dispatch: Mọi lượt chạy Monte Carlo (1.000, 10.000 phòng) được ghi nhận ngầm lên REST API mà không gây nghẽn render (< 16ms frame budget).
-  - Tự động fallback ngoại tuyến khi mất kết nối mạng.
-- **Bảng Nhật ký Thực nghiệm (`SimulationHistoryTable`)**:
-  - Hiển thị danh sách các lần chạy của phiên làm việc hiện tại: thời điểm, tham số $n$, quy mô mẫu, tỉ lệ thực nghiệm, xác suất lý thuyết và sai số $\Delta$.
-  - Cung cấp nút **"Nạp lại"** cho phép người dùng khôi phục ngay trạng thái tham số của một lần thử trong quá khứ.
-- **Bộ Công cụ Xuất Dữ liệu Nghiên cứu (`ExportSuitePanel`)**:
-  - **Xuất CSV**: Tạo file bảng tính chuẩn RFC 4180 phục vụ phân tích dữ liệu chuyên sâu trong Excel, Google Sheets, Python Pandas hoặc R.
-  - **Xuất JSON**: Xuất schema dữ liệu đầy đủ của buồng thử.
-  - **Chép Báo cáo**: Sao chép tóm tắt kết quả định dạng Markdown/LaTeX vào clipboard.
-  - **Chia sẻ URL**: Đồng bộ tham số phòng lab vào URL query parameters (`?n=23`) với tính năng 1-click copy link.
-- **Bộ đếm Telemetry Cộng đồng (`GlobalTelemetryWidget`)**:
-  - Hiển thị số liệu thực tế thời gian thực tích lũy của toàn bộ cộng đồng người dùng Wonderlab.
-  - Tuân thủ nguyên tắc số 5 trong AGENTS.md (_No Faux Data_): 100% số liệu thật từ PostgreSQL.
+- **Zero Derived State in `useEffect`**:
+  - Never mirror props or compute derived state inside a `useEffect`.
+  - Calculate derived values inline during rendering or wrap with `useMemo` for heavy algorithmic operations.
+  - Eliminates wasteful two-phase renders (phase 1 with stale state $\to$ effect triggers $\to$ phase 2 with new state).
+- **Event-Driven Side Effects**:
+  - API calls, data mutations, telemetry dispatches, and notifications must trigger directly inside event handlers (`onClick`, `onChange`, `onSubmit`).
+  - Do not use flag states solely to trigger downstream effects.
+  - Reserve `useEffect` strictly for external system synchronization (global DOM listeners, Web Workers, Canvas contexts, WebSockets, or AudioContext).
+- **Form Watcher Isolation (`useWatch` / `watch`)**:
+  - Calling `useWatch` or `watch()` at a parent form level causes the entire component tree to re-render on every keystroke.
+  - Isolate field watchers into dedicated leaf components (e.g., `<SubmitButtonWithWatch control={control} />`).
+  - Favor `getValues()` inside submission handlers when real-time form re-renders are unnecessary.
+- **`useRef` for High-Frequency State & Non-Visual Handles**:
+  - For Canvas animations, Monte Carlo loops, and high-frequency counters, store `requestAnimationFrame` IDs, Canvas 2D contexts, worker instances, and loop indices inside `useRef` rather than `useState`.
+  - Batch or throttle UI state updates (e.g., update stats once every $N$ iterations or once per animation frame) instead of firing `setState` hundreds of times per second.
+- **Granular Component Decomposition & Stable Callbacks**:
+  - Decompose large simulation workbenches into fine-grained components so local parameter controls (sliders, toggles) do not force heavy canvas or data table siblings to re-render.
+  - Stabilize callbacks passed to memoized children (`React.memo`) using `useCallback`.
 
 ---
 
-## 6. Intuition Gap & Hypothesis Testing Engine
+## 5. SEO, Structured Data & Dynamic Open Graph
 
-Để chuyển dịch từ việc quan sát thụ động sang phương pháp học tập chủ động (Active Inquiry Learning), mỗi phòng lab được trang bị công cụ kiểm tra giả thuyết trước thực nghiệm:
-
-- **Khảo sát Dự đoán Trước Thực nghiệm (`IntuitionChallengeCard`)**:
-  - Đưa ra câu hỏi tình huống toán học kích thích trực giác trước khi người dùng can thiệp vào mô hình.
-  - Tự động lưu lựa chọn vào `localStorage` (`wonderlab_guess_<slug>`) để ghi nhớ trạng thái phiên.
-- **Thước đo Độ lệch Trực giác (Intuition Gap Meter)**:
-  - Đo lường khoảng cách sai lệch giữa niềm tin chủ quan và định lý khách quan: $\Delta_{gap} = |P_{guess} - P_{truth}| \times 100\%$.
-  - Phân loại trực giác:
-    - $\Delta < 5\%$: _Trực giác Ngoại cảm_ (Nhà quan sát sắc bén).
-    - $5\% \le \Delta \le 30\%$: _Độ lệch Vừa phải_.
-    - $\Delta > 30\%$: _Mắc Bẫy Trực giác Tuyến tính_.
-- **Giải mã Tâm lý Nhận thức (Cognitive Bias Explainer)**:
-  - Phân tích cội nguồn tiến hóa của các cạm bẫy tư duy (Bẫy Tư duy Tuyến tính $O(n^2)$, Ảo tưởng Xác suất Đồng đều $50/50$, v.v.).
-- **Tích hợp Telemetry**:
-  - Tự động gắn kèm `userPrediction` và `intuitionGap` vào lượt chạy Monte Carlo để lưu trữ và tổng hợp trên hệ thống.
-
----
-
-## 7. SEO, Schema.org Structured Data & Dynamic Open Graph Architecture
-
-Nhằm tối ưu hóa khả năng thu thập dữ liệu công cụ tìm kiếm và nâng tầm trải nghiệm chia sẻ trực quan trên mạng xã hội, giao diện được trang bị hệ thống SEO hiện đại theo chuẩn Next.js 15:
-
-- **Chỉ mục Tự động (`sitemap.ts` & `robots.ts`)**:
-  - `sitemap.ts`: Đồng bộ trực tiếp từ `SIMULATIONS_REGISTRY` và `ESSAYS`, tạo URL chuẩn xác với chu kỳ cập nhật và trọng số khoa học (Trang chủ `1.0`, Mô phỏng `0.9`, Tiểu luận & Đề xuất `0.8`).
-  - `robots.ts`: Quy định rõ quyền truy cập cho bot tìm kiếm, bảo vệ vùng quản trị `/admin`, `/my-account`, và các endpoint nội bộ `/api/`.
-- **Cấu hình Metadata Toàn cục & Chuẩn hóa Canonical (`layout.tsx`)**:
-  - Sử dụng `metadataBase` với biến môi trường `NEXT_PUBLIC_APP_URL` (fallback `http://localhost:4100`).
-  - Chuẩn hóa Title Template: `%s | Wonderlab` giúp tiêu đề mọi trang con luôn đồng bộ và chuyên nghiệp.
-  - Tự động gán `alternates.canonical` và các thẻ Open Graph, Twitter Cards (`summary_large_image`) tương ứng.
+- **Dynamic Sitemap & Robots (`sitemap.ts`, `robots.ts`)**:
+  - Dynamically generated from central registries (`SIMULATIONS_REGISTRY` and `ESSAYS`).
+  - Disallows internal administrative routes (`/admin`, `/my-account`, `/api/`).
+- **Comprehensive Metadata Hierarchy**:
+  - Root `layout.tsx` defines the `%s | Wonderlab` title template.
+  - Individual simulation and essay pages export `generateMetadata` with localized descriptions and Open Graph / Twitter Cards (`summary_large_image`).
 - **Rich Snippets Schema.org JSON-LD**:
-  - **Mô phỏng Khoa học (`SimulationJsonLd`)**: Nhúng đồ thị thực thể học tập tương tác `@type: ["LearningResource", "WebApplication"]` và đường dẫn điều hướng `BreadcrumbList` (Trang chủ $\to$ Mô phỏng $\to$ [Tên bài toán]).
-  - **Bài viết Chuyên sâu (`EssayJsonLd`)**: Nhúng thực thể `@type: "TechArticle"` và `BreadcrumbList` (Trang chủ $\to$ Tiểu luận $\to$ [Tiêu đề]).
-  - **Bảo mật & Chuẩn hóa**: Khử mã độc XSS với `JSON.stringify(...).replace(/</g, '\\u003c')` và đảm bảo Zero-`any` thông qua `schema-dts`.
-- **Dynamic Open Graph Image Generator (`opengraph-image.tsx`)**:
-  - Sinh ảnh 1200x630 thời gian thực (hỗ trợ SSG prerender qua `generateStaticParams`) bằng `ImageResponse` từ `next/og`.
-  - Tuân thủ phong cách **"Clean Paper & Lab Editorial"**: canvas Slate-100 với lưới tọa độ kỹ thuật, thẻ trắng với hairline viền sắc nét, badge danh mục phân màu ngữ nghĩa, dấu chứng nhận "Interactive Science Simulation".
-  - Đóng gói cục bộ font chữ `Be Vietnam Pro` (Bold & Regular) trong `client/src/assets/fonts/` đảm bảo hiển thị 100% tiếng Việt có dấu hoàn hảo mà không bị gãy phông hoặc phụ thuộc mạng ngoài lúc build.
-
----
-
-## 8. Quản Lý Trạng Thái React & Chuẩn Mực Tối Ưu Hóa Re-render (Anti-Re-render Standard)
-
-Nhằm đảm bảo hiệu năng 60 FPS mượt mà cho các buồng thực nghiệm khoa học, mô phỏng Monte Carlo quy mô lớn và giao diện người dùng phức tạp, toàn bộ mã nguồn React tuân thủ nghiêm ngặt các nguyên tắc kiểm soát re-render:
-
-- **Nghiêm cấm Đồng bộ Trạng thái Phái sinh qua `useEffect` (Zero Derived State in `useEffect`)**:
-  - Tuyệt đối không dùng `useEffect` để cập nhật một state dựa trên props hoặc state khác (ví dụ: `useEffect(() => { setFiltered(items.filter(...)) }, [items])`).
-  - Toàn bộ dữ liệu phái sinh phải được tính toán trực tiếp trong pha render (`const filtered = items.filter(...)`), hoặc bọc qua `useMemo` khi xử lý thuật toán phức tạp.
-  - Triệt tiêu hoàn toàn chu kỳ render 2 pha lãng phí (render lần 1 với state cũ $\to$ effect kích hoạt $\to$ render lần 2 với state mới).
-- **Hành động Hướng Sự kiện (Event-Driven Side Effects)**:
-  - Mọi thao tác đột biến dữ liệu, gọi API, phát telemetry, hoặc hiển thị thông báo phải được kích hoạt trực tiếp từ trình xử lý sự kiện của người dùng (`onClick`, `onChange`, `onSubmit`).
-  - Không tạo state cờ trung gian (flag) chỉ để gián tiếp kích hoạt một `useEffect`.
-  - Chỉ sử dụng `useEffect` cho việc đồng bộ với hệ thống ngoại vi độc lập (lắng nghe sự kiện DOM toàn cục, kết nối WebSocket, Web Worker, Canvas context, hoặc AudioContext).
-- **Cô lập Vùng Quan sát Form (`useWatch` / `watch`)**:
-  - Trong các biểu mẫu hoặc bảng điều khiển tham số (như React Hook Form), việc gọi `useWatch` hoặc `watch()` ở component gốc sẽ ép toàn bộ cây component và các ô nhập liệu re-render theo từng ký tự gõ phím.
-  - Luôn cô lập các trường cần theo dõi trực tiếp vào các component lá chuyên biệt (ví dụ: `<SubmitButtonWithWatch control={control} />`).
-  - Ưu tiên sử dụng `getValues()` để đọc giá trị tức thời khi người dùng bấm nút thay vì đăng ký lắng nghe liên tục nếu không thực sự cần cập nhật giao diện thời gian thực.
-- **Sử dụng `useRef` cho Biến Tần số Cao & Trạng thái Không Hiển thị**:
-  - Trong các mô phỏng Canvas, vòng lặp Monte Carlo và bộ đếm thời gian thực, lưu trữ `requestAnimationFrame` ID, tham chiếu Canvas rendering context, worker handle, timer ID và chỉ số vòng lặp trong `useRef` thay vì `useState`.
-  - Gom cụm (batch) hoặc điều tiết (throttle) tần suất cập nhật state giao diện (ví dụ: cập nhật số liệu thống kê sau mỗi $N$ vòng lặp hoặc theo từng frame màn hình) thay vì kích hoạt `setState` hàng trăm lần mỗi giây.
-- **Phân tách Component Hạt mịn (Granular Components) & Ổn định Hàm Callback**:
-  - Chia nhỏ các thẻ Workbench mô phỏng lớn thành các component hạt mịn để thao tác thay đổi tham số cục bộ (như thanh trượt slider, nút toggle) không làm render lại các bề mặt Canvas hoặc bảng dữ liệu nặng bên cạnh.
-  - Sử dụng `useCallback` khi truyền hàm callback xuống các component con đã được ghi nhớ (`React.memo`).
+  - **Simulations (`SimulationJsonLd`)**: Structured with `@type: ["LearningResource", "WebApplication"]` and `BreadcrumbList`.
+  - **Essays (`EssayJsonLd`)**: Structured with `@type: "TechArticle"` and `BreadcrumbList`.
+  - **Security**: XSS sanitized via `JSON.stringify(...).replace(/</g, '\\u003c')` and typed with `schema-dts`.
+- **Dynamic Open Graph Images (`opengraph-image.tsx`)**:
+  - 1200x630 pixel cards rendered in real-time using Next.js `ImageResponse` from `next/og`.
+  - Editorial design with technical coordinate grid, semantic badges, and bundled `Be Vietnam Pro` fonts for complete Vietnamese diacritics.
