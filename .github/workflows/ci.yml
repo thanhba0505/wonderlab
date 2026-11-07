@@ -160,29 +160,18 @@ jobs:
     needs: [quality, unit-tests, e2e-tests, build]
     if: always()
     steps:
-      - name: Send CI status to Slack #ci-cd
+      - name: Send CI status to Central Gateway (#ci-cd)
         env:
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          GATEWAY_URL: ${{ secrets.GATEWAY_URL || 'https://central-gateway-server.onrender.com/api/v1' }}
+          GATEWAY_SECRET_KEY: ${{ secrets.GATEWAY_SECRET_KEY }}
           QUALITY_STATUS: ${{ needs.quality.result }}
           UNIT_STATUS: ${{ needs.unit-tests.result }}
           E2E_STATUS: ${{ needs.e2e-tests.result }}
           BUILD_STATUS: ${{ needs.build.result }}
         run: |
-          if [ -z "$SLACK_BOT_TOKEN" ]; then
-            echo "SLACK_BOT_TOKEN not configured, skipping Slack notification."
-            exit 0
-          fi
-
+          OVERALL_STATUS="FAIL"
           if [ "$QUALITY_STATUS" = "success" ] && [ "$UNIT_STATUS" = "success" ] && [ "$E2E_STATUS" = "success" ] && [ "$BUILD_STATUS" = "success" ]; then
-            COLOR="#10b981"
-            STATUS_TEXT="SUCCESS"
-            TITLE="✅ [WONDERLAB] CI Pipeline Passed"
-            MENTION=""
-          else
-            COLOR="#ef4444"
-            STATUS_TEXT="FAIL"
-            TITLE="🚨 [WONDERLAB] CI Pipeline Failed"
-            MENTION="• Attention: <@U08UYNPDLAU>"
+            OVERALL_STATUS="SUCCESS"
           fi
 
           REF="${{ github.ref_name }}"
@@ -192,59 +181,30 @@ jobs:
           REPO="${{ github.repository }}"
           RUN_URL="https://github.com/$REPO/actions/runs/${{ github.run_id }}"
 
-          SHORT_SHA=$(echo "$COMMIT" | cut -c1-7)
+          Q_UP=$(echo "$QUALITY_STATUS" | tr "[:lower:]" "[:upper:]")
+          U_UP=$(echo "$UNIT_STATUS" | tr "[:lower:]" "[:upper:]")
+          E_UP=$(echo "$E2E_STATUS" | tr "[:lower:]" "[:upper:]")
+          B_UP=$(echo "$BUILD_STATUS" | tr "[:lower:]" "[:upper:]")
+
           PAYLOAD=$(cat <<EOF
           {
-            "channel": "C0CGL8EBFT2",
-            "blocks": [
-              {
-                "type": "header",
-                "text": {
-                  "type": "plain_text",
-                  "text": "$TITLE",
-                  "emoji": true
-                }
-              }
-            ],
-            "attachments": [
-              {
-                "color": "$COLOR",
-                "blocks": [
-                  {
-                    "type": "section",
-                    "fields": [
-                      { "type": "mrkdwn", "text": "*Branch:*\n\`$REF\`" },
-                      { "type": "mrkdwn", "text": "*Status:*\n\`$STATUS_TEXT\`" },
-                      { "type": "mrkdwn", "text": "*Commit:*\n<https://github.com/$REPO/commit/$COMMIT|\`$SHORT_SHA\`>" },
-                      { "type": "mrkdwn", "text": "*Trigger:*\n\`$EVENT by @$AUTHOR\`" }
-                    ]
-                  },
-                  {
-                    "type": "section",
-                    "text": {
-                      "type": "mrkdwn",
-                      "text": "*Pipeline Breakdown:*\n\`\`\`\nQuality & Types  : $QUALITY_STATUS\nUnit Tests       : $UNIT_STATUS\nE2E DB Tests     : $E2E_STATUS\nProduction Build : $BUILD_STATUS\n\`\`\`$MENTION"
-                    }
-                  },
-                  {
-                    "type": "actions",
-                    "elements": [
-                      {
-                        "type": "button",
-                        "text": { "type": "plain_text", "text": "🔍 View CI Run Logs" },
-                        "url": "$RUN_URL",
-                        "style": "primary"
-                      }
-                    ]
-                  }
-                ]
-              }
-            ]
+            "project": "wonderlab",
+            "status": "$OVERALL_STATUS",
+            "branch": "$REF",
+            "commit": "$COMMIT",
+            "trigger": "$EVENT by @$AUTHOR",
+            "pipeline": {
+              "Quality & Types": "$Q_UP",
+              "Unit Tests": "$U_UP",
+              "E2E DB Tests": "$E_UP",
+              "Production Build": "$B_UP"
+            },
+            "runUrl": "$RUN_URL"
           }
           EOF
           )
 
-          curl -s -X POST https://slack.com/api/chat.postMessage \
-            -H "Authorization: Bearer $SLACK_BOT_TOKEN" \
+          curl -s -X POST "$GATEWAY_URL/notifications/slack/ci" \
             -H "Content-Type: application/json" \
-            -d "$PAYLOAD"
+            -H "Authorization: Bearer $GATEWAY_SECRET_KEY" \
+            -d "$PAYLOAD" || echo "CI notification skipped or failed"
