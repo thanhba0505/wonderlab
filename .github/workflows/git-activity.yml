@@ -28,8 +28,8 @@ jobs:
 
       - name: Run Git Activity Notifier
         env:
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-          CHANNEL: C0CFRUJUCSE
+          GATEWAY_URL: ${{ secrets.GATEWAY_URL || 'https://central-gateway-server.onrender.com/api/v1' }}
+          GATEWAY_SECRET_KEY: ${{ secrets.GATEWAY_SECRET_KEY }}
           EVENT_NAME: ${{ github.event_name }}
           REPO: ${{ github.repository }}
           ACTOR: ${{ github.actor }}

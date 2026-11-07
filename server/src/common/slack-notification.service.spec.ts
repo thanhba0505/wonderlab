@@ -16,7 +16,7 @@ describe('SlackNotificationService', () => {
     expect(service).toBeDefined();
   });
 
-  it('should gracefully handle missing SLACK_BOT_TOKEN without throwing', async () => {
+  it('should gracefully handle missing GATEWAY_SECRET_KEY without throwing', async () => {
     await expect(
       service.notifySimulationRequest({
         title: 'Quantum Teleportation',

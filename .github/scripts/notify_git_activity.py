@@ -1,16 +1,14 @@
+#!/usr/bin/env python3
 import json
 import os
 import sys
 import urllib.request
+import urllib.error
 
-token = os.environ.get("SLACK_BOT_TOKEN")
-if not token:
-    print("SLACK_BOT_TOKEN not configured, skipping notification.")
-    sys.exit(0)
+gateway_url = os.environ.get("GATEWAY_URL", "https://central-gateway-server.onrender.com/api/v1")
+gateway_secret = os.environ.get("GATEWAY_SECRET_KEY")
 
-channel = os.environ.get("CHANNEL", "C0CFRUJUCSE")
 event_name = os.environ.get("EVENT_NAME", "")
-repo = os.environ.get("REPO", "")
 actor = os.environ.get("ACTOR", "")
 ref_name = os.environ.get("REF_NAME", "")
 head_commit = os.environ.get("HEAD_COMMIT", "")
@@ -21,46 +19,15 @@ payload = None
 if event_name == "create":
     ref_type = os.environ.get("REF_TYPE", "")
     if ref_type == "branch":
-        title = "🌿 [WONDERLAB] New Branch Created"
-        color = "#059669"
         base_branch = os.environ.get("BASE_BRANCH", "develop")
-        compare_url = f"https://github.com/{repo}/compare/{base_branch}...{ref_name}"
-
+        compare_url = f"https://github.com/thanhba0505/wonderlab/compare/{base_branch}...{ref_name}"
         payload = {
-            "channel": channel,
-            "blocks": [
-                {
-                    "type": "header",
-                    "text": {"type": "plain_text", "text": title, "emoji": True},
-                }
-            ],
-            "attachments": [
-                {
-                    "color": color,
-                    "blocks": [
-                        {
-                            "type": "section",
-                            "fields": [
-                                {"type": "mrkdwn", "text": f"*Branch:*\n`{ref_name}`"},
-                                {"type": "mrkdwn", "text": f"*Created By:*\n`@{actor}`"},
-                                {"type": "mrkdwn", "text": f"*Base Ref:*\n`{base_branch}`"},
-                                {"type": "mrkdwn", "text": "*Event:*\n`BRANCH_CREATED`"},
-                            ],
-                        },
-                        {
-                            "type": "actions",
-                            "elements": [
-                                {
-                                    "type": "button",
-                                    "text": {"type": "plain_text", "text": "🌿 Compare Branch"},
-                                    "url": compare_url,
-                                    "style": "primary",
-                                }
-                            ],
-                        },
-                    ],
-                }
-            ],
+            "project": "wonderlab",
+            "eventType": "branch_created",
+            "actor": actor,
+            "refName": ref_name,
+            "baseBranch": base_branch,
+            "compareUrl": compare_url,
         }
 
 elif event_name == "pull_request":
@@ -72,66 +39,20 @@ elif event_name == "pull_request":
     head_ref = os.environ.get("PR_HEAD_REF", "")
     base_ref = os.environ.get("PR_BASE_REF", "")
 
-    if action == "closed" and is_merged:
-        status_text = "MERGED"
-        title = "🟣 [WONDERLAB] Pull Request Merged"
-        color = "#8b5cf6"
-    elif action == "closed":
-        status_text = "CLOSED"
-        title = "❌ [WONDERLAB] Pull Request Closed"
-        color = "#64748b"
-    elif action == "reopened":
-        status_text = "REOPENED"
-        title = "🔄 [WONDERLAB] Pull Request Reopened"
-        color = "#0284c7"
-    else:
-        status_text = "OPEN"
-        title = "🔀 [WONDERLAB] Pull Request Opened"
-        color = "#0284c7"
-
     payload = {
-        "channel": channel,
-        "blocks": [
-            {
-                "type": "header",
-                "text": {"type": "plain_text", "text": title, "emoji": True},
-            }
-        ],
-        "attachments": [
-            {
-                "color": color,
-                "blocks": [
-                    {
-                        "type": "section",
-                        "fields": [
-                            {"type": "mrkdwn", "text": f"*PR:*\n`#{pr_number}`"},
-                            {"type": "mrkdwn", "text": f"*Status:*\n`{status_text}`"},
-                            {"type": "mrkdwn", "text": f"*Flow:*\n`{head_ref}` ➔ `{base_ref}`"},
-                            {"type": "mrkdwn", "text": f"*Author:*\n`@{actor}`"},
-                        ],
-                    },
-                    {
-                        "type": "section",
-                        "text": {"type": "mrkdwn", "text": f"*Title:*\n```{pr_title}```"},
-                    },
-                    {
-                        "type": "actions",
-                        "elements": [
-                            {
-                                "type": "button",
-                                "text": {"type": "plain_text", "text": "🔀 View Pull Request"},
-                                "url": pr_url,
-                                "style": "primary",
-                            }
-                        ],
-                    },
-                ],
-            }
-        ],
+        "project": "wonderlab",
+        "eventType": "pull_request",
+        "actor": actor,
+        "prNumber": pr_number,
+        "prTitle": pr_title,
+        "prUrl": pr_url,
+        "prAction": action,
+        "prMerged": is_merged,
+        "prHeadRef": head_ref,
+        "prBaseRef": base_ref,
     }
 
 elif event_name == "push":
-    commit_count = os.environ.get("COMMIT_COUNT", "1")
     compare_url = os.environ.get("COMPARE_URL", "")
     commits_raw = os.environ.get("COMMITS_JSON", "[]")
 
@@ -152,62 +73,38 @@ elif event_name == "push":
     if not lines:
         lines.append(f"• {short_sha}: Update {ref_name}")
 
-    commit_log = "\n".join(lines)
-    commit_link = f"<https://github.com/{repo}/commit/{head_commit}|`{short_sha}`>"
-
     payload = {
-        "channel": channel,
-        "blocks": [
-            {
-                "type": "header",
-                "text": {"type": "plain_text", "text": "📌 [WONDERLAB] New Commits Pushed", "emoji": True},
-            }
-        ],
-        "attachments": [
-            {
-                "color": "#0284c7",
-                "blocks": [
-                    {
-                        "type": "section",
-                        "fields": [
-                            {"type": "mrkdwn", "text": f"*Branch:*\n`{ref_name}`"},
-                            {"type": "mrkdwn", "text": f"*Author:*\n`@{actor}`"},
-                            {"type": "mrkdwn", "text": f"*Commits:*\n`{commit_count} commit(s)`"},
-                            {"type": "mrkdwn", "text": f"*Latest SHA:*\n{commit_link}"},
-                        ],
-                    },
-                    {
-                        "type": "section",
-                        "text": {"type": "mrkdwn", "text": f"*Commit Log:*\n```{commit_log}```"},
-                    },
-                    {
-                        "type": "actions",
-                        "elements": [
-                            {
-                                "type": "button",
-                                "text": {"type": "plain_text", "text": "🔍 View Changes"},
-                                "url": compare_url if compare_url else f"https://github.com/{repo}/commits/{ref_name}",
-                                "style": "primary",
-                            }
-                        ],
-                    },
-                ],
-            }
-        ],
+        "project": "wonderlab",
+        "eventType": "push",
+        "actor": actor,
+        "refName": ref_name,
+        "headCommit": head_commit,
+        "commitCount": str(len(commits) if isinstance(commits, list) and commits else 1),
+        "commitLines": lines,
+        "compareUrl": compare_url,
     }
 
 if payload:
+    target_endpoint = f"{gateway_url}/notifications/slack/git"
+    headers = {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+    }
+    if gateway_secret:
+        headers["Authorization"] = f"Bearer {gateway_secret}"
+
     req = urllib.request.Request(
-        "https://slack.com/api/chat.postMessage",
+        target_endpoint,
         data=json.dumps(payload).encode("utf-8"),
-        headers={
-            "Authorization": f"Bearer {token}",
-            "Content-Type": "application/json",
-        },
+        headers=headers,
+        method="POST",
     )
     try:
         with urllib.request.urlopen(req) as resp:
             body = resp.read().decode("utf-8")
-            print("Slack response:", body)
+            print(f"✅ Central Gateway response ({resp.status}): {body}")
+    except urllib.error.HTTPError as e:
+        error_body = e.read().decode("utf-8")
+        print(f"❌ Central Gateway HTTP error ({e.code}): {error_body}")
     except Exception as e:
-        print("Failed to send Slack notification:", e)
+        print(f"❌ Failed to dispatch Git notification to Central Gateway: {e}")
