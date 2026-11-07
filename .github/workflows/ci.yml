@@ -181,6 +181,11 @@ jobs:
           REPO="${{ github.repository }}"
           RUN_URL="https://github.com/$REPO/actions/runs/${{ github.run_id }}"
 
+          Q_UP=$(echo "$QUALITY_STATUS" | tr "[:lower:]" "[:upper:]")
+          U_UP=$(echo "$UNIT_STATUS" | tr "[:lower:]" "[:upper:]")
+          E_UP=$(echo "$E2E_STATUS" | tr "[:lower:]" "[:upper:]")
+          B_UP=$(echo "$BUILD_STATUS" | tr "[:lower:]" "[:upper:]")
+
           curl -s -X POST "$GATEWAY_URL/notifications/slack/ci" \
             -H "Content-Type: application/json" \
             -H "Authorization: Bearer $GATEWAY_SECRET_KEY" \
@@ -191,10 +196,10 @@ jobs:
               "commit": "'"$COMMIT"'",
               "trigger": "'"$EVENT"' by @"'"$AUTHOR"'",
               "pipeline": {
-                "Quality & Types": "'"${QUALITY_STATUS^^}"'",
-                "Unit Tests": "'"${UNIT_STATUS^^}"'",
-                "E2E DB Tests": "'"${E2E_STATUS^^}"'",
-                "Production Build": "'"${BUILD_STATUS^^}"'"
+                "Quality & Types": "'"$Q_UP"'",
+                "Unit Tests": "'"$U_UP"'",
+                "E2E DB Tests": "'"$E_UP"'",
+                "Production Build": "'"$B_UP"'"
               },
               "runUrl": "'"$RUN_URL"'"
             }' || echo "CI notification skipped or failed"
