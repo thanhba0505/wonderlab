@@ -174,11 +174,13 @@ jobs:
           fi
 
           if [ "$QUALITY_STATUS" = "success" ] && [ "$UNIT_STATUS" = "success" ] && [ "$E2E_STATUS" = "success" ] && [ "$BUILD_STATUS" = "success" ]; then
-            STATUS_TEXT="Success"
+            COLOR="#10b981"
+            STATUS_TEXT="SUCCESS"
             TITLE="✅ [WONDERLAB] CI Pipeline Passed"
             MENTION=""
           else
-            STATUS_TEXT="Fail"
+            COLOR="#ef4444"
+            STATUS_TEXT="FAIL"
             TITLE="🚨 [WONDERLAB] CI Pipeline Failed"
             MENTION="• Attention: <@U08UYNPDLAU>"
           fi
@@ -193,39 +195,44 @@ jobs:
           PAYLOAD=$(cat <<EOF
           {
             "channel": "C0CGL8EBFT2",
-            "blocks": [
+            "attachments": [
               {
-                "type": "header",
-                "text": {
-                  "type": "plain_text",
-                  "text": "$TITLE",
-                  "emoji": true
-                }
-              },
-              {
-                "type": "section",
-                "fields": [
-                  { "type": "mrkdwn", "text": "*Branch:*\n\`$REF\`" },
-                  { "type": "mrkdwn", "text": "*Status:*\n$STATUS_TEXT" },
-                  { "type": "mrkdwn", "text": "*Commit:*\n<https://github.com/$REPO/commit/$COMMIT|\`${COMMIT:0:7}\`>" },
-                  { "type": "mrkdwn", "text": "*Trigger:*\n\`$EVENT\` by @$AUTHOR" }
-                ]
-              },
-              {
-                "type": "section",
-                "text": {
-                  "type": "mrkdwn",
-                  "text": "*Pipeline Breakdown:*\n• Quality & Types: \`$QUALITY_STATUS\`\n• Unit Tests: \`$UNIT_STATUS\`\n• E2E DB Tests: \`$E2E_STATUS\`\n• Production Build: \`$BUILD_STATUS\`\n$MENTION"
-                }
-              },
-              {
-                "type": "actions",
-                "elements": [
+                "color": "$COLOR",
+                "blocks": [
                   {
-                    "type": "button",
-                    "text": { "type": "plain_text", "text": "🔍 View CI Run Logs" },
-                    "url": "$RUN_URL",
-                    "style": "primary"
+                    "type": "header",
+                    "text": {
+                      "type": "plain_text",
+                      "text": "$TITLE",
+                      "emoji": true
+                    }
+                  },
+                  {
+                    "type": "section",
+                    "fields": [
+                      { "type": "mrkdwn", "text": "*Branch:*\n\`$REF\`" },
+                      { "type": "mrkdwn", "text": "*Status:*\n\`$STATUS_TEXT\`" },
+                      { "type": "mrkdwn", "text": "*Commit:*\n<https://github.com/$REPO/commit/$COMMIT|\`${COMMIT:0:7}\`>" },
+                      { "type": "mrkdwn", "text": "*Trigger:*\n\`$EVENT by @$AUTHOR\`" }
+                    ]
+                  },
+                  {
+                    "type": "section",
+                    "text": {
+                      "type": "mrkdwn",
+                      "text": "*Pipeline Breakdown:*\n\`\`\`\nQuality & Types  : $QUALITY_STATUS\nUnit Tests       : $UNIT_STATUS\nE2E DB Tests     : $E2E_STATUS\nProduction Build : $BUILD_STATUS\n\`\`\`$MENTION"
+                    }
+                  },
+                  {
+                    "type": "actions",
+                    "elements": [
+                      {
+                        "type": "button",
+                        "text": { "type": "plain_text", "text": "🔍 View CI Run Logs" },
+                        "url": "$RUN_URL",
+                        "style": "primary"
+                      }
+                    ]
                   }
                 ]
               }

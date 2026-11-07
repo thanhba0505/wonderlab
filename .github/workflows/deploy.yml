@@ -122,12 +122,12 @@ jobs:
           if [ "$DEPLOY_STATUS" = "success" ]; then
             COLOR="#10b981"
             TITLE="🚀 [WONDERLAB] Production Rollout"
-            STATUS_TEXT="Success"
+            STATUS_TEXT="SUCCESS"
             EMOJI="✅"
           else
             COLOR="#ef4444"
             TITLE="🚨 [WONDERLAB] Production Rollout Failed"
-            STATUS_TEXT="Fail"
+            STATUS_TEXT="FAIL"
             EMOJI="❌"
           fi
           VERSION="${{ steps.targets.outputs.version }}"
@@ -138,39 +138,44 @@ jobs:
           PAYLOAD=$(cat <<EOF
           {
             "channel": "C0CGL8EHU9E",
-            "blocks": [
+            "attachments": [
               {
-                "type": "header",
-                "text": {
-                  "type": "plain_text",
-                  "text": "$EMOJI $TITLE",
-                  "emoji": true
-                }
-              },
-              {
-                "type": "section",
-                "fields": [
-                  { "type": "mrkdwn", "text": "*Service Target:*\n$SERVICE" },
-                  { "type": "mrkdwn", "text": "*Release Version:*\nv$VERSION" },
-                  { "type": "mrkdwn", "text": "*Commit SHA:*\n<https://github.com/thanhba0505/wonderlab/commit/$COMMIT|\`${COMMIT:0:7}\`>" },
-                  { "type": "mrkdwn", "text": "*Status:*\n$STATUS_TEXT" },
-                  { "type": "mrkdwn", "text": "*Environment:*\nProduction (Render + Neon)" },
-                  { "type": "mrkdwn", "text": "*Triggered By:*\n@$AUTHOR" }
-                ]
-              },
-              {
-                "type": "actions",
-                "elements": [
+                "color": "$COLOR",
+                "blocks": [
                   {
-                    "type": "button",
-                    "text": { "type": "plain_text", "text": "🌐 Visit Wonderlab" },
-                    "url": "https://wonderlab.io.vn",
-                    "style": "primary"
+                    "type": "header",
+                    "text": {
+                      "type": "plain_text",
+                      "text": "$EMOJI $TITLE",
+                      "emoji": true
+                    }
                   },
                   {
-                    "type": "button",
-                    "text": { "type": "plain_text", "text": "🩺 Health Probe" },
-                    "url": "https://wonderlab.io.vn/health"
+                    "type": "section",
+                    "fields": [
+                      { "type": "mrkdwn", "text": "*Service Target:*\n\`$SERVICE\`" },
+                      { "type": "mrkdwn", "text": "*Release Version:*\n\`v$VERSION\`" },
+                      { "type": "mrkdwn", "text": "*Commit SHA:*\n<https://github.com/thanhba0505/wonderlab/commit/$COMMIT|\`${COMMIT:0:7}\`>" },
+                      { "type": "mrkdwn", "text": "*Status:*\n\`$STATUS_TEXT\`" },
+                      { "type": "mrkdwn", "text": "*Environment:*\n\`Production\`" },
+                      { "type": "mrkdwn", "text": "*Triggered By:*\n\`@$AUTHOR\`" }
+                    ]
+                  },
+                  {
+                    "type": "actions",
+                    "elements": [
+                      {
+                        "type": "button",
+                        "text": { "type": "plain_text", "text": "🌐 Visit Wonderlab" },
+                        "url": "https://wonderlab.io.vn",
+                        "style": "primary"
+                      },
+                      {
+                        "type": "button",
+                        "text": { "type": "plain_text", "text": "🩺 Health Probe" },
+                        "url": "https://wonderlab.io.vn/health"
+                      }
+                    ]
                   }
                 ]
               }

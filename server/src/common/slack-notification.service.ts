@@ -53,7 +53,6 @@ export class SlackNotificationService {
     const { title, description, category = 'General', authorName = 'Anonymous Learner' } = params;
 
     await this.postMessage(this.userFeedbackChannel, {
-      text: `🧪 New Simulation Request: *${title}* by ${authorName}`,
       attachments: [
         {
           color: '#0284c7',
@@ -62,24 +61,24 @@ export class SlackNotificationService {
               type: 'header',
               text: {
                 type: 'plain_text',
-                text: '🧪 New Simulation Proposal Submitted',
+                text: '💡 [COMMUNITY] New Simulation Proposal',
                 emoji: true,
               },
             },
             {
               type: 'section',
               fields: [
-                { type: 'mrkdwn', text: `*Topic:*\n${title}` },
+                { type: 'mrkdwn', text: `*Topic:*\n\`${title}\`` },
                 { type: 'mrkdwn', text: `*Category:*\n\`${category}\`` },
-                { type: 'mrkdwn', text: `*Author:*\n${authorName}` },
-                { type: 'mrkdwn', text: '*Source:*\nWonderlab Community' },
+                { type: 'mrkdwn', text: `*Author:*\n\`${authorName}\`` },
+                { type: 'mrkdwn', text: '*Source:*\n`Wonderlab Community`' },
               ],
             },
             {
               type: 'section',
               text: {
                 type: 'mrkdwn',
-                text: `*Description:*\n> ${description.slice(0, 300)}${description.length > 300 ? '...' : ''}`,
+                text: `*Description:*\n\`\`\`\n${description.slice(0, 400)}${description.length > 400 ? '...' : ''}\n\`\`\``,
               },
             },
             {
@@ -89,6 +88,7 @@ export class SlackNotificationService {
                   type: 'button',
                   text: { type: 'plain_text', text: '📋 View All Requests' },
                   url: 'https://wonderlab.io.vn/requests',
+                  style: 'primary',
                 },
                 {
                   type: 'button',
@@ -113,10 +113,8 @@ export class SlackNotificationService {
     isReply?: boolean;
   }): Promise<void> {
     const { simulationSlug, authorName, content, isReply = false } = params;
-    const actionLabel = isReply ? 'Replied to discussion on' : 'Commented on';
 
     await this.postMessage(this.commentsModerationChannel, {
-      text: `💬 ${authorName} ${actionLabel} *${simulationSlug}*`,
       attachments: [
         {
           color: '#8b5cf6',
@@ -125,7 +123,7 @@ export class SlackNotificationService {
               type: 'header',
               text: {
                 type: 'plain_text',
-                text: `💬 New Scientific Discussion ${isReply ? 'Reply' : 'Post'}`,
+                text: `💬 [DISCUSSION] New Scientific ${isReply ? 'Reply' : 'Post'}`,
                 emoji: true,
               },
             },
@@ -133,14 +131,14 @@ export class SlackNotificationService {
               type: 'section',
               fields: [
                 { type: 'mrkdwn', text: `*Simulation:*\n\`${simulationSlug}\`` },
-                { type: 'mrkdwn', text: `*Author:*\n${authorName}` },
+                { type: 'mrkdwn', text: `*Author:*\n\`${authorName}\`` },
               ],
             },
             {
               type: 'section',
               text: {
                 type: 'mrkdwn',
-                text: `*Message:*\n> ${content.slice(0, 280)}${content.length > 280 ? '...' : ''}`,
+                text: `*Message:*\n\`\`\`\n${content.slice(0, 350)}${content.length > 350 ? '...' : ''}\n\`\`\``,
               },
             },
             {
@@ -150,6 +148,7 @@ export class SlackNotificationService {
                   type: 'button',
                   text: { type: 'plain_text', text: '🔬 Open Simulation Chamber' },
                   url: `https://wonderlab.io.vn/simulations/${simulationSlug}`,
+                  style: 'primary',
                 },
                 {
                   type: 'button',
