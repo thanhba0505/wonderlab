@@ -135,41 +135,37 @@ jobs:
           PAYLOAD=$(cat <<EOF
           {
             "channel": "C0CGL8EHU9E",
-            "attachments": [
+            "blocks": [
               {
-                "color": "$COLOR",
-                "blocks": [
+                "type": "header",
+                "text": {
+                  "type": "plain_text",
+                  "text": "$EMOJI $TITLE",
+                  "emoji": true
+                }
+              },
+              {
+                "type": "section",
+                "fields": [
+                  { "type": "mrkdwn", "text": "*Service Target:*\n$SERVICE" },
+                  { "type": "mrkdwn", "text": "*Release Version:*\nv$VERSION" },
+                  { "type": "mrkdwn", "text": "*Commit SHA:*\n$COMMIT" },
+                  { "type": "mrkdwn", "text": "*Status:*\n$DEPLOY_STATUS" },
+                  { "type": "mrkdwn", "text": "*Environment:*\nProduction (Render + Neon)" }
+                ]
+              },
+              {
+                "type": "actions",
+                "elements": [
                   {
-                    "type": "header",
-                    "text": {
-                      "type": "plain_text",
-                      "text": "$EMOJI $TITLE",
-                      "emoji": true
-                    }
+                    "type": "button",
+                    "text": { "type": "plain_text", "text": "🌐 Visit Wonderlab" },
+                    "url": "https://wonderlab.io.vn"
                   },
                   {
-                    "type": "section",
-                    "fields": [
-                      { "type": "mrkdwn", "text": "*Service Target:*\n\`$SERVICE\`" },
-                      { "type": "mrkdwn", "text": "*Release Version:*\n\`v$VERSION\`" },
-                      { "type": "mrkdwn", "text": "*Commit SHA:*\n\`$COMMIT\`" },
-                      { "type": "mrkdwn", "text": "*Environment:*\nProduction (Render + Neon)" }
-                    ]
-                  },
-                  {
-                    "type": "actions",
-                    "elements": [
-                      {
-                        "type": "button",
-                        "text": { "type": "plain_text", "text": "🌐 Visit Wonderlab" },
-                        "url": "https://wonderlab.io.vn"
-                      },
-                      {
-                        "type": "button",
-                        "text": { "type": "plain_text", "text": "🩺 Health Probe" },
-                        "url": "https://wonderlab.io.vn/health"
-                      }
-                    ]
+                    "type": "button",
+                    "text": { "type": "plain_text", "text": "🩺 Health Probe" },
+                    "url": "https://wonderlab.io.vn/health"
                   }
                 ]
               }
