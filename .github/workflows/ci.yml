@@ -192,6 +192,7 @@ jobs:
           REPO="${{ github.repository }}"
           RUN_URL="https://github.com/$REPO/actions/runs/${{ github.run_id }}"
 
+          SHORT_SHA=$(echo "$COMMIT" | cut -c1-7)
           PAYLOAD=$(cat <<EOF
           {
             "channel": "C0CGL8EBFT2",
@@ -212,7 +213,7 @@ jobs:
                     "fields": [
                       { "type": "mrkdwn", "text": "*Branch:*\n\`$REF\`" },
                       { "type": "mrkdwn", "text": "*Status:*\n\`$STATUS_TEXT\`" },
-                      { "type": "mrkdwn", "text": "*Commit:*\n<https://github.com/$REPO/commit/$COMMIT|\`${COMMIT:0:7}\`>" },
+                      { "type": "mrkdwn", "text": "*Commit:*\n<https://github.com/$REPO/commit/$COMMIT|\`$SHORT_SHA\`>" },
                       { "type": "mrkdwn", "text": "*Trigger:*\n\`$EVENT by @$AUTHOR\`" }
                     ]
                   },

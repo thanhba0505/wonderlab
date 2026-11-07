@@ -135,6 +135,7 @@ jobs:
           SERVICE="${{ steps.targets.outputs.service }}"
           AUTHOR="${{ github.actor }}"
 
+          SHORT_SHA=$(echo "$COMMIT" | cut -c1-7)
           PAYLOAD=$(cat <<EOF
           {
             "channel": "C0CGL8EHU9E",
@@ -155,7 +156,7 @@ jobs:
                     "fields": [
                       { "type": "mrkdwn", "text": "*Service Target:*\n\`$SERVICE\`" },
                       { "type": "mrkdwn", "text": "*Release Version:*\n\`v$VERSION\`" },
-                      { "type": "mrkdwn", "text": "*Commit SHA:*\n<https://github.com/thanhba0505/wonderlab/commit/$COMMIT|\`${COMMIT:0:7}\`>" },
+                      { "type": "mrkdwn", "text": "*Commit SHA:*\n<https://github.com/thanhba0505/wonderlab/commit/$COMMIT|\`$SHORT_SHA\`>" },
                       { "type": "mrkdwn", "text": "*Status:*\n\`$STATUS_TEXT\`" },
                       { "type": "mrkdwn", "text": "*Environment:*\n\`Production\`" },
                       { "type": "mrkdwn", "text": "*Triggered By:*\n\`@$AUTHOR\`" }
