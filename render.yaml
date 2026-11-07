@@ -21,26 +21,7 @@ services:
       - key: JWT_SECRET
         generateValue: true
       - key: CORS_ORIGINS
-        sync: false # Set via Render dashboard to client domain
-
-  # Wonderlab Client (Next.js App Router)
-  - type: web
-    name: wonderlab-client
-    runtime: node
-    plan: free
-    region: oregon
-    autoDeploy: false
-    buildCommand: pnpm install --frozen-lockfile && pnpm --filter wonderlab-client build
-    startCommand: pnpm --filter wonderlab-client start
-    envVars:
-      - key: NODE_ENV
-        value: production
-      - key: NEXT_PUBLIC_APP_NAME
-        value: Wonderlab
-      - key: NEXT_PUBLIC_APP_URL
-        value: https://wonderlab.io.vn
-      - key: NEXT_PUBLIC_API_BASE_URL
-        sync: false # Set via Render dashboard to server URL, e.g. https://wonderlab-server.onrender.com/api/v1
+        sync: false # Set via Render dashboard: https://wonderlab.io.vn,https://wonderlab-client.vercel.app
 
 databases:
   # Wonderlab Managed PostgreSQL Database

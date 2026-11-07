@@ -1,11 +1,8 @@
 version: 2
 updates:
-  # 1. Monorepo dependencies (pnpm workspaces: root, client, server)
+  # 1. Monorepo dependencies (pnpm root workspace)
   - package-ecosystem: 'npm'
-    directories:
-      - '/'
-      - '/client'
-      - '/server'
+    directory: '/'
     target-branch: 'develop'
     schedule:
       interval: 'weekly'
@@ -21,14 +18,21 @@ updates:
       - 'dependencies'
       - 'automated'
     groups:
-      dependencies:
-        patterns:
-          - '*'
+      production-dependencies:
+        dependency-type: 'production'
+        update-types:
+          - 'minor'
+          - 'patch'
+      development-dependencies:
+        dependency-type: 'development'
         update-types:
           - 'minor'
           - 'patch'
     ignore:
+      # Pinned due to local font loader patch (patches/next@15.1.7.patch)
       - dependency-name: 'next'
+      # Prevent breaking major upgrades monorepo-wide
+      - dependency-name: '*'
         update-types: ['version-update:semver-major']
 
   # 2. GitHub Actions CI/CD workflows
@@ -50,6 +54,6 @@ updates:
       - 'dependencies'
       - 'automated'
     groups:
-      actions:
+      github-actions:
         patterns:
           - '*'

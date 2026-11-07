@@ -130,23 +130,26 @@ describe('SEO & Metadata Infrastructure', () => {
 
   it('correctly resolves app base URL with environment variable priority and fallback', () => {
     const originalAppUrl = process.env.NEXT_PUBLIC_APP_URL;
+    const originalVercelUrl = process.env.NEXT_PUBLIC_VERCEL_URL;
     const originalRenderUrl = process.env.RENDER_EXTERNAL_URL;
 
     try {
       // 1. Prioritizes NEXT_PUBLIC_APP_URL
       process.env.NEXT_PUBLIC_APP_URL = 'https://custom-domain.com/';
-      process.env.RENDER_EXTERNAL_URL = 'https://wonderlab-client.onrender.com';
+      process.env.NEXT_PUBLIC_VERCEL_URL = 'wonderlab-client.vercel.app';
       expect(getAppBaseUrl()).toBe('https://custom-domain.com');
 
-      // 2. Falls back to RENDER_EXTERNAL_URL if NEXT_PUBLIC_APP_URL is empty
+      // 2. Falls back to NEXT_PUBLIC_VERCEL_URL if NEXT_PUBLIC_APP_URL is empty
       delete process.env.NEXT_PUBLIC_APP_URL;
-      expect(getAppBaseUrl()).toBe('https://wonderlab-client.onrender.com');
+      expect(getAppBaseUrl()).toBe('https://wonderlab-client.vercel.app');
 
       // 3. Falls back to http://localhost:4100 if neither is set
+      delete process.env.NEXT_PUBLIC_VERCEL_URL;
       delete process.env.RENDER_EXTERNAL_URL;
       expect(getAppBaseUrl()).toBe('http://localhost:4100');
     } finally {
       process.env.NEXT_PUBLIC_APP_URL = originalAppUrl;
+      process.env.NEXT_PUBLIC_VERCEL_URL = originalVercelUrl;
       process.env.RENDER_EXTERNAL_URL = originalRenderUrl;
     }
   });

@@ -46,3 +46,5 @@ postgres_data/
 tmp/
 temp/
 .temp/
+.vercel
+.env*
