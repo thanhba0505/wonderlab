@@ -45,7 +45,6 @@ jobs:
           PR_BASE_REF: ${{ github.event.pull_request.base.ref }}
           HEAD_COMMIT: ${{ github.sha }}
           COMPARE_URL: ${{ github.event.compare }}
-          COMMIT_COUNT: ${{ count(github.event.commits) }}
           COMMITS_JSON: ${{ toJson(github.event.commits) }}
         run: |
           python3 .github/scripts/notify_git_activity.py
