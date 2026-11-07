@@ -28,14 +28,16 @@ if event_name == "create":
 
         payload = {
             "channel": channel,
+            "blocks": [
+                {
+                    "type": "header",
+                    "text": {"type": "plain_text", "text": title, "emoji": True},
+                }
+            ],
             "attachments": [
                 {
                     "color": color,
                     "blocks": [
-                        {
-                            "type": "header",
-                            "text": {"type": "plain_text", "text": title, "emoji": True},
-                        },
                         {
                             "type": "section",
                             "fields": [
@@ -89,14 +91,16 @@ elif event_name == "pull_request":
 
     payload = {
         "channel": channel,
+        "blocks": [
+            {
+                "type": "header",
+                "text": {"type": "plain_text", "text": title, "emoji": True},
+            }
+        ],
         "attachments": [
             {
                 "color": color,
                 "blocks": [
-                    {
-                        "type": "header",
-                        "text": {"type": "plain_text", "text": title, "emoji": True},
-                    },
                     {
                         "type": "section",
                         "fields": [
@@ -153,14 +157,16 @@ elif event_name == "push":
 
     payload = {
         "channel": channel,
+        "blocks": [
+            {
+                "type": "header",
+                "text": {"type": "plain_text", "text": "📌 [WONDERLAB] New Commits Pushed", "emoji": True},
+            }
+        ],
         "attachments": [
             {
                 "color": "#0284c7",
                 "blocks": [
-                    {
-                        "type": "header",
-                        "text": {"type": "plain_text", "text": "📌 [WONDERLAB] New Commits Pushed", "emoji": True},
-                    },
                     {
                         "type": "section",
                         "fields": [

@@ -80,18 +80,20 @@ jobs:
           PAYLOAD=$(cat <<EOF
           {
             "channel": "C0CGL8EHU9E",
+            "blocks": [
+              {
+                "type": "header",
+                "text": {
+                  "type": "plain_text",
+                  "text": "🚀 [WONDERLAB] Production Deploy Started",
+                  "emoji": true
+                }
+              }
+            ],
             "attachments": [
               {
                 "color": "#f59e0b",
                 "blocks": [
-                  {
-                    "type": "header",
-                    "text": {
-                      "type": "plain_text",
-                      "text": "🚀 [WONDERLAB] Production Deploy Started",
-                      "emoji": true
-                    }
-                  },
                   {
                     "type": "section",
                     "fields": [
@@ -223,18 +225,20 @@ jobs:
           PAYLOAD=$(cat <<EOF
           {
             "channel": "C0CGL8EHU9E",
+            "blocks": [
+              {
+                "type": "header",
+                "text": {
+                  "type": "plain_text",
+                  "text": "$TITLE",
+                  "emoji": true
+                }
+              }
+            ],
             "attachments": [
               {
                 "color": "$COLOR",
                 "blocks": [
-                  {
-                    "type": "header",
-                    "text": {
-                      "type": "plain_text",
-                      "text": "$TITLE",
-                      "emoji": true
-                    }
-                  },
                   {
                     "type": "section",
                     "fields": [
