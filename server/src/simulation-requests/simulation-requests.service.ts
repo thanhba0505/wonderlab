@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { Prisma, SimulationRequestStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { SlackNotificationService } from '../common/slack-notification.service';
 import { CreateSimulationRequestDto } from './dto/create-simulation-request.dto';
 import {
   QuerySimulationRequestsDto,
@@ -40,7 +41,10 @@ interface RawRequestWithAuthor {
 
 @Injectable()
 export class SimulationRequestsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly slackService?: SlackNotificationService,
+  ) {}
 
   /**
    * Tạo một đề xuất bài toán / thí nghiệm mới (hỗ trợ cả người dùng đăng nhập và khách)
@@ -99,7 +103,20 @@ export class SimulationRequestsService {
       return created;
     });
 
-    return this.mapToDto(result, true);
+    const mapped = this.mapToDto(result, true);
+
+    // Fire-and-forget Slack notification to #user-feedback
+    if (this.slackService) {
+      const authorName = result.user?.username || result.guestName || 'Anonymous Learner';
+      void this.slackService.notifySimulationRequest({
+        title: result.title,
+        description: result.description,
+        category: result.category,
+        authorName,
+      });
+    }
+
+    return mapped;
   }
 
   /**

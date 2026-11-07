@@ -108,3 +108,84 @@ jobs:
             --timeout 600 \
             --interval 10 \
             --initial-delay 15
+
+      - name: Notify Slack (#deployments)
+        if: always()
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        run: |
+          if [ -z "$SLACK_BOT_TOKEN" ]; then
+            echo "SLACK_BOT_TOKEN not configured, skipping Slack notification."
+            exit 0
+          fi
+          DEPLOY_STATUS="${{ job.status }}"
+          if [ "$DEPLOY_STATUS" = "success" ]; then
+            COLOR="#10b981"
+            TITLE="🚀 [WONDERLAB] Production Rollout"
+            STATUS_TEXT="SUCCESS"
+            EMOJI="✅"
+          else
+            COLOR="#ef4444"
+            TITLE="🚨 [WONDERLAB] Production Rollout Failed"
+            STATUS_TEXT="FAIL"
+            EMOJI="❌"
+          fi
+          VERSION="${{ steps.targets.outputs.version }}"
+          COMMIT="${{ steps.targets.outputs.commit }}"
+          SERVICE="${{ steps.targets.outputs.service }}"
+          AUTHOR="${{ github.actor }}"
+
+          SHORT_SHA=$(echo "$COMMIT" | cut -c1-7)
+          PAYLOAD=$(cat <<EOF
+          {
+            "channel": "C0CGL8EHU9E",
+            "attachments": [
+              {
+                "color": "$COLOR",
+                "blocks": [
+                  {
+                    "type": "header",
+                    "text": {
+                      "type": "plain_text",
+                      "text": "$EMOJI $TITLE",
+                      "emoji": true
+                    }
+                  },
+                  {
+                    "type": "section",
+                    "fields": [
+                      { "type": "mrkdwn", "text": "*Service Target:*\n\`$SERVICE\`" },
+                      { "type": "mrkdwn", "text": "*Release Version:*\n\`v$VERSION\`" },
+                      { "type": "mrkdwn", "text": "*Commit SHA:*\n<https://github.com/thanhba0505/wonderlab/commit/$COMMIT|\`$SHORT_SHA\`>" },
+                      { "type": "mrkdwn", "text": "*Status:*\n\`$STATUS_TEXT\`" },
+                      { "type": "mrkdwn", "text": "*Environment:*\n\`Production\`" },
+                      { "type": "mrkdwn", "text": "*Triggered By:*\n\`@$AUTHOR\`" }
+                    ]
+                  },
+                  {
+                    "type": "actions",
+                    "elements": [
+                      {
+                        "type": "button",
+                        "text": { "type": "plain_text", "text": "🌐 Visit Wonderlab" },
+                        "url": "https://wonderlab.io.vn",
+                        "style": "primary"
+                      },
+                      {
+                        "type": "button",
+                        "text": { "type": "plain_text", "text": "🩺 Health Probe" },
+                        "url": "https://wonderlab.io.vn/health"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+          EOF
+          )
+
+          curl -s -X POST https://slack.com/api/chat.postMessage \
+            -H "Authorization: Bearer $SLACK_BOT_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d "$PAYLOAD"

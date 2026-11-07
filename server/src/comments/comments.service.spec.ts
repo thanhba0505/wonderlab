@@ -4,6 +4,7 @@ import { Role } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CommentsService } from './comments.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
+import { SlackNotificationService } from '../common/slack-notification.service';
 
 describe('CommentsService', () => {
   let service: CommentsService;
@@ -54,6 +55,12 @@ describe('CommentsService', () => {
         {
           provide: PrismaService,
           useValue: prisma,
+        },
+        {
+          provide: SlackNotificationService,
+          useValue: {
+            notifyNewComment: jest.fn().mockResolvedValue(undefined),
+          },
         },
       ],
     }).compile();
