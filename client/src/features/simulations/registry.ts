@@ -482,6 +482,65 @@ export const SIMULATIONS_REGISTRY: SimulationMeta[] = [
         'Bộ não người thường mặc định rằng hệ quả vô hạn (vô số tia nảy) bắt buộc phải cần nguyên nhân vô hạn để kiểm soát, bỏ qua cấu trúc đối xứng tuần hoàn của đại số nhóm.',
     },
   },
+  {
+    slug: 'ants-on-a-stick',
+    title: 'Đàn Kiến Trên Thanh Gỗ (Ants on a Stick)',
+    subtitle: 'Nghịch lý va chạm 1D và nguyên lý hoán đổi vận tốc',
+    category: 'physics',
+    difficulty: 'beginner',
+    estimatedMinutes: 4,
+    formula: 'T_{\\max} = \\frac{L}{v} = 100\\text{ s}',
+    summary:
+      '100 con kiến ngẫu nhiên trên thanh 100cm, đụng nhau đổi chiều ở 1cm/s. Trực giác ngỡ va chạm dây chuyền sẽ giữ kiến lại rất lâu, nhưng thực tế toàn bộ sẽ rơi hết sau tối đa đúng 100 giây.',
+    description:
+      'Vì các con kiến đồng nhất và cùng tốc độ, khi hai con va chạm đổi chiều, trạng thái toàn hệ thống hoàn toàn trùng khớp với việc hai con kiến đi xuyên qua nhau. Khoảng cách xa nhất một hạt bóng ma có thể đi chỉ là 100cm, do đó thời gian kết thúc không bao giờ vượt quá 100 giây.',
+    tags: ['Cơ học', 'Bảo toàn động lượng', 'Topo 1D', 'Tư duy tương đương'],
+    status: 'active',
+    accentColor: 'amber',
+    hypothesis: {
+      question:
+        'Với 100 con kiến va chạm và nảy ngược liên tục trên thanh gỗ 100cm (tốc độ 1cm/s), thời gian TỐI ĐA để toàn bộ đàn kiến rơi hết khỏi thanh là bao lâu?',
+      context:
+        'Thanh gỗ dài 100cm. Vị trí và hướng bò (trái hoặc phải) ban đầu của 100 con kiến được phân bố ngẫu nhiên.',
+      options: [
+        {
+          id: 'opt-a',
+          label: 'Hàng chục phút đến vài giờ (do va chạm dây chuyền cản trở)',
+          value: 0.1,
+          explanation:
+            'Bẫy tư duy va chạm dây chuyền: Não bộ lầm tưởng các vụ va chạm liên tục sẽ giam giữ các con kiến trong vòng luẩn quẩn.',
+        },
+        {
+          id: 'opt-b',
+          label: 'Khoảng 5 đến 10 phút',
+          value: 0.25,
+          explanation:
+            'Đoán mò theo cảm tính rằng hàng nghìn va chạm sẽ kéo dài thời gian gấp nhiều lần.',
+        },
+        {
+          id: 'opt-c',
+          label: 'Tối đa đúng 100 giây (~ 1 phút 40 giây)',
+          value: 1.0,
+          explanation:
+            'Chính xác xuất sắc! Nhờ nguyên lý hoán đổi vận tốc, va chạm tương đương với việc kiến đi xuyên qua nhau. Quãng đường dài nhất một hạt đi chỉ là 100cm!',
+        },
+        {
+          id: 'opt-d',
+          label: 'Vô tận (kiến bị kẹt vĩnh cửu không bao giờ rơi hết)',
+          value: 0.05,
+          explanation:
+            'Hoàn toàn sai: Tổng động lượng và các vệt chuyển động luôn tịnh tiến ra hai đầu mút, không thể có vòng lặp vô hạn.',
+        },
+      ],
+      theoreticalTruth: 1.0,
+      truthExplanation:
+        'Vì các cá thể đồng nhất, mỗi va chạm làm hai con kiến hoán đổi vận tốc cho nhau, tương đương hoàn hảo với việc hai con kiến đi xuyên qua nhau mà không đổi hướng. Quãng đường một hạt bóng ma đi xa nhất là từ đầu mút này sang đầu mút kia (100cm) với tốc độ 1cm/s, nên thời gian tối đa luôn đúng bằng 100 giây.',
+      biasType: 'classical-mechanics-bias',
+      biasName: 'Bẫy Va Chạm Dây Chuyền (Chain-Reaction Fallacy)',
+      biasDescription:
+        'Não bộ tiến hóa để phân tích từng va chạm cơ học rời rạc cục bộ (Lagrange) thay vì nhận ra sự bảo toàn phân bố vệt trạng thái của toàn bộ hệ thống (Euler).',
+    },
+  },
 ];
 
 export function localizeSimulation(sim: SimulationMeta, locale: Locale = 'vi'): SimulationMeta {

@@ -788,4 +788,98 @@ export const SIMULATION_LOCALES: Record<string, Record<Locale, LocalizedSimulati
       },
     },
   },
+  'ants-on-a-stick': {
+    vi: {
+      title: 'Đàn Kiến Trên Thanh Gỗ (Ants on a Stick)',
+      subtitle: 'Nghịch lý va chạm 1D và nguyên lý hoán đổi vận tốc',
+      summary:
+        '100 con kiến ngẫu nhiên trên thanh 100cm, đụng nhau đổi chiều ở 1cm/s. Trực giác ngỡ va chạm dây chuyền sẽ giữ kiến lại rất lâu, nhưng thực tế toàn bộ sẽ rơi hết sau tối đa đúng 100 giây.',
+      description:
+        'Vì các con kiến đồng nhất và cùng tốc độ, khi hai con va chạm đổi chiều, trạng thái toàn hệ thống hoàn toàn trùng khớp với việc hai con kiến đi xuyên qua nhau. Khoảng cách xa nhất một hạt bóng ma có thể đi chỉ là 100cm, do đó thời gian kết thúc không bao giờ vượt quá 100 giây.',
+      tags: ['Cơ học', 'Bảo toàn động lượng', 'Topo 1D', 'Tư duy tương đương'],
+      hypothesis: {
+        question:
+          'Với 100 con kiến va chạm và nảy ngược liên tục trên thanh gỗ 100cm (tốc độ 1cm/s), thời gian TỐI ĐA để toàn bộ đàn kiến rơi hết khỏi thanh là bao lâu?',
+        context:
+          'Thanh gỗ dài 100cm. Vị trí và hướng bò (trái hoặc phải) ban đầu của 100 con kiến được phân bố ngẫu nhiên.',
+        options: [
+          {
+            id: 'opt-a',
+            label: 'Hàng chục phút đến vài giờ (do va chạm dây chuyền cản trở)',
+            explanation:
+              'Bẫy tư duy va chạm dây chuyền: Não bộ lầm tưởng các vụ va chạm liên tục sẽ giam giữ các con kiến trong vòng luẩn quẩn.',
+          },
+          {
+            id: 'opt-b',
+            label: 'Khoảng 5 đến 10 phút',
+            explanation:
+              'Đoán mò theo cảm tính rằng hàng nghìn va chạm sẽ kéo dài thời gian gấp nhiều lần.',
+          },
+          {
+            id: 'opt-c',
+            label: 'Tối đa đúng 100 giây (~ 1 phút 40 giây)',
+            explanation:
+              'Chính xác xuất sắc! Nhờ nguyên lý hoán đổi vận tốc, va chạm tương đương với việc kiến đi xuyên qua nhau. Quãng đường dài nhất một hạt đi chỉ là 100cm!',
+          },
+          {
+            id: 'opt-d',
+            label: 'Vô tận (kiến bị kẹt vĩnh cửu không bao giờ rơi hết)',
+            explanation:
+              'Hoàn toàn sai: Tổng động lượng và các vệt chuyển động luôn tịnh tiến ra hai đầu mút, không thể có vòng lặp vô hạn.',
+          },
+        ],
+        truthExplanation:
+          'Vì các cá thể đồng nhất, mỗi va chạm làm hai con kiến hoán đổi vận tốc cho nhau, tương đương hoàn hảo với việc hai con kiến đi xuyên qua nhau mà không đổi hướng. Quãng đường một hạt bóng ma đi xa nhất là từ đầu mút này sang đầu mút kia (100cm) với tốc độ 1cm/s, nên thời gian tối đa luôn đúng bằng 100 giây.',
+        biasName: 'Bẫy Va Chạm Dây Chuyền (Chain-Reaction Fallacy)',
+        biasDescription:
+          'Não bộ tiến hóa để phân tích từng va chạm cơ học rời rạc cục bộ (Lagrange) thay vì nhận ra sự bảo toàn phân bố vệt trạng thái của toàn bộ hệ thống (Euler).',
+      },
+    },
+    en: {
+      title: 'Ants on a Stick Problem',
+      subtitle: '1D collision paradox and velocity exchange equivalence',
+      summary:
+        '100 ants randomly placed on a 100cm stick, reversing on collision at 1cm/s. Intuition expects endless bouncing, but all ants drop off within at most 100 seconds.',
+      description:
+        'Because identical particles exchange velocities upon elastic collision, the collective dynamics are completely indistinguishable from ants passing straight through each other as ghosts. The furthest distance any ghost can travel is 100cm, bounding the lifespan strictly to 100 seconds.',
+      tags: ['Mechanics', 'Momentum Conservation', '1D Topology', 'Equivalence Principle'],
+      hypothesis: {
+        question:
+          'With 100 ants colliding and bouncing elastically along a 100cm stick at 1cm/s, what is the MAXIMUM time before all ants have fallen off?',
+        context:
+          'A 100cm wooden stick. Positions and initial directions (left or right) of 100 ants are chosen uniformly at random.',
+        options: [
+          {
+            id: 'opt-a',
+            label: 'Dozens of minutes or hours (chained collisions stall progress)',
+            explanation:
+              'Chain-reaction fallacy: imagining that perpetual ricochets trap ants in an endless pinball grid.',
+          },
+          {
+            id: 'opt-b',
+            label: 'Around 5 to 10 minutes',
+            explanation:
+              'Intuitive guesswork assuming thousands of collisions drastically increase total travel time.',
+          },
+          {
+            id: 'opt-c',
+            label: 'At most 100 seconds (~ 1 minute 40 seconds)',
+            explanation:
+              'Brilliantly correct! Identical elastic collisions are mathematically equivalent to ghosts passing right through each other without slowing down.',
+          },
+          {
+            id: 'opt-d',
+            label: 'Never (ants get stuck forever in an infinite loop)',
+            explanation:
+              'Completely false: 1D topology strictly preserves ordering and momentum constantly exits through the endpoints.',
+          },
+        ],
+        truthExplanation:
+          'When two identical point particles collide elastically, exchanging velocities leaves the set of particle trajectories completely unchanged compared to straight-line ghost motion. The longest distance any ghost can walk is 100cm at 1cm/s, proving T_max = 100s.',
+        biasName: 'Chain-Reaction Fallacy',
+        biasDescription:
+          'The tendency of human intuition to track localized discrete interactions (Lagrangian) instead of observing the invariant trajectory continuum of the ensemble (Eulerian).',
+      },
+    },
+  },
 };

@@ -521,6 +521,67 @@ const BodyguardProblemFormatter: SimulationHistoryFormatter = {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
+// 9. ANTS ON A STICK FORMATTER
+// ─────────────────────────────────────────────────────────────────────────────
+const AntsOnAStickFormatter: SimulationHistoryFormatter = {
+  columns: {
+    paramHeader: 'Quy mô đàn kiến & Kịch bản',
+    metricHeader: 'Thời gian kết thúc & Va chạm',
+    theoryHeader: 'Cận lý thuyết T_max',
+  },
+  renderParameters: params => {
+    const antCount = params?.antCount ?? 10;
+    const preset = typeof params?.preset === 'string' ? params.preset : 'default-10';
+    return (
+      <div className="flex flex-col gap-0.5">
+        <span className="font-semibold text-slate-900 font-mono">
+          N = {String(antCount)} con kiến
+        </span>
+        <span className="text-xs text-slate-500 font-mono">Kịch bản: {preset}</span>
+      </div>
+    );
+  },
+  renderEmpiricalResult: (results, trials) => {
+    const duration = typeof results?.duration === 'number' ? results.duration : null;
+    const collisions =
+      typeof results?.totalCollisions === 'number' ? results.totalCollisions : null;
+
+    if (duration === null) return <span className="text-slate-400">—</span>;
+
+    return (
+      <div className="flex flex-col items-end gap-0.5 font-mono">
+        <span className="font-bold text-amber-700 font-mono">{duration.toFixed(2)}s</span>
+        <span className="text-xs text-slate-500">
+          {collisions !== null ? `${collisions} va chạm` : `${trials} lượt`}
+        </span>
+      </div>
+    );
+  },
+  renderTheoreticalComparison: (_params, results) => {
+    const duration = typeof results?.duration === 'number' ? results.duration : null;
+
+    if (duration === null) return <span className="text-slate-400">—</span>;
+
+    const satisfiesTheorem = duration <= 100.01;
+
+    return (
+      <div className="flex justify-end">
+        {satisfiesTheorem ? (
+          <Badge className="bg-emerald-50 text-emerald-700 border-emerald-300 font-mono text-xs">
+            <CheckCircle2 className="h-3 w-3 mr-1 inline" />T ≤ 100s (Hợp lệ)
+          </Badge>
+        ) : (
+          <Badge className="bg-red-50 text-red-700 border-red-300 font-mono text-xs">
+            <AlertTriangle className="h-3 w-3 mr-1 inline" />
+            Vượt cận T_max
+          </Badge>
+        )}
+      </div>
+    );
+  },
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
 // GENERIC FALLBACK FORMATTER
 // ─────────────────────────────────────────────────────────────────────────────
 const GenericFallbackFormatter: SimulationHistoryFormatter = {
@@ -581,6 +642,8 @@ export function getSimulationHistoryFormatter(simulationSlug: string): Simulatio
       return PrisonersHatsFormatter;
     case 'bodyguard-problem':
       return BodyguardProblemFormatter;
+    case 'ants-on-a-stick':
+      return AntsOnAStickFormatter;
     default:
       return GenericFallbackFormatter;
   }
