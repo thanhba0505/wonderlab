@@ -1,62 +1,63 @@
 # Contributing to Wonderlab
 
-Cảm ơn bạn đã đóng góp cho Wonderlab! Để đảm bảo chất lượng kỹ thuật, tính ổn định và tính mở rộng lâu dài của dự án, vui lòng tuân thủ các quy chuẩn dưới đây.
+Thank you for your interest in contributing to Wonderlab! To maintain high engineering standards, architectural clarity, and long-term maintainability across our interactive scientific simulations platform, please adhere to the guidelines outlined below.
 
 ---
 
-## 1. Quy tắc Commit (Conventional Commits)
+## 1. Commit Guidelines (Conventional Commits)
 
-Wonderlab áp dụng chuẩn **Conventional Commits v1.0.0**:
+Wonderlab strictly adheres to the **Conventional Commits v1.0.0** specification in English:
 
-- `feat: <nội dung>`: Thêm tính năng mới cho người dùng.
-- `fix: <nội dung>`: Sửa lỗi.
-- `chore: <nội dung>`: Cập nhật cấu hình, dependency hoặc việc bảo trì định kỳ.
-- `docs: <nội dung>`: Thay đổi tài liệu kỹ thuật.
-- `test: <nội dung>`: Bổ sung hoặc tái cấu trúc bộ kiểm thử.
-- `refactor: <nội dung>`: Cải tiến cấu trúc mã nguồn không làm thay đổi hành vi.
-- `ci: <nội dung>`: Thay đổi cấu hình workflow CI/CD.
+- `feat: <description>`: Introduces a new feature for users.
+- `fix: <description>`: Fixes a bug.
+- `chore: <description>`: Changes build configuration, dependencies, or periodic maintenance.
+- `docs: <description>`: Technical documentation changes only.
+- `test: <description>`: Adds or refactors unit, integration, or E2E tests.
+- `refactor: <description>`: Code change that neither fixes a bug nor adds a feature.
+- `ci: <description>`: CI/CD configuration files and scripts.
 
-_Ví dụ_: `feat: add Monty Hall simulation interactive component`
+_Example_: `feat(simulations): add Monty Hall interactive simulation component`
 
 ---
 
-## 2. Quy trình làm việc (Workflow)
+## 2. Development Workflow
 
-1. **Tạo nhánh mới từ `develop`**:
+Wonderlab uses a unified persistent worktree and trunk-based workflow targeting `develop`:
+
+1. **Check Out an Assigned Worktree**:
+   Always work within persistent worktree directories (`Wonderlab-worktree-N`) to preserve caching:
    ```bash
-   git checkout develop
-   git pull origin develop
-   git checkout -b feat/your-feature-name
-   # hoặc
-   git checkout -b fix/issue-description
+   cd /Users/lethanhba/workspace/app/Wonderlab-worktree-1
+   git fetch origin
+   git checkout -B <type>/<task-name> origin/develop
    ```
-2. **Thực hiện thay đổi**:
-   - Đảm bảo tuân thủ các quy tắc trong [AGENTS.md](AGENTS.md).
-   - Không đưa bí mật (API token, mật khẩu DB) vào code.
-3. **Chạy kiểm tra bắt buộc**:
+2. **Implement Changes**:
+   - Strictly follow the core guidelines documented in [AGENTS.md](AGENTS.md).
+   - Zero secrets: never commit `.env` files or credentials.
+   - Maintain the "Clean Paper & Lab Editorial" design standard for UI components.
+3. **Mandatory Verification**:
+   Before submitting changes, run the full verification pipeline:
    ```bash
    pnpm check
    ```
-   Tất cả các lệnh con (`format:check`, `lint`, `typecheck`, `test`, `test:e2e`, `build`) phải kết thúc với mã thoát 0.
-4. **Sáp nhập trực tiếp vào `develop` (Direct Merge)**:
-   - Sau khi `pnpm check` vượt qua toàn bộ, chuyển về `develop`, kéo mã nguồn mới nhất và sáp nhập:
-     ```bash
-     git checkout develop
-     git pull origin develop
-     git merge --no-ff feat/your-feature-name -m "feat: your feature summary"
-     git push origin develop
-     git branch -d feat/your-feature-name
-     ```
-   - Nhánh `main` được bảo lưu thuần túy cho Production và sẽ được sáp nhập tự động khi thực hiện xuất bản Release chính thức trên GitHub.
+   All steps (`format:check`, `lint`, `typecheck`, `test`, `test:e2e`, and `build`) must pass with exit code `0`.
+4. **Merge Directly to `develop`**:
+   Once all tests and builds pass cleanly:
+   ```bash
+   git fetch origin && git rebase origin/develop && git push origin HEAD:develop
+   git checkout -B worktree-1 origin/develop && git branch -d <type>/<task-name>
+   git -C /Users/lethanhba/workspace/app/Wonderlab pull origin develop
+   ```
+   _Note_: The `main` branch is strictly reserved for production releases and automated CD synchronization.
 
 ---
 
-## 3. Tiêu chí hoàn thành (Definition of Done)
+## 3. Definition of Done (DoD)
 
-Một nhánh mã nguồn chỉ được sáp nhập vào `develop` khi:
+A contribution is considered complete and ready for integration when:
 
-- [ ] Không có cảnh báo hoặc lỗi linter (`pnpm lint`).
-- [ ] Không có lỗi kiểu dữ liệu TypeScript (`pnpm typecheck`).
-- [ ] Toàn bộ unit tests và E2E tests đều chạy thành công (`pnpm test`, `pnpm test:e2e`).
-- [ ] Cả client và server đều build thành công (`pnpm build`).
-- [ ] Cập nhật tài liệu tương ứng trong `docs/` nếu có thay đổi kiến trúc hoặc môi trường.
+- [ ] Linter reports zero errors and zero warnings (`pnpm lint`).
+- [ ] TypeScript compiler passes in strict mode without errors (`pnpm typecheck`).
+- [ ] All unit, integration, and E2E tests pass (`pnpm test`, `pnpm test:e2e`).
+- [ ] Both Next.js client and NestJS server compile successfully (`pnpm build`).
+- [ ] Corresponding documentation in `docs/` is updated if architectural, API, or deployment details changed.

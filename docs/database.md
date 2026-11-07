@@ -1,17 +1,39 @@
 # Database Configuration & Operations — Wonderlab
 
-## 1. Overview & Current Scope
+## 1. Overview & Dual Environment Architecture
 
-- **PostgreSQL 16**: Containerized locally via Docker Compose (`docker-compose.yml`) on loopback port `5434`.
-- **ORM & Migrations**: Managed via **Prisma ORM (v6.x)** in `server/prisma/`.
-- **Active Schemas**:
-  - `users`: Administrative user authentication and RBAC.
-  - `simulation_runs`: Stores empirical runs, JSON parameters, results, trials count, execution duration, and anonymous session IDs.
-- **Seeding**: Bootstrapped via `server/prisma/seed.ts` creating a default administrative account with Argon2id password hashing.
+Wonderlab uses a dual-environment PostgreSQL database strategy:
+
+1. **Local Development**: PostgreSQL 16 containerized locally via Docker Compose on loopback port `127.0.0.1:5434`.
+2. **Production Environment**: **Neon Serverless PostgreSQL** hosted in AWS Oregon (`us-west-2`), providing autoscaling serverless computes, connection pooling, and automated branch backups without ephemeral trial limits.
+
+ORM and schema migrations across both environments are strictly managed via **Prisma ORM (v6.x)** in `server/prisma/`.
 
 ---
 
-## 2. Docker Compose Configuration
+## 2. Production Database (Neon Serverless PostgreSQL)
+
+- **Provider**: Neon.tech (AWS Oregon `us-west-2`)
+- **Connection Mode**: Pooled connection (`ep-curly-math-ar8nnbms-pooler.c-4.us-west-2.aws.neon.tech`) with `sslmode=require&channel_binding=require`.
+- **Active Schemas**:
+  - `users`: Administrative user authentication and RBAC (`Role.ADMIN`, `Role.USER`).
+  - `simulation_runs`: Stores empirical runs, JSON parameters, Monte Carlo results, trial counts, and anonymous session IDs.
+- **Automated Lifecycle**:
+  - Applied automatically on deployment via `prisma migrate deploy`.
+  - Admin bootstrap seeded via `prisma db seed`.
+
+### Verifying Production Database Connection
+
+```bash
+# Query health endpoint
+curl -s https://wonderlab-server.onrender.com/api/v1/health | jq .
+# Expected output:
+# {"status":"ok","service":"wonderlab-server","database":"connected",...}
+```
+
+---
+
+## 3. Local Development (Docker Compose)
 
 The local database service is configured in `docker-compose.yml`:
 
@@ -39,14 +61,14 @@ services:
 
 ### Key Security & Operational Traits:
 
-- **Loopback Port Binding**: Strictly bound to `127.0.0.1:${POSTGRES_PORT:-5434}` so the database is never accessible across LAN or the public Internet.
-- **Port 5434 Default**: Avoids collision with native PostgreSQL servers running on standard port 5432 or other local services.
+- **Loopback Port Binding**: Strictly bound to `127.0.0.1:${POSTGRES_PORT:-5434}` so the database is never exposed across LAN or public Internet.
+- **Port 5434 Default**: Avoids collisions with standard local PostgreSQL instances on port 5432.
 - **Automated Healthcheck**: Runs `pg_isready` inside the container every 5 seconds.
-- **Named Volume**: Data is stored persistently in Docker volume `wonderlab_postgres_data`.
+- **Named Volume**: Data persisted in Docker volume `wonderlab_postgres_data`.
 
 ---
 
-## 3. Operational Commands
+## 4. Local Database Commands
 
 ### Start Database
 
@@ -60,10 +82,16 @@ docker compose up -d postgres
 docker compose ps
 ```
 
-### Inspect Container Logs
+### Apply Migrations Locally
 
 ```bash
-docker compose logs -f postgres
+pnpm --filter wonderlab-server prisma migrate dev
+```
+
+### Seed Local Admin Account
+
+```bash
+pnpm --filter wonderlab-server db:seed
 ```
 
 ### Stop Database
@@ -72,7 +100,7 @@ docker compose logs -f postgres
 docker compose stop postgres
 ```
 
-### Remove Container (Preserving Data Volume)
+### Reset Container (Preserving Volume)
 
 ```bash
 docker compose down
@@ -80,25 +108,7 @@ docker compose down
 
 ---
 
-## 4. Connecting via Client Tools
-
-Use GUI tools like **DBeaver**, **TablePlus**, or CLI `psql`:
-
-- **Host**: `127.0.0.1` (or `localhost`)
-- **Port**: `5434`
-- **Database**: `wonderlab`
-- **Username**: `wonderlab`
-- **Password**: _(value of `POSTGRES_PASSWORD` in `.env`)_
-
-CLI example:
-
-```bash
-psql -h 127.0.0.1 -p 5434 -U wonderlab -d wonderlab
-```
-
----
-
-## 5. Basic Backup & Restore
+## 5. Local Backup & Restore
 
 ### Backup local database:
 

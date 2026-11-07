@@ -4,7 +4,7 @@
 
 - **Framework**: NestJS 10.
 - **Protocol**: RESTful JSON over HTTP/1.1 (and HTTP/2 on production reverse proxies).
-- **ORM**: Prisma ORM (v6.x) connected to PostgreSQL 16.
+- **ORM**: Prisma ORM (v6.x) connected to PostgreSQL 16 (Local) / Neon Serverless PostgreSQL (Production).
 - **Security**:
   - `helmet`: Comprehensive HTTP security headers (CSP, frameguard, no-sniff).
   - `cookie-parser`: Secure parsing of HttpOnly session cookies.
@@ -73,15 +73,18 @@ server/
 {
   "status": "ok",
   "service": "wonderlab-server",
-  "timestamp": "2026-10-23T06:04:21.155Z",
-  "version": "1.0.0"
+  "database": "connected",
+  "timestamp": "2026-11-07T07:47:23.318Z",
+  "version": "0.13.1",
+  "commit": "6ce7a4f49271dc10a6110f55ef2b3280cbd8c37c"
 }
 ```
 
 ### Guarantees:
 
+- Validates active database connectivity against PostgreSQL / Neon.
 - Never exposes internal stack traces, filesystem paths, or database credentials.
-- Can be used by Render, Kubernetes, or container orchestrators as a liveness/readiness probe.
+- Utilized by Render, Kubernetes, or container orchestrators as a liveness and readiness probe.
 
 ---
 
@@ -89,9 +92,9 @@ server/
 
 ### `POST /api/v1/simulations/runs`
 
-Ghi nhận kết quả của một đợt chạy mô phỏng (ví dụ: Monte Carlo 1.000 hoặc 10.000 phòng).
+Persists empirical results from an execution run (e.g., Monte Carlo 1,000 or 10,000 rooms).
 
-- **Headers**: `x-session-id: string` (UUID phiên ẩn danh từ Client).
+- **Headers**: `x-session-id: string` (Anonymous UUID session token from Client).
 - **Body**:
   ```json
   {
@@ -106,11 +109,11 @@ Ghi nhận kết quả của một đợt chạy mô phỏng (ví dụ: Monte Ca
     "durationMs": 142
   }
   ```
-- **Response**: `201 Created` trả về bản ghi kèm tổng số phép thử tích lũy mới của phòng lab và toàn hệ thống.
+- **Response**: `201 Created` returns the created record and accumulated system-wide trial metrics.
 
 ### `GET /api/v1/simulations/stats`
 
-Truy vấn thống kê tổng hợp toàn cầu phục vụ Live Telemetry Counter và Admin Dashboard.
+Aggregates system-wide simulation statistics for live telemetry counters and administrative dashboard metrics.
 
 - **Query params**: `simulationSlug?: string`
 - **Response (200 OK)**:
@@ -128,16 +131,16 @@ Truy vấn thống kê tổng hợp toàn cầu phục vụ Live Telemetry Count
 
 ### `GET /api/v1/simulations/runs/history`
 
-Lấy danh sách các lượt chạy gần nhất của phiên người dùng hiện tại.
+Retrieves the recent run history for the active client session.
 
-- **Headers / Query**: `x-session-id: string`, `limit?: number` (mặc định 20, tối đa 100).
-- **Response**: Mảng danh sách các bản ghi `SimulationRunRecord`.
+- **Headers / Query**: `x-session-id: string`, `limit?: number` (defaults to 20, max 100).
+- **Response**: Array of `SimulationRunRecord` objects.
 
 ---
 
-## 5. How to Add New Modules in the Future
+## 5. Adding New Backend Modules
 
-When business requirements arise (e.g., puzzle scoring or user experiments):
+When introducing new domain modules (e.g., puzzle scoring or user experiments):
 
 1. Generate module structure: `nest g module <feature>`, `nest g controller <feature>`, `nest g service <feature>`.
 2. Define DTOs using `class-validator` and `@ApiProperty()` Swagger decorators.

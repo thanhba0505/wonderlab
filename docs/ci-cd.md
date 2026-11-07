@@ -9,9 +9,9 @@ Wonderlab utilizes GitHub Actions for continuous integration, automated release 
 
 Workflows reside in `.github/workflows/`:
 
-- **`ci.yml`** (`🧪 CI`): Kiểm thử, lint, typecheck và build tự động trên mỗi Pull Request và commit push lên nhánh `develop` hoặc `main` với containerized PostgreSQL 16.
-- **`release-drafter.yml`** (`📝 Release Drafter`): Tự động phân tích git commit log trên nhánh `develop` theo chuẩn Conventional Commits, tính toán phiên bản SemVer tiếp theo, và duy trì bản Draft Release đầy đủ danh sách commits nhắm tới `main`.
-- **`deploy.yml`** (`🚀 Deploy Production Services`): Tự động sáp nhập `origin/develop` vào `main` (`--no-ff`), đồng bộ `package.json`, gắn tag phiên bản chính thức, đồng bộ ngược về `develop`, và trigger triển khai đồng thời Client và Server lên Render khi một Release được xuất bản (`release: [published]`).
+- **`ci.yml`** (`🧪 CI`): Automated linting, typechecking, testing, and production builds on every Pull Request and push to `develop` or `main` with containerized PostgreSQL 16.
+- **`release-drafter.yml`** (`📝 Release Drafter`): Parses commit history following Conventional Commits, calculates the next SemVer version, and maintains a comprehensive GitHub Draft Release targeting `main`.
+- **`deploy.yml`** (`🚀 Deploy Production Services`): Merges `origin/develop` into `main` (`--no-ff`), synchronizes `package.json` versions, tags the official release, syncs back to `develop`, and triggers concurrent deployments on Render when a release is published (`release: [published]`).
 
 ---
 
@@ -20,67 +20,67 @@ Workflows reside in `.github/workflows/`:
 The CI workflow runs on `ubuntu-latest` and executes **4 parallel & decoupled jobs** to minimize developer wait times, achieve instant fail-fast feedback, and eliminate unnecessary database container overhead:
 
 1. **`quality` (🎨 Quality & Types)**:
-   - **Tài nguyên**: Máy ảo nhẹ không cần database container.
-   - **Các bước**: Checkout -> Setup pnpm/Node 24 -> Cài dependencies -> `db:generate` -> `pnpm format:check` -> `pnpm lint` -> `pnpm typecheck`.
-   - **Mục tiêu**: Phản hồi lỗi format, linting và kiểu dữ liệu chỉ trong ~30-40s.
+   - **Environment**: Lightweight VM without database container.
+   - **Steps**: Checkout -> Setup pnpm / Node 24 -> Install dependencies -> `db:generate` -> `pnpm format:check` -> `pnpm lint` -> `pnpm typecheck`.
+   - **Objective**: Delivers formatting, linting, and typecheck feedback in ~30-40s.
 
 2. **`unit-tests` (🧪 Unit Tests)**:
-   - **Tài nguyên**: Chạy độc lập, song song với job Quality, không cần database.
-   - **Các bước**: Checkout -> Setup pnpm/Node 24 -> Cài dependencies -> `db:generate` -> `pnpm test` (Vitest Client + Jest Server unit tests).
-   - **Mục tiêu**: Đảm bảo 100% logic thuật toán, toán học và components hoạt động chuẩn xác trong ~30-35s.
+   - **Environment**: Runs independently in parallel without database dependencies.
+   - **Steps**: Checkout -> Setup pnpm / Node 24 -> Install dependencies -> `db:generate` -> `pnpm test` (Vitest Client + Jest Server unit tests).
+   - **Objective**: Ensures 100% of mathematical simulation engines, algorithms, and components execute correctly in ~30-35s.
 
 3. **`e2e-tests` (🛡️ E2E Tests - Database)**:
-   - **Tài nguyên**: Khởi chạy Service Container `postgres:16-alpine` (port `5434:5432`) kèm health check.
-   - **Các bước**: Setup môi trường -> `prisma migrate deploy` -> `db:seed` -> `pnpm test:e2e`.
-   - **Mục tiêu**: Kiểm thử tích hợp thực tế với database PostgreSQL thật (xác thực, mã hóa argon2id, session cookies, bình luận, telemetry).
+   - **Environment**: Launches Service Container `postgres:16-alpine` (port `5434:5432`) with automated health checks.
+   - **Steps**: Environment setup -> `prisma migrate deploy` -> `db:seed` -> `pnpm test:e2e`.
+   - **Objective**: Validates end-to-end integration with PostgreSQL (authentication, Argon2id password hashing, session cookies, comments, telemetry).
 
 4. **`build` (📦 Build Applications)**:
-   - **Ràng buộc**: Chạy sau khi `quality` và `unit-tests` hoàn tất thành công (`needs: [quality, unit-tests]`).
-   - **Các bước**: Build production Next.js SSG bundle và NestJS production build (`pnpm build`).
+   - **Constraint**: Runs strictly after `quality` and `unit-tests` pass successfully (`needs: [quality, unit-tests]`).
+   - **Steps**: Production Next.js standalone SSG bundle compilation and NestJS production build (`pnpm build`).
 
 ---
 
 ## 3. Release Drafter Workflow (`.github/workflows/release-drafter.yml`)
 
-Workflow sử dụng script Python tự động [`.github/scripts/update_draft_release.py`](file:///Users/lethanhba/workspace/app/Wonderlab/.github/scripts/update_draft_release.py) được xây dựng dựa trên kiến trúc của hệ sinh thái `nexus`:
+The workflow employs an automated Python script [`.github/scripts/update_draft_release.py`](file:///Users/lethanhba/workspace/app/Wonderlab/.github/scripts/update_draft_release.py):
 
-- **Cơ chế thu thập commit**:
-  - Không phụ thuộc vào PR labels (giúp ghi nhận 100% commit đẩy trực tiếp lên `main` lẫn qua Pull Requests).
-  - Sử dụng `git log` từ tag phát hành chính thức gần nhất đến `HEAD` (hoặc từ commit khởi tạo nếu chưa có tag nào).
-- **Phân loại Conventional Commits**:
-  - 🚀 **Tính năng mới & Mô phỏng (Features)**: `feat:`, `feat(...):`
-  - 🐛 **Sửa lỗi (Bug Fixes)**: `fix:`, `fix(...):`
-  - ⚡ **Hiệu năng & Tái cấu trúc (Performance & Refactor)**: `perf:`, `refactor:`
-  - 📚 **Tài liệu (Documentation)**: `docs:`, `docs(...):`
-  - 🔧 **Bảo trì & CI/CD (Maintenance)**: `chore:`, `ci:`, `test:`, `build:`
-- **Định dạng Release Notes**:
-  - Mỗi commit có liên kết trực tiếp tới GitHub: `• {msg} ([{short_hash}](https://github.com/.../commit/{full_hash})) by @{author}`.
-- **Tính toán SemVer & Dự thảo phát hành**:
-  - Tự động nhận diện breaking changes (`BREAKING CHANGE:`, `feat!:`) để bump Major, `feat` để bump Minor, hoặc `fix` để bump Patch cho bản phát hành kế tiếp.
-  - Cập nhật hoặc tạo mới bản Draft Release trên GitHub với tag dự kiến và release notes đầy đủ mà không tự ý tạo commit gây nhiễu vào nhánh `main`.
+- **Commit Aggregation**:
+  - Independent of PR labels, capturing 100% of commits pushed directly or via Pull Requests.
+  - Queries `git log` from the previous official release tag to `HEAD`.
+- **Conventional Commits Categorization**:
+  - 🚀 **Features & Simulations**: `feat:`, `feat(...):`
+  - 🐛 **Bug Fixes**: `fix:`, `fix(...):`
+  - ⚡ **Performance & Refactoring**: `perf:`, `refactor:`
+  - 📚 **Documentation**: `docs:`, `docs(...):`
+  - 🔧 **Maintenance & Tooling**: `chore:`, `ci:`, `test:`, `build:`
+- **Release Notes Formatting**:
+  - Direct commit links with author credits: `• {msg} ([{short_hash}](https://github.com/.../commit/{full_hash})) by @{author}`.
+- **SemVer Calculation**:
+  - Identifies breaking changes (`BREAKING CHANGE:`, `feat!:`) to bump Major, `feat` for Minor, or `fix` for Patch.
+  - Updates or creates GitHub Draft Releases with predicted tag and detailed change log without polluting branch histories.
 
 ---
 
 ## 4. Production Deployment Workflow (`.github/workflows/deploy.yml`)
 
-Kích hoạt triển khai tự động lên Production khi một Release chính thức được xuất bản hoặc tag phiên bản được gắn:
+Triggered automatically upon official GitHub Release publishing or manual tag pushes:
 
-- **Sự kiện kích hoạt & Tự động Merge**:
-  - `release: [published]`: Khi người dùng nhấn **Publish release** từ bản draft của Release Drafter, GitHub Actions sẽ:
-    1. Tự động sáp nhập `origin/develop` vào `main` bằng standard merge commit (`git merge origin/develop --no-ff`).
-    2. Đồng bộ số phiên bản trong `package.json` across packages và commit vào `main` (`chore(release): vX.Y.Z [skip ci]`).
-    3. Gắn tag chính thức vào commit release trên `main`.
-    4. Sáp nhập ngược commit release về `origin/develop` để giữ 2 nhánh đồng bộ 100%.
-    5. Kích hoạt Render Deploy Hook cho Server (`RENDER_SERVER_DEPLOY_HOOK`).
-    6. Kích hoạt Render Deploy Hook cho Client (`RENDER_CLIENT_DEPLOY_HOOK`).
-    7. Chạy script giám sát `scripts/verify-deployment.sh` kiểm tra phản hồi từ cả hai dịch vụ.
-  - `push: tags: ['v*']`: Tự động kích hoạt khi gắn tag phiên bản trực tiếp.
-  - `workflow_dispatch`: Hỗ trợ kích hoạt deploy thủ công khẩn cấp cho từng dịch vụ (`client`, `server` hoặc `all`).
+- **Trigger Events & Automated Merge**:
+  - `release: [published]`: When clicking **Publish release** on GitHub Draft:
+    1. Merges `origin/develop` into `main` with a non-fast-forward merge commit (`git merge origin/develop --no-ff`).
+    2. Synchronizes version numbers in `package.json` files and commits to `main` (`chore(release): vX.Y.Z [skip ci]`).
+    3. Tags the official release commit on `main`.
+    4. Syncs the release commit back into `origin/develop` to ensure branch parity.
+    5. Dispatches Render Deploy Hook for Server (`RENDER_SERVER_DEPLOY_HOOK`).
+    6. Dispatches Render Deploy Hook for Client (`RENDER_CLIENT_DEPLOY_HOOK`).
+    7. Runs `scripts/verify-deployment.sh` to poll live health endpoints from both services.
+  - `push: tags: ['v*']`: Dispatches on manual version tag pushes.
+  - `workflow_dispatch`: Enables emergency manual deployment triggering per service (`client`, `server`, or `all`).
 
-- **Cấu hình Secrets trên GitHub Repository**:
-  - `RENDER_SERVER_DEPLOY_HOOK`: Webhook URL của `wonderlab-server` trên Render.
-  - `RENDER_CLIENT_DEPLOY_HOOK`: Webhook URL của `wonderlab-client` trên Render.
+- **GitHub Repository Secrets**:
+  - `RENDER_SERVER_DEPLOY_HOOK`: Webhook URL for `wonderlab-server` on Render.
+  - `RENDER_CLIENT_DEPLOY_HOOK`: Webhook URL for `wonderlab-client` on Render.
 
-- **Deployments Architecture trên GitHub**:
+- **GitHub Deployments Architecture**:
   - 🟢 `main - wonderlab-client` (`https://wonderlab.io.vn` - Render GitHub App)
   - 🟢 `main - wonderlab-server` (`https://wonderlab-server.onrender.com` - Render GitHub App)
