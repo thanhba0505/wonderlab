@@ -11,9 +11,11 @@ This document describes all environment variables used by Wonderlab across Clien
 | `NEXT_PUBLIC_APP_NAME`     | Client          | Optional         | `Wonderlab`                    | Application display name.                                       |
 | `NEXT_PUBLIC_APP_URL`      | Client          | Optional         | `http://localhost:4100`        | Canonical public URL of the web client.                         |
 | `NEXT_PUBLIC_API_BASE_URL` | Client          | Required         | `http://localhost:4101/api/v1` | Public REST API base URL accessible by browser.                 |
+| `PORT`                     | Client          | Optional         | `4100` (Render: `10000`)       | Port on which Next.js HTTP server binds.                        |
 | `NODE_ENV`                 | Client & Server | Required         | `development` / `production`   | Node execution environment.                                     |
 | `SERVER_PORT`              | Server          | Optional         | `4101` (Render: `10000`)       | Port on which the NestJS HTTP listener binds.                   |
 | `CORS_ORIGINS`             | Server          | Required in Prod | `http://localhost:4100`        | Whitelisted origins permitted to perform cross-origin requests. |
+| `DATABASE_URL`             | Server          | Required         | `postgresql://...`             | Connection string for PostgreSQL database.                      |
 | `POSTGRES_DB`              | Database        | Required         | `wonderlab`                    | Database name for PostgreSQL container.                         |
 | `POSTGRES_USER`            | Database        | Required         | `wonderlab`                    | Master user for PostgreSQL container.                           |
 | `POSTGRES_PASSWORD`        | Database        | Required         | _(local dev secret)_           | Master password for PostgreSQL container.                       |
@@ -26,6 +28,6 @@ This document describes all environment variables used by Wonderlab across Clien
 
 - **Client Bundle Safety**: Variables without the `NEXT_PUBLIC_` prefix are stripped by Next.js during build and never sent to client browsers. Never prefix database passwords or secrets with `NEXT_PUBLIC_`.
 - **Database Loopback**: Port 5434 is strictly bound to `127.0.0.1` in `docker-compose.yml`, preventing external network connections.
-- **Production Overrides**:
-  - In Vercel, configure `NEXT_PUBLIC_API_BASE_URL` on the Client project pointing to `https://wonderlab-server.onrender.com/api/v1`.
-  - In Render, configure `CORS_ORIGINS` on the Server Web Service pointing to `https://wonderlab.io.vn,https://wonderlab-client.vercel.app`.
+- **Production Overrides on Render**:
+  - In Render Frontend Workspace (`render.client.yaml`), configure `NEXT_PUBLIC_API_BASE_URL` pointing to `https://wonderlab-server.onrender.com/api/v1`.
+  - In Render Backend Workspace (`render.server.yaml`), configure `CORS_ORIGINS` pointing to `https://wonderlab.io.vn`.
