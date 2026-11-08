@@ -111,7 +111,7 @@ Primary rules and standards for AI coding assistants working in Wonderlab.
 - **Single Source of Truth for Versioning**:
   - Root `package.json` (`version`) is authoritative. Dynamically consumed by `client` (`next.config.ts`) and `server` (`version.ts`).
   - Only bump versions on official release events (`release: [published]` or tag `push: tags: ['v*']`). Never bump on draft releases or regular commits to `develop`.
-- **Automated Production Releases**: Official GitHub Release or tag `v*` triggers CI/CD to merge `origin/develop` into `main`, bump version, tag, sync back to `develop`, and deploy to Production (Render Client & Server via Render REST API, record GitHub Deployment environment, and route alerts through Central Gateway). Never deploy manually.
+- **Automated Production Releases**: Official GitHub Release or tag `v*` triggers CI/CD to merge `origin/develop` into `main`, bump version, tag, sync back to `develop`, and deploy to Production (Render Client & Server via Render REST API, record live GitHub Deployment environments with `in_progress` loading spinners, fail-fast verification, and route alerts through Central Gateway). Never deploy manually.
 
 ---
 
