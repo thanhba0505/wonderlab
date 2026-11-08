@@ -11,6 +11,7 @@ import { OtpType, Role } from '@prisma/client';
 import { SafeUser, UsersService } from '../users/users.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { SsoCallbackDto } from './dto/sso-callback.dto';
 import { VerifyEmailDto } from './dto/verify-email.dto';
 import { GoogleLoginDto } from './dto/google-login.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
@@ -127,6 +128,68 @@ export class AuthService {
       message: successMsg,
       user: detailedUser,
     };
+  }
+
+  /**
+   * Single Sign-On (SSO) login via Central Gateway OAuth2 PKCE
+   */
+  async loginWithSso(
+    dto: SsoCallbackDto,
+    response: Response,
+    locale?: string,
+  ): Promise<{ message: string; user: UserProfileDto }> {
+    const gatewayUrl =
+      process.env.GATEWAY_URL || 'https://central-gateway-server.onrender.com/api/v1';
+
+    let gatewayRes: globalThis.Response;
+    try {
+      gatewayRes = await fetch(`${gatewayUrl}/auth/oauth/token`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          grant_type: 'authorization_code',
+          client_id: 'wonderlab',
+          code: dto.code,
+          code_verifier: dto.code_verifier,
+        }),
+      });
+    } catch {
+      throw new UnauthorizedException('Failed to communicate with Central Gateway SSO');
+    }
+
+    if (!gatewayRes.ok) {
+      const errorBody = (await gatewayRes.json().catch(() => ({}))) as { message?: string };
+      throw new UnauthorizedException(errorBody.message || 'SSO authentication failed');
+    }
+
+    const data = (await gatewayRes.json()) as {
+      user: {
+        username: string;
+        email?: string | null;
+        role?: string;
+        avatarUrl?: string | null;
+      };
+    };
+    const ssoUser = data.user;
+
+    // Find or sync local user in Wonderlab database
+    let localUser = await this.usersService.findByUsername(ssoUser.username);
+
+    if (!localUser && ssoUser.email) {
+      localUser = await this.usersService.findByEmail(ssoUser.email);
+    }
+
+    if (!localUser) {
+      localUser = await this.usersService.create({
+        username: ssoUser.username,
+        email: ssoUser.email || undefined,
+        role: ssoUser.role === 'ADMIN' ? Role.ADMIN : Role.USER,
+        avatarUrl: ssoUser.avatarUrl || undefined,
+        isEmailVerified: true,
+      });
+    }
+
+    return this.login(localUser, response, locale);
   }
 
   /**

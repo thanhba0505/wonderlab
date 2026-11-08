@@ -171,4 +171,48 @@ describe('AuthService', () => {
       expect(result.success).toBe(true);
     });
   });
+
+  describe('loginWithSso', () => {
+    it('should exchange code with gateway and login user', async () => {
+      const originalFetch = global.fetch;
+      global.fetch = jest.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          access_token: 'gateway-token',
+          user: {
+            username: 'sso_user',
+            email: 'sso@example.com',
+            role: 'USER',
+            avatarUrl: null,
+          },
+        }),
+      } as unknown as globalThis.Response);
+
+      (usersService.findByUsername as jest.Mock).mockResolvedValue(null);
+      (usersService.findByEmail as jest.Mock).mockResolvedValue(null);
+      (usersService.create as jest.Mock).mockResolvedValue({
+        id: 'sso-1',
+        username: 'sso_user',
+        email: 'sso@example.com',
+        role: Role.USER,
+        avatarUrl: null,
+        isEmailVerified: true,
+      });
+
+      const mockResponse = {
+        cookie: jest.fn(),
+      } as unknown as Response;
+
+      const result = await authService.loginWithSso(
+        { code: 'auth-code-123', code_verifier: 'verifier-456' },
+        mockResponse,
+        'vi',
+      );
+
+      expect(result.user.username).toBe('sso_user');
+      expect(mockResponse.cookie).toHaveBeenCalled();
+
+      global.fetch = originalFetch;
+    });
+  });
 });
