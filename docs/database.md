@@ -4,7 +4,7 @@
 
 Wonderlab uses a dual-environment PostgreSQL database strategy:
 
-1. **Local Development**: PostgreSQL 16 containerized locally via Docker Compose on loopback port `127.0.0.1:5434`.
+1. **Local Development**: PostgreSQL 16 containerized locally via Docker Compose on loopback port `127.0.0.1:5432`.
 2. **Production Environment**: **Neon Serverless PostgreSQL** hosted in AWS Oregon (`us-west-2`), providing autoscaling serverless computes, connection pooling, and automated branch backups without ephemeral trial limits.
 
 ORM and schema migrations across both environments are strictly managed via **Prisma ORM (v6.x)** in `server/prisma/`.
@@ -48,7 +48,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-wonderlab}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-wonderlab_dev_pass}
     ports:
-      - '127.0.0.1:${POSTGRES_PORT:-5434}:5432'
+      - '127.0.0.1:${POSTGRES_PORT:-5432}:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -61,8 +61,8 @@ services:
 
 ### Key Security & Operational Traits:
 
-- **Loopback Port Binding**: Strictly bound to `127.0.0.1:${POSTGRES_PORT:-5434}` so the database is never exposed across LAN or public Internet.
-- **Port 5434 Default**: Avoids collisions with standard local PostgreSQL instances on port 5432.
+- **Loopback Port Binding**: Strictly bound to `127.0.0.1:${POSTGRES_PORT:-5432}` so the database is never exposed across LAN or public Internet.
+- **Port 5432 Standard**: Standardized on port 5432 across the ecosystem (Central Gateway and sub-apps) for consistent local development.
 - **Automated Healthcheck**: Runs `pg_isready` inside the container every 5 seconds.
 - **Named Volume**: Data persisted in Docker volume `wonderlab_postgres_data`.
 

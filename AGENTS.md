@@ -14,7 +14,7 @@ Primary rules and standards for AI coding assistants working in Wonderlab.
 >    - `Wonderlab-worktree-3`: Client `4400`, Server `4401`, branch `worktree-3`
 >    - `Wonderlab-worktree-4`: Client `4500`, Server `4501`, branch `worktree-4`
 >    - `Wonderlab-worktree-5`: Client `4600`, Server `4601`, branch `worktree-5`
->    - Database: Shared PostgreSQL container on `127.0.0.1:5434`
+>    - Database: Shared PostgreSQL container on `127.0.0.1:5432`
 > 4. **Execution Workflow**:
 >    ```bash
 >    cd /Users/lethanhba/workspace/app/Wonderlab-worktree-N
@@ -36,7 +36,7 @@ Primary rules and standards for AI coding assistants working in Wonderlab.
 - **Monorepo**: Unified `pnpm` monorepo (`client/`, `server/`, `docs/`, `.agents/skills/`).
 - **Client (`client/`)**: Next.js 15 App Router, React 19, Tailwind CSS, Lucide React, Motion. Public routes in `(public)/`, admin in `/admin/` (protected by HttpOnly session cookie). Communicates via `NEXT_PUBLIC_API_BASE_URL`.
 - **Server (`server/`)**: NestJS 10 REST API. Global prefix `/api/v1`, Swagger `/api/docs`, health check `/api/v1/health`.
-- **Database**: Local PostgreSQL 16 on `127.0.0.1:5434` (Docker Compose). ORM deferred.
+- **Database**: Local PostgreSQL 16 on `127.0.0.1:5432` (Docker Compose).
 - **Runtime & Tools**: Node `v24.x` (`.nvmrc`), `pnpm@12.11.2`. Never use `npm` or `yarn`.
 
 ---

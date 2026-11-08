@@ -96,7 +96,7 @@ wonderlab/
    docker compose up -d postgres
    ```
 
-   _(PostgreSQL securely binds to loopback `127.0.0.1:5434`)_
+   _(PostgreSQL securely binds to loopback `127.0.0.1:5432`)_
 
 3. **Run Development Servers**:
    ```bash

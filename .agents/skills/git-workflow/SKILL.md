@@ -22,7 +22,7 @@ git worktree list
 - `Wonderlab-worktree-3`: Client `4400`, Server `4401`. Idle branch: `worktree-3` (tracking `origin/develop`).
 - `Wonderlab-worktree-4`: Client `4500`, Server `4501`, branch: `worktree-4` (tracking `origin/develop`).
 - `Wonderlab-worktree-5`: Client `4600`, Server `4601`, branch: `worktree-5` (tracking `origin/develop`).
-- Database: Shared PostgreSQL on `127.0.0.1:5434`.
+- Database: Shared PostgreSQL on `127.0.0.1:5432`.
 
 ### Worktree Execution & Direct Merge Workflow:
 

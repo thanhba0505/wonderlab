@@ -30,7 +30,7 @@ The CI workflow runs on `ubuntu-latest` and executes **4 parallel & decoupled jo
    - **Objective**: Ensures 100% of mathematical simulation engines, algorithms, and components execute correctly in ~30-35s.
 
 3. **`e2e-tests` (🛡️ E2E Tests - Database)**:
-   - **Environment**: Launches Service Container `postgres:16-alpine` (port `5434:5432`) with automated health checks.
+   - **Environment**: Launches Service Container `postgres:16-alpine` (port `5432:5432`) with automated health checks.
    - **Steps**: Environment setup -> `prisma migrate deploy` -> `db:seed` -> `pnpm test:e2e`.
    - **Objective**: Validates end-to-end integration with PostgreSQL (authentication, Argon2id password hashing, session cookies, comments, telemetry).
 
