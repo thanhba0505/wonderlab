@@ -46,7 +46,7 @@ services:
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-wonderlab}
       POSTGRES_USER: ${POSTGRES_USER:-wonderlab}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-wonderlab_dev_pass}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
     ports:
       - '127.0.0.1:${POSTGRES_PORT:-5432}:5432'
     volumes:

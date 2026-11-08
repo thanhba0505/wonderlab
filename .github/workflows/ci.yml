@@ -80,7 +80,7 @@ jobs:
         image: postgres:16-alpine
         env:
           POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgrespassword
+          POSTGRES_PASSWORD: postgres
           POSTGRES_DB: wonderlab
         ports:
           - 5432:5432
@@ -118,12 +118,12 @@ jobs:
           pnpm prisma migrate deploy
           pnpm db:seed
         env:
-          DATABASE_URL: postgres://postgres:postgrespassword@localhost:5432/wonderlab?schema=public
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/wonderlab?schema=public
 
       - name: Run E2E tests
         run: pnpm test:e2e
         env:
-          DATABASE_URL: postgres://postgres:postgrespassword@localhost:5432/wonderlab?schema=public
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/wonderlab?schema=public
 
   build:
     name: 📦 Build Applications
