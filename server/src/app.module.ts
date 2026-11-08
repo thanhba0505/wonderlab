@@ -14,7 +14,7 @@ import { SimulationRequestsModule } from './simulation-requests/simulation-reque
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: ['.env.local', '.env', '../.env.local', '../.env'],
+      envFilePath: ['.env.local', '../.env.local'],
     }),
     ThrottlerModule.forRoot([
       {

@@ -17,7 +17,7 @@ This document describes all environment variables used by Wonderlab across Clien
 | `CORS_ORIGINS`             | Server          | Required in Prod | `http://localhost:4100`        | Whitelisted origins permitted to perform cross-origin requests. |
 | `DATABASE_URL`             | Server          | Required         | `postgresql://...`             | Connection string for PostgreSQL database.                      |
 | `POSTGRES_DB`              | Database        | Required         | `wonderlab`                    | Database name for PostgreSQL container.                         |
-| `POSTGRES_USER`            | Database        | Required         | `wonderlab`                    | Master user for PostgreSQL container.                           |
+| `POSTGRES_USER`            | Database        | Optional         | `postgres`                     | Master user for PostgreSQL container.                           |
 | `POSTGRES_PASSWORD`        | Database        | Optional         | `postgres`                     | Master password for PostgreSQL container.                       |
 | `POSTGRES_PORT`            | Database        | Optional         | `5432`                         | Host port exposed for loopback (`127.0.0.1`).                   |
 | `POSTGRES_HOST`            | Database        | Optional         | `127.0.0.1`                    | Hostname for local DB clients (DBeaver, psql).                  |

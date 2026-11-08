@@ -5,7 +5,7 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-wonderlab}
-      POSTGRES_USER: ${POSTGRES_USER:-wonderlab}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
     ports:
       # Bind exclusively to 127.0.0.1 (loopback) to prevent public network exposure.
@@ -13,7 +13,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-wonderlab} -d ${POSTGRES_DB:-wonderlab}']
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-wonderlab}']
       interval: 5s
       timeout: 5s
       retries: 5

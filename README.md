@@ -86,7 +86,7 @@ wonderlab/
    ```bash
    git clone https://github.com/thanhba0505/wonderlab.git
    cd wonderlab
-   cp .env.example .env
+   cp .env.example .env.local
    pnpm install
    ```
 

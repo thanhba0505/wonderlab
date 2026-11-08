@@ -45,14 +45,14 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-wonderlab}
-      POSTGRES_USER: ${POSTGRES_USER:-wonderlab}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
     ports:
       - '127.0.0.1:${POSTGRES_PORT:-5432}:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-wonderlab} -d ${POSTGRES_DB:-wonderlab}']
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-wonderlab}']
       interval: 5s
       timeout: 5s
       retries: 5
@@ -113,11 +113,11 @@ docker compose down
 ### Backup local database:
 
 ```bash
-docker exec -t wonderlab-postgres pg_dump -U wonderlab wonderlab > backup_$(date +%Y%m%d).sql
+docker exec -t wonderlab-postgres pg_dump -U postgres wonderlab > backup_$(date +%Y%m%d).sql
 ```
 
 ### Restore local database:
 
 ```bash
-cat backup_file.sql | docker exec -i wonderlab-postgres psql -U wonderlab -d wonderlab
+cat backup_file.sql | docker exec -i wonderlab-postgres psql -U postgres -d wonderlab
 ```
