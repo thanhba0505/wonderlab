@@ -54,6 +54,10 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       throw new UnauthorizedException('Người dùng không tồn tại hoặc phiên đăng nhập không hợp lệ');
     }
 
+    if (user.isActive === false) {
+      throw new UnauthorizedException('Tài khoản đã bị tạm khóa');
+    }
+
     return user;
   }
 }

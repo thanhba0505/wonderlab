@@ -1,11 +1,11 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Optional } from '@nestjs/common';
+import { S2SService } from '../s2s/s2s.service';
 
 @Injectable()
 export class SlackNotificationService {
   private readonly logger = new Logger(SlackNotificationService.name);
-  private readonly gatewayUrl =
-    process.env.GATEWAY_URL || 'https://central-gateway-server.onrender.com/api/v1';
-  private readonly secretKey = process.env.GATEWAY_SECRET_KEY;
+
+  constructor(@Optional() private readonly s2sService?: S2SService) {}
 
   /**
    * Internal dispatcher calling Central Gateway
@@ -20,14 +20,32 @@ export class SlackNotificationService {
     adminUrl?: string;
   }): Promise<void> {
     try {
+      if (this.s2sService) {
+        const conn = await this.s2sService.getConnection('central-gateway');
+        if (conn) {
+          await this.s2sService.call('central-gateway', '/notifications/slack/community', {
+            method: 'POST',
+            body: JSON.stringify({
+              project: 'wonderlab',
+              ...payload,
+            }),
+          });
+          return;
+        }
+      }
+
+      // Fallback to env if S2SService is not available or connection not seeded
+      const gatewayUrl =
+        process.env.GATEWAY_URL || 'https://central-gateway-server.onrender.com/api/v1';
+      const secretKey = process.env.GATEWAY_SECRET_KEY;
       const headers: Record<string, string> = {
         'Content-Type': 'application/json',
       };
-      if (this.secretKey) {
-        headers['Authorization'] = `Bearer ${this.secretKey}`;
+      if (secretKey) {
+        headers['Authorization'] = `Bearer ${secretKey}`;
       }
 
-      const response = await fetch(`${this.gatewayUrl}/notifications/slack/community`, {
+      const response = await fetch(`${gatewayUrl}/notifications/slack/community`, {
         method: 'POST',
         headers,
         body: JSON.stringify({

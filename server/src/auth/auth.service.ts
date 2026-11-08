@@ -3,6 +3,7 @@ import {
   UnauthorizedException,
   BadRequestException,
   NotFoundException,
+  Optional,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Response } from 'express';
@@ -22,6 +23,7 @@ import { JwtPayload } from './strategies/jwt.strategy';
 import { OtpService } from './otp.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { I18nService } from '../i18n/i18n.service';
+import { S2SService } from '../s2s/s2s.service';
 
 const DUMMY_HASH =
   '$argon2id$v=19$m=65536,t=3,p=4$c29tZXNhbHRmb3JkdW1teQ$AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
@@ -34,6 +36,7 @@ export class AuthService {
     private readonly otpService: OtpService,
     private readonly prisma: PrismaService,
     private readonly i18nService: I18nService = new I18nService(),
+    @Optional() private readonly s2sService?: S2SService,
   ) {}
 
   /**
@@ -71,7 +74,7 @@ export class AuthService {
       });
     }
 
-    if (user.isDeleted) {
+    if (user.isDeleted || user.isActive === false) {
       const msg = this.i18nService.t('auth.account_disabled', locale);
       throw new UnauthorizedException({
         message: msg,
@@ -138,8 +141,10 @@ export class AuthService {
     response: Response,
     locale?: string,
   ): Promise<{ message: string; user: UserProfileDto }> {
-    const gatewayUrl =
-      process.env.GATEWAY_URL || 'https://central-gateway-server.onrender.com/api/v1';
+    const gatewayConn = await this.s2sService?.getConnection('central-gateway');
+    const gatewayUrl = gatewayConn
+      ? `${gatewayConn.domain}${gatewayConn.apiPrefix}`
+      : process.env.GATEWAY_URL || 'https://central-gateway-server.onrender.com/api/v1';
 
     let gatewayRes: globalThis.Response;
     try {
@@ -164,32 +169,63 @@ export class AuthService {
 
     const data = (await gatewayRes.json()) as {
       user: {
+        id?: string;
         username: string;
         email?: string | null;
         role?: string;
         avatarUrl?: string | null;
+        isActive?: boolean;
       };
     };
     const ssoUser = data.user;
 
-    // Find or sync local user in Wonderlab database
-    let localUser = await this.usersService.findByUsername(ssoUser.username);
-
-    if (!localUser && ssoUser.email) {
-      localUser = await this.usersService.findByEmail(ssoUser.email);
+    if (ssoUser.isActive === false) {
+      const msg = this.i18nService.t('auth.account_disabled', locale);
+      throw new UnauthorizedException(msg);
     }
 
-    if (!localUser) {
-      localUser = await this.usersService.create({
-        username: ssoUser.username,
-        email: ssoUser.email || undefined,
-        role: ssoUser.role === 'ADMIN' ? Role.ADMIN : Role.USER,
-        avatarUrl: ssoUser.avatarUrl || undefined,
-        isEmailVerified: true,
+    // Find or sync local user in Wonderlab database
+    let localUser = ssoUser.id
+      ? await this.prisma.user.findUnique({ where: { id: ssoUser.id } })
+      : null;
+
+    if (!localUser && ssoUser.username) {
+      localUser = await this.prisma.user.findUnique({ where: { username: ssoUser.username } });
+    }
+
+    if (!localUser && ssoUser.email) {
+      localUser = await this.prisma.user.findUnique({ where: { email: ssoUser.email } });
+    }
+
+    const role = ssoUser.role === 'ADMIN' ? Role.ADMIN : Role.USER;
+
+    if (localUser) {
+      localUser = await this.prisma.user.update({
+        where: { id: localUser.id },
+        data: {
+          username: ssoUser.username,
+          email: ssoUser.email ?? null,
+          role,
+          avatarUrl: ssoUser.avatarUrl ?? null,
+          isActive: ssoUser.isActive ?? true,
+        },
+      });
+    } else {
+      localUser = await this.prisma.user.create({
+        data: {
+          ...(ssoUser.id ? { id: ssoUser.id } : {}),
+          username: ssoUser.username,
+          email: ssoUser.email ?? null,
+          role,
+          avatarUrl: ssoUser.avatarUrl ?? null,
+          isActive: ssoUser.isActive ?? true,
+          isEmailVerified: true,
+        },
       });
     }
 
-    return this.login(localUser, response, locale);
+    const { passwordHash: _, ...safeUser } = localUser;
+    return this.login(safeUser, response, locale);
   }
 
   /**

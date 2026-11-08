@@ -30,6 +30,7 @@ async function main() {
       passwordHash,
       role: Role.ADMIN,
       isEmailVerified: true,
+      isActive: true,
     },
     create: {
       username,
@@ -37,10 +38,39 @@ async function main() {
       passwordHash,
       role: Role.ADMIN,
       isEmailVerified: true,
+      isActive: true,
     },
   });
 
   console.log(`[Seed] Seeded admin user: ${admin.username} (Role: ${admin.role})`);
+
+  // Seed Central Gateway S2S connection
+  const gatewayConn = await prisma.serviceConnection.upsert({
+    where: { slug: 'central-gateway' },
+    update: {
+      name: 'Central Gateway & IAM Master',
+      domain: process.env.GATEWAY_API_DOMAIN || 'http://localhost:5101',
+      apiPrefix: process.env.GATEWAY_API_PREFIX || '/api/v1',
+      corsOrigin: process.env.GATEWAY_CLIENT_ORIGIN || 'http://localhost:5100',
+      apiKey: process.env.GATEWAY_S2S_KEY || 'wl_to_gw_s2s_secret_2026',
+      incomingSecret: process.env.GATEWAY_INCOMING_SECRET || 'gw_to_wl_s2s_secret_2026',
+      isActive: true,
+      metadata: { iamMaster: true, ssoProvider: true },
+    },
+    create: {
+      slug: 'central-gateway',
+      name: 'Central Gateway & IAM Master',
+      domain: process.env.GATEWAY_API_DOMAIN || 'http://localhost:5101',
+      apiPrefix: process.env.GATEWAY_API_PREFIX || '/api/v1',
+      corsOrigin: process.env.GATEWAY_CLIENT_ORIGIN || 'http://localhost:5100',
+      apiKey: process.env.GATEWAY_S2S_KEY || 'wl_to_gw_s2s_secret_2026',
+      incomingSecret: process.env.GATEWAY_INCOMING_SECRET || 'gw_to_wl_s2s_secret_2026',
+      isActive: true,
+      metadata: { iamMaster: true, ssoProvider: true },
+    },
+  });
+
+  console.log(`[Seed] Seeded service connection: ${gatewayConn.name} (${gatewayConn.slug})`);
 }
 
 main()

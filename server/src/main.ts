@@ -8,6 +8,7 @@ import { AppModule } from './app.module';
 import { APP_VERSION } from './common/version';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { createValidationPipe } from './common/pipes/validation.pipe';
+import { PrismaService } from './prisma/prisma.service';
 
 async function bootstrap() {
   const logger = new Logger('WonderlabServer');
@@ -47,13 +48,39 @@ async function bootstrap() {
   // Global Validation Pipe with structured field error extraction
   app.useGlobalPipes(createValidationPipe());
 
-  // CORS Configuration
-  const corsOrigins = process.env.CORS_ORIGINS
+  // Dynamic CORS Configuration from Environment & Active Service Connections
+  const defaultOrigins = process.env.CORS_ORIGINS
     ? process.env.CORS_ORIGINS.split(',').map(origin => origin.trim())
-    : ['http://localhost:4100'];
+    : ['http://localhost:4100', 'http://localhost:4200'];
+
+  const dynamicOrigins = new Set<string>(defaultOrigins);
+  try {
+    const prisma = app.get(PrismaService);
+    const activeConnections = await prisma.serviceConnection.findMany({
+      where: { isActive: true },
+      select: { corsOrigin: true },
+    });
+    for (const conn of activeConnections) {
+      if (conn.corsOrigin) {
+        conn.corsOrigin
+          .split(',')
+          .map(s => s.trim())
+          .forEach(origin => {
+            if (origin) dynamicOrigins.add(origin);
+          });
+      }
+    }
+  } catch (err) {
+    logger.warn(`Could not load dynamic CORS origins from database: ${(err as Error).message}`);
+  }
 
   app.enableCors({
-    origin: corsOrigins,
+    origin: (origin, callback) => {
+      if (!origin || dynamicOrigins.has(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error(`CORS blocked for origin: ${origin}`), false);
+    },
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
   });

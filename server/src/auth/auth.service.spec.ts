@@ -9,11 +9,23 @@ import { UsersService } from '../users/users.service';
 import { OtpService } from './otp.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { I18nService } from '../i18n/i18n.service';
+import { S2SService } from '../s2s/s2s.service';
 
 describe('AuthService', () => {
   let authService: AuthService;
   let usersService: jest.Mocked<UsersService>;
   let jwtService: jest.Mocked<JwtService>;
+  let prismaService: {
+    user: {
+      findUnique: jest.Mock;
+      create: jest.Mock;
+      update: jest.Mock;
+    };
+    serviceConnection: {
+      findFirst: jest.Mock;
+      findUnique: jest.Mock;
+    };
+  };
 
   const mockUser = {
     id: 'test-uuid-123',
@@ -24,6 +36,7 @@ describe('AuthService', () => {
     googleId: null,
     isEmailVerified: true,
     avatarUrl: null,
+    isActive: true,
     isDeleted: false,
     deletedAt: null,
     createdAt: new Date(),
@@ -55,10 +68,21 @@ describe('AuthService', () => {
       verifyOtp: jest.fn(),
     };
 
-    const mockPrismaService = {
+    prismaService = {
       user: {
         findUnique: jest.fn().mockResolvedValue(mockUser),
+        create: jest.fn().mockResolvedValue(mockUser),
+        update: jest.fn().mockResolvedValue(mockUser),
       },
+      serviceConnection: {
+        findFirst: jest.fn().mockResolvedValue(null),
+        findUnique: jest.fn().mockResolvedValue(null),
+      },
+    };
+
+    const mockS2SService = {
+      getConnection: jest.fn().mockResolvedValue(null),
+      call: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -68,7 +92,8 @@ describe('AuthService', () => {
         { provide: UsersService, useValue: mockUsersService },
         { provide: JwtService, useValue: mockJwtService },
         { provide: OtpService, useValue: mockOtpService },
-        { provide: PrismaService, useValue: mockPrismaService },
+        { provide: PrismaService, useValue: prismaService },
+        { provide: S2SService, useValue: mockS2SService },
       ],
     }).compile();
 
@@ -180,24 +205,42 @@ describe('AuthService', () => {
         json: async () => ({
           access_token: 'gateway-token',
           user: {
+            id: 'sso-1',
             username: 'sso_user',
             email: 'sso@example.com',
             role: 'USER',
             avatarUrl: null,
+            isActive: true,
           },
         }),
       } as unknown as globalThis.Response);
 
-      (usersService.findByUsername as jest.Mock).mockResolvedValue(null);
-      (usersService.findByEmail as jest.Mock).mockResolvedValue(null);
-      (usersService.create as jest.Mock).mockResolvedValue({
+      const ssoCreatedUser = {
         id: 'sso-1',
         username: 'sso_user',
         email: 'sso@example.com',
         role: Role.USER,
         avatarUrl: null,
         isEmailVerified: true,
-      });
+        isActive: true,
+        isDeleted: false,
+        deletedAt: null,
+        passwordHash: null,
+        googleId: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      prismaService.user.findUnique.mockImplementation(
+        async (args: { where: { id?: string; username?: string } }) => {
+          if (args.where.id === 'sso-1' || args.where.username === 'sso_user') {
+            return ssoCreatedUser;
+          }
+          return mockUser;
+        },
+      );
+      prismaService.user.create.mockResolvedValue(ssoCreatedUser);
+      prismaService.user.update.mockResolvedValue(ssoCreatedUser);
 
       const mockResponse = {
         cookie: jest.fn(),
