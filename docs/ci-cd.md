@@ -71,16 +71,37 @@ Triggered automatically upon official GitHub Release publishing or manual tag pu
     2. Synchronizes version numbers in `package.json` files and commits to `main` (`chore(release): vX.Y.Z [skip ci]`).
     3. Tags the official release commit on `main`.
     4. Syncs the release commit back into `origin/develop` to ensure branch parity.
-    5. Dispatches Render Deploy Hook for Server (`RENDER_SERVER_DEPLOY_HOOK`).
-    6. Dispatches Render Deploy Hook for Client (`RENDER_CLIENT_DEPLOY_HOOK`).
-    7. Runs `scripts/verify-deployment.sh` to poll live health endpoints from both services.
+    5. Dispatches deployment notification `STARTED` to Central Gateway (`#deployments`).
+    6. Triggers `wonderlab-server` build via Render REST API and registers `production - server` in GitHub Deployments with `state: in_progress` ⏳.
+    7. Triggers `wonderlab-client` build via Render REST API and registers `production - client` in GitHub Deployments with `state: in_progress` ⏳.
+    8. Registers overall `production` deployment with `state: in_progress` ⏳.
+    9. Executes [`scripts/verify-deployment.sh`](file:///Users/lethanhba/workspace/app/Wonderlab/scripts/verify-deployment.sh) with fail-fast polling against Render Deploy API and live `/health` endpoints.
+    10. Transitions individual GitHub Deployments (`production - server` and `production - client`) to `success` 🟢 as soon as each service responds healthy.
+    11. Finalizes overall `production` deployment to `success` 🟢 and dispatches `SUCCESS` alert to Slack `#deployments`.
+    12. On failure: catches errors and marks all pending GitHub Deployments as `failure` ❌ with direct links to Render logs, dispatching `FAIL` alert to Slack.
   - `push: tags: ['v*']`: Dispatches on manual version tag pushes.
   - `workflow_dispatch`: Enables emergency manual deployment triggering per service (`client`, `server`, or `all`).
 
 - **GitHub Repository Secrets**:
-  - `RENDER_SERVER_DEPLOY_HOOK`: Webhook URL for `wonderlab-server` on Render.
-  - `RENDER_CLIENT_DEPLOY_HOOK`: Webhook URL for `wonderlab-client` on Render.
+  - `RENDER_API_KEY`: Render Account REST API Bearer Token.
+  - `RENDER_SERVER_SERVICE_ID`: Render Service ID for `wonderlab-server`.
+  - `RENDER_CLIENT_SERVICE_ID`: Render Service ID for `wonderlab-client`.
+  - `GATEWAY_URL`: Central Gateway endpoint (`https://central-gateway-server.onrender.com/api/v1`).
+  - `GATEWAY_SECRET_KEY`: Central Gateway Bearer secret for authenticated Slack dispatching.
 
 - **GitHub Deployments Architecture**:
-  - 🟢 `main - wonderlab-client` (`https://wonderlab.io.vn` - Render GitHub App)
-  - 🟢 `main - wonderlab-server` (`https://wonderlab-server.onrender.com` - Render GitHub App)
+  - 🟢 `production - client` (`https://wonderlab.io.vn`)
+  - 🟢 `production - server` (`https://wonderlab-server.onrender.com/api/v1/health`)
+  - 🟢 `production` (`https://wonderlab.io.vn`)
+
+---
+
+## 5. Git Activity & Central Gateway Orchestration (`.github/workflows/git-activity.yml`)
+
+The repository communicates all repository events (pushes, pull requests, and branch creations) to Slack via Central Gateway:
+
+- **Events Handled**:
+  - `push`: Dispatches commit summaries, authors, commit count, and compare URLs to `#git-activity`.
+  - `pull_request`: Dispatches `opened`, `closed`, and `reopened` events. Specifically formats `closed` PRs with `merged: true` as `🟣 [WONDERLAB] Pull Request Merged` with distinct violet styling.
+  - `create`: Dispatches new branch announcements to `#git-activity`.
+- **Security Policy**: Upstream repositories only hold `GATEWAY_SECRET_KEY` and never access raw Slack bot tokens.
