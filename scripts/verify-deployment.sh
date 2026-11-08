@@ -3,7 +3,8 @@ set -euo pipefail
 
 # ==============================================================================
 # Wonderlab — Production Deployment Verification Script
-# Polls live health endpoints on Render until services are healthy and updated.
+# Polls live health endpoints on Render until services are healthy and updated,
+# with early fail-fast on Render build crashes and live GitHub Deployments sync.
 # ==============================================================================
 
 SERVICE="all"
@@ -15,6 +16,16 @@ TIMEOUT_SECONDS=600
 POLL_INTERVAL=10
 INITIAL_DELAY=15
 MIN_ROLLOUT_WAIT=45
+
+RENDER_API_KEY="${RENDER_API_KEY:-}"
+RENDER_SERVER_SERVICE_ID="${RENDER_SERVER_SERVICE_ID:-}"
+RENDER_SERVER_DEPLOY_ID="${RENDER_SERVER_DEPLOY_ID:-}"
+RENDER_CLIENT_SERVICE_ID="${RENDER_CLIENT_SERVICE_ID:-}"
+RENDER_CLIENT_DEPLOY_ID="${RENDER_CLIENT_DEPLOY_ID:-}"
+
+GH_REPO="${GH_REPO:-${GITHUB_REPOSITORY:-}}"
+GH_SERVER_DEPLOY_ID="${GH_SERVER_DEPLOY_ID:-}"
+GH_CLIENT_DEPLOY_ID="${GH_CLIENT_DEPLOY_ID:-}"
 
 # Parse arguments
 while [[ $# -gt 0 ]]; do
@@ -55,6 +66,38 @@ while [[ $# -gt 0 ]]; do
       MIN_ROLLOUT_WAIT="$2"
       shift 2
       ;;
+    --render-api-key)
+      RENDER_API_KEY="$2"
+      shift 2
+      ;;
+    --server-service-id)
+      RENDER_SERVER_SERVICE_ID="$2"
+      shift 2
+      ;;
+    --server-deploy-id)
+      RENDER_SERVER_DEPLOY_ID="$2"
+      shift 2
+      ;;
+    --client-service-id)
+      RENDER_CLIENT_SERVICE_ID="$2"
+      shift 2
+      ;;
+    --client-deploy-id)
+      RENDER_CLIENT_DEPLOY_ID="$2"
+      shift 2
+      ;;
+    --gh-repo)
+      GH_REPO="$2"
+      shift 2
+      ;;
+    --gh-server-deploy-id)
+      GH_SERVER_DEPLOY_ID="$2"
+      shift 2
+      ;;
+    --gh-client-deploy-id)
+      GH_CLIENT_DEPLOY_ID="$2"
+      shift 2
+      ;;
     *)
       echo "Unknown option: $1"
       exit 1
@@ -86,14 +129,16 @@ fi
 echo "=================================================================="
 echo "🚀 Wonderlab Production Deployment Verification"
 echo "=================================================================="
-echo "Target Service    : $SERVICE"
-echo "Target Version    : ${TARGET_VERSION:-'(any healthy)'}"
-echo "Target Commit     : ${TARGET_COMMIT:-'(unspecified)'} (${SHORT_COMMIT:-'N/A'})"
-echo "Server Endpoint   : $SERVER_URL/health"
-echo "Client Endpoint   : $CLIENT_URL/health"
-echo "Timeout           : ${TIMEOUT_SECONDS}s (poll every ${POLL_INTERVAL}s)"
-echo "Initial Delay     : ${INITIAL_DELAY}s"
-echo "Min Rollout Wait  : ${MIN_ROLLOUT_WAIT}s (when version unchanged)"
+echo "Target Service       : $SERVICE"
+echo "Target Version       : ${TARGET_VERSION:-'(any healthy)'}"
+echo "Target Commit        : ${TARGET_COMMIT:-'(unspecified)'} (${SHORT_COMMIT:-'N/A'})"
+echo "Server Endpoint      : $SERVER_URL/health"
+echo "Client Endpoint      : $CLIENT_URL/health"
+echo "Timeout              : ${TIMEOUT_SECONDS}s (poll every ${POLL_INTERVAL}s)"
+echo "Initial Delay        : ${INITIAL_DELAY}s"
+echo "Min Rollout Wait     : ${MIN_ROLLOUT_WAIT}s"
+echo "Render Fail-Fast     : $([ -n "$RENDER_API_KEY" ] && echo "Active" || echo "Inactive")"
+echo "GitHub Live Sync     : $([ -n "$GH_REPO" ] && echo "Active" || echo "Inactive")"
 echo "=================================================================="
 
 # Check initial state before waiting
@@ -130,6 +175,37 @@ while true; do
   CURRENT_TIME=$(date +%s)
   ELAPSED=$((CURRENT_TIME - START_TIME))
 
+  # Early Fail-Fast Check via Render API
+  if [ "$SERVER_OK" = false ] && [ -n "$RENDER_API_KEY" ] && [ -n "$RENDER_SERVER_SERVICE_ID" ] && [ -n "$RENDER_SERVER_DEPLOY_ID" ]; then
+    SERVER_RENDER_STATUS=$(curl -s --max-time 10 -H "Authorization: Bearer $RENDER_API_KEY" \
+      "https://api.render.com/v1/services/$RENDER_SERVER_SERVICE_ID/deploys/$RENDER_SERVER_DEPLOY_ID" | \
+      node -p "JSON.parse(require('fs').readFileSync(0,'utf-8')).status || ''" 2>/dev/null || echo "")
+    
+    if [[ "$SERVER_RENDER_STATUS" =~ ^(build_failed|pre_deploy_failed|canceled|deactivated)$ ]]; then
+      echo "::error::❌ Render server deployment failed early with status: $SERVER_RENDER_STATUS"
+      if [ -n "$GH_SERVER_DEPLOY_ID" ] && [ -n "$GH_REPO" ]; then
+        gh api -X POST "/repos/$GH_REPO/deployments/$GH_SERVER_DEPLOY_ID/statuses" \
+          --input - <<< '{"state":"failure","description":"Server build failed on Render ('$SERVER_RENDER_STATUS')","log_url":"https://dashboard.render.com"}' || true
+      fi
+      exit 1
+    fi
+  fi
+
+  if [ "$CLIENT_OK" = false ] && [ -n "$RENDER_API_KEY" ] && [ -n "$RENDER_CLIENT_SERVICE_ID" ] && [ -n "$RENDER_CLIENT_DEPLOY_ID" ]; then
+    CLIENT_RENDER_STATUS=$(curl -s --max-time 10 -H "Authorization: Bearer $RENDER_API_KEY" \
+      "https://api.render.com/v1/services/$RENDER_CLIENT_SERVICE_ID/deploys/$RENDER_CLIENT_DEPLOY_ID" | \
+      node -p "JSON.parse(require('fs').readFileSync(0,'utf-8')).status || ''" 2>/dev/null || echo "")
+    
+    if [[ "$CLIENT_RENDER_STATUS" =~ ^(build_failed|pre_deploy_failed|canceled|deactivated)$ ]]; then
+      echo "::error::❌ Render client deployment failed early with status: $CLIENT_RENDER_STATUS"
+      if [ -n "$GH_CLIENT_DEPLOY_ID" ] && [ -n "$GH_REPO" ]; then
+        gh api -X POST "/repos/$GH_REPO/deployments/$GH_CLIENT_DEPLOY_ID/statuses" \
+          --input - <<< '{"state":"failure","description":"Client build failed on Render ('$CLIENT_RENDER_STATUS')","log_url":"https://dashboard.render.com"}' || true
+      fi
+      exit 1
+    fi
+  fi
+
   if [ "$ELAPSED" -ge "$TIMEOUT_SECONDS" ]; then
     echo "❌ Deployment verification timed out after ${ELAPSED}s!"
     echo "=================================================================="
@@ -145,7 +221,7 @@ while true; do
 - **Target Commit:** \`${SHORT_COMMIT:-N/A}\`
 - **Server URL:** [$SERVER_URL]($SERVER_URL/health)
 - **Client URL:** [$CLIENT_URL]($CLIENT_URL/health)
-- **Status:** Services did not finish rolling out within ${TIMEOUT_SECONDS} seconds.
+- **Status:** Services did not finish rollout before ${TIMEOUT_SECONDS}s timeout window.
 EOF
     fi
     exit 1
@@ -178,8 +254,9 @@ EOF
         const elapsed = parseInt(process.argv[4], 10);
         const minWait = parseInt(process.argv[5], 10);
 
-        const isOk = d.status === "ok" && d.database === "connected";
-        if (!isOk) {
+        const isOk = d.status === "ok";
+        const hasDb = d.info && d.info.database && d.info.database.status === "up";
+        if (!isOk || !hasDb) {
           process.stdout.write("false:unhealthy");
           process.exit(0);
         }
@@ -209,6 +286,10 @@ EOF
       SERVER_VER="${IS_VALID_SERVER#true:}"
       SERVER_OK=true
       echo "  ✅ Server is LIVE and HEALTHY (version: $SERVER_VER, elapsed: ${ELAPSED}s)"
+      if [ -n "$GH_SERVER_DEPLOY_ID" ] && [ -n "$GH_REPO" ]; then
+        gh api -X POST "/repos/$GH_REPO/deployments/$GH_SERVER_DEPLOY_ID/statuses" \
+          --input - <<< '{"state":"success","environment_url":"'$SERVER_URL'/health","log_url":"https://dashboard.render.com","description":"Server healthy and live on Render"}' || true
+      fi
     fi
   fi
 
@@ -270,6 +351,10 @@ EOF
       CLIENT_VER="${IS_VALID_CLIENT#true:}"
       CLIENT_OK=true
       echo "  ✅ Client is LIVE and HEALTHY (version: $CLIENT_VER, elapsed: ${ELAPSED}s)"
+      if [ -n "$GH_CLIENT_DEPLOY_ID" ] && [ -n "$GH_REPO" ]; then
+        gh api -X POST "/repos/$GH_REPO/deployments/$GH_CLIENT_DEPLOY_ID/statuses" \
+          --input - <<< '{"state":"success","environment_url":"'$CLIENT_URL'","log_url":"https://dashboard.render.com","description":"Client healthy and live on Render"}' || true
+      fi
     fi
   fi
 
