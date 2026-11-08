@@ -5,7 +5,9 @@ node_modules/
 # Environment files
 .env
 .env.*
+.env*.local
 !.env.example
+!**/.env.example
 
 # Next.js build output
 .next/
@@ -47,4 +49,3 @@ tmp/
 temp/
 .temp/
 .vercel
-.env*
