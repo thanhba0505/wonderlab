@@ -157,7 +157,6 @@ model ServiceConnection {
   name           String    @db.VarChar(128)
   domain         String    @db.VarChar(255)
   apiPrefix      String    @default("/api/v1") @map("api_prefix") @db.VarChar(64)
-  corsOrigin     String?   @map("cors_origin") @db.VarChar(255)
   apiKey         String?   @map("api_key") @db.VarChar(255)
   incomingSecret String?   @map("incoming_secret") @db.VarChar(255)
   isActive       Boolean   @default(true) @map("is_active")
