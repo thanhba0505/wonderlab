@@ -304,41 +304,6 @@ export function AuthModal() {
     setIsSubmitting(false);
   };
 
-  // 8. Central Gateway SSO Login Trigger
-  const handleGatewaySsoLogin = async () => {
-    try {
-      const verifier = Array.from(crypto.getRandomValues(new Uint8Array(32)))
-        .map(b => b.toString(16).padStart(2, '0'))
-        .join('');
-
-      sessionStorage.setItem('sso_code_verifier', verifier);
-
-      const encoder = new TextEncoder();
-      const data = encoder.encode(verifier);
-      const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-      const hashArray = Array.from(new Uint8Array(hashBuffer));
-      const challenge = btoa(String.fromCharCode(...hashArray))
-        .replace(/\+/g, '-')
-        .replace(/\//g, '_')
-        .replace(/=+$/, '');
-
-      const gatewayClientUrl =
-        process.env.NEXT_PUBLIC_GATEWAY_CLIENT_URL || 'https://central-gateway-client.onrender.com';
-
-      const callbackUrl = `${window.location.origin}/auth/callback`;
-
-      const authUrl = new URL('/login', gatewayClientUrl);
-      authUrl.searchParams.set('client_id', 'wonderlab');
-      authUrl.searchParams.set('redirect_uri', callbackUrl);
-      authUrl.searchParams.set('code_challenge', challenge);
-      authUrl.searchParams.set('state', Math.random().toString(36).slice(2));
-
-      window.location.href = authUrl.toString();
-    } catch {
-      alert('Không thể khởi tạo phiên xác thực SSO');
-    }
-  };
-
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200"
@@ -462,19 +427,6 @@ export function AuthModal() {
                   />
                 </svg>
                 Đăng nhập bằng tài khoản Google
-              </button>
-
-              {/* Central Gateway SSO Button */}
-              <button
-                type="button"
-                onClick={handleGatewaySsoLogin}
-                disabled={isSubmitting}
-                className="w-full flex items-center justify-center gap-2 rounded-lg border border-purple-200/80 bg-purple-50/50 px-4 py-2.5 text-xs font-semibold text-purple-900 hover:bg-purple-100/60 hover:border-purple-300 transition shadow-2xs cursor-pointer mt-2"
-              >
-                <div className="flex h-4 w-4 items-center justify-center rounded-sm bg-gradient-to-tr from-purple-600 to-indigo-500 text-[10px] font-mono font-bold text-white">
-                  G
-                </div>
-                Đăng nhập với Central Gateway SSO
               </button>
 
               <div className="pt-2 text-center text-xs text-slate-500">

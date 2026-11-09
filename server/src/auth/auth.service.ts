@@ -4,6 +4,7 @@ import {
   BadRequestException,
   NotFoundException,
   Optional,
+  Logger,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Response } from 'express';
@@ -30,6 +31,8 @@ const DUMMY_HASH =
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
@@ -367,7 +370,84 @@ export class AuthService {
       throw new BadRequestException('Không thể trích xuất địa chỉ email từ tài khoản Google.');
     }
 
-    // 1. Kiểm tra xem đã có người dùng với email này chưa (Tự động liên kết tài khoản)
+    // 1. Đồng bộ và ủy quyền IAM qua Central Gateway (nếu có kết nối S2S)
+    if (this.s2sService) {
+      try {
+        const gwRes = await this.s2sService.call<{
+          user: {
+            id: string;
+            username: string;
+            email?: string | null;
+            role: string;
+            avatarUrl?: string | null;
+            isActive?: boolean;
+          };
+        }>('central-gateway', '/auth/google', {
+          method: 'POST',
+          body: JSON.stringify({
+            email,
+            name,
+            googleId,
+            credential: dto.credential,
+          }),
+        });
+
+        if (gwRes?.user) {
+          // Central Gateway đã tạo/cập nhật user. Tìm hoặc khởi tạo ngay bản ghi cục bộ cùng ID
+          let syncedUser = await this.prisma.user.findUnique({
+            where: { id: gwRes.user.id },
+          });
+
+          if (!syncedUser && gwRes.user.email) {
+            syncedUser = await this.prisma.user.findUnique({
+              where: { email: gwRes.user.email },
+            });
+          }
+
+          if (!syncedUser) {
+            syncedUser = await this.prisma.user.create({
+              data: {
+                id: gwRes.user.id,
+                username: gwRes.user.username,
+                email: gwRes.user.email ?? null,
+                googleId: googleId || `google_${Date.now()}`,
+                avatarUrl: gwRes.user.avatarUrl ?? null,
+                role: gwRes.user.role === 'ADMIN' ? Role.ADMIN : Role.USER,
+                isActive: gwRes.user.isActive ?? true,
+                isEmailVerified: true,
+              },
+            });
+          } else {
+            syncedUser = await this.prisma.user.update({
+              where: { id: syncedUser.id },
+              data: {
+                googleId: googleId || syncedUser.googleId || `google_${Date.now()}`,
+                avatarUrl: gwRes.user.avatarUrl || syncedUser.avatarUrl,
+                role: gwRes.user.role === 'ADMIN' ? Role.ADMIN : syncedUser.role,
+                isActive: gwRes.user.isActive ?? syncedUser.isActive,
+              },
+            });
+          }
+
+          if (syncedUser.isDeleted || syncedUser.isActive === false) {
+            const msg = this.i18nService.t('auth.account_disabled', locale);
+            throw new UnauthorizedException(msg);
+          }
+
+          const { passwordHash: _, ...safeUser } = syncedUser;
+          return this.login(safeUser, response, locale);
+        }
+      } catch (err) {
+        if (err instanceof UnauthorizedException) {
+          throw err;
+        }
+        this.logger.warn(
+          `S2S Google auth delegation to Central Gateway bypassed: ${(err as Error).message}`,
+        );
+      }
+    }
+
+    // 2. Fallback nội bộ: Kiểm tra xem đã có người dùng với email này chưa (Tự động liên kết tài khoản)
     const existingUser = await this.usersService.findByEmail(email);
 
     if (existingUser) {

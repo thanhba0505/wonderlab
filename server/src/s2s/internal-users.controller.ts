@@ -22,7 +22,7 @@ export class InternalUsersController {
 
     const role = dto.role === 'ADMIN' ? Role.ADMIN : Role.USER;
 
-    // Check if user exists by ID or username
+    // Check if user exists by ID, username, or email
     let existing = await this.prisma.user.findUnique({
       where: { id: dto.id },
     });
@@ -30,6 +30,12 @@ export class InternalUsersController {
     if (!existing) {
       existing = await this.prisma.user.findUnique({
         where: { username: dto.username },
+      });
+    }
+
+    if (!existing && dto.email) {
+      existing = await this.prisma.user.findUnique({
+        where: { email: dto.email },
       });
     }
 
