@@ -47,7 +47,12 @@ Primary rules and standards for AI coding assistants working in Wonderlab.
 - **Client Boundaries**: Only `NEXT_PUBLIC_*` variables allowed in client code; never expose secrets or DB credentials.
 - **Database**: Bind strictly to `127.0.0.1` (loopback).
 - **Admin Security**: `/admin` requires active `Role.ADMIN` session via HttpOnly cookies.
-- **CORS**: Explicit whitelist via `CORS_ORIGINS`.
+- **CORS**: Explicit whitelist via `CORS_ORIGINS`. Scoped strictly to browser clients, never to server-to-server HTTP calls.
+- **Service-to-Service (S2S) Architecture**:
+  - Connections managed dynamically via `service_connections` database table (`slug`, `domain`, `apiPrefix`, `apiKey`, `incomingSecret`, `isActive`).
+  - No static backend S2S env variables (e.g. no `GATEWAY_URL` or `GATEWAY_SECRET_KEY`).
+  - Central Gateway is the IAM master; Wonderlab stores shadow profiles (`id`, `username`, `email`, `role`, `avatarUrl`, `isActive`) synced via `POST /api/v1/internal/users/sync`.
+  - Inbound S2S authenticated timing-safely via `S2SAuthGuard` (`crypto.timingSafeEqual`). Outbound calls use `S2SService.call(...)`.
 
 ---
 

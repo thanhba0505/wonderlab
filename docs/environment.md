@@ -28,6 +28,7 @@ This document describes all environment variables used by Wonderlab across Clien
 
 - **Client Bundle Safety**: Variables without the `NEXT_PUBLIC_` prefix are stripped by Next.js during build and never sent to client browsers. Never prefix database passwords or secrets with `NEXT_PUBLIC_`.
 - **Database Loopback**: Port 5432 is strictly bound to `127.0.0.1` in `docker-compose.yml`, preventing external network connections.
+- **Service-to-Service Dynamic Configuration**: Backend endpoints for inter-service communication (such as Central Gateway SSO and Slack notifications) are stored dynamically in the `service_connections` database table, intentionally eliminating the need for static environment variables like `GATEWAY_URL` or `GATEWAY_SECRET_KEY`.
 - **Production Overrides on Render**:
   - In Render Frontend Workspace (`render.client.yaml`), configure `NEXT_PUBLIC_API_BASE_URL` pointing to `https://wonderlab-server.onrender.com/api/v1`.
   - In Render Backend Workspace (`render.server.yaml`), configure `CORS_ORIGINS` pointing to `https://wonderlab.io.vn`.

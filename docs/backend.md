@@ -40,6 +40,12 @@ server/
 │   ├── prisma/                     # Global Prisma database service
 │   │   ├── prisma.service.ts       # Connection lifecycle management
 │   │   └── prisma.module.ts
+│   ├── s2s/                        # Service-to-Service communication & user sync
+│   │   ├── dto/                    # SyncUserDto
+│   │   ├── internal-users.controller.ts # POST /api/v1/internal/users/sync
+│   │   ├── s2s-auth.guard.ts       # Timing-safe S2S Bearer token guard
+│   │   ├── s2s.service.ts          # S2S client caller & connection lookup
+│   │   └── s2s.module.ts           # @Global() S2S module
 │   ├── simulations/                # Simulation run persistence & global telemetry
 │   │   ├── dto/                    # CreateSimulationRunDto, History & Stats Query DTOs
 │   │   ├── simulations.controller.ts # POST /runs, GET /stats, GET /runs/history
@@ -138,7 +144,60 @@ Retrieves the recent run history for the active client session.
 
 ---
 
-## 5. Adding New Backend Modules
+## 5. Service-to-Service (S2S) & Shadow User Sync Contract
+
+Wonderlab integrates with the broader ecosystem (including Central Gateway IAM) via dynamic database-backed connections (`service_connections` table).
+
+### `POST /api/v1/internal/users/sync`
+
+Synchronizes user profile updates and status changes (`isActive: true/false`) pushed from Central Gateway.
+
+- **Headers**: `Authorization: Bearer <incomingSecret>` (authenticated via `S2SAuthGuard`).
+- **Body**:
+  ```json
+  {
+    "id": "cd0ad32d-bfb0-4819-9ba1-e5e6e3c7db34",
+    "username": "thanhba",
+    "email": "thanhba@example.com",
+    "avatarUrl": "https://lh3.googleusercontent.com/...",
+    "role": "USER",
+    "isActive": true
+  }
+  ```
+- **Response (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "user": {
+      "id": "cd0ad32d-bfb0-4819-9ba1-e5e6e3c7db34",
+      "username": "thanhba",
+      "email": "thanhba@example.com",
+      "role": "USER",
+      "isActive": true
+    }
+  }
+  ```
+
+### S2S Outbound Client (`S2SService`)
+
+To communicate with other services without hardcoding hostnames or tokens in environment files:
+
+```typescript
+const result = await this.s2sService.call<ResponseType>(
+  'central-gateway',
+  '/notifications/slack/community',
+  {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  },
+);
+```
+
+The service dynamically resolves `domain` and `apiPrefix`, injects `Authorization: Bearer <apiKey>`, and enforces timeout boundaries from the database.
+
+---
+
+## 6. Adding New Backend Modules
 
 When introducing new domain modules (e.g., puzzle scoring or user experiments):
 

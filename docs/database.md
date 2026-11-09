@@ -15,9 +15,12 @@ ORM and schema migrations across both environments are strictly managed via **Pr
 
 - **Provider**: Neon.tech (AWS Oregon `us-west-2`)
 - **Connection Mode**: Pooled connection (`ep-curly-math-ar8nnbms-pooler.c-4.us-west-2.aws.neon.tech`) with `sslmode=require&channel_binding=require`.
-- **Active Schemas**:
-  - `users`: Administrative user authentication and RBAC (`Role.ADMIN`, `Role.USER`).
+- **Active Models / Tables**:
+  - `users`: Synchronized shadow user profiles (`id`, `username`, `email`, `role`, `avatarUrl`, `isActive`).
+  - `service_connections`: Dynamic S2S connection registry (`slug`, `domain`, `apiPrefix`, `apiKey`, `incomingSecret`, `isActive`).
   - `simulation_runs`: Stores empirical runs, JSON parameters, Monte Carlo results, trial counts, and anonymous session IDs.
+  - `comments`: Nested two-level interactive discussions per simulation slug.
+  - `simulation_requests` & `simulation_request_votes`: Community simulation wishlists and voting.
 - **Automated Lifecycle**:
   - Applied automatically on deployment via `prisma migrate deploy`.
   - Admin bootstrap seeded via `prisma db seed`.
