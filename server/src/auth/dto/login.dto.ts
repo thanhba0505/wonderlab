@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, MaxLength, MinLength } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
 import { MinLengthIfProd } from './validation-helpers';
 
 export class LoginDto {
@@ -27,4 +27,13 @@ export class LoginDto {
   @MinLengthIfProd(8)
   @MaxLength(128)
   password!: string;
+
+  @ApiProperty({
+    example: false,
+    required: false,
+    description: 'Bỏ qua kiểm tra mật khẩu trong môi trường phát triển cục bộ',
+  })
+  @IsBoolean()
+  @IsOptional()
+  devBypass?: boolean;
 }

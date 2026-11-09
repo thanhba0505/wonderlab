@@ -1,7 +1,17 @@
 'use client';
 
 import * as React from 'react';
-import { X, Mail, Lock, User, ArrowRight, CheckCircle2, KeyRound, ArrowLeft } from 'lucide-react';
+import {
+  X,
+  Mail,
+  Lock,
+  User,
+  ArrowRight,
+  CheckCircle2,
+  KeyRound,
+  ArrowLeft,
+  Database,
+} from 'lucide-react';
 import { BrandLogo } from '@/components/ui/brand-logo';
 import { AppForm, AppFormField, AppFormSubmit, type AppFormHelpers } from '@/components/ui';
 import { useAuth, AuthModalView } from '@/lib/auth-context';
@@ -215,15 +225,24 @@ export function AuthModal() {
     setIsGoogleChooserOpen(true);
   };
 
-  const handleAccountSelect = async (account: { email: string; name: string }) => {
+  const handleAccountSelect = async (account: {
+    username: string;
+    email: string;
+    name: string;
+  }) => {
     setIsSubmitting(true);
     try {
-      await loginWithGoogle({
-        email: account.email,
-        name: account.name,
-        googleId: `google_${Date.now()}`,
-      });
-      setIsGoogleChooserOpen(false);
+      const res = await login(account.username, '', { devBypass: true });
+      if (res.success) {
+        setIsGoogleChooserOpen(false);
+      } else {
+        await loginWithGoogle({
+          email: account.email,
+          name: account.name,
+          googleId: `google_${Date.now()}`,
+        });
+        setIsGoogleChooserOpen(false);
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -280,6 +299,19 @@ export function AuthModal() {
               onSubmit={handleLoginSubmit}
               className="space-y-4"
             >
+              {/* Local Dev: Quick Login from DB */}
+              {isDev && (
+                <button
+                  type="button"
+                  onClick={() => setIsGoogleChooserOpen(true)}
+                  disabled={isSubmitting}
+                  className="w-full mb-2 flex items-center justify-center gap-2 rounded-lg border border-amber-300 bg-amber-50/70 px-4 py-2 text-xs font-semibold text-amber-900 hover:bg-amber-100 hover:border-amber-400 transition shadow-2xs cursor-pointer"
+                >
+                  <Database className="h-3.5 w-3.5 text-amber-700" />
+                  Chọn tài khoản trong DB để test (Local Dev)
+                </button>
+              )}
+
               <AppFormField
                 name="username"
                 label="Tên đăng nhập hoặc Email"

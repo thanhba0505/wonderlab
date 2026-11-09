@@ -66,6 +66,15 @@ export class AuthController {
   }
 
   @Public()
+  @Get('dev/users')
+  @ApiOperation({
+    summary: 'Lấy danh sách tài khoản trong CSDL để phục vụ popup đăng nhập nhanh trên local dev',
+  })
+  async getDevUsers() {
+    return this.authService.getDevUsers();
+  }
+
+  @Public()
   @Post('sso/callback')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({

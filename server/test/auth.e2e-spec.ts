@@ -99,6 +99,31 @@ describe('Auth & Session Security (e2e)', () => {
       expect(response.body.errors.username).toBeDefined();
       expect(Array.isArray(response.body.errors.username)).toBe(true);
     });
+
+    it('should login via devBypass on local dev without requiring real password', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/api/v1/auth/login')
+        .send({
+          username: 'admin',
+          password: 'any_dev_password',
+          devBypass: true,
+        })
+        .expect(200);
+
+      expect(response.body.user.username).toBe('admin');
+      expect(response.headers['set-cookie']).toBeDefined();
+    });
+  });
+
+  describe('GET /api/v1/auth/dev/users', () => {
+    it('should return list of dev users from database', async () => {
+      const response = await request(app.getHttpServer()).get('/api/v1/auth/dev/users').expect(200);
+
+      expect(Array.isArray(response.body)).toBe(true);
+      expect(response.body.length).toBeGreaterThan(0);
+      const admin = response.body.find((u: { username: string }) => u.username === 'admin');
+      expect(admin).toBeDefined();
+    });
   });
 
   describe('GET /api/v1/auth/me', () => {

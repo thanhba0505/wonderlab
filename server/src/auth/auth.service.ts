@@ -2,6 +2,7 @@ import {
   Injectable,
   UnauthorizedException,
   BadRequestException,
+  NotFoundException,
   Optional,
   Logger,
 } from '@nestjs/common';
@@ -43,6 +44,9 @@ export class AuthService {
       throw new BadRequestException('Dịch vụ xác thực Central Gateway chưa được khởi tạo.');
     }
 
+    const isDev = process.env.NODE_ENV !== 'production';
+    const isDevBypass = isDev && dto.devBypass === true;
+
     let gwRes: {
       user: {
         id: string;
@@ -69,9 +73,23 @@ export class AuthService {
         body: JSON.stringify({
           username: dto.username,
           password: dto.password,
+          devBypass: isDevBypass,
         }),
       });
     } catch {
+      // Trong môi trường dev nếu dùng devBypass và Gateway không phản hồi, tra cứu trực tiếp Wonderlab DB
+      if (isDevBypass) {
+        const localUser = await this.prisma.user.findFirst({
+          where: {
+            OR: [{ username: dto.username }, { email: dto.username.toLowerCase() }],
+            isActive: true,
+          },
+        });
+        if (localUser) {
+          return localUser;
+        }
+      }
+
       const msg = this.i18nService.t('auth.invalid_credentials', locale);
       throw new UnauthorizedException({
         message: msg,
@@ -97,6 +115,57 @@ export class AuthService {
     }
 
     return this.syncLocalUser(gwUser);
+  }
+
+  /**
+   * Lấy danh sách tài khoản trong CSDL phục vụ popup test trên local
+   */
+  async getDevUsers(): Promise<
+    Array<{
+      id: string;
+      username: string;
+      email: string | null;
+      role: Role;
+      avatarUrl: string | null;
+    }>
+  > {
+    if (process.env.NODE_ENV === 'production') {
+      throw new NotFoundException();
+    }
+
+    // 1. Thử gọi S2S sang Central Gateway
+    if (this.s2sService) {
+      try {
+        const gwUsers = await this.s2sService.call<
+          Array<{
+            id: string;
+            username: string;
+            email: string | null;
+            role: Role;
+            avatarUrl: string | null;
+          }>
+        >('central-gateway', '/auth/dev/users', { method: 'GET' });
+
+        if (Array.isArray(gwUsers) && gwUsers.length > 0) {
+          return gwUsers;
+        }
+      } catch {
+        // Fallback local DB
+      }
+    }
+
+    // 2. Tra cứu cơ sở dữ liệu Wonderlab
+    return this.prisma.user.findMany({
+      where: { isDeleted: false, isActive: true },
+      select: {
+        id: true,
+        username: true,
+        email: true,
+        role: true,
+        avatarUrl: true,
+      },
+      orderBy: { createdAt: 'asc' },
+    });
   }
 
   /**

@@ -28,7 +28,11 @@ interface AuthContextType {
   openProfileModal: () => void;
   closeProfileModal: () => void;
   // Actions
-  login: (username: string, password: string) => Promise<AuthActionResult>;
+  login: (
+    username: string,
+    password?: string,
+    options?: { devBypass?: boolean },
+  ) => Promise<AuthActionResult>;
   register: (username: string, email: string, password: string) => Promise<AuthActionResult>;
   verifyEmail: (email: string, code: string) => Promise<AuthActionResult>;
   resendOtp: (
@@ -160,14 +164,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     refreshUser();
   }, [refreshUser]);
 
-  const login = async (username: string, password: string): Promise<AuthActionResult> => {
+  const login = async (
+    username: string,
+    password = '',
+    options?: { devBypass?: boolean },
+  ): Promise<AuthActionResult> => {
     setIsLoading(true);
     try {
+      const isDevBypass =
+        options?.devBypass === true || (!password && process.env.NODE_ENV !== 'production');
       const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
         headers: getJsonHeaders(),
         credentials: 'include',
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({
+          username,
+          password: password || 'dev_bypass_password',
+          ...(isDevBypass ? { devBypass: true } : {}),
+        }),
       });
 
       const parsed = await parseAuthResponse<{ user: AuthUser }>(response);

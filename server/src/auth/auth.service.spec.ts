@@ -106,6 +106,30 @@ describe('AuthService', () => {
       );
     });
 
+    it('should allow devBypass in local development environment', async () => {
+      s2sService.call.mockResolvedValue({ user: mockUser });
+
+      const result = await authService.validateUser({
+        username: 'admin',
+        password: '',
+        devBypass: true,
+      });
+
+      expect(result).toBeDefined();
+      expect(result.username).toBe('admin');
+      expect(s2sService.call).toHaveBeenCalledWith(
+        'central-gateway',
+        '/auth/login',
+        expect.objectContaining({
+          body: JSON.stringify({
+            username: 'admin',
+            password: '',
+            devBypass: true,
+          }),
+        }),
+      );
+    });
+
     it('should throw UnauthorizedException with generic message when password does not match', async () => {
       s2sService.call.mockRejectedValue(new Error('Invalid username or password'));
 
