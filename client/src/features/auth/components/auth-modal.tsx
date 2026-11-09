@@ -7,6 +7,7 @@ import { AppForm, AppFormField, AppFormSubmit, type AppFormHelpers } from '@/com
 import { useAuth, AuthModalView } from '@/lib/auth-context';
 import { useTranslation } from '@/i18n';
 import { cn } from '@/lib/utils';
+import { GoogleAccountChooserModal } from './google-account-chooser-modal';
 
 export function AuthModal() {
   const {
@@ -29,6 +30,7 @@ export function AuthModal() {
   const [otpCode, setOtpCode] = React.useState<string[]>(['', '', '', '', '', '']);
   const [successMessage, setSuccessMessage] = React.useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = React.useState<boolean>(false);
+  const [isGoogleChooserOpen, setIsGoogleChooserOpen] = React.useState<boolean>(false);
   const [cooldown, setCooldown] = React.useState<number>(0);
   const isDev = process.env.NODE_ENV !== 'production';
 
@@ -280,28 +282,23 @@ export function AuthModal() {
     }
   };
 
-  // 7. Google OAuth Login Trigger
-  const handleGoogleLogin = async () => {
+  // 7. Google OAuth Login Trigger (Dev Account Chooser Popup)
+  const handleGoogleLogin = () => {
+    setIsGoogleChooserOpen(true);
+  };
+
+  const handleAccountSelect = async (account: { email: string; name: string }) => {
     setIsSubmitting(true);
-
-    // Prompt user for local dev simulation or real email
-    const simulatedEmail = window.prompt(
-      'Mô phỏng Đăng nhập Google: Nhập email Google của bạn (hoặc giữ nguyên để dùng tài khoản nghiên cứu):',
-      'researcher@wonderlab.local',
-    );
-
-    if (!simulatedEmail) {
+    try {
+      await loginWithGoogle({
+        email: account.email,
+        name: account.name,
+        googleId: `google_${Date.now()}`,
+      });
+      setIsGoogleChooserOpen(false);
+    } finally {
       setIsSubmitting(false);
-      return;
     }
-
-    await loginWithGoogle({
-      email: simulatedEmail,
-      name: simulatedEmail.split('@')[0],
-      googleId: `google_${Date.now()}`,
-    });
-
-    setIsSubmitting(false);
   };
 
   return (
@@ -803,6 +800,14 @@ export function AuthModal() {
           )}
         </div>
       </div>
+
+      {/* Local Dev Google Account Chooser Popup */}
+      <GoogleAccountChooserModal
+        isOpen={isGoogleChooserOpen}
+        onClose={() => setIsGoogleChooserOpen(false)}
+        onSelectAccount={handleAccountSelect}
+        appName="Wonderlab"
+      />
     </div>
   );
 }
