@@ -20,8 +20,6 @@ export function AuthModal() {
     verifyEmail,
     resendOtp,
     loginWithGoogle,
-    forgotPassword,
-    resetPassword,
   } = useAuth();
   const { dict } = useTranslation();
 
@@ -212,73 +210,7 @@ export function AuthModal() {
     }
   };
 
-  // 5. Submit Forgot Password
-  const handleForgotSubmit = async (
-    values: Record<string, unknown>,
-    helpers: AppFormHelpers<Record<string, unknown>>,
-  ) => {
-    setSuccessMessage(null);
-    const targetEmail = String(values.email || '').trim();
-    if (!targetEmail) {
-      helpers.setFieldError('email', 'Vui lòng nhập địa chỉ email.');
-      return;
-    }
-
-    setIsSubmitting(true);
-    const result = await forgotPassword(targetEmail);
-    setIsSubmitting(false);
-
-    if (result.success) {
-      setMode('reset');
-      setCooldown(60);
-      setSuccessMessage('Nếu email tồn tại, mã xác thực 6 số đã được gửi đến hộp thư.');
-    } else {
-      if (result.errors) {
-        helpers.setErrors(result.errors);
-      } else {
-        helpers.setFieldError('email', result.error || 'Có lỗi xảy ra khi xử lý yêu cầu.');
-      }
-    }
-  };
-
-  // 6. Submit Reset Password
-  const handleResetSubmit = async (
-    values: Record<string, unknown>,
-    helpers: AppFormHelpers<Record<string, unknown>>,
-  ) => {
-    setSuccessMessage(null);
-    const fullCode = otpCode.join('');
-
-    if (fullCode.length !== 6) {
-      helpers.setFieldError('code', 'Vui lòng nhập đủ 6 chữ số mã OTP.');
-      return;
-    }
-
-    const newPass = String(values.password || '');
-    const confPass = String(values.confirmPassword || '');
-
-    if (newPass !== confPass) {
-      helpers.setFieldError('confirmPassword', 'Mật khẩu xác nhận không khớp.');
-      return;
-    }
-
-    setIsSubmitting(true);
-    const result = await resetPassword(email, fullCode, newPass);
-    setIsSubmitting(false);
-
-    if (result.success) {
-      setMode('login');
-      setSuccessMessage('Đặt lại mật khẩu thành công! Bạn có thể đăng nhập ngay.');
-    } else {
-      if (result.errors) {
-        helpers.setErrors(result.errors);
-      } else {
-        helpers.setFieldError('password', result.error || 'Đặt lại mật khẩu thất bại.');
-      }
-    }
-  };
-
-  // 7. Google OAuth Login Trigger (Dev Account Chooser Popup)
+  // 5. Google OAuth Login Trigger (Dev Account Chooser Popup)
   const handleGoogleLogin = () => {
     setIsGoogleChooserOpen(true);
   };
@@ -659,29 +591,16 @@ export function AuthModal() {
 
           {/* VIEW: FORGOT PASSWORD */}
           {mode === 'forgot' && (
-            <AppForm
-              initialValues={{ email: email || '' }}
-              onSubmit={handleForgotSubmit}
-              className="space-y-4"
-            >
+            <div className="space-y-4">
               <p className="text-xs text-slate-600 leading-relaxed">
-                Nhập địa chỉ email đăng ký của bạn. Wonderlab sẽ gửi mã OTP 6 số để bạn tiến hành
-                khôi phục mật khẩu một cách an toàn.
+                Tài khoản Wonderlab được quản lý tập trung thông qua Central Gateway IAM Master. Để
+                khôi phục mật khẩu hoặc cấp lại quyền truy cập, vui lòng liên hệ quản trị viên hệ
+                thống.
               </p>
 
-              <AppFormField
-                name="email"
-                label="Địa chỉ Email tài khoản"
-                type="email"
-                required="Vui lòng nhập địa chỉ email"
-                placeholder="VD: researcher@gmail.com"
-                leftIcon={<Mail className="h-4 w-4" />}
-              />
-
-              <AppFormSubmit className="w-full font-semibold shadow-xs">
-                <ArrowRight className="h-4 w-4 mr-2" />
-                Gửi mã xác thực 6 số
-              </AppFormSubmit>
+              <div className="rounded-lg bg-slate-50 border border-slate-200 p-3 text-xs text-slate-700 font-mono">
+                Email hỗ trợ: admin@wonderlab.local
+              </div>
 
               <div className="pt-2 text-center">
                 <button
@@ -690,109 +609,12 @@ export function AuthModal() {
                     setMode('login');
                     setSuccessMessage(null);
                   }}
-                  className="inline-flex items-center gap-1 text-xs text-slate-500 hover:text-slate-800 font-medium cursor-pointer"
+                  className="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 font-medium cursor-pointer"
                 >
                   <ArrowLeft className="h-3 w-3" /> Quay lại Đăng nhập
                 </button>
               </div>
-            </AppForm>
-          )}
-
-          {/* VIEW: RESET PASSWORD */}
-          {mode === 'reset' && (
-            <AppForm
-              initialValues={{
-                code: otpCode.join(''),
-                password: '',
-                confirmPassword: '',
-              }}
-              onSubmit={handleResetSubmit}
-              className="space-y-3.5"
-            >
-              <div className="text-center">
-                <p className="text-xs text-slate-600">Nhập mã OTP 6 số đã gửi tới:</p>
-                <div className="font-mono font-bold text-slate-800 text-xs mt-0.5">{email}</div>
-              </div>
-
-              <AppFormField name="code">
-                {({ hasError }) => (
-                  <div className="flex justify-center gap-2 pt-1">
-                    {otpCode.map((digit, idx) => (
-                      <input
-                        key={idx}
-                        ref={el => {
-                          otpInputRefs.current[idx] = el;
-                        }}
-                        type="text"
-                        inputMode="numeric"
-                        maxLength={1}
-                        value={digit}
-                        onChange={e => handleOtpChange(idx, e.target.value)}
-                        onKeyDown={e => handleOtpKeyDown(idx, e)}
-                        className={cn(
-                          'h-10 w-10 rounded-lg border-2 text-center font-mono text-lg font-bold text-slate-900 focus:outline-none transition-colors',
-                          hasError
-                            ? 'border-red-500 focus:border-red-600'
-                            : 'border-slate-300 focus:border-blue-600',
-                        )}
-                      />
-                    ))}
-                  </div>
-                )}
-              </AppFormField>
-
-              <AppFormField
-                name="password"
-                label="Mật khẩu mới (Tối thiểu 8 ký tự)"
-                type="password"
-                showPasswordToggle
-                required="Vui lòng nhập mật khẩu mới"
-                placeholder="Mật khẩu mới..."
-                leftIcon={<Lock className="h-4 w-4" />}
-                rules={[{ minLength: 8, message: 'Mật khẩu phải có độ dài tối thiểu 8 ký tự' }]}
-              />
-
-              <AppFormField
-                name="confirmPassword"
-                label="Xác nhận lại mật khẩu mới"
-                type="password"
-                showPasswordToggle
-                required="Vui lòng xác nhận lại mật khẩu"
-                placeholder="Gõ lại mật khẩu mới..."
-                leftIcon={<KeyRound className="h-4 w-4" />}
-              />
-
-              <AppFormSubmit className="w-full font-semibold shadow-xs">
-                <CheckCircle2 className="h-4 w-4 mr-2" />
-                Cập nhật mật khẩu & Đăng nhập
-              </AppFormSubmit>
-
-              <div className="flex items-center justify-between pt-1 text-xs">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMode('login');
-                    setSuccessMessage(null);
-                  }}
-                  className="flex items-center gap-1 text-slate-500 hover:text-slate-800 font-medium cursor-pointer"
-                >
-                  <ArrowLeft className="h-3 w-3" /> Quay lại
-                </button>
-
-                <button
-                  type="button"
-                  disabled={cooldown > 0}
-                  onClick={() => handleResendOtp('RESET_PASSWORD')}
-                  className={`font-semibold cursor-pointer ${
-                    cooldown > 0
-                      ? 'text-slate-400 cursor-not-allowed font-mono'
-                      : 'text-blue-600 hover:text-blue-700 hover:underline'
-                  }`}
-                >
-                  {cooldown > 0 ? `Gửi lại mã (${cooldown}s)` : 'Gửi lại mã OTP'}
-                </button>
-              </div>
-            </AppForm>
+            </div>
           )}
         </div>
       </div>

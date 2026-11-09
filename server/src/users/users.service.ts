@@ -3,7 +3,7 @@ import { User, Role, Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { ListUsersQueryDto } from './dto/list-users-query.dto';
 
-export type SafeUser = Omit<User, 'passwordHash'>;
+export type SafeUser = User;
 
 export interface UserWithStats extends SafeUser {
   isDeleted: boolean;
@@ -27,30 +27,6 @@ export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
 
   /**
-   * Internal auth lookup - includes passwordHash for password verification
-   */
-  async findByUsernameWithHash(username: string): Promise<User | null> {
-    return this.prisma.user.findUnique({
-      where: { username },
-    });
-  }
-
-  /**
-   * Internal auth lookup by username or email
-   */
-  async findByIdentifierWithHash(identifier: string): Promise<User | null> {
-    const isEmail = identifier.includes('@');
-    if (isEmail) {
-      return this.prisma.user.findUnique({
-        where: { email: identifier.toLowerCase() },
-      });
-    }
-    return this.prisma.user.findUnique({
-      where: { username: identifier },
-    });
-  }
-
-  /**
    * Lookup user by email
    */
   async findByEmail(email: string): Promise<User | null> {
@@ -60,44 +36,21 @@ export class UsersService {
   }
 
   /**
-   * Lookup user by Google ID
-   */
-  async findByGoogleId(googleId: string): Promise<User | null> {
-    return this.prisma.user.findUnique({
-      where: { googleId },
-    });
-  }
-
-  /**
-   * Safe user lookup by ID - strips passwordHash
+   * User lookup by ID
    */
   async findById(id: string): Promise<SafeUser | null> {
-    const user = await this.prisma.user.findUnique({
+    return this.prisma.user.findUnique({
       where: { id },
     });
-
-    if (!user) {
-      return null;
-    }
-
-    const { passwordHash: _, ...safeUser } = user;
-    return safeUser;
   }
 
   /**
-   * Safe user lookup by username - strips passwordHash
+   * User lookup by username
    */
   async findByUsername(username: string): Promise<SafeUser | null> {
-    const user = await this.prisma.user.findUnique({
+    return this.prisma.user.findUnique({
       where: { username },
     });
-
-    if (!user) {
-      return null;
-    }
-
-    const { passwordHash: _, ...safeUser } = user;
-    return safeUser;
   }
 
   /**
@@ -106,38 +59,27 @@ export class UsersService {
   async create(data: {
     username: string;
     email?: string;
-    passwordHash?: string;
-    googleId?: string;
-    isEmailVerified?: boolean;
     avatarUrl?: string;
     role?: Role;
   }): Promise<SafeUser> {
-    const user = await this.prisma.user.create({
+    return this.prisma.user.create({
       data: {
         username: data.username,
         email: data.email?.toLowerCase(),
-        passwordHash: data.passwordHash,
-        googleId: data.googleId,
-        isEmailVerified: data.isEmailVerified ?? false,
         avatarUrl: data.avatarUrl,
         role: data.role ?? Role.USER,
       },
     });
-
-    const { passwordHash: _, ...safeUser } = user;
-    return safeUser;
   }
 
   /**
    * Update user fields
    */
   async update(id: string, data: Partial<User>): Promise<SafeUser> {
-    const updated = await this.prisma.user.update({
+    return this.prisma.user.update({
       where: { id },
       data,
     });
-    const { passwordHash: _, ...safeUser } = updated;
-    return safeUser;
   }
 
   /**
@@ -171,9 +113,7 @@ export class UsersService {
           username: true,
           email: true,
           role: true,
-          isEmailVerified: true,
           avatarUrl: true,
-          googleId: true,
           isDeleted: true,
           deletedAt: true,
           createdAt: true,

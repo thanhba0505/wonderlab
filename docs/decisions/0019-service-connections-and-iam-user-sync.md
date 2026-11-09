@@ -54,7 +54,7 @@ model ServiceConnection {
 - **Wonderlab Shadow User**: Wonderlab maintains a shadow user table storing:
   - `id`: Exact UUID issued by Central Gateway.
   - `username`, `email`, `avatarUrl`, `role` (`ADMIN` | `USER`), and `isActive`.
-  - Local password hashes are deprecated / optional, eliminating local credential storage.
+  - Local password hashes, Google IDs, and email verification flags are completely dropped from the database via migration `20261109150000_drop_redundant_auth_columns_and_otp_tokens`, along with the obsolete `otp_tokens` table. Argon2 dependency is eliminated from Wonderlab.
 - **Foreign Key Consistency**: Preserves referential integrity for Wonderlab domain data (`simulation_runs`, `comments`, and `simulation_requests`) without distributed joins.
 - **Immediate Session Revocation**: If a user is deactivated (`isActive: false`) in Central Gateway, subsequent JWT verification in Wonderlab's `JwtStrategy` immediately blocks access.
 

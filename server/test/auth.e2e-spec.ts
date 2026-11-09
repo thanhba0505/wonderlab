@@ -208,7 +208,6 @@ describe('Auth & Session Security (e2e)', () => {
         .expect(200);
 
       expect(response.body.user.email).toBe(googleOnlyEmail);
-      expect(response.body.user.isGoogleLinked).toBe(true);
 
       const cookies = response.headers['set-cookie'];
       expect(cookies).toBeDefined();

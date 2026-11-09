@@ -3,10 +3,8 @@ import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Role } from '@prisma/client';
 import { Response } from 'express';
-import * as argon2 from 'argon2';
 import { AuthService } from './auth.service';
 import { UsersService } from '../users/users.service';
-import { OtpService } from './otp.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { I18nService } from '../i18n/i18n.service';
 import { S2SService } from '../s2s/s2s.service';
@@ -33,10 +31,7 @@ describe('AuthService', () => {
     id: 'test-uuid-123',
     username: 'admin',
     email: 'admin@wonderlab.local',
-    passwordHash: '',
     role: Role.ADMIN,
-    googleId: null,
-    isEmailVerified: true,
     avatarUrl: null,
     isActive: true,
     isDeleted: false,
@@ -45,15 +40,8 @@ describe('AuthService', () => {
     updatedAt: new Date(),
   };
 
-  beforeAll(async () => {
-    // Generate valid argon2 hash for tests
-    mockUser.passwordHash = await argon2.hash('Admin@Wonderlab2026!');
-  });
-
   beforeEach(async () => {
     const mockUsersService = {
-      findByIdentifierWithHash: jest.fn(),
-      findByUsernameWithHash: jest.fn(),
       findById: jest.fn(),
       findByUsername: jest.fn(),
       findByEmail: jest.fn(),
@@ -63,11 +51,6 @@ describe('AuthService', () => {
 
     const mockJwtService = {
       sign: jest.fn().mockReturnValue('mock.jwt.token'),
-    };
-
-    const mockOtpService = {
-      createAndSendOtp: jest.fn(),
-      verifyOtp: jest.fn(),
     };
 
     prismaService = {
@@ -94,7 +77,6 @@ describe('AuthService', () => {
         I18nService,
         { provide: UsersService, useValue: mockUsersService },
         { provide: JwtService, useValue: mockJwtService },
-        { provide: OtpService, useValue: mockOtpService },
         { provide: PrismaService, useValue: prismaService },
         { provide: S2SService, useValue: mockS2SService },
       ],
@@ -117,7 +99,6 @@ describe('AuthService', () => {
 
       expect(result).toBeDefined();
       expect(result.username).toBe('admin');
-      expect('passwordHash' in result).toBe(false);
       expect(s2sService.call).toHaveBeenCalledWith(
         'central-gateway',
         '/auth/login',
@@ -161,13 +142,12 @@ describe('AuthService', () => {
         cookie: jest.fn(),
       } as unknown as Response;
 
-      const { passwordHash: _, ...safeUser } = mockUser;
-      const result = await authService.login(safeUser, mockResponse);
+      const result = await authService.login(mockUser, mockResponse);
 
       expect(jwtService.sign).toHaveBeenCalledWith({
-        sub: safeUser.id,
-        username: safeUser.username,
-        role: safeUser.role,
+        sub: mockUser.id,
+        username: mockUser.username,
+        role: mockUser.role,
       });
 
       expect(mockResponse.cookie).toHaveBeenCalledWith(
@@ -230,12 +210,9 @@ describe('AuthService', () => {
         email: 'sso@example.com',
         role: Role.USER,
         avatarUrl: null,
-        isEmailVerified: true,
         isActive: true,
         isDeleted: false,
         deletedAt: null,
-        passwordHash: null,
-        googleId: null,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
