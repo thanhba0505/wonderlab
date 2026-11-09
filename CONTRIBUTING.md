@@ -22,18 +22,19 @@ _Example_: `feat(simulations): add Monty Hall interactive simulation component`
 
 ## 2. Development Workflow
 
-Wonderlab uses a unified persistent worktree and trunk-based workflow targeting `develop`:
+Wonderlab uses a unified trunk-based workflow targeting `develop`:
 
-1. **Check Out an Assigned Worktree**:
-   Always work within persistent worktree directories (`Wonderlab-worktree-N`) to preserve caching:
+1. **Branch Off `origin/develop`**:
+   Always work directly within the primary workspace:
    ```bash
-   cd /Users/lethanhba/workspace/app/Wonderlab-worktree-1
+   cd /Users/lethanhba/workspace/app/Wonderlab
    git fetch origin
    git checkout -B <type>/<task-name> origin/develop
    ```
 2. **Implement Changes**:
    - Strictly follow the core guidelines documented in [AGENTS.md](AGENTS.md).
    - Zero secrets: never commit `.env` files or credentials.
+   - Maintain standard ports: Client `4100`, Server `4101`.
    - Maintain the "Clean Paper & Lab Editorial" design standard for UI components.
 3. **Mandatory Verification**:
    Before submitting changes, run the full verification pipeline:
@@ -45,8 +46,7 @@ Wonderlab uses a unified persistent worktree and trunk-based workflow targeting 
    Once all tests and builds pass cleanly:
    ```bash
    git fetch origin && git rebase origin/develop && git push origin HEAD:develop
-   git checkout -B worktree-1 origin/develop && git branch -d <type>/<task-name>
-   git -C /Users/lethanhba/workspace/app/Wonderlab pull origin develop
+   git checkout develop && git pull origin develop && git branch -d <type>/<task-name>
    ```
    _Note_: The `main` branch is strictly reserved for production releases and automated CD synchronization.
 

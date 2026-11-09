@@ -1,33 +1,26 @@
 ---
 name: git-workflow
-description: Git branching, Conventional Commits formatting, direct merge to develop, and persistent worktree protocol for Wonderlab.
+description: Git branching, Conventional Commits formatting, direct merge to develop, and single-workspace protocol for Wonderlab.
 ---
 
 # Git & GitHub Workflow Standards
 
-## 1. Mandatory Worktree-Exclusive Protocol
+## 1. Single-Workspace & Standard Ports Protocol
 
-All development MUST occur inside one of the 5 persistent worktrees. The main workspace (`Wonderlab`) is strictly an idle root anchor on `develop`.
+All development occurs directly in the primary workspace (`/Users/lethanhba/workspace/app/Wonderlab`). Git worktrees are forbidden.
 
-```bash
-# 1. Inspect active worktrees first
-git worktree list
-```
+### Standard Assigned Ports:
 
-### Persistent Worktrees & Allocated Ports:
+- **Wonderlab Client**: `http://localhost:4100` (`pnpm dev:client`)
+- **Wonderlab Server**: `http://localhost:4101` (`/api/v1`, `pnpm dev:server`)
+- **Central Gateway Client**: `http://localhost:5100`
+- **Central Gateway Server**: `http://localhost:5101` (`/api/v1`)
+- **Database**: Shared PostgreSQL on `127.0.0.1:5432`
 
-- `Wonderlab` (Main root): Client `4100`, Server `4101`. Branch: `develop` (strictly idle repo anchor, NO coding).
-- `Wonderlab-worktree-1`: Client `4200`, Server `4201`. Idle branch: `worktree-1` (tracking `origin/develop`).
-- `Wonderlab-worktree-2`: Client `4300`, Server `4301`. Idle branch: `worktree-2` (tracking `origin/develop`).
-- `Wonderlab-worktree-3`: Client `4400`, Server `4401`. Idle branch: `worktree-3` (tracking `origin/develop`).
-- `Wonderlab-worktree-4`: Client `4500`, Server `4501`, branch: `worktree-4` (tracking `origin/develop`).
-- `Wonderlab-worktree-5`: Client `4600`, Server `4601`, branch: `worktree-5` (tracking `origin/develop`).
-- Database: Shared PostgreSQL on `127.0.0.1:5432`.
-
-### Worktree Execution & Direct Merge Workflow:
+### Trunk-Based Execution & Direct Merge Workflow:
 
 ```bash
-cd /Users/lethanhba/workspace/app/Wonderlab-worktree-N
+cd /Users/lethanhba/workspace/app/Wonderlab
 git fetch origin
 git checkout -B <type>/<task-name> origin/develop
 
@@ -39,16 +32,13 @@ git fetch origin
 git rebase origin/develop
 git push origin HEAD:develop
 
-# Reset worktree back to idle tracking branch:
-git checkout -B worktree-N origin/develop
+# Cleanup local task branch and return to develop:
+git checkout develop
+git pull origin develop
 git branch -d <type>/<task-name>
-
-# Sync main workspace clean develop copy:
-git -C /Users/lethanhba/workspace/app/Wonderlab pull origin develop
 ```
 
-- Execute all tool calls (`edit_file`, `write_file`, `run_command`) targeting the selected worktree.
-- Never delete worktrees; persistent retention preserves caches and eliminates install overhead.
+- Execute all tool calls (`edit_file`, `write_file`, `run_command`) targeting the main repository.
 
 ---
 

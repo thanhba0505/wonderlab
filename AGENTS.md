@@ -4,29 +4,26 @@ Primary rules and standards for AI coding assistants working in Wonderlab.
 
 > [!CRITICAL]
 >
-> ### 🚨 Mandatory Worktree-Exclusive Protocol
+> ### 🚨 Mandatory Single-Workspace & Standard Ports Protocol
 >
-> 1. **Check allocations first**: Always run `git worktree list` on the very first turn.
-> 2. **Never code in main workspace**: `/Users/lethanhba/workspace/app/Wonderlab` is strictly an idle root anchor on `develop`. Never edit files, checkout branches, or run dev servers here.
-> 3. **Persistent Worktrees & Ports**:
->    - `Wonderlab-worktree-1`: Client `4200`, Server `4201`, branch `worktree-1`
->    - `Wonderlab-worktree-2`: Client `4300`, Server `4301`, branch `worktree-2`
->    - `Wonderlab-worktree-3`: Client `4400`, Server `4401`, branch `worktree-3`
->    - `Wonderlab-worktree-4`: Client `4500`, Server `4501`, branch `worktree-4`
->    - `Wonderlab-worktree-5`: Client `4600`, Server `4601`, branch `worktree-5`
->    - Database: Shared PostgreSQL container on `127.0.0.1:5432`
-> 4. **Execution Workflow**:
+> 1. **Primary Workspace**: `/Users/lethanhba/workspace/app/Wonderlab` is the sole and primary development workspace.
+> 2. **Standard Ecosystem Ports**:
+>    - Wonderlab Client: `http://localhost:4100`
+>    - Wonderlab Server: `http://localhost:4101` (`/api/v1`)
+>    - Central Gateway Client: `http://localhost:5100`
+>    - Central Gateway Server: `http://localhost:5101` (`/api/v1`)
+>    - Database: Local PostgreSQL 16 on `127.0.0.1:5432`
+> 3. **Execution Workflow**:
 >    ```bash
->    cd /Users/lethanhba/workspace/app/Wonderlab-worktree-N
+>    cd /Users/lethanhba/workspace/app/Wonderlab
 >    git fetch origin && git checkout -B <type>/<task-name> origin/develop
 >    # Edits & verification:
 >    pnpm check
 >    # Direct push to develop & cleanup:
 >    git fetch origin && git rebase origin/develop && git push origin HEAD:develop
->    git checkout -B worktree-N origin/develop && git branch -d <type>/<task-name>
->    git -C /Users/lethanhba/workspace/app/Wonderlab pull origin develop
+>    git checkout develop && git pull origin develop && git branch -d <type>/<task-name>
 >    ```
-> 5. **Tool Calls**: All `edit_file`, `write_file`, and `run_command` calls MUST use absolute paths or `cd` targeting the chosen worktree directory. Never delete worktrees (preserves caches).
+> 4. **No Worktrees**: Do not create or use git worktrees. All development and dev servers operate directly in the main repository using standard assigned ports.
 
 ---
 
@@ -104,7 +101,7 @@ Primary rules and standards for AI coding assistants working in Wonderlab.
   - _What to test_: Simulation math engines (paradox calculations, probability convergence), backend services (auth, hashing, permissions), and high-value HTTP E2E (`/health`, `/auth`). Target CI execution < 5s.
   - _Strictly forbid test bloat_: Never write unit tests for generic UI components, static dictionaries, controller pass-through mocks, or trivial utility wrappers (`cn()`).
 - **Dev Server Standard (`pnpm dev` only)**:
-  - STRICTLY run `pnpm dev` or `pnpm dev:client` (port 4100 or assigned worktree port) and `pnpm dev:server`.
+  - STRICTLY run `pnpm dev` or `pnpm dev:client` (port 4100) and `pnpm dev:server` (port 4101).
   - NEVER execute `pnpm start` or `next start`. `next start` binds to an immutable `BUILD_ID`; any build or `pnpm check` causes a mismatch resulting in `400 Bad Request` asset lockouts and broken CSS.
 
 ---
@@ -131,7 +128,7 @@ Primary rules and standards for AI coding assistants working in Wonderlab.
 
 ## 8. Non-Negotiable Agent Rules
 
-1. **Worktree First**: Always inspect `git worktree list` and code exclusively in an idle worktree. Never edit in the main workspace.
+1. **Trunk-Based Verification**: Branch off `origin/develop`, code directly in the repository workspace, verify thoroughly with `pnpm check`, and push to `develop`.
 2. **Read Before Writing**: Inspect existing files and documentation before editing.
 3. **No Fake Completions**: Execute tests/builds and inspect outputs; never claim success without verification.
 4. **No Scope Creep**: Implement only what was requested. Avoid speculative features or complex dependencies.

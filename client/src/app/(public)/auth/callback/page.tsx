@@ -31,7 +31,7 @@ function SsoCallbackHandler() {
         'wonderlab-default-pkce-verifier-client-side-auth';
 
       try {
-        const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4201/api/v1';
+        const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4101/api/v1';
         const res = await fetch(`${apiBase}/auth/sso/callback`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
