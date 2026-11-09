@@ -1,16 +1,17 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import { ThrottlerGuard } from '@nestjs/throttler';
-import request from 'supertest';
 import cookieParser from 'cookie-parser';
 import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/prisma/prisma.service';
+import { S2SService } from '../src/s2s/s2s.service';
 import { HttpExceptionFilter } from '../src/common/filters/http-exception.filter';
 import { createValidationPipe } from '../src/common/pipes/validation.pipe';
 
-describe('S2S Internal User Sync (e2e)', () => {
+describe('S2S Service Connections (e2e)', () => {
   let app: INestApplication;
   let prisma: PrismaService;
+  let s2sService: S2SService;
   const testSecret = 'test_incoming_secret_key_2026';
 
   beforeAll(async () => {
@@ -28,6 +29,7 @@ describe('S2S Internal User Sync (e2e)', () => {
     app.useGlobalPipes(createValidationPipe());
     await app.init();
     prisma = app.get<PrismaService>(PrismaService);
+    s2sService = app.get<S2SService>(S2SService);
 
     // Ensure test service connection exists
     await prisma.serviceConnection.upsert({
@@ -53,78 +55,19 @@ describe('S2S Internal User Sync (e2e)', () => {
     await prisma.serviceConnection.deleteMany({
       where: { slug: 'test-gateway' },
     });
-    await prisma.user.deleteMany({
-      where: { username: { in: ['e2e_sync_user'] } },
-    });
     await app.close();
   });
 
-  it('should reject request without Authorization header (401)', async () => {
-    await request(app.getHttpServer())
-      .post('/api/v1/internal/users/sync')
-      .send({
-        id: '99999999-9999-9999-9999-999999999999',
-        username: 'e2e_sync_user',
-        isActive: true,
-      })
-      .expect(401);
+  it('should resolve active service connection by slug', async () => {
+    const conn = await s2sService.getConnection('test-gateway');
+    expect(conn).toBeDefined();
+    expect(conn?.slug).toBe('test-gateway');
+    expect(conn?.isActive).toBe(true);
   });
 
-  it('should reject request with wrong Bearer token (401)', async () => {
-    await request(app.getHttpServer())
-      .post('/api/v1/internal/users/sync')
-      .set('Authorization', 'Bearer wrong_secret')
-      .send({
-        id: '99999999-9999-9999-9999-999999999999',
-        username: 'e2e_sync_user',
-        isActive: true,
-      })
-      .expect(401);
-  });
-
-  it('should create new shadow user with valid token (200)', async () => {
-    const res = await request(app.getHttpServer())
-      .post('/api/v1/internal/users/sync')
-      .set('Authorization', `Bearer ${testSecret}`)
-      .send({
-        id: '99999999-9999-9999-9999-999999999999',
-        username: 'e2e_sync_user',
-        email: 'e2e_sync@wonderlab.local',
-        role: 'USER',
-        isActive: true,
-      })
-      .expect(200);
-
-    expect(res.body.success).toBe(true);
-    expect(res.body.user.username).toBe('e2e_sync_user');
-    expect(res.body.user.isActive).toBe(true);
-
-    const dbUser = await prisma.user.findUnique({
-      where: { id: '99999999-9999-9999-9999-999999999999' },
-    });
-    expect(dbUser).toBeDefined();
-    expect(dbUser?.username).toBe('e2e_sync_user');
-  });
-
-  it('should update existing shadow user status (200)', async () => {
-    const res = await request(app.getHttpServer())
-      .post('/api/v1/internal/users/sync')
-      .set('Authorization', `Bearer ${testSecret}`)
-      .send({
-        id: '99999999-9999-9999-9999-999999999999',
-        username: 'e2e_sync_user',
-        email: 'e2e_sync@wonderlab.local',
-        role: 'USER',
-        isActive: false,
-      })
-      .expect(200);
-
-    expect(res.body.success).toBe(true);
-    expect(res.body.user.isActive).toBe(false);
-
-    const dbUser = await prisma.user.findUnique({
-      where: { id: '99999999-9999-9999-9999-999999999999' },
-    });
-    expect(dbUser?.isActive).toBe(false);
+  it('should throw NotFoundException for non-existent service connection on call', async () => {
+    await expect(s2sService.call('non-existent-slug', '/endpoint')).rejects.toThrow(
+      'Active service connection not found for slug: non-existent-slug',
+    );
   });
 });

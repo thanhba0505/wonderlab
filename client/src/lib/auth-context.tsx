@@ -224,8 +224,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       setPendingEmail(email);
-      setAuthModalMode('otp');
-      return { success: true, email, devOtpCode: parsed.data.devOtpCode };
+      setAuthModalMode('login');
+      return { success: true, email };
     } catch {
       return {
         success: false,

@@ -137,7 +137,7 @@ describe('Auth & Session Security (e2e)', () => {
     });
   });
 
-  describe('Full Registration & OTP Email Verification flow', () => {
+  describe('Full Registration & Login flow via Central Gateway', () => {
     const timestamp = Date.now();
     const testEmail = `newuser_${timestamp}@wonderlab.local`;
     const testUsername = `user_${timestamp}`;
@@ -145,12 +145,11 @@ describe('Auth & Session Security (e2e)', () => {
     let userAuthCookie: string;
 
     afterAll(async () => {
-      await prisma.otpToken.deleteMany({ where: { email: { contains: 'wonderlab.local' } } });
       await prisma.user.deleteMany({ where: { username: { startsWith: 'user_' } } });
       await prisma.user.deleteMany({ where: { email: { contains: 'puregoogle' } } });
     });
 
-    it('should register a new user and generate a 6-digit OTP', async () => {
+    it('should register a new user via Central Gateway Master IAM', async () => {
       const response = await request(app.getHttpServer())
         .post('/api/v1/auth/register')
         .send({
@@ -160,152 +159,45 @@ describe('Auth & Session Security (e2e)', () => {
         })
         .expect(201);
 
-      expect(response.body.requireOtp).toBe(true);
+      expect(response.body.requireOtp).toBe(false);
       expect(response.body.email).toBe(testEmail);
 
-      // Verify OTP was saved in DB
-      const otp = await prisma.otpToken.findFirst({
+      // Verify user was saved locally in Wonderlab DB
+      const user = await prisma.user.findFirst({
         where: { email: testEmail },
-        orderBy: { createdAt: 'desc' },
       });
-      expect(otp).toBeDefined();
-      expect(otp?.code).toHaveLength(6);
+      expect(user).toBeDefined();
+      expect(user?.username).toBe(testUsername);
     });
 
-    it('should prevent login before OTP verification', async () => {
+    it('should allow newly registered user to log in via Central Gateway credentials', async () => {
       const response = await request(app.getHttpServer())
         .post('/api/v1/auth/login')
         .send({
           username: testUsername,
           password: testPassword,
         })
-        .expect(401);
-
-      expect(response.body.message).toContain('chưa được xác thực');
-    });
-
-    it('should verify OTP, activate account, and issue session cookie', async () => {
-      const otp = await prisma.otpToken.findFirst({
-        where: { email: testEmail },
-        orderBy: { createdAt: 'desc' },
-      });
-
-      const response = await request(app.getHttpServer())
-        .post('/api/v1/auth/verify-email')
-        .send({
-          email: testEmail,
-          code: otp!.code,
-        })
         .expect(200);
 
-      expect(response.body.user.isEmailVerified).toBe(true);
       expect(response.body.user.username).toBe(testUsername);
-
       const cookies = response.headers['set-cookie'];
       expect(cookies).toBeDefined();
       userAuthCookie = Array.isArray(cookies) ? cookies.join('; ') : cookies;
       expect(userAuthCookie).toContain('access_token=');
     });
-
-    it('should allow user to change password when authenticated', async () => {
-      const newPassword = 'NewSecretPassword456!';
-      const response = await request(app.getHttpServer())
-        .post('/api/v1/auth/change-password')
-        .set('Cookie', userAuthCookie)
-        .send({
-          currentPassword: testPassword,
-          newPassword,
-        })
-        .expect(200);
-
-      expect(response.body.success).toBe(true);
-
-      // User should be able to login with new password
-      await request(app.getHttpServer())
-        .post('/api/v1/auth/login')
-        .send({
-          username: testUsername,
-          password: newPassword,
-        })
-        .expect(200);
-    });
-
-    it('should allow registering with non-standard email format and short password in non-production', async () => {
-      const devTimestamp = Date.now();
-      const devUser = `dev_${devTimestamp}`;
-      const devEmail = `arbitrary_email_${devTimestamp}`;
-      const devPass = '123';
-
-      const response = await request(app.getHttpServer())
-        .post('/api/v1/auth/register')
-        .send({
-          username: devUser,
-          email: devEmail,
-          password: devPass,
-        })
-        .expect(201);
-
-      expect(response.body.requireOtp).toBe(true);
-      expect(response.body.devOtpCode).toBeDefined();
-
-      // Verify OTP with dev bypass code '123456'
-      const verifyRes = await request(app.getHttpServer())
-        .post('/api/v1/auth/verify-email')
-        .send({
-          email: devEmail,
-          code: '123456',
-        })
-        .expect(200);
-
-      expect(verifyRes.body.user.username).toBe(devUser);
-
-      // Clean up
-      await prisma.otpToken.deleteMany({ where: { email: devEmail } });
-      await prisma.user.deleteMany({ where: { username: devUser } });
-    });
   });
 
-  describe('Google OAuth & Automatic Account Linking', () => {
+  describe('Google OAuth via Central Gateway', () => {
     const timestamp = Date.now();
-    const existingEmail = `linkuser_${timestamp}@wonderlab.local`;
-    const existingUsername = `linkuser_${timestamp}`;
     const googleOnlyEmail = `puregoogle_${timestamp}@wonderlab.local`;
-
-    beforeAll(async () => {
-      await prisma.user.create({
-        data: {
-          username: existingUsername,
-          email: existingEmail,
-          passwordHash: '$argon2id$v=19$m=65536,t=3,p=4$dummyhashforlinkingtest',
-          isEmailVerified: true,
-        },
-      });
-    });
 
     afterAll(async () => {
       await prisma.user.deleteMany({
-        where: {
-          OR: [{ email: existingEmail }, { email: googleOnlyEmail }],
-        },
+        where: { email: googleOnlyEmail },
       });
     });
 
-    it('should link Google account when email matches existing account', async () => {
-      const response = await request(app.getHttpServer())
-        .post('/api/v1/auth/google')
-        .send({
-          email: existingEmail,
-          googleId: `google-uid-999-${timestamp}`,
-          name: 'New User Google',
-        })
-        .expect(200);
-
-      expect(response.body.user.email).toBe(existingEmail);
-      expect(response.body.user.isGoogleLinked).toBe(true);
-      expect(response.body.user.hasPassword).toBe(true); // preserved existing password
-    });
-
-    it('should create new account for new Google user without password', async () => {
+    it('should authenticate or provision user with Google account via Central Gateway', async () => {
       const response = await request(app.getHttpServer())
         .post('/api/v1/auth/google')
         .send({
@@ -317,30 +209,11 @@ describe('Auth & Session Security (e2e)', () => {
 
       expect(response.body.user.email).toBe(googleOnlyEmail);
       expect(response.body.user.isGoogleLinked).toBe(true);
-      expect(response.body.user.hasPassword).toBe(false);
 
       const cookies = response.headers['set-cookie'];
+      expect(cookies).toBeDefined();
       const googleCookie = Array.isArray(cookies) ? cookies.join('; ') : cookies;
-
-      // Now set password for this Google account
-      const setPassRes = await request(app.getHttpServer())
-        .post('/api/v1/auth/set-password')
-        .set('Cookie', googleCookie)
-        .send({
-          newPassword: 'GoogleUserAddedPass123!',
-        })
-        .expect(200);
-
-      expect(setPassRes.body.success).toBe(true);
-
-      // Now user can log in with username/email and this new password
-      await request(app.getHttpServer())
-        .post('/api/v1/auth/login')
-        .send({
-          username: googleOnlyEmail,
-          password: 'GoogleUserAddedPass123!',
-        })
-        .expect(200);
+      expect(googleCookie).toContain('access_token=');
     });
   });
 });

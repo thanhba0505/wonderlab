@@ -15,11 +15,13 @@ describe('AuthService', () => {
   let authService: AuthService;
   let usersService: jest.Mocked<UsersService>;
   let jwtService: jest.Mocked<JwtService>;
+  let s2sService: { getConnection: jest.Mock; call: jest.Mock };
   let prismaService: {
     user: {
       findUnique: jest.Mock;
       create: jest.Mock;
       update: jest.Mock;
+      upsert: jest.Mock;
     };
     serviceConnection: {
       findFirst: jest.Mock;
@@ -73,6 +75,7 @@ describe('AuthService', () => {
         findUnique: jest.fn().mockResolvedValue(mockUser),
         create: jest.fn().mockResolvedValue(mockUser),
         update: jest.fn().mockResolvedValue(mockUser),
+        upsert: jest.fn().mockResolvedValue(mockUser),
       },
       serviceConnection: {
         findFirst: jest.fn().mockResolvedValue(null),
@@ -100,11 +103,12 @@ describe('AuthService', () => {
     authService = module.get<AuthService>(AuthService);
     usersService = module.get(UsersService);
     jwtService = module.get(JwtService);
+    s2sService = module.get(S2SService);
   });
 
   describe('validateUser', () => {
-    it('should validate and return safe user when credentials match', async () => {
-      usersService.findByIdentifierWithHash.mockResolvedValue(mockUser);
+    it('should validate and return safe user when credentials match on Central Gateway', async () => {
+      s2sService.call.mockResolvedValue({ user: mockUser });
 
       const result = await authService.validateUser({
         username: 'admin',
@@ -114,10 +118,15 @@ describe('AuthService', () => {
       expect(result).toBeDefined();
       expect(result.username).toBe('admin');
       expect('passwordHash' in result).toBe(false);
+      expect(s2sService.call).toHaveBeenCalledWith(
+        'central-gateway',
+        '/auth/login',
+        expect.objectContaining({ method: 'POST' }),
+      );
     });
 
     it('should throw UnauthorizedException with generic message when password does not match', async () => {
-      usersService.findByIdentifierWithHash.mockResolvedValue(mockUser);
+      s2sService.call.mockRejectedValue(new Error('Invalid username or password'));
 
       await expect(
         authService.validateUser({
@@ -128,7 +137,7 @@ describe('AuthService', () => {
     });
 
     it('should throw UnauthorizedException with localized English message when requested', async () => {
-      usersService.findByIdentifierWithHash.mockResolvedValue(null);
+      s2sService.call.mockRejectedValue(new Error('Invalid username or password'));
 
       await expect(
         authService.validateUser(

@@ -58,31 +58,30 @@ model ServiceConnection {
 - **Foreign Key Consistency**: Preserves referential integrity for Wonderlab domain data (`simulation_runs`, `comments`, and `simulation_requests`) without distributed joins.
 - **Immediate Session Revocation**: If a user is deactivated (`isActive: false`) in Central Gateway, subsequent JWT verification in Wonderlab's `JwtStrategy` immediately blocks access.
 
-### 3. S2S User Sync Handshake
+### 3. BFF Auth Proxy & On-Demand Shadow User Provisioning
 
-When user profile information or active status is updated on Central Gateway:
+To eliminate complex two-way synchronization and redundant fallbacks, user authentication is managed via an on-demand BFF Auth Proxy pattern:
 
-1. Central Gateway updates its master `users` record.
-2. Central Gateway queries active connections with `metadata.syncUser = true` and dispatches `POST /api/v1/internal/users/sync`.
-3. Wonderlab's `S2SAuthGuard` authenticates the request using constant-time token comparison (`crypto.timingSafeEqual`) against `service_connections.incomingSecret`.
-4. Wonderlab's `InternalUsersController` upserts the shadow user record.
+1. Wonderlab Server forwards authentication requests (`/auth/login`, `/auth/google`, `/auth/register`) directly to Central Gateway via outbound `s2sService.call(...)`.
+2. Central Gateway acts as the sole Master IAM authority, validating credentials and returning the authenticated user profile.
+3. Wonderlab Server upserts the shadow user record locally by ID to satisfy relational foreign key constraints (`comments`, `simulation_runs`, `simulation_requests`).
+4. Wonderlab issues an HttpOnly session cookie, validating JWT tokens offline in memory on every subsequent request without calling Central Gateway.
 
 ```mermaid
 sequenceDiagram
     autonumber
-    actor User as User / Admin
-    participant GW as Central Gateway IAM
-    participant DB_GW as Gateway Database
+    actor User as User
+    participant Client as Wonderlab Client
     participant WL as Wonderlab Server
+    participant GW as Central Gateway IAM
     participant DB_WL as Wonderlab Database
 
-    User->>GW: Update Profile / Toggle Status
-    GW->>DB_GW: Persist User Changes
-    GW->>WL: POST /api/v1/internal/users/sync (Bearer S2S Key)
-    WL->>WL: S2SAuthGuard (timingSafeEqual)
+    User->>Client: Submit Login / Register / Google Auth
+    Client->>WL: POST /api/v1/auth/*
+    WL->>GW: S2S Forward (POST /api/v1/auth/*)
+    GW-->>WL: Authenticated User Profile
     WL->>DB_WL: Upsert Shadow User (id, username, email, role, isActive)
-    WL-->>GW: 200 OK (Sync Acknowledged)
-    GW-->>User: 200 OK (Profile Updated)
+    WL-->>Client: 200 OK + HttpOnly Cookie (No page redirect!)
 ```
 
 ---

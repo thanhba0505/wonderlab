@@ -169,12 +169,8 @@ export function AuthModal() {
         helpers.setFieldError('username', result.error || 'Đăng ký tài khoản thất bại.');
       }
     } else {
-      setMode('otp');
-      setCooldown(60);
-      if (result.devOtpCode) {
-        setOtpCode(result.devOtpCode.split(''));
-      }
-      setSuccessMessage('Đăng ký thành công! Vui lòng nhập mã OTP 6 số để kích hoạt.');
+      setMode('login');
+      setSuccessMessage('Đăng ký tài khoản thành công! Vui lòng đăng nhập để tiếp tục.');
     }
   };
 

@@ -40,9 +40,7 @@ server/
 │   ├── prisma/                     # Global Prisma database service
 │   │   ├── prisma.service.ts       # Connection lifecycle management
 │   │   └── prisma.module.ts
-│   ├── s2s/                        # Service-to-Service communication & user sync
-│   │   ├── dto/                    # SyncUserDto
-│   │   ├── internal-users.controller.ts # POST /api/v1/internal/users/sync
+│   ├── s2s/                        # Service-to-Service communication & client
 │   │   ├── s2s-auth.guard.ts       # Timing-safe S2S Bearer token guard
 │   │   ├── s2s.service.ts          # S2S client caller & connection lookup
 │   │   └── s2s.module.ts           # @Global() S2S module
@@ -144,27 +142,16 @@ Retrieves the recent run history for the active client session.
 
 ---
 
-## 5. Service-to-Service (S2S) & Shadow User Sync Contract
+## 5. Service-to-Service (S2S) & Central Gateway BFF Auth Proxy
 
-Wonderlab integrates with the broader ecosystem (including Central Gateway IAM) via dynamic database-backed connections (`service_connections` table).
+Wonderlab integrates with Central Gateway via dynamic database-backed connections (`service_connections` table).
 
-### `POST /api/v1/internal/users/sync`
+### BFF Auth Proxy Architecture
 
-Synchronizes user profile updates and status changes (`isActive: true/false`) pushed from Central Gateway.
-
-- **Headers**: `Authorization: Bearer <incomingSecret>` (authenticated via `S2SAuthGuard`).
-- **Body**:
-  ```json
-  {
-    "id": "cd0ad32d-bfb0-4819-9ba1-e5e6e3c7db34",
-    "username": "thanhba",
-    "email": "thanhba@example.com",
-    "avatarUrl": "https://lh3.googleusercontent.com/...",
-    "role": "USER",
-    "isActive": true
-  }
-  ```
-- **Response (200 OK)**:
+- **Delegated Credentials Verification**: Wonderlab acts as a BFF proxy forwarding authentication (`/auth/login`, `/auth/google`, `/auth/register`) to Central Gateway Master IAM via outbound `s2sService.call(...)`.
+- **Zero Redundant Fallbacks**: Password verification and master credentials are owned strictly by Central Gateway. Wonderlab does not keep fallback password verification.
+- **Local Shadow Profiles**: Successful logins upsert a local profile in Wonderlab (`id`, `username`, `email`, `role`, `avatarUrl`, `isActive`) ensuring all foreign keys (`comments`, `simulation_runs`, `simulation_requests`) remain valid.
+- **Offline JWT Verification**: Authenticated sessions are issued as Wonderlab HttpOnly cookies. Every subsequent request is verified offline in memory via `JwtStrategy` with 0 network calls to Central Gateway.
   ```json
   {
     "success": true,

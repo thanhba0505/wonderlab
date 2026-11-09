@@ -42,7 +42,7 @@ flowchart TD
 
     Client -->|REST API / HttpOnly Session| API
     Client -.->|OAuth2 PKCE SSO Redirect| Gateway
-    Gateway -->|User Sync (POST /internal/users/sync)| S2S
+    API -->|BFF Auth Proxy (S2S: /auth/login, /auth/google)| Gateway
     S2S -->|Outbound Webhooks / Alerts| Gateway
     Server -->|Prisma ORM v6| DB
 ```
