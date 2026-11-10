@@ -44,6 +44,7 @@ describe('AuthModal (Register flow)', () => {
       resetPassword: vi.fn(),
       changePassword: vi.fn(),
       setPassword: vi.fn(),
+      updateProfile: vi.fn(),
       logout: vi.fn(),
       refreshUser: vi.fn(),
     });

@@ -1,7 +1,15 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  NotFoundException,
+  BadRequestException,
+  ConflictException,
+} from '@nestjs/common';
 import { User, Role, Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { S2SService } from '../s2s/s2s.service';
 import { ListUsersQueryDto } from './dto/list-users-query.dto';
+import { UpdateMyProfileDto } from './dto/update-my-profile.dto';
 
 export type SafeUser = User;
 
@@ -24,7 +32,12 @@ export interface PaginatedUsersResult {
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly prisma: PrismaService) {}
+  private readonly logger = new Logger(UsersService.name);
+
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly s2sService: S2SService,
+  ) {}
 
   /**
    * Lookup user by email
@@ -114,6 +127,7 @@ export class UsersService {
           email: true,
           role: true,
           avatarUrl: true,
+          isActive: true,
           isDeleted: true,
           deletedAt: true,
           createdAt: true,
@@ -143,54 +157,128 @@ export class UsersService {
   }
 
   /**
-   * Update user role (ADMIN <-> USER)
+   * Update user role (ADMIN <-> USER) with S2S sync to Central Gateway Master IAM
    */
-  async updateRole(id: string, role: Role): Promise<SafeUser> {
+  async updateRole(id: string, role: Role, currentAdminId?: string): Promise<SafeUser> {
+    if (currentAdminId && id === currentAdminId && role !== Role.ADMIN) {
+      throw new BadRequestException('Không thể tự hạ cấp tài khoản quản trị viên của chính bạn.');
+    }
+
     const existing = await this.prisma.user.findUnique({ where: { id } });
     if (!existing) {
       throw new NotFoundException('Không tìm thấy tài khoản người dùng.');
     }
 
+    // 1. Sync to Central Gateway Master IAM via S2S
+    try {
+      await this.s2sService.call('central-gateway', `/users/${id}/role`, {
+        method: 'PATCH',
+        body: JSON.stringify({ role }),
+      });
+    } catch (err: unknown) {
+      this.logger.warn(
+        `Failed S2S updateRole for user ${id} on central-gateway: ${(err as Error).message}`,
+      );
+    }
+
+    // 2. Update local shadow user
     const updated = await this.prisma.user.update({
       where: { id },
       data: { role },
-      select: {
-        id: true,
-        username: true,
-        email: true,
-        role: true,
-        createdAt: true,
-        updatedAt: true,
-      },
     });
 
-    return updated as SafeUser;
+    return updated;
   }
 
   /**
-   * Delete user (Soft Delete, Admin only)
+   * Update user active/inactive status with S2S sync to Central Gateway Master IAM
    */
-  async delete(id: string, currentAdminId: string): Promise<{ success: boolean; message: string }> {
-    if (id === currentAdminId) {
-      throw new BadRequestException('Không thể tự xóa tài khoản của chính bạn.');
+  async updateStatus(id: string, isActive: boolean, currentAdminId?: string): Promise<SafeUser> {
+    if (currentAdminId && id === currentAdminId && !isActive) {
+      throw new BadRequestException(
+        'Không thể tự vô hiệu hóa tài khoản quản trị viên của chính bạn.',
+      );
     }
 
-    const user = await this.prisma.user.findUnique({ where: { id } });
-    if (!user || user.isDeleted) {
-      throw new NotFoundException('Người dùng không tồn tại hoặc đã được xóa trước đó.');
+    const existing = await this.prisma.user.findUnique({ where: { id } });
+    if (!existing) {
+      throw new NotFoundException('Không tìm thấy tài khoản người dùng.');
     }
 
-    await this.prisma.user.update({
+    // 1. Sync to Central Gateway Master IAM via S2S
+    try {
+      await this.s2sService.call('central-gateway', `/users/${id}/status`, {
+        method: 'PATCH',
+        body: JSON.stringify({ isActive }),
+      });
+    } catch (err: unknown) {
+      this.logger.warn(
+        `Failed S2S updateStatus for user ${id} on central-gateway: ${(err as Error).message}`,
+      );
+    }
+
+    // 2. Update local shadow user
+    const updated = await this.prisma.user.update({
       where: { id },
+      data: { isActive },
+    });
+
+    return updated;
+  }
+
+  /**
+   * Self profile update (username and/or email only) with S2S sync to Central Gateway Master IAM
+   */
+  async updateProfile(userId: string, data: UpdateMyProfileDto): Promise<SafeUser> {
+    const existing = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!existing) {
+      throw new NotFoundException('Không tìm thấy tài khoản người dùng.');
+    }
+
+    if (data.username && data.username !== existing.username) {
+      const conflict = await this.prisma.user.findUnique({
+        where: { username: data.username },
+      });
+      if (conflict) {
+        throw new ConflictException('Tên người dùng đã được sử dụng.');
+      }
+    }
+
+    if (data.email && data.email !== existing.email) {
+      const conflict = await this.prisma.user.findUnique({
+        where: { email: data.email.toLowerCase() },
+      });
+      if (conflict) {
+        throw new ConflictException('Địa chỉ email đã được sử dụng.');
+      }
+    }
+
+    // 1. Sync to Central Gateway Master IAM via S2S
+    try {
+      await this.s2sService.call('central-gateway', `/users/${userId}/profile`, {
+        method: 'PATCH',
+        body: JSON.stringify({
+          username: data.username,
+          email: data.email?.toLowerCase(),
+        }),
+      });
+    } catch (err: unknown) {
+      this.logger.warn(
+        `Failed S2S updateProfile for user ${userId} on central-gateway: ${(err as Error).message}`,
+      );
+    }
+
+    // 2. Update local shadow user
+    const updated = await this.prisma.user.update({
+      where: { id: userId },
       data: {
-        isDeleted: true,
-        deletedAt: new Date(),
+        ...(data.username ? { username: data.username } : {}),
+        ...(data.email !== undefined
+          ? { email: data.email ? data.email.toLowerCase() : null }
+          : {}),
       },
     });
 
-    return {
-      success: true,
-      message: 'Người dùng đã được xóa thành công.',
-    };
+    return updated;
   }
 }

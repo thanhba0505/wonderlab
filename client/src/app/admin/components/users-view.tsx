@@ -1,12 +1,13 @@
 'use client';
 
 import * as React from 'react';
-import { Shield, RefreshCw, Trash2 } from 'lucide-react';
+import { Shield, RefreshCw } from 'lucide-react';
 import {
   AppTableFilter,
   AppTag,
   AppButton,
   AppConfirmModal,
+  AppSelect,
   type AppTableColumn,
   type AppFilterField,
   type AppActiveFilter,
@@ -15,7 +16,7 @@ import {
   AdminUserItem,
   fetchAdminUsers,
   updateAdminUserRole,
-  deleteAdminUser,
+  updateAdminUserStatus,
 } from '@/lib/admin-api';
 
 interface UsersViewProps {
@@ -35,19 +36,12 @@ export function UsersView({ currentAdminUsername }: UsersViewProps) {
   const [sortColumn, setSortColumn] = React.useState<string>('createdAt');
   const [sortDirection, setSortDirection] = React.useState<'asc' | 'desc'>('desc');
   const [updatingUserId, setUpdatingUserId] = React.useState<string | null>(null);
-  const [deletingUserId, setDeletingUserId] = React.useState<string | null>(null);
-  const [confirmModal, setConfirmModal] = React.useState<
-    | {
-        type: 'role';
-        user: AdminUserItem;
-        nextRole: 'ADMIN' | 'USER';
-      }
-    | {
-        type: 'delete';
-        user: AdminUserItem;
-      }
-    | null
-  >(null);
+  const [confirmModal, setConfirmModal] = React.useState<{
+    type: 'role' | 'status';
+    user: AdminUserItem;
+    nextRole?: 'ADMIN' | 'USER';
+    nextStatus?: boolean;
+  } | null>(null);
 
   const loadUsers = React.useCallback(
     async (targetPage = page, targetLimit = limit, search = appliedSearch, role = appliedRole) => {
@@ -103,51 +97,53 @@ export function UsersView({ currentAdminUsername }: UsersViewProps) {
     loadUsers(1, nextLimit, appliedSearch, appliedRole);
   };
 
-  const handleToggleRole = (user: AdminUserItem) => {
+  const handleRoleChange = (user: AdminUserItem, newRole: string) => {
     if (user.username === currentAdminUsername) {
-      alert('Không thể tự hạ cấp tài khoản quản trị viên của chính bạn.');
       return;
     }
+    if (newRole === user.role) return;
 
-    const nextRole = user.role === 'ADMIN' ? 'USER' : 'ADMIN';
-    setConfirmModal({ type: 'role', user, nextRole });
+    setConfirmModal({
+      type: 'role',
+      user,
+      nextRole: newRole as 'ADMIN' | 'USER',
+    });
   };
 
-  const handleDeleteUser = (user: AdminUserItem) => {
+  const handleStatusToggle = (user: AdminUserItem) => {
     if (user.username === currentAdminUsername) {
-      alert('Không thể tự xóa tài khoản quản trị viên của chính bạn.');
       return;
     }
 
-    setConfirmModal({ type: 'delete', user });
+    setConfirmModal({
+      type: 'status',
+      user,
+      nextStatus: !user.isActive,
+    });
   };
 
   const handleConfirmAction = async () => {
     if (!confirmModal) return;
 
-    if (confirmModal.type === 'role') {
-      const { user, nextRole } = confirmModal;
-      setUpdatingUserId(user.id);
-      const res = await updateAdminUserRole(user.id, nextRole);
+    setUpdatingUserId(confirmModal.user.id);
+
+    if (confirmModal.type === 'role' && confirmModal.nextRole) {
+      const res = await updateAdminUserRole(confirmModal.user.id, confirmModal.nextRole);
       if (res.success) {
         await loadUsers();
       } else {
         alert(res.error || 'Lỗi khi cập nhật vai trò');
       }
-      setUpdatingUserId(null);
-    } else if (confirmModal.type === 'delete') {
-      const { user } = confirmModal;
-      setDeletingUserId(user.id);
-      const res = await deleteAdminUser(user.id);
+    } else if (confirmModal.type === 'status' && confirmModal.nextStatus !== undefined) {
+      const res = await updateAdminUserStatus(confirmModal.user.id, confirmModal.nextStatus);
       if (res.success) {
-        setUsers(prev => prev.map(u => (u.id === user.id ? { ...u, isDeleted: true } : u)));
         await loadUsers();
       } else {
-        alert(res.error || 'Lỗi khi xóa người dùng');
+        alert(res.error || 'Lỗi khi cập nhật trạng thái');
       }
-      setDeletingUserId(null);
     }
 
+    setUpdatingUserId(null);
     setConfirmModal(null);
   };
 
@@ -219,6 +215,11 @@ export function UsersView({ currentAdminUsername }: UsersViewProps) {
     });
   }
 
+  const roleOptions = [
+    { value: 'ADMIN', label: 'Quản trị viên' },
+    { value: 'USER', label: 'Người dùng' },
+  ];
+
   const columns: AppTableColumn<AdminUserItem>[] = [
     {
       key: 'username',
@@ -259,17 +260,75 @@ export function UsersView({ currentAdminUsername }: UsersViewProps) {
     {
       key: 'role',
       header: 'Vai trò',
-      width: 130,
+      width: 170,
       align: 'center',
-      render: item => (
-        <AppTag
-          variant={item.role === 'ADMIN' ? 'blue' : 'default'}
-          size="sm"
-          icon={<Shield className="h-3 w-3 mr-1" />}
-        >
-          {item.role}
-        </AppTag>
-      ),
+      render: item => {
+        const isCurrent = item.username === currentAdminUsername;
+        const isUpdating = updatingUserId === item.id;
+
+        if (item.isDeleted) {
+          return (
+            <AppTag
+              variant={item.role === 'ADMIN' ? 'blue' : 'default'}
+              size="sm"
+              icon={<Shield className="h-3 w-3 mr-1" />}
+            >
+              {item.role}
+            </AppTag>
+          );
+        }
+
+        return (
+          <AppSelect
+            size="sm"
+            value={item.role}
+            disabled={isCurrent || isUpdating}
+            options={roleOptions}
+            onValueChange={v => handleRoleChange(item, v)}
+            containerClassName="w-[150px]"
+          />
+        );
+      },
+    },
+    {
+      key: 'isActive',
+      header: 'Trạng thái',
+      width: 110,
+      align: 'center',
+      render: item => {
+        const isCurrent = item.username === currentAdminUsername;
+        const isUpdating = updatingUserId === item.id;
+
+        if (item.isDeleted) {
+          return <span className="text-xs text-slate-300 font-mono select-none">—</span>;
+        }
+
+        return (
+          <button
+            type="button"
+            role="switch"
+            aria-checked={item.isActive}
+            aria-label={`Trạng thái ${item.username}`}
+            disabled={isCurrent || isUpdating}
+            onClick={() => handleStatusToggle(item)}
+            className={`
+              relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full
+              border-2 border-transparent transition-colors duration-200 ease-in-out
+              focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2
+              disabled:opacity-50 disabled:cursor-not-allowed
+              ${item.isActive ? 'bg-emerald-500' : 'bg-slate-300'}
+            `}
+          >
+            <span
+              className={`
+                pointer-events-none inline-block h-3.5 w-3.5 rounded-full bg-white shadow-sm
+                ring-0 transition-transform duration-200 ease-in-out
+                ${item.isActive ? 'translate-x-4' : 'translate-x-0.5'}
+              `}
+            />
+          </button>
+        );
+      },
     },
     {
       key: 'runs',
@@ -307,57 +366,25 @@ export function UsersView({ currentAdminUsername }: UsersViewProps) {
         </span>
       ),
     },
-    {
-      key: 'isDeleted',
-      header: 'Đã xoá',
-      width: 90,
-      align: 'center',
-      render: item =>
-        item.isDeleted ? (
-          <span className="inline-flex items-center text-xs font-semibold text-rose-600 bg-rose-50 border border-rose-200/80 px-2 py-0.5 rounded-md whitespace-nowrap">
-            Đã xoá
-          </span>
-        ) : null,
-    },
-    {
-      key: 'actions',
-      header: 'Hành động',
-      width: 220,
-      align: 'center',
-      render: item => {
-        const isCurrent = item.username === currentAdminUsername;
-        const isUpdating = updatingUserId === item.id;
-        const isDeleting = deletingUserId === item.id;
-        if (item.isDeleted) {
-          return <span className="text-xs text-slate-300 font-mono select-none">—</span>;
-        }
-        return (
-          <div className="flex items-center justify-center gap-1.5">
-            <AppButton
-              variant="outline"
-              size="sm"
-              disabled={isCurrent || isUpdating || isDeleting}
-              onClick={() => handleToggleRole(item)}
-              className="text-xs h-7 px-2.5 border-slate-300 text-slate-700 hover:bg-slate-50"
-              isLoading={isUpdating}
-            >
-              {item.role === 'ADMIN' ? 'Hạ xuống USER' : 'Nâng lên ADMIN'}
-            </AppButton>
-            <AppButton
-              variant="ghost"
-              size="sm"
-              disabled={isCurrent || isUpdating || isDeleting}
-              onClick={() => handleDeleteUser(item)}
-              className="text-xs h-7 px-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50"
-              title="Xóa người dùng"
-              leftIcon={<Trash2 className="h-3.5 w-3.5" />}
-              isLoading={isDeleting}
-            />
-          </div>
-        );
-      },
-    },
   ];
+
+  const getConfirmModalTitle = () => {
+    if (!confirmModal) return '';
+    if (confirmModal.type === 'status') {
+      return confirmModal.nextStatus ? 'Xác nhận kích hoạt tài khoản' : 'Xác nhận vô hiệu hóa';
+    }
+    return 'Xác nhận thay đổi vai trò';
+  };
+
+  const getConfirmModalMessage = () => {
+    if (!confirmModal) return '';
+    if (confirmModal.type === 'status') {
+      return confirmModal.nextStatus
+        ? `Bạn có chắc muốn kích hoạt lại tài khoản "${confirmModal.user.username}"?`
+        : `Bạn có chắc muốn vô hiệu hóa tài khoản "${confirmModal.user.username}"? Người dùng sẽ không thể đăng nhập.`;
+    }
+    return `Bạn có chắc muốn chuyển vai trò của "${confirmModal.user.username}" sang "${confirmModal.nextRole}"?`;
+  };
 
   return (
     <>
@@ -418,17 +445,17 @@ export function UsersView({ currentAdminUsername }: UsersViewProps) {
         isOpen={Boolean(confirmModal)}
         onClose={() => setConfirmModal(null)}
         onConfirm={handleConfirmAction}
-        title={
-          confirmModal?.type === 'delete' ? 'Xác nhận xóa tài khoản' : 'Xác nhận thay đổi vai trò'
+        title={getConfirmModalTitle()}
+        message={getConfirmModalMessage()}
+        confirmText={
+          confirmModal?.type === 'status'
+            ? confirmModal.nextStatus
+              ? 'Kích hoạt'
+              : 'Vô hiệu hóa'
+            : 'Cập nhật vai trò'
         }
-        message={
-          confirmModal?.type === 'delete'
-            ? `Bạn có chắc chắn muốn xóa tài khoản "${confirmModal.user.username}"?`
-            : `Bạn có chắc muốn chuyển vai trò của "${confirmModal?.user.username}" sang "${confirmModal?.nextRole}"?`
-        }
-        confirmText={confirmModal?.type === 'delete' ? 'Xóa người dùng' : 'Cập nhật vai trò'}
-        variant={confirmModal?.type === 'delete' ? 'danger' : 'primary'}
-        isLoading={Boolean(updatingUserId || deletingUserId)}
+        variant={confirmModal?.type === 'status' && !confirmModal.nextStatus ? 'danger' : 'primary'}
+        isLoading={Boolean(updatingUserId)}
       />
     </>
   );

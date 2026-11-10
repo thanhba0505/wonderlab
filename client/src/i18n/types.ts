@@ -143,6 +143,15 @@ export interface ProfileDictionary {
   password_change_failed: string;
   password_set_success: string;
   password_set_failed: string;
+  edit_profile_title: string;
+  edit_profile_desc: string;
+  username_label: string;
+  username_placeholder: string;
+  email_label: string;
+  email_placeholder: string;
+  save_profile: string;
+  profile_updated_success: string;
+  profile_update_failed: string;
 }
 
 export interface AdminNavDictionary {

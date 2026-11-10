@@ -49,6 +49,7 @@ interface AuthContextType {
   resetPassword: (email: string, code: string, newPassword: string) => Promise<AuthActionResult>;
   changePassword: (currentPassword: string, newPassword: string) => Promise<AuthActionResult>;
   setPassword: (newPassword: string) => Promise<AuthActionResult>;
+  updateProfile: (data: { username?: string; email?: string }) => Promise<AuthActionResult>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
 }
@@ -483,6 +484,43 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const updateProfile = async (data: {
+    username?: string;
+    email?: string;
+  }): Promise<AuthActionResult> => {
+    setIsLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/me`, {
+        method: 'PATCH',
+        headers: {
+          ...getJsonHeaders(),
+          'Accept-Language': getActiveLocale(),
+        },
+        credentials: 'include',
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        const parsed = await parseAuthResponse(response);
+        return {
+          success: false,
+          error: parsed.error || 'Lỗi khi cập nhật thông tin cá nhân.',
+        };
+      }
+
+      // Refresh local user state after profile update
+      await refreshUser();
+      return { success: true };
+    } catch {
+      return {
+        success: false,
+        error: 'Lỗi kết nối khi cập nhật thông tin.',
+      };
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const logout = async (): Promise<void> => {
     setIsLoading(true);
     try {
@@ -522,6 +560,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         resetPassword,
         changePassword,
         setPassword,
+        updateProfile,
         logout,
         refreshUser,
       }}
