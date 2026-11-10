@@ -5,6 +5,8 @@ import request from 'supertest';
 import cookieParser from 'cookie-parser';
 import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/prisma/prisma.service';
+import { Role } from '@prisma/client';
+import { S2SService } from '../src/s2s/s2s.service';
 import { HttpExceptionFilter } from '../src/common/filters/http-exception.filter';
 import { createValidationPipe } from '../src/common/pipes/validation.pipe';
 
@@ -28,6 +30,127 @@ describe('Auth & Session Security (e2e)', () => {
     app.useGlobalPipes(createValidationPipe());
     await app.init();
     prisma = app.get<PrismaService>(PrismaService);
+    const s2sService = app.get<S2SService>(S2SService);
+
+    const mockUsers = new Map<
+      string,
+      {
+        id: string;
+        username: string;
+        email: string | null;
+        role: Role;
+        avatarUrl: string | null;
+        password?: string;
+      }
+    >();
+
+    jest
+      .spyOn(s2sService, 'call')
+      .mockImplementation(
+        async <T>(slug: string, endpoint: string, options?: RequestInit): Promise<T> => {
+          if (slug === 'central-gateway') {
+            const body = options?.body
+              ? (JSON.parse(options.body as string) as Record<string, unknown>)
+              : {};
+
+            if (endpoint === '/auth/login') {
+              const username = body.username as string;
+              const password = body.password as string;
+              const isDevBypass = body.devBypass === true;
+
+              if (username === 'admin') {
+                if (password === 'Admin@Wonderlab2026!' || isDevBypass) {
+                  const user = await prisma.user.findUnique({ where: { username: 'admin' } });
+                  if (user) {
+                    return {
+                      user: {
+                        id: user.id,
+                        username: user.username,
+                        email: user.email,
+                        role: user.role,
+                        avatarUrl: user.avatarUrl,
+                      },
+                    } as T;
+                  }
+                }
+              }
+
+              const mockUser = mockUsers.get(username);
+              if (mockUser && (mockUser.password === password || isDevBypass)) {
+                return {
+                  user: {
+                    id: mockUser.id,
+                    username: mockUser.username,
+                    email: mockUser.email,
+                    role: mockUser.role,
+                    avatarUrl: mockUser.avatarUrl,
+                  },
+                } as T;
+              }
+
+              throw new Error('Invalid credentials');
+            }
+
+            if (endpoint === '/auth/register') {
+              const username = body.username as string;
+              const email = (body.email as string)?.toLowerCase();
+              const password = body.password as string;
+
+              const id = `mock-gw-${Date.now()}`;
+              mockUsers.set(username, {
+                id,
+                username,
+                email,
+                role: Role.USER,
+                avatarUrl: null,
+                password,
+              });
+
+              return {
+                id,
+                username,
+                email,
+                role: Role.USER,
+                avatarUrl: null,
+                isActive: true,
+              } as T;
+            }
+
+            if (endpoint === '/auth/google') {
+              const email = (body.email as string)?.toLowerCase();
+              const username = email.split('@')[0] || `google_${Date.now()}`;
+              const id = `mock-google-${Date.now()}`;
+
+              return {
+                user: {
+                  id,
+                  username,
+                  email,
+                  role: Role.USER,
+                  avatarUrl: null,
+                  isActive: true,
+                },
+              } as T;
+            }
+
+            if (endpoint === '/auth/dev/users') {
+              const users = await prisma.user.findMany({
+                where: { isActive: true },
+                select: {
+                  id: true,
+                  username: true,
+                  email: true,
+                  role: true,
+                  avatarUrl: true,
+                },
+              });
+              return users as T;
+            }
+          }
+
+          throw new Error(`Unhandled mock S2S call: ${slug} ${endpoint}`);
+        },
+      );
   });
 
   afterAll(async () => {
