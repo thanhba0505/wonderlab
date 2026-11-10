@@ -2,7 +2,7 @@
 
 # Wonderlab
 
-**Interactive digital laboratory exploring science, probability, paradoxes, and logical reasoning.**
+**Interactive digital laboratory exploring science, probability, paradoxes, and logical reasoning — part of the Prism Hub ecosystem.**
 
 [![GitHub Release](https://img.shields.io/github/v/release/thanhba0505/wonderlab?style=flat-square&color=0284c7&label=version)](https://github.com/thanhba0505/wonderlab/releases)
 [![CI Status](https://img.shields.io/github/actions/workflow/status/thanhba0505/wonderlab/ci.yml?branch=main&style=flat-square&label=CI&color=10b981)](https://github.com/thanhba0505/wonderlab/actions/workflows/ci.yml)

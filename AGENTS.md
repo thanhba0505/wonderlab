@@ -7,7 +7,7 @@ Primary rules and standards for AI coding assistants working in Wonderlab.
 > ### 🚨 Mandatory Single-Workspace & Standard Ports Protocol
 >
 > 1. **Primary Workspace**: `/Users/lethanhba/workspace/app/Wonderlab` is the sole and primary development workspace.
-> 2. **Standard Ecosystem Ports**:
+> 2. **Standard Ecosystem Ports (Prism Hub)**:
 >    - Wonderlab Client: `http://localhost:4100`
 >    - Wonderlab Server: `http://localhost:4101` (`/api/v1`)
 >    - Central Gateway Client: `http://localhost:5100`
@@ -29,7 +29,7 @@ Primary rules and standards for AI coding assistants working in Wonderlab.
 
 ## 1. Project Overview & Architecture
 
-- **Mission**: Interactive science, probability, paradoxes, and logic simulation platform for the general public.
+- **Mission**: Interactive science, probability, paradoxes, and logic simulation platform for the general public, part of the **Prism Hub** ecosystem.
 - **Monorepo**: Unified `pnpm` monorepo (`client/`, `server/`, `docs/`, `.agents/skills/`).
 - **Client (`client/`)**: Next.js 15 App Router, React 19, Tailwind CSS, Lucide React, Motion. Public routes in `(public)/`, admin in `/admin/` (protected by HttpOnly session cookie). Communicates via `NEXT_PUBLIC_API_BASE_URL`.
 - **Server (`server/`)**: NestJS 10 REST API. Global prefix `/api/v1`, Swagger `/api/docs`, health check `/api/v1/health`.
@@ -48,7 +48,7 @@ Primary rules and standards for AI coding assistants working in Wonderlab.
 - **Service-to-Service (S2S) Architecture**:
   - Connections managed dynamically via `service_connections` database table (`slug`, `domain`, `apiPrefix`, `apiKey`, `incomingSecret`, `isActive`).
   - No static backend S2S env variables (e.g. no `GATEWAY_URL` or `GATEWAY_SECRET_KEY`).
-  - Central Gateway is the IAM master; Wonderlab operates as a BFF auth proxy forwarding login, register, and Google auth to Central Gateway via S2S, syncing local shadow profiles (`id`, `username`, `email`, `role`, `avatarUrl`, `isActive`) for foreign keys with zero redundant fallbacks. Session JWTs are validated offline on every request.
+  - Central Gateway is the IAM master for the Prism ecosystem; Wonderlab operates as a BFF auth proxy forwarding login, register, and Google auth to Central Gateway via S2S, syncing local shadow profiles (`id`, `username`, `email`, `role`, `avatarUrl`, `isActive`) for foreign keys with zero redundant fallbacks. Session JWTs are validated offline on every request.
   - Inbound S2S authenticated timing-safely via `S2SAuthGuard` (`crypto.timingSafeEqual`). Outbound calls use `S2SService.call(...)`.
 
 ---

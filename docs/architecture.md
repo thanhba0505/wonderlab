@@ -2,7 +2,7 @@
 
 ## 1. System Overview
 
-Wonderlab is an interactive science and logic exploration platform. Its architecture is structured as a full-stack monorepo designed for performance, modularity, and future extensibility (accommodating hundreds of interactive simulations and games).
+Wonderlab is an interactive science and logic exploration platform within the **Prism Hub** ecosystem. Its architecture is structured as a full-stack monorepo designed for performance, modularity, and future extensibility (accommodating hundreds of interactive simulations and games).
 
 ```mermaid
 flowchart TD
@@ -14,7 +14,7 @@ flowchart TD
         Client --> Sim
     end
 
-    subgraph Ecosystem ["Ecosystem Services"]
+    subgraph Ecosystem ["Prism Ecosystem Services"]
         Gateway["Central Gateway (IAM Master & Slack Alerts)"]
     end
 
