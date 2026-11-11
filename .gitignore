@@ -5,7 +5,9 @@ node_modules/
 # Environment files
 .env
 .env.*
+.env*.local
 !.env.example
+!**/.env.example
 
 # Next.js build output
 .next/
@@ -33,6 +35,7 @@ Thumbs.db
 # IDE files
 .idea/
 .vscode/
+*.code-workspace
 *.sublime-project
 *.sublime-workspace
 
@@ -47,4 +50,3 @@ tmp/
 temp/
 .temp/
 .vercel
-.env*

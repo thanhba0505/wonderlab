@@ -14,6 +14,7 @@ import { Response } from 'express';
 import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
+import { SsoCallbackDto } from './dto/sso-callback.dto';
 import { RegisterDto } from './dto/register.dto';
 import { VerifyEmailDto } from './dto/verify-email.dto';
 import { ResendOtpDto } from './dto/resend-otp.dto';
@@ -62,6 +63,40 @@ export class AuthController {
   ): Promise<LoginResponseDto> {
     const user = await this.authService.validateUser(dto, acceptLanguage);
     return this.authService.login(user, response, acceptLanguage);
+  }
+
+  @Public()
+  @Get('dev/users')
+  @ApiOperation({
+    summary: 'Lấy danh sách tài khoản trong CSDL để phục vụ popup đăng nhập nhanh trên local dev',
+  })
+  async getDevUsers() {
+    return this.authService.getDevUsers();
+  }
+
+  @Public()
+  @Post('sso/callback')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Xác thực Single Sign-On (SSO) từ Central Gateway qua PKCE',
+    description:
+      'Trao đổi mã code OAuth2 lấy thông tin người dùng từ Central Gateway và cấp phát cookie phiên làm việc.',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Xác thực SSO thành công, cookie access_token đã được thiết lập',
+    type: LoginResponseDto,
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Mã xác thực SSO không hợp lệ hoặc đã hết hạn',
+  })
+  async loginWithSso(
+    @Body() dto: SsoCallbackDto,
+    @Res({ passthrough: true }) response: Response,
+    @Headers('accept-language') acceptLanguage?: string,
+  ): Promise<LoginResponseDto> {
+    return this.authService.loginWithSso(dto, response, acceptLanguage);
   }
 
   @Public()

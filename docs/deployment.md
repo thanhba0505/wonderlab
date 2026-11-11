@@ -80,22 +80,27 @@ Deployments are triggered on published releases (`git tag vX.Y.Z`) via `.github/
 
 ```mermaid
 flowchart TD
-  Release["Tag Push / Release Published (vX.Y.Z)"] --> DeployHookServer["Render Deploy Hook (Backend)"]
-  DeployHookServer --> PrismaMigrate["Prisma Deploy & Seed on Neon"]
-  PrismaMigrate --> StartServer["wonderlab-server Live on Render"]
-  StartServer --> DeployHookClient["Render Deploy Hook (Frontend)"]
-  DeployHookClient --> NextBuild["Next.js Static & Dynamic Prerender"]
-  NextBuild --> StartClient["wonderlab-client Live on Render"]
-  StartClient --> HealthCheck["verify-deployment.sh Health Probes"]
-  HealthCheck --> Done["Deployment Verified 🟢"]
+  Release["Tag Push / Release Published (vX.Y.Z)"] --> NotifyStarted["Notify Slack #deployments (STARTED)"]
+  NotifyStarted --> RenderAPIServer["Trigger Render REST API (Backend)"]
+  NotifyStarted --> RenderAPIClient["Trigger Render REST API (Frontend)"]
+  RenderAPIServer --> GHInProgressServer["GitHub Deployment: production - server (in_progress ⏳)"]
+  RenderAPIClient --> GHInProgressClient["GitHub Deployment: production - client (in_progress ⏳)"]
+  GHInProgressServer & GHInProgressClient --> VerifyScript["verify-deployment.sh (Live Health Probes & Fail-Fast)"]
+  VerifyScript --> ServerLive["Server Healthy ➔ production - server (success 🟢)"]
+  VerifyScript --> ClientLive["Client Healthy ➔ production - client (success 🟢)"]
+  ServerLive & ClientLive --> OverallSuccess["Overall production (success 🟢)"]
+  OverallSuccess --> NotifySuccess["Notify Slack #deployments (SUCCESS)"]
 ```
 
-1. **Backend Rollout**: Triggers `RENDER_SERVER_DEPLOY_HOOK`, runs migrations against Neon, and launches NestJS.
-2. **Frontend Rollout**: Triggers `RENDER_CLIENT_DEPLOY_HOOK`, builds Next.js assets with optimized standalone output.
-3. **Health Verification**: Runs `scripts/verify-deployment.sh` to poll live health endpoints (`https://wonderlab.io.vn/health` and `https://wonderlab-server.onrender.com/api/v1/health`).
-4. **GitHub Deployments Integration**:
-   - 🟢 `main - wonderlab-client`
-   - 🟢 `main - wonderlab-server`
+1. **Deployment Initiation**: Triggered via Render REST API (`POST https://api.render.com/v1/services/{id}/deploys`) using `RENDER_API_KEY` and specific service IDs (`RENDER_SERVER_SERVICE_ID`, `RENDER_CLIENT_SERVICE_ID`).
+2. **Real-time Observability**: Immediately registers GitHub Deployments for both `production - server` and `production - client` with `state: in_progress`, presenting live loading spinners on the repository home page.
+3. **Fail-Fast Health Verification**: Runs [`scripts/verify-deployment.sh`](file:///Users/lethanhba/workspace/app/Wonderlab/scripts/verify-deployment.sh) to poll live health endpoints (`https://wonderlab.io.vn/health` and `https://wonderlab-server.onrender.com/api/v1/health`), actively polling Render Deploy API to abort immediately upon build crashes (`build_failed`, `canceled`).
+4. **Independent Service Resolution**: As each service becomes healthy, its corresponding GitHub Deployment transitions to `success` 🟢 independently.
+5. **Central Gateway Alerting**: Posts rich Slack Block Kit cards to `#deployments` at deployment start and final resolution.
+6. **GitHub Deployments Architecture**:
+   - 🟢 `production - client` (`https://wonderlab.io.vn`)
+   - 🟢 `production - server` (`https://wonderlab-server.onrender.com/api/v1/health`)
+   - 🟢 `production` (`https://wonderlab.io.vn`)
 
 ---
 

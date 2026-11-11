@@ -16,14 +16,14 @@ const beVietnamPro = Be_Vietnam_Pro({
 
 const spaceGrotesk = Space_Grotesk({
   weight: ['500', '600', '700'],
-  subsets: ['latin', 'vietnamese'],
+  subsets: ['latin'],
   variable: '--font-heading',
   display: 'swap',
 });
 
 const jetbrainsMono = JetBrains_Mono({
   weight: ['400', '500', '600', '700'],
-  subsets: ['latin', 'vietnamese'],
+  subsets: ['latin'],
   variable: '--font-mono',
   display: 'swap',
 });

@@ -64,4 +64,13 @@ export const profileVi: ProfileDictionary = {
   password_change_failed: 'Đổi mật khẩu thất bại.',
   password_set_success: 'Thiết lập mật khẩu thành công!',
   password_set_failed: 'Thiết lập mật khẩu thất bại.',
+  edit_profile_title: 'Chỉnh Sửa Thông Tin Cá Nhân',
+  edit_profile_desc: 'Cập nhật tên người dùng hoặc địa chỉ email của bạn.',
+  username_label: 'Tên người dùng',
+  username_placeholder: 'Nhập tên người dùng mới',
+  email_label: 'Địa chỉ email',
+  email_placeholder: 'Nhập email mới',
+  save_profile: 'Lưu thay đổi',
+  profile_updated_success: 'Cập nhật thông tin cá nhân thành công!',
+  profile_update_failed: 'Cập nhật thông tin thất bại.',
 };

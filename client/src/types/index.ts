@@ -67,6 +67,7 @@ export interface AuthUser {
   username: string;
   email: string | null;
   role: 'ADMIN' | 'USER';
+  isActive?: boolean;
   isEmailVerified?: boolean;
   hasPassword?: boolean;
   isGoogleLinked?: boolean;

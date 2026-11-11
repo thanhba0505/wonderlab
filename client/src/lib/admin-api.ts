@@ -31,6 +31,7 @@ export interface AdminUserItem {
   username: string;
   email: string | null;
   role: 'ADMIN' | 'USER';
+  isActive: boolean;
   isDeleted: boolean;
   deletedAt?: string | null;
   createdAt: string;
@@ -169,18 +170,23 @@ export async function updateAdminUserRole(
   }
 }
 
-export async function deleteAdminUser(
+export async function updateAdminUserStatus(
   userId: string,
+  isActive: boolean,
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const res = await fetch(`${API_BASE_URL}/users/${userId}`, {
-      method: 'DELETE',
+    const res = await fetch(`${API_BASE_URL}/users/${userId}/status`, {
+      method: 'PATCH',
       credentials: 'include',
-      headers: { Accept: 'application/json', 'Accept-Language': getActiveLocale() },
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify({ isActive }),
     });
     if (!res.ok) {
       const data = await res.json();
-      return { success: false, error: data.message || 'Lỗi khi xóa người dùng' };
+      return { success: false, error: data.message || 'Lỗi khi cập nhật trạng thái' };
     }
     return { success: true };
   } catch (err) {
@@ -241,6 +247,30 @@ export async function deleteAdminComment(
     if (!res.ok) {
       const data = await res.json();
       return { success: false, error: data.message || 'Lỗi khi xóa bình luận' };
+    }
+    return { success: true };
+  } catch (err) {
+    return { success: false, error: err instanceof Error ? err.message : 'Lỗi kết nối' };
+  }
+}
+
+export async function updateMyProfile(data: {
+  username?: string;
+  email?: string;
+}): Promise<{ success: boolean; error?: string }> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/users/me`, {
+      method: 'PATCH',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const json = await res.json();
+      return { success: false, error: json.message || 'Lỗi khi cập nhật thông tin' };
     }
     return { success: true };
   } catch (err) {

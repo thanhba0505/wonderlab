@@ -32,6 +32,6 @@ We selected **Prisma ORM (v6.x)** for PostgreSQL persistence and **Argon2id** wi
 
 ## Consequences
 
-- Backend connects to PostgreSQL on `127.0.0.1:5434` in local development via `DATABASE_URL`.
+- Backend connects to PostgreSQL on `127.0.0.1:5432` in local development via `DATABASE_URL`.
 - `server/prisma/` manages database migrations and seeds.
 - NestJS `PrismaModule`, `UsersModule`, and `AuthModule` provide authenticated endpoints (`/api/v1/auth/login`, `/api/v1/auth/logout`, `/api/v1/auth/me`).

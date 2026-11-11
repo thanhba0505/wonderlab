@@ -40,6 +40,10 @@ server/
 │   ├── prisma/                     # Global Prisma database service
 │   │   ├── prisma.service.ts       # Connection lifecycle management
 │   │   └── prisma.module.ts
+│   ├── s2s/                        # Service-to-Service communication & client
+│   │   ├── s2s-auth.guard.ts       # Timing-safe S2S Bearer token guard
+│   │   ├── s2s.service.ts          # S2S client caller & connection lookup
+│   │   └── s2s.module.ts           # @Global() S2S module
 │   ├── simulations/                # Simulation run persistence & global telemetry
 │   │   ├── dto/                    # CreateSimulationRunDto, History & Stats Query DTOs
 │   │   ├── simulations.controller.ts # POST /runs, GET /stats, GET /runs/history
@@ -138,7 +142,49 @@ Retrieves the recent run history for the active client session.
 
 ---
 
-## 5. Adding New Backend Modules
+## 5. Service-to-Service (S2S) & Central Gateway BFF Auth Proxy
+
+Wonderlab integrates with Central Gateway via dynamic database-backed connections (`service_connections` table).
+
+### BFF Auth Proxy Architecture
+
+- **Delegated Credentials Verification**: Wonderlab acts as a BFF proxy forwarding authentication (`/auth/login`, `/auth/google`, `/auth/register`) to Central Gateway Master IAM via outbound `s2sService.call(...)`.
+- **Zero Redundant Fallbacks**: Password verification and master credentials are owned strictly by Central Gateway. Wonderlab does not keep fallback password verification.
+- **Local Shadow Profiles**: Successful logins upsert a local profile in Wonderlab (`id`, `username`, `email`, `role`, `avatarUrl`, `isActive`) ensuring all foreign keys (`comments`, `simulation_runs`, `simulation_requests`) remain valid.
+- **Offline JWT Verification**: Authenticated sessions are issued as Wonderlab HttpOnly cookies. Every subsequent request is verified offline in memory via `JwtStrategy` with 0 network calls to Central Gateway.
+  ```json
+  {
+    "success": true,
+    "user": {
+      "id": "cd0ad32d-bfb0-4819-9ba1-e5e6e3c7db34",
+      "username": "thanhba",
+      "email": "thanhba@example.com",
+      "role": "USER",
+      "isActive": true
+    }
+  }
+  ```
+
+### S2S Outbound Client (`S2SService`)
+
+To communicate with other services without hardcoding hostnames or tokens in environment files:
+
+```typescript
+const result = await this.s2sService.call<ResponseType>(
+  'central-gateway',
+  '/notifications/slack/community',
+  {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  },
+);
+```
+
+The service dynamically resolves `domain` and `apiPrefix`, injects `Authorization: Bearer <apiKey>`, and enforces timeout boundaries from the database.
+
+---
+
+## 6. Adding New Backend Modules
 
 When introducing new domain modules (e.g., puzzle scoring or user experiments):
 

@@ -30,6 +30,12 @@ export class UserProfileDto {
 
   @ApiProperty({
     example: true,
+    description: 'Account active status',
+  })
+  isActive!: boolean;
+
+  @ApiProperty({
+    example: true,
     description: 'Email verified status',
   })
   isEmailVerified!: boolean;

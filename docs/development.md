@@ -68,7 +68,7 @@ Alternatively, run individually in separate terminal sessions:
 | **Admin Placeholder** | [http://localhost:4100/admin](http://localhost:4100/admin)                 | Future administration layout preview      |
 | **Server Health API** | [http://localhost:4101/api/v1/health](http://localhost:4101/api/v1/health) | Microservice health check contract        |
 | **Swagger OpenAPI**   | [http://localhost:4101/api/docs](http://localhost:4101/api/docs)           | Interactive API exploration documentation |
-| **PostgreSQL**        | `localhost:5434`                                                           | Bound to `127.0.0.1` (loopback only)      |
+| **PostgreSQL**        | `localhost:5432`                                                           | Bound to `127.0.0.1` (loopback only)      |
 
 ---
 

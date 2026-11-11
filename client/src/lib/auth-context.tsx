@@ -28,7 +28,11 @@ interface AuthContextType {
   openProfileModal: () => void;
   closeProfileModal: () => void;
   // Actions
-  login: (username: string, password: string) => Promise<AuthActionResult>;
+  login: (
+    username: string,
+    password?: string,
+    options?: { devBypass?: boolean },
+  ) => Promise<AuthActionResult>;
   register: (username: string, email: string, password: string) => Promise<AuthActionResult>;
   verifyEmail: (email: string, code: string) => Promise<AuthActionResult>;
   resendOtp: (
@@ -45,6 +49,7 @@ interface AuthContextType {
   resetPassword: (email: string, code: string, newPassword: string) => Promise<AuthActionResult>;
   changePassword: (currentPassword: string, newPassword: string) => Promise<AuthActionResult>;
   setPassword: (newPassword: string) => Promise<AuthActionResult>;
+  updateProfile: (data: { username?: string; email?: string }) => Promise<AuthActionResult>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
 }
@@ -160,14 +165,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     refreshUser();
   }, [refreshUser]);
 
-  const login = async (username: string, password: string): Promise<AuthActionResult> => {
+  const login = async (
+    username: string,
+    password = '',
+    options?: { devBypass?: boolean },
+  ): Promise<AuthActionResult> => {
     setIsLoading(true);
     try {
+      const isDevBypass =
+        options?.devBypass === true || (!password && process.env.NODE_ENV !== 'production');
       const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
         headers: getJsonHeaders(),
         credentials: 'include',
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({
+          username,
+          password: password || 'dev_bypass_password',
+          ...(isDevBypass ? { devBypass: true } : {}),
+        }),
       });
 
       const parsed = await parseAuthResponse<{ user: AuthUser }>(response);
@@ -224,8 +239,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       setPendingEmail(email);
-      setAuthModalMode('otp');
-      return { success: true, email, devOtpCode: parsed.data.devOtpCode };
+      setAuthModalMode('login');
+      return { success: true, email };
     } catch {
       return {
         success: false,
@@ -469,6 +484,43 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const updateProfile = async (data: {
+    username?: string;
+    email?: string;
+  }): Promise<AuthActionResult> => {
+    setIsLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/me`, {
+        method: 'PATCH',
+        headers: {
+          ...getJsonHeaders(),
+          'Accept-Language': getActiveLocale(),
+        },
+        credentials: 'include',
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        const parsed = await parseAuthResponse(response);
+        return {
+          success: false,
+          error: parsed.error || 'Lỗi khi cập nhật thông tin cá nhân.',
+        };
+      }
+
+      // Refresh local user state after profile update
+      await refreshUser();
+      return { success: true };
+    } catch {
+      return {
+        success: false,
+        error: 'Lỗi kết nối khi cập nhật thông tin.',
+      };
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const logout = async (): Promise<void> => {
     setIsLoading(true);
     try {
@@ -508,6 +560,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         resetPassword,
         changePassword,
         setPassword,
+        updateProfile,
         logout,
         refreshUser,
       }}

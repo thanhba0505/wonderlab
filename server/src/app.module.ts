@@ -9,12 +9,13 @@ import { AuthModule } from './auth/auth.module';
 import { SimulationsModule } from './simulations/simulations.module';
 import { CommentsModule } from './comments/comments.module';
 import { SimulationRequestsModule } from './simulation-requests/simulation-requests.module';
+import { S2SModule } from './s2s/s2s.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: ['.env.local', '.env'],
+      envFilePath: ['.env.local', '../.env.local'],
     }),
     ThrottlerModule.forRoot([
       {
@@ -30,6 +31,7 @@ import { SimulationRequestsModule } from './simulation-requests/simulation-reque
     SimulationsModule,
     CommentsModule,
     SimulationRequestsModule,
+    S2SModule,
   ],
 })
 export class AppModule {}

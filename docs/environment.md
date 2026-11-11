@@ -17,9 +17,9 @@ This document describes all environment variables used by Wonderlab across Clien
 | `CORS_ORIGINS`             | Server          | Required in Prod | `http://localhost:4100`        | Whitelisted origins permitted to perform cross-origin requests. |
 | `DATABASE_URL`             | Server          | Required         | `postgresql://...`             | Connection string for PostgreSQL database.                      |
 | `POSTGRES_DB`              | Database        | Required         | `wonderlab`                    | Database name for PostgreSQL container.                         |
-| `POSTGRES_USER`            | Database        | Required         | `wonderlab`                    | Master user for PostgreSQL container.                           |
-| `POSTGRES_PASSWORD`        | Database        | Required         | _(local dev secret)_           | Master password for PostgreSQL container.                       |
-| `POSTGRES_PORT`            | Database        | Optional         | `5434`                         | Host port exposed for loopback (`127.0.0.1`).                   |
+| `POSTGRES_USER`            | Database        | Optional         | `postgres`                     | Master user for PostgreSQL container.                           |
+| `POSTGRES_PASSWORD`        | Database        | Optional         | `postgres`                     | Master password for PostgreSQL container.                       |
+| `POSTGRES_PORT`            | Database        | Optional         | `5432`                         | Host port exposed for loopback (`127.0.0.1`).                   |
 | `POSTGRES_HOST`            | Database        | Optional         | `127.0.0.1`                    | Hostname for local DB clients (DBeaver, psql).                  |
 
 ---
@@ -27,7 +27,8 @@ This document describes all environment variables used by Wonderlab across Clien
 ## 2. Security Boundaries
 
 - **Client Bundle Safety**: Variables without the `NEXT_PUBLIC_` prefix are stripped by Next.js during build and never sent to client browsers. Never prefix database passwords or secrets with `NEXT_PUBLIC_`.
-- **Database Loopback**: Port 5434 is strictly bound to `127.0.0.1` in `docker-compose.yml`, preventing external network connections.
+- **Database Loopback**: Port 5432 is strictly bound to `127.0.0.1` in `docker-compose.yml`, preventing external network connections.
+- **Service-to-Service Dynamic Configuration**: Backend endpoints for inter-service communication (such as Central Gateway SSO and Slack notifications) are stored dynamically in the `service_connections` database table, intentionally eliminating the need for static environment variables like `GATEWAY_URL` or `GATEWAY_SECRET_KEY`.
 - **Production Overrides on Render**:
   - In Render Frontend Workspace (`render.client.yaml`), configure `NEXT_PUBLIC_API_BASE_URL` pointing to `https://wonderlab-server.onrender.com/api/v1`.
   - In Render Backend Workspace (`render.server.yaml`), configure `CORS_ORIGINS` pointing to `https://wonderlab.io.vn`.

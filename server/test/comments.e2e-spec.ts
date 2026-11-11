@@ -3,6 +3,8 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import request from 'supertest';
 import cookieParser from 'cookie-parser';
 import { AppModule } from '../src/app.module';
+import { PrismaService } from '../src/prisma/prisma.service';
+import { S2SService } from '../src/s2s/s2s.service';
 
 describe('Comments API (e2e)', () => {
   let app: INestApplication;
@@ -27,12 +29,41 @@ describe('Comments API (e2e)', () => {
     );
     await app.init();
 
+    const s2sService = app.get<S2SService>(S2SService);
+    const prisma = app.get<PrismaService>(PrismaService);
+
+    jest
+      .spyOn(s2sService, 'call')
+      .mockImplementation(
+        async <T>(slug: string, endpoint: string, _options?: RequestInit): Promise<T> => {
+          if (slug === 'central-gateway' && endpoint === '/auth/login') {
+            const user = await prisma.user.findUnique({ where: { username: 'admin' } });
+            if (user) {
+              return {
+                user: {
+                  id: user.id,
+                  username: user.username,
+                  email: user.email,
+                  role: user.role,
+                  avatarUrl: user.avatarUrl,
+                },
+              } as T;
+            }
+          }
+          if (slug === 'central-gateway' && endpoint.includes('/notifications')) {
+            return { success: true } as T;
+          }
+          return {} as T;
+        },
+      );
+
     // Authenticate as seeded admin
     const loginRes = await request(app.getHttpServer())
       .post('/api/v1/auth/login')
       .send({
         username: 'admin',
         password: 'Admin@Wonderlab2026!',
+        devBypass: true,
       })
       .expect(200);
 

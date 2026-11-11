@@ -4,39 +4,36 @@ Primary rules and standards for AI coding assistants working in Wonderlab.
 
 > [!CRITICAL]
 >
-> ### 🚨 Mandatory Worktree-Exclusive Protocol
+> ### 🚨 Mandatory Single-Workspace & Standard Ports Protocol
 >
-> 1. **Check allocations first**: Always run `git worktree list` on the very first turn.
-> 2. **Never code in main workspace**: `/Users/lethanhba/workspace/app/Wonderlab` is strictly an idle root anchor on `develop`. Never edit files, checkout branches, or run dev servers here.
-> 3. **Persistent Worktrees & Ports**:
->    - `Wonderlab-worktree-1`: Client `4200`, Server `4201`, branch `worktree-1`
->    - `Wonderlab-worktree-2`: Client `4300`, Server `4301`, branch `worktree-2`
->    - `Wonderlab-worktree-3`: Client `4400`, Server `4401`, branch `worktree-3`
->    - `Wonderlab-worktree-4`: Client `4500`, Server `4501`, branch `worktree-4`
->    - `Wonderlab-worktree-5`: Client `4600`, Server `4601`, branch `worktree-5`
->    - Database: Shared PostgreSQL container on `127.0.0.1:5434`
-> 4. **Execution Workflow**:
+> 1. **Primary Workspace**: `/Users/lethanhba/workspace/app/Wonderlab` is the sole and primary development workspace.
+> 2. **Standard Ecosystem Ports (Prism Hub)**:
+>    - Wonderlab Client: `http://localhost:4100`
+>    - Wonderlab Server: `http://localhost:4101` (`/api/v1`)
+>    - Central Gateway Client: `http://localhost:5100`
+>    - Central Gateway Server: `http://localhost:5101` (`/api/v1`)
+>    - Database: Local PostgreSQL 16 on `127.0.0.1:5432`
+> 3. **Execution Workflow**:
 >    ```bash
->    cd /Users/lethanhba/workspace/app/Wonderlab-worktree-N
+>    cd /Users/lethanhba/workspace/app/Wonderlab
 >    git fetch origin && git checkout -B <type>/<task-name> origin/develop
 >    # Edits & verification:
 >    pnpm check
 >    # Direct push to develop & cleanup:
 >    git fetch origin && git rebase origin/develop && git push origin HEAD:develop
->    git checkout -B worktree-N origin/develop && git branch -d <type>/<task-name>
->    git -C /Users/lethanhba/workspace/app/Wonderlab pull origin develop
+>    git checkout develop && git pull origin develop && git branch -d <type>/<task-name>
 >    ```
-> 5. **Tool Calls**: All `edit_file`, `write_file`, and `run_command` calls MUST use absolute paths or `cd` targeting the chosen worktree directory. Never delete worktrees (preserves caches).
+> 4. **No Worktrees**: Do not create or use git worktrees. All development and dev servers operate directly in the main repository using standard assigned ports.
 
 ---
 
 ## 1. Project Overview & Architecture
 
-- **Mission**: Interactive science, probability, paradoxes, and logic simulation platform for the general public.
+- **Mission**: Interactive science, probability, paradoxes, and logic simulation platform for the general public, part of the **Prism Hub** ecosystem.
 - **Monorepo**: Unified `pnpm` monorepo (`client/`, `server/`, `docs/`, `.agents/skills/`).
 - **Client (`client/`)**: Next.js 15 App Router, React 19, Tailwind CSS, Lucide React, Motion. Public routes in `(public)/`, admin in `/admin/` (protected by HttpOnly session cookie). Communicates via `NEXT_PUBLIC_API_BASE_URL`.
 - **Server (`server/`)**: NestJS 10 REST API. Global prefix `/api/v1`, Swagger `/api/docs`, health check `/api/v1/health`.
-- **Database**: Local PostgreSQL 16 on `127.0.0.1:5434` (Docker Compose). ORM deferred.
+- **Database**: Local PostgreSQL 16 on `127.0.0.1:5432` (Docker Compose).
 - **Runtime & Tools**: Node `v24.x` (`.nvmrc`), `pnpm@12.11.2`. Never use `npm` or `yarn`.
 
 ---
@@ -47,7 +44,12 @@ Primary rules and standards for AI coding assistants working in Wonderlab.
 - **Client Boundaries**: Only `NEXT_PUBLIC_*` variables allowed in client code; never expose secrets or DB credentials.
 - **Database**: Bind strictly to `127.0.0.1` (loopback).
 - **Admin Security**: `/admin` requires active `Role.ADMIN` session via HttpOnly cookies.
-- **CORS**: Explicit whitelist via `CORS_ORIGINS`.
+- **CORS**: Explicit whitelist via `CORS_ORIGINS`. Scoped strictly to browser clients, never to server-to-server HTTP calls.
+- **Service-to-Service (S2S) Architecture**:
+  - Connections managed dynamically via `service_connections` database table (`slug`, `domain`, `apiPrefix`, `apiKey`, `incomingSecret`, `isActive`).
+  - No static backend S2S env variables (e.g. no `GATEWAY_URL` or `GATEWAY_SECRET_KEY`).
+  - Central Gateway is the IAM master for the Prism ecosystem; Wonderlab operates as a BFF auth proxy forwarding login, register, and Google auth to Central Gateway via S2S, syncing local shadow profiles (`id`, `username`, `email`, `role`, `avatarUrl`, `isActive`) for foreign keys with zero redundant fallbacks. Session JWTs are validated offline on every request.
+  - Inbound S2S authenticated timing-safely via `S2SAuthGuard` (`crypto.timingSafeEqual`). Outbound calls use `S2SService.call(...)`.
 
 ---
 
@@ -99,7 +101,7 @@ Primary rules and standards for AI coding assistants working in Wonderlab.
   - _What to test_: Simulation math engines (paradox calculations, probability convergence), backend services (auth, hashing, permissions), and high-value HTTP E2E (`/health`, `/auth`). Target CI execution < 5s.
   - _Strictly forbid test bloat_: Never write unit tests for generic UI components, static dictionaries, controller pass-through mocks, or trivial utility wrappers (`cn()`).
 - **Dev Server Standard (`pnpm dev` only)**:
-  - STRICTLY run `pnpm dev` or `pnpm dev:client` (port 4100 or assigned worktree port) and `pnpm dev:server`.
+  - STRICTLY run `pnpm dev` or `pnpm dev:client` (port 4100) and `pnpm dev:server` (port 4101).
   - NEVER execute `pnpm start` or `next start`. `next start` binds to an immutable `BUILD_ID`; any build or `pnpm check` causes a mismatch resulting in `400 Bad Request` asset lockouts and broken CSS.
 
 ---
@@ -111,7 +113,7 @@ Primary rules and standards for AI coding assistants working in Wonderlab.
 - **Single Source of Truth for Versioning**:
   - Root `package.json` (`version`) is authoritative. Dynamically consumed by `client` (`next.config.ts`) and `server` (`version.ts`).
   - Only bump versions on official release events (`release: [published]` or tag `push: tags: ['v*']`). Never bump on draft releases or regular commits to `develop`.
-- **Automated Production Releases**: Official GitHub Release or tag `v*` triggers CI/CD to merge `origin/develop` into `main`, bump version, tag, sync back to `develop`, and deploy to Production (Render Client & Server via Deploy Hooks, and alerts routed through Central Gateway). Never deploy manually.
+- **Automated Production Releases**: Official GitHub Release or tag `v*` triggers CI/CD to merge `origin/develop` into `main`, bump version, tag, sync back to `develop`, and deploy to Production (Render Client & Server via Render REST API, record live GitHub Deployment environments with `in_progress` loading spinners, fail-fast verification, and route alerts through Central Gateway). Never deploy manually.
 
 ---
 
@@ -126,7 +128,7 @@ Primary rules and standards for AI coding assistants working in Wonderlab.
 
 ## 8. Non-Negotiable Agent Rules
 
-1. **Worktree First**: Always inspect `git worktree list` and code exclusively in an idle worktree. Never edit in the main workspace.
+1. **Trunk-Based Verification**: Branch off `origin/develop`, code directly in the repository workspace, verify thoroughly with `pnpm check`, and push to `develop`.
 2. **Read Before Writing**: Inspect existing files and documentation before editing.
 3. **No Fake Completions**: Execute tests/builds and inspect outputs; never claim success without verification.
 4. **No Scope Creep**: Implement only what was requested. Avoid speculative features or complex dependencies.

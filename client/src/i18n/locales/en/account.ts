@@ -64,4 +64,13 @@ export const profileEn: ProfileDictionary = {
   password_change_failed: 'Failed to change password.',
   password_set_success: 'Password set successfully!',
   password_set_failed: 'Failed to set password.',
+  edit_profile_title: 'Edit Personal Information',
+  edit_profile_desc: 'Update your username or email address.',
+  username_label: 'Username',
+  username_placeholder: 'Enter new username',
+  email_label: 'Email address',
+  email_placeholder: 'Enter new email',
+  save_profile: 'Save changes',
+  profile_updated_success: 'Profile updated successfully!',
+  profile_update_failed: 'Failed to update profile.',
 };

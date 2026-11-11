@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { User, Mail, KeyRound, ArrowLeft, CheckCircle2, Lock } from 'lucide-react';
+import { User, Mail, KeyRound, ArrowLeft, CheckCircle2, Lock, Pencil } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
 import {
   AppButton,
@@ -15,11 +15,58 @@ import {
 import { useTranslation } from '@/i18n';
 
 export default function MyAccountProfilePage() {
-  const { user, changePassword, setPassword } = useAuth();
+  const { user, changePassword, setPassword, updateProfile } = useAuth();
   const { dict } = useTranslation();
   const [successMessage, setSuccessMessage] = React.useState<string | null>(null);
+  const [profileSuccess, setProfileSuccess] = React.useState<string | null>(null);
 
   if (!user) return null;
+
+  const handleEditProfileSubmit = async (
+    values: Record<string, unknown>,
+    helpers: AppFormHelpers<Record<string, unknown>>,
+  ) => {
+    setProfileSuccess(null);
+    const newUsername = String(values.username || '').trim();
+    const newEmail = String(values.email || '').trim();
+
+    const payload: { username?: string; email?: string } = {};
+
+    if (newUsername && newUsername !== user.username) {
+      if (newUsername.length < 3) {
+        helpers.setFieldError('username', 'Tên người dùng tối thiểu 3 ký tự');
+        return;
+      }
+      if (!/^[a-zA-Z0-9_]+$/.test(newUsername)) {
+        helpers.setFieldError('username', 'Tên người dùng chỉ chứa chữ cái, số và dấu gạch dưới');
+        return;
+      }
+      payload.username = newUsername;
+    }
+
+    if (newEmail && newEmail !== (user.email || '')) {
+      payload.email = newEmail;
+    }
+
+    if (Object.keys(payload).length === 0) {
+      return;
+    }
+
+    const result = await updateProfile(payload);
+
+    if (result.success) {
+      setProfileSuccess(dict.profile.profile_updated_success);
+    } else {
+      if (result.errors) {
+        helpers.setErrors(result.errors);
+      } else {
+        helpers.setFieldError(
+          payload.username ? 'username' : 'email',
+          result.error || dict.profile.profile_update_failed,
+        );
+      }
+    }
+  };
 
   const handleChangePasswordSubmit = async (
     values: Record<string, unknown>,
@@ -187,6 +234,62 @@ export default function MyAccountProfilePage() {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Edit Profile Form */}
+      <div className="rounded-xl border border-slate-300/85 bg-white p-5 sm:p-6 shadow-[0_2px_8px_-2px_rgba(15,23,42,0.06)] space-y-5">
+        <div className="flex items-center gap-2 border-b border-slate-200/80 pb-3">
+          <Pencil className="h-4 w-4 text-blue-600" />
+          <h2 className="font-heading text-base font-bold text-slate-900">
+            {dict.profile.edit_profile_title}
+          </h2>
+        </div>
+
+        <p className="text-xs text-slate-500">{dict.profile.edit_profile_desc}</p>
+
+        {profileSuccess && (
+          <div className="flex items-start gap-2.5 rounded-lg border border-emerald-200 bg-emerald-50/90 p-3 text-xs text-emerald-800">
+            <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600 mt-0.5" />
+            <div className="font-medium leading-relaxed">{profileSuccess}</div>
+          </div>
+        )}
+
+        <AppForm
+          initialValues={{ username: user.username, email: user.email || '' }}
+          onSubmit={handleEditProfileSubmit}
+          className="space-y-4 max-w-md"
+        >
+          <AppFormField
+            name="username"
+            label={dict.profile.username_label}
+            type="text"
+            placeholder={dict.profile.username_placeholder}
+            rules={[
+              {
+                minLength: 3,
+                message: 'Tên người dùng tối thiểu 3 ký tự',
+              },
+            ]}
+          />
+
+          <AppFormField
+            name="email"
+            label={dict.profile.email_label}
+            type="email"
+            placeholder={dict.profile.email_placeholder}
+          />
+
+          <div className="pt-2">
+            <AppFormSubmit
+              variant="primary"
+              size="sm"
+              leftIcon={<Pencil className="h-3.5 w-3.5" />}
+              className="text-xs"
+            >
+              {dict.profile.save_profile}
+            </AppFormSubmit>
+          </div>
+        </AppForm>
       </div>
 
       {/* Password Management Form */}

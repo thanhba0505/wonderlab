@@ -80,10 +80,10 @@ jobs:
         image: postgres:16-alpine
         env:
           POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgrespassword
+          POSTGRES_PASSWORD: postgres
           POSTGRES_DB: wonderlab
         ports:
-          - 5434:5432
+          - 5432:5432
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -118,12 +118,12 @@ jobs:
           pnpm prisma migrate deploy
           pnpm db:seed
         env:
-          DATABASE_URL: postgres://postgres:postgrespassword@localhost:5434/wonderlab?schema=public
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/wonderlab?schema=public
 
       - name: Run E2E tests
         run: pnpm test:e2e
         env:
-          DATABASE_URL: postgres://postgres:postgrespassword@localhost:5434/wonderlab?schema=public
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/wonderlab?schema=public
 
   build:
     name: 📦 Build Applications
@@ -150,6 +150,14 @@ jobs:
 
       - name: Generate Prisma Client
         run: pnpm --filter wonderlab-server db:generate
+
+      - name: Next.js build cache
+        uses: actions/cache@v4
+        with:
+          path: client/.next/cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ hashFiles('client/src/**') }}
+          restore-keys: |
+            ${{ runner.os }}-nextjs-${{ hashFiles('**/pnpm-lock.yaml') }}-
 
       - name: Build applications
         run: pnpm build
