@@ -49,7 +49,7 @@ Primary rules and standards for AI coding assistants working in Wonderlab.
   - Connections managed dynamically via `service_connections` database table (`slug`, `domain`, `apiPrefix`, `apiKey`, `incomingSecret`, `isActive`).
   - No static backend S2S env variables (e.g. no `GATEWAY_URL` or `GATEWAY_SECRET_KEY`).
   - Central Gateway is the IAM master for the Prism ecosystem; Wonderlab operates as a BFF auth proxy forwarding login, register, and Google auth to Central Gateway via S2S, syncing local shadow profiles (`id`, `username`, `email`, `role`, `avatarUrl`, `isActive`) for foreign keys with zero redundant fallbacks. Session JWTs are validated offline on every request.
-  - Inbound S2S authenticated timing-safely via `S2SAuthGuard` (`crypto.timingSafeEqual`). Outbound calls use `S2SService.call(...)`.
+  - Inbound S2S authenticated timing-safely via `S2SAuthGuard` (`crypto.timingSafeEqual`) enforcing strict HMAC-SHA256 signatures and 5-minute replay prevention windows (no raw secrets over the wire). Outbound calls use `S2SService.call(...)` with automatic HMAC payload signing.
 
 ---
 
