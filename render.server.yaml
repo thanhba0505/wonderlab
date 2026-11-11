@@ -24,3 +24,5 @@ services:
         value: https://central-gateway-server.onrender.com/api/v1
       - key: GATEWAY_SECRET_KEY
         sync: false
+      - key: S2S_ENCRYPTION_KEY
+        sync: false
