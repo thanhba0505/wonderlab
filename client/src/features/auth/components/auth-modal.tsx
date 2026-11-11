@@ -8,6 +8,7 @@ import {
   User,
   ArrowRight,
   CheckCircle2,
+  AlertCircle,
   KeyRound,
   ArrowLeft,
   Database,
@@ -37,16 +38,29 @@ export function AuthModal() {
   const [email, setEmail] = React.useState<string>('');
   const [otpCode, setOtpCode] = React.useState<string[]>(['', '', '', '', '', '']);
   const [successMessage, setSuccessMessage] = React.useState<string | null>(null);
+  const [generalError, setGeneralError] = React.useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = React.useState<boolean>(false);
   const [isGoogleChooserOpen, setIsGoogleChooserOpen] = React.useState<boolean>(false);
   const [cooldown, setCooldown] = React.useState<number>(0);
   const isDev = process.env.NODE_ENV !== 'production';
+
+  const [isClientDev, setIsClientDev] = React.useState(false);
+  React.useEffect(() => {
+    setIsClientDev(
+      process.env.NODE_ENV !== 'production' &&
+        typeof window !== 'undefined' &&
+        (window.location.hostname === 'localhost' ||
+          window.location.hostname === '127.0.0.1' ||
+          window.location.hostname.endsWith('.local')),
+    );
+  }, []);
 
   // Sync mode with context
   React.useEffect(() => {
     setMode(authModalMode);
     if (pendingEmail) setEmail(pendingEmail);
     setSuccessMessage(null);
+    setGeneralError(null);
   }, [authModalMode, pendingEmail, isAuthModalOpen]);
 
   // OTP Cooldown timer
@@ -222,6 +236,14 @@ export function AuthModal() {
 
   // 5. Google OAuth Login Trigger (Dev Account Chooser Popup)
   const handleGoogleLogin = () => {
+    setGeneralError(null);
+    if (!isClientDev) {
+      setGeneralError(
+        dict.auth.google_production_notice ||
+          'Tính năng đăng nhập Google trên Production đang được tích hợp. Vui lòng đăng nhập bằng tên người dùng và mật khẩu.',
+      );
+      return;
+    }
     setIsGoogleChooserOpen(true);
   };
 
@@ -281,6 +303,14 @@ export function AuthModal() {
 
         {/* Modal Body */}
         <div className="p-6">
+          {/* General Error Notification Message */}
+          {generalError && (
+            <div className="mb-4 flex items-start gap-2.5 rounded-lg border border-rose-200 bg-rose-50/90 p-3 text-xs text-rose-800">
+              <AlertCircle className="h-4 w-4 shrink-0 text-rose-600 mt-0.5" />
+              <div className="font-medium leading-relaxed">{generalError}</div>
+            </div>
+          )}
+
           {/* Success Notification Message */}
           {successMessage && (
             <div className="mb-4 flex items-start gap-2.5 rounded-lg border border-emerald-200 bg-emerald-50/90 p-3 text-xs text-emerald-800">
@@ -300,7 +330,7 @@ export function AuthModal() {
               className="space-y-4"
             >
               {/* Local Dev: Quick Login from DB */}
-              {isDev && (
+              {isClientDev && (
                 <button
                   type="button"
                   onClick={() => setIsGoogleChooserOpen(true)}
@@ -652,12 +682,14 @@ export function AuthModal() {
       </div>
 
       {/* Local Dev Google Account Chooser Popup */}
-      <GoogleAccountChooserModal
-        isOpen={isGoogleChooserOpen}
-        onClose={() => setIsGoogleChooserOpen(false)}
-        onSelectAccount={handleAccountSelect}
-        appName="Wonderlab"
-      />
+      {isClientDev && (
+        <GoogleAccountChooserModal
+          isOpen={isGoogleChooserOpen}
+          onClose={() => setIsGoogleChooserOpen(false)}
+          onSelectAccount={handleAccountSelect}
+          appName="Wonderlab"
+        />
+      )}
     </div>
   );
 }

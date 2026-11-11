@@ -65,6 +65,7 @@ export interface AuthDictionary {
   sign_in_btn: string;
   register_btn: string;
   google_btn: string;
+  google_production_notice: string;
   or_separator: string;
   no_account: string;
   has_account: string;

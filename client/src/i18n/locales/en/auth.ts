@@ -15,6 +15,8 @@ export const authEn: AuthDictionary = {
   sign_in_btn: 'Sign In',
   register_btn: 'Create Account',
   google_btn: 'Continue with Google',
+  google_production_notice:
+    'Google Sign-In on Production is currently being integrated. Please sign in with your username and password.',
   or_separator: 'OR',
   no_account: "Don't have an account?",
   has_account: 'Already have an account?',
