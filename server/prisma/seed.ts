@@ -1,4 +1,5 @@
 import { PrismaClient, Role } from '@prisma/client';
+import { encryptS2SSecret } from '../src/s2s/s2s-vault.util';
 
 const prisma = new PrismaClient();
 
@@ -24,14 +25,20 @@ async function main() {
   console.log(`[Seed] Seeded admin user: ${admin.username} (Role: ${admin.role})`);
 
   // Seed Central Gateway S2S connection
+  const rawApiKey = process.env.GATEWAY_S2S_KEY || 'wl_to_gw_s2s_secret_2026';
+  const rawIncomingSecret = process.env.GATEWAY_INCOMING_SECRET || 'gw_to_wl_s2s_secret_2026';
+
+  const encryptedApiKey = encryptS2SSecret(rawApiKey);
+  const encryptedIncomingSecret = encryptS2SSecret(rawIncomingSecret);
+
   const gatewayConn = await prisma.serviceConnection.upsert({
     where: { slug: 'central-gateway' },
     update: {
       name: 'Central Gateway & IAM Master',
       domain: process.env.GATEWAY_API_DOMAIN || 'http://localhost:5101',
       apiPrefix: process.env.GATEWAY_API_PREFIX || '/api/v1',
-      apiKey: process.env.GATEWAY_S2S_KEY || 'wl_to_gw_s2s_secret_2026',
-      incomingSecret: process.env.GATEWAY_INCOMING_SECRET || 'gw_to_wl_s2s_secret_2026',
+      apiKey: encryptedApiKey,
+      incomingSecret: encryptedIncomingSecret,
       isActive: true,
       metadata: { iamMaster: true, ssoProvider: true },
     },
@@ -40,8 +47,8 @@ async function main() {
       name: 'Central Gateway & IAM Master',
       domain: process.env.GATEWAY_API_DOMAIN || 'http://localhost:5101',
       apiPrefix: process.env.GATEWAY_API_PREFIX || '/api/v1',
-      apiKey: process.env.GATEWAY_S2S_KEY || 'wl_to_gw_s2s_secret_2026',
-      incomingSecret: process.env.GATEWAY_INCOMING_SECRET || 'gw_to_wl_s2s_secret_2026',
+      apiKey: encryptedApiKey,
+      incomingSecret: encryptedIncomingSecret,
       isActive: true,
       metadata: { iamMaster: true, ssoProvider: true },
     },

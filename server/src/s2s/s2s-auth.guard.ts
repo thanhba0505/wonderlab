@@ -1,45 +1,76 @@
-import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
-import * as crypto from 'crypto';
+import {
+  CanActivate,
+  ExecutionContext,
+  Injectable,
+  UnauthorizedException,
+  Logger,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { verifyS2SSignature } from './s2s-crypto.util';
+import { decryptS2SSecret } from './s2s-vault.util';
 
 @Injectable()
 export class S2SAuthGuard implements CanActivate {
+  private readonly logger = new Logger(S2SAuthGuard.name);
+
   constructor(private readonly prisma: PrismaService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
-    const authHeader = request.headers['authorization'];
+    const s2sSignature = request.headers['x-s2s-signature'] as string | undefined;
+    const s2sTimestamp = request.headers['x-s2s-timestamp'] as string | undefined;
+    const s2sServiceSlug = request.headers['x-s2s-service'] as string | undefined;
 
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      throw new UnauthorizedException('Missing or invalid Authorization header');
+    // Strict HMAC-SHA256 protocol: All 3 headers are mandatory
+    if (!s2sSignature || !s2sTimestamp || !s2sServiceSlug) {
+      throw new UnauthorizedException(
+        'Missing required S2S signature headers (X-S2S-Signature, X-S2S-Timestamp, X-S2S-Service)',
+      );
     }
 
-    const token = authHeader.slice(7).trim();
-    if (!token) {
-      throw new UnauthorizedException('Missing bearer token');
+    const now = Date.now();
+    const ts = Number(s2sTimestamp);
+
+    // Replay attack prevention: max 5-minute skew tolerance
+    if (isNaN(ts) || Math.abs(now - ts) > 5 * 60 * 1000) {
+      throw new UnauthorizedException('S2S request timestamp expired or clock skew too high');
     }
 
-    const connections = await this.prisma.serviceConnection.findMany({
+    // Look up connection by sender slug
+    const connection = await this.prisma.serviceConnection.findFirst({
       where: {
+        slug: s2sServiceSlug,
         isActive: true,
         incomingSecret: { not: null },
       },
     });
 
-    const tokenBuffer = Buffer.from(token);
+    const rawIncomingSecret = decryptS2SSecret(connection?.incomingSecret);
 
-    const matched = connections.find(conn => {
-      if (!conn.incomingSecret) return false;
-      const secretBuffer = Buffer.from(conn.incomingSecret);
-      if (secretBuffer.length !== tokenBuffer.length) return false;
-      return crypto.timingSafeEqual(secretBuffer, tokenBuffer);
-    });
-
-    if (!matched) {
-      throw new UnauthorizedException('Invalid service token');
+    if (!connection || !rawIncomingSecret) {
+      this.logger.warn(`Unauthorized or unconfigured S2S service: '${s2sServiceSlug}'`);
+      throw new UnauthorizedException(`Unauthorized S2S service: ${s2sServiceSlug}`);
     }
 
-    request.serviceConnection = matched;
+    const targetPath = request.originalUrl || request.url;
+
+    const isValid = verifyS2SSignature(
+      rawIncomingSecret,
+      s2sTimestamp,
+      request.method,
+      targetPath,
+      s2sSignature,
+      request.body,
+    );
+
+    if (!isValid) {
+      this.logger.warn(
+        `Invalid S2S HMAC signature for service '${s2sServiceSlug}' on path: ${targetPath}`,
+      );
+      throw new UnauthorizedException('Invalid S2S HMAC signature');
+    }
+
+    request.serviceConnection = connection;
     return true;
   }
 }

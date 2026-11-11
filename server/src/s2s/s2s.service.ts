@@ -1,6 +1,8 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { ServiceConnection } from '@prisma/client';
+import { generateS2SSignature, normalizeS2SPath } from './s2s-crypto.util';
+import { decryptS2SSecret } from './s2s-vault.util';
 
 @Injectable()
 export class S2SService {
@@ -28,15 +30,29 @@ export class S2SService {
 
     const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
     const url = `${connection.domain}${connection.apiPrefix}${cleanEndpoint}`;
+    const targetPath = `${connection.apiPrefix}${cleanEndpoint}`;
+
+    const rawApiKey = decryptS2SSecret(connection.apiKey);
+    if (!rawApiKey) {
+      throw new Error(`[S2S] Service connection '${slug}' does not have an apiKey configured`);
+    }
+
+    const method = (options.method || 'GET').toUpperCase();
+    const timestamp = Date.now().toString();
 
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
+      'X-S2S-Service': 'wonderlab',
+      'X-S2S-Timestamp': timestamp,
+      'X-S2S-Signature': generateS2SSignature(
+        rawApiKey,
+        timestamp,
+        method,
+        normalizeS2SPath(targetPath),
+        options.body,
+      ),
       ...((options.headers as Record<string, string>) || {}),
     };
-
-    if (connection.apiKey) {
-      headers['Authorization'] = `Bearer ${connection.apiKey}`;
-    }
 
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), connection.timeoutMs);
