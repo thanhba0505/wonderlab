@@ -1,6 +1,7 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { ServiceConnection } from '@prisma/client';
+import { generateS2SSignature, normalizeS2SPath } from './s2s-crypto.util';
 
 @Injectable()
 export class S2SService {
@@ -28,14 +29,27 @@ export class S2SService {
 
     const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
     const url = `${connection.domain}${connection.apiPrefix}${cleanEndpoint}`;
+    const targetPath = `${connection.apiPrefix}${cleanEndpoint}`;
+
+    const method = (options.method || 'GET').toUpperCase();
+    const timestamp = Date.now().toString();
 
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
+      'X-S2S-Service': 'wonderlab',
+      'X-S2S-Timestamp': timestamp,
       ...((options.headers as Record<string, string>) || {}),
     };
 
     if (connection.apiKey) {
       headers['Authorization'] = `Bearer ${connection.apiKey}`;
+      headers['X-S2S-Signature'] = generateS2SSignature(
+        connection.apiKey,
+        timestamp,
+        method,
+        normalizeS2SPath(targetPath),
+        options.body,
+      );
     }
 
     const controller = new AbortController();
