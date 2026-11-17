@@ -1,6 +1,6 @@
 {
   "name": "wonderlab-server",
-  "version": "0.18.0",
+  "version": "0.19.0",
   "private": true,
   "scripts": {
     "build": "prisma generate && nest build",
