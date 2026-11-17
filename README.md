@@ -36,7 +36,7 @@ Rather than memorizing passive textbook equations, learners directly manipulate 
 ### 3. Quick Links
 
 - **Production App**: [https://wonderlab.io.vn](https://wonderlab.io.vn)
-- **Interactive OpenAPI / Swagger Documentation**: [https://wonderlab-server.onrender.com/api/docs](https://wonderlab-server.onrender.com/api/docs)
+- **Interactive OpenAPI / Swagger Documentation**: [https://wonderlab-server.vercel.app/api/docs](https://wonderlab-server.vercel.app/api/docs)
 - **Service Health Probe**: [https://wonderlab.io.vn/health](https://wonderlab.io.vn/health)
 
 ---

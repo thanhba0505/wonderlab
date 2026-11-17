@@ -216,7 +216,7 @@ export class AuthService {
     const gatewayConn = await this.s2sService?.getConnection('central-gateway');
     const gatewayUrl = gatewayConn
       ? `${gatewayConn.domain}${gatewayConn.apiPrefix}`
-      : process.env.GATEWAY_URL || 'https://central-gateway-server.onrender.com/api/v1';
+      : process.env.GATEWAY_URL || 'https://central-gateway-server.vercel.app/api/v1';
 
     let gatewayRes: globalThis.Response;
     try {

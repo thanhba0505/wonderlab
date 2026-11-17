@@ -1,4 +1,4 @@
-import { Logger } from '@nestjs/common';
+import { Logger, INestApplication } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
@@ -9,10 +9,9 @@ import { APP_VERSION } from './common/version';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { createValidationPipe } from './common/pipes/validation.pipe';
 
-async function bootstrap() {
-  const logger = new Logger('WonderlabServer');
-  const app = await NestFactory.create(AppModule);
+const logger = new Logger('WonderlabServer');
 
+export function configureWonderlabApp(app: INestApplication): void {
   // Security HTTP Headers with CSP adjusted for Swagger UI
   app.use(
     helmet({
@@ -48,12 +47,23 @@ async function bootstrap() {
   app.useGlobalPipes(createValidationPipe());
 
   // CORS Configuration
-  const corsOrigins = process.env.CORS_ORIGINS
+  const defaultOrigins = [
+    'http://localhost:4100',
+    'http://localhost:3000',
+    'https://wonderlab.io.vn',
+    'https://www.wonderlab.io.vn',
+    'https://wonderlab-client.vercel.app',
+    'https://central-gateway-client.vercel.app',
+  ];
+
+  const configuredOrigins = process.env.CORS_ORIGINS
     ? process.env.CORS_ORIGINS.split(',').map(origin => origin.trim())
-    : ['http://localhost:4100'];
+    : [];
+
+  const corsOrigins = Array.from(new Set([...defaultOrigins, ...configuredOrigins]));
 
   app.enableCors({
-    origin: corsOrigins,
+    origin: corsOrigins.length > 0 ? corsOrigins : true,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
   });
@@ -94,10 +104,17 @@ async function bootstrap() {
 
   // Graceful shutdown hooks
   app.enableShutdownHooks();
+}
 
-  const port = parseInt(process.env.SERVER_PORT || '4101', 10);
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+  configureWonderlabApp(app);
+
+  const port = parseInt(process.env.SERVER_PORT || process.env.PORT || '4101', 10);
   await app.listen(port);
   logger.log(`Wonderlab server listening on port ${port} (API: /api/v1)`);
 }
 
-void bootstrap();
+if (!process.env.VERCEL) {
+  void bootstrap();
+}
