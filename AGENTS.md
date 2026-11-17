@@ -43,6 +43,9 @@ Primary rules and standards for AI coding assistants working in Wonderlab.
 - **Zero Secret Leaks**: Never commit `.env*` or tokens (must be `.gitignore`d).
 - **Client Boundaries**: Only `NEXT_PUBLIC_*` variables allowed in client code; never expose secrets or DB credentials.
 - **Database**: Bind strictly to `127.0.0.1` (loopback).
+- **Production Database Safety & Migration Protocol**:
+  - STRICTLY FORBID executing manual or ad-hoc database migrations, schema pushes, or seed scripts (`prisma migrate deploy`, `prisma db push`, `prisma db seed`) directly against remote Neon production databases from local terminal or agent turns.
+  - Production database schema migrations must ONLY run automatically through the official Release workflow / CI/CD pipeline when releasing a new version (`v*.*.*`).
 - **Admin Security**: `/admin` requires active `Role.ADMIN` session via HttpOnly cookies.
 - **CORS**: Explicit whitelist via `CORS_ORIGINS`. Scoped strictly to browser clients, never to server-to-server HTTP calls.
 - **Service-to-Service (S2S) Architecture**:
