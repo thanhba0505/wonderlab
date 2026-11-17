@@ -170,7 +170,7 @@ jobs:
     steps:
       - name: Send CI status to Central Gateway (#ci-cd)
         env:
-          GATEWAY_URL: ${{ secrets.GATEWAY_URL || 'https://central-gateway-server.onrender.com/api/v1' }}
+          GATEWAY_URL: ${{ secrets.GATEWAY_URL || 'https://central-gateway-server.vercel.app/api/v1' }}
           GATEWAY_SECRET_KEY: ${{ secrets.GATEWAY_SECRET_KEY }}
           QUALITY_STATUS: ${{ needs.quality.result }}
           UNIT_STATUS: ${{ needs.unit-tests.result }}

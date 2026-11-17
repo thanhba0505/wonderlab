@@ -36,7 +36,7 @@ export class SlackNotificationService {
 
       // Fallback to env if S2SService is not available or connection not seeded
       const gatewayUrl =
-        process.env.GATEWAY_URL || 'https://central-gateway-server.onrender.com/api/v1';
+        process.env.GATEWAY_URL || 'https://central-gateway-server.vercel.app/api/v1';
       const secretKey = process.env.GATEWAY_SECRET_KEY;
       const headers: Record<string, string> = {
         'Content-Type': 'application/json',

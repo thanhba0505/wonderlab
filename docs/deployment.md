@@ -4,9 +4,9 @@
 
 Wonderlab is deployed across a decoupled multi-cloud architecture maximizing reliability, performance, and resource isolation while staying within generous free-tier quotas:
 
-- **Frontend Client (`client/`)**: Next.js 15 App Router deployed to a dedicated **Render Frontend Workspace** (`Wonderlab Frontend`, `render.client.yaml`). Custom domain `https://wonderlab.io.vn` with automated SSL and edge routing.
-- **Backend Server (`server/`)**: NestJS 10 REST API deployed to a dedicated **Render Backend Workspace** (`Wonderlab Backend`, `render.server.yaml`) at `https://wonderlab-server.onrender.com`.
-- **Production Database**: **Neon Serverless PostgreSQL** (AWS Oregon `us-west-2`). Zero-maintenance serverless pooling, automatic branchable backups, and unlimited lifespan (replacing Render's 30-day ephemeral database).
+- **Frontend Client (`client/`)**: Next.js 15 App Router deployed to **Vercel** (`wonderlab-client`). Custom domain `https://wonderlab.io.vn` with automated SSL and edge routing.
+- **Backend Server (`server/`)**: NestJS 10 REST API deployed to **Vercel** (`wonderlab-server`) with Fluid Compute Serverless at `https://wonderlab-server.vercel.app`.
+- **Production Database**: **Neon Serverless PostgreSQL** (AWS Oregon `us-west-2`). Zero-maintenance serverless pooling, automatic branchable backups, and unlimited lifespan.
 
 ### Architectural Benefits:
 
@@ -31,20 +31,17 @@ Wonderlab is deployed across a decoupled multi-cloud architecture maximizing rel
 - **Start Command**: `pnpm --filter wonderlab-client start` (executes `next start -p ${PORT:-4100}`, dynamically binding to Render's injected `PORT=10000`)
 - **Health Check Path**: `/health`
 - **Custom Domains**:
-  - Apex: `https://wonderlab.io.vn` (DNS A record: `216.24.57.1`)
-  - Subdomain: `https://www.wonderlab.io.vn` (DNS CNAME record: `wonderlab-client-iwl8.onrender.com`)
+  - Apex: `https://wonderlab.io.vn` (DNS A record: `76.76.21.21`)
+  - Subdomain: `https://www.wonderlab.io.vn` (DNS CNAME record: `cname.vercel-dns.com`)
 - **Environment Variables**:
   - `NODE_ENV`: `production`
-  - `PORT`: `10000`
   - `NEXT_PUBLIC_APP_NAME`: `Wonderlab`
   - `NEXT_PUBLIC_APP_URL`: `https://wonderlab.io.vn`
-  - `NEXT_PUBLIC_API_BASE_URL`: `https://wonderlab-server.onrender.com/api/v1`
+  - `NEXT_PUBLIC_API_BASE_URL`: `https://wonderlab-server.vercel.app/api/v1`
 
-### 2. `wonderlab-server` (Backend Workspace — `render.server.yaml`)
+### 2. `wonderlab-server` (Backend Vercel Serverless)
 
-- **Workspace**: `Wonderlab Backend` (`tea-dbe7vkks728c73bb2mf0`)
-- **Service ID**: `srv-dbe87e7b9u1s738pj47g` (`wonderlab-server`)
-- **Render Hostname**: `https://wonderlab-server.onrender.com`
+- **Production URL**: `https://wonderlab-server.vercel.app`
 - **Runtime**: Node.js 24 (`.nvmrc`)
 - **Plan**: `free` (750 hours/month isolated quota)
 - **Region**: `oregon`
@@ -65,10 +62,10 @@ Wonderlab is deployed across a decoupled multi-cloud architecture maximizing rel
 
 To route traffic to Render Frontend with automatic SSL generation:
 
-| Record Type | Host / Name | Target / Value                       | Description                       |
-| :---------- | :---------- | :----------------------------------- | :-------------------------------- |
-| **A**       | `@`         | `216.24.57.1`                        | Render Anycast IP for apex domain |
-| **CNAME**   | `www`       | `wonderlab-client-iwl8.onrender.com` | CNAME routing for `www` subdomain |
+| Record Type | Host / Name | Target / Value         | Description                       |
+| :---------- | :---------- | :--------------------- | :-------------------------------- |
+| **A**       | `@`         | `216.24.57.1`          | Render Anycast IP for apex domain |
+| **CNAME**   | `www`       | `cname.vercel-dns.com` | CNAME routing for `www` subdomain |
 
 Render's Cloudflare-backed proxy automatically provisions and renews Let's Encrypt TLS certificates once DNS propagates.
 
@@ -94,12 +91,12 @@ flowchart TD
 
 1. **Deployment Initiation**: Triggered via Render REST API (`POST https://api.render.com/v1/services/{id}/deploys`) using `RENDER_API_KEY` and specific service IDs (`RENDER_SERVER_SERVICE_ID`, `RENDER_CLIENT_SERVICE_ID`).
 2. **Real-time Observability**: Immediately registers GitHub Deployments for both `production - server` and `production - client` with `state: in_progress`, presenting live loading spinners on the repository home page.
-3. **Fail-Fast Health Verification**: Runs [`scripts/verify-deployment.sh`](file:///Users/lethanhba/workspace/app/Wonderlab/scripts/verify-deployment.sh) to poll live health endpoints (`https://wonderlab.io.vn/health` and `https://wonderlab-server.onrender.com/api/v1/health`), actively polling Render Deploy API to abort immediately upon build crashes (`build_failed`, `canceled`).
+3. **Fail-Fast Health Verification**: Runs [`scripts/verify-deployment.sh`](file:///Users/lethanhba/workspace/app/Wonderlab/scripts/verify-deployment.sh) to poll live health endpoints (`https://wonderlab.io.vn/health` and `https://wonderlab-server.vercel.app/api/v1/health`).
 4. **Independent Service Resolution**: As each service becomes healthy, its corresponding GitHub Deployment transitions to `success` 🟢 independently.
 5. **Central Gateway Alerting**: Posts rich Slack Block Kit cards to `#deployments` at deployment start and final resolution.
 6. **GitHub Deployments Architecture**:
    - 🟢 `production - client` (`https://wonderlab.io.vn`)
-   - 🟢 `production - server` (`https://wonderlab-server.onrender.com/api/v1/health`)
+   - 🟢 `production - server` (`https://wonderlab-server.vercel.app/api/v1/health`)
    - 🟢 `production` (`https://wonderlab.io.vn`)
 
 ---
@@ -137,6 +134,6 @@ curl -s -X POST -H "Authorization: Bearer $API_KEY" \
 
 - [ ] Confirm `https://wonderlab.io.vn` renders cleanly via Render with HTTP 200 and valid SSL.
 - [ ] Confirm `https://wonderlab.io.vn/health` returns `{"status":"ok","service":"wonderlab-client"}`.
-- [ ] Confirm `https://wonderlab-server.onrender.com/api/v1/health` returns `{"status":"ok","database":"connected"}`.
+- [ ] Confirm `https://wonderlab-server.vercel.app/api/v1/health` returns `{"status":"ok","database":"connected"}`.
 - [ ] Confirm `GET /api/v1/simulations/stats` reads live statistics from Neon PostgreSQL.
 - [ ] Verify CORS preflight succeeds from `https://wonderlab.io.vn` to `wonderlab-server`.

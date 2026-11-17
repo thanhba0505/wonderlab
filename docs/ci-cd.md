@@ -86,12 +86,12 @@ Triggered automatically upon official GitHub Release publishing or manual tag pu
   - `RENDER_API_KEY`: Render Account REST API Bearer Token.
   - `RENDER_SERVER_SERVICE_ID`: Render Service ID for `wonderlab-server`.
   - `RENDER_CLIENT_SERVICE_ID`: Render Service ID for `wonderlab-client`.
-  - `GATEWAY_URL`: Central Gateway endpoint (`https://central-gateway-server.onrender.com/api/v1`).
+  - `GATEWAY_URL`: Central Gateway endpoint (`https://central-gateway-server.vercel.app/api/v1`).
   - `GATEWAY_SECRET_KEY`: Central Gateway Bearer secret for authenticated Slack dispatching.
 
 - **GitHub Deployments Architecture**:
   - 🟢 `production - client` (`https://wonderlab.io.vn`)
-  - 🟢 `production - server` (`https://wonderlab-server.onrender.com/api/v1/health`)
+  - 🟢 `production - server` (`https://wonderlab-server.vercel.app/api/v1/health`)
   - 🟢 `production` (`https://wonderlab.io.vn`)
 
 ---

@@ -29,7 +29,7 @@ ORM and schema migrations across both environments are strictly managed via **Pr
 
 ```bash
 # Query health endpoint
-curl -s https://wonderlab-server.onrender.com/api/v1/health | jq .
+curl -s https://wonderlab-server.vercel.app/api/v1/health | jq .
 # Expected output:
 # {"status":"ok","service":"wonderlab-server","database":"connected",...}
 ```
