@@ -20,9 +20,11 @@ import {
   AppTag,
   type AppFormHelpers,
 } from '@/components/ui';
+import { useTranslation } from '@/i18n';
 
 export default function AdminMyAccountPage() {
   const { user, changePassword, setPassword } = useAuth();
+  const { dict } = useTranslation();
   const [successMessage, setSuccessMessage] = React.useState<string | null>(null);
 
   if (!user) return null;
@@ -37,25 +39,28 @@ export default function AdminMyAccountPage() {
     const confPass = String(values.confirmPassword || '');
 
     if (newPass !== confPass) {
-      helpers.setFieldError('confirmPassword', 'Mật khẩu xác nhận không khớp.');
+      helpers.setFieldError('confirmPassword', dict.profile.passwords_mismatch);
       return;
     }
 
     if (newPass.length < 8) {
-      helpers.setFieldError('newPassword', 'Mật khẩu mới phải có tối thiểu 8 ký tự.');
+      helpers.setFieldError('newPassword', dict.profile.password_min_length);
       return;
     }
 
     const result = await changePassword(currPass, newPass);
 
     if (result.success) {
-      setSuccessMessage('Đổi mật khẩu tài khoản quản trị thành công!');
+      setSuccessMessage(dict.profile.password_changed_success);
       helpers.resetForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
     } else {
       if (result.errors) {
         helpers.setErrors(result.errors);
       } else {
-        helpers.setFieldError('currentPassword', result.error || 'Đổi mật khẩu thất bại.');
+        helpers.setFieldError(
+          'currentPassword',
+          result.error || dict.profile.password_change_failed,
+        );
       }
     }
   };
@@ -69,25 +74,25 @@ export default function AdminMyAccountPage() {
     const confPass = String(values.confirmPassword || '');
 
     if (newPass !== confPass) {
-      helpers.setFieldError('confirmPassword', 'Mật khẩu xác nhận không khớp.');
+      helpers.setFieldError('confirmPassword', dict.profile.passwords_mismatch);
       return;
     }
 
     if (newPass.length < 8) {
-      helpers.setFieldError('newPassword', 'Mật khẩu phải có tối thiểu 8 ký tự.');
+      helpers.setFieldError('newPassword', dict.profile.password_min_length);
       return;
     }
 
     const result = await setPassword(newPass);
 
     if (result.success) {
-      setSuccessMessage('Thiết lập mật khẩu quản trị thành công!');
+      setSuccessMessage(dict.profile.password_set_success);
       helpers.resetForm({ newPassword: '', confirmPassword: '' });
     } else {
       if (result.errors) {
         helpers.setErrors(result.errors);
       } else {
-        helpers.setFieldError('newPassword', result.error || 'Thiết lập mật khẩu thất bại.');
+        helpers.setFieldError('newPassword', result.error || dict.profile.password_set_failed);
       }
     }
   };
@@ -100,19 +105,15 @@ export default function AdminMyAccountPage() {
       <div className="flex flex-col gap-2 border-b border-slate-200/80 pb-4">
         <div className="flex items-center gap-2 text-xs font-mono text-slate-500 uppercase tracking-wider">
           <Link href="/admin" className="hover:text-blue-600 transition-colors">
-            Admin Console
+            {dict.admin_nav.system_dashboard}
           </Link>
           <span>/</span>
-          <span className="text-slate-900 font-semibold">Tài khoản Quản trị</span>
+          <span className="text-slate-900 font-semibold">{dict.admin_nav.admin_account_label}</span>
         </div>
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="font-heading text-xl font-bold text-slate-900">
-              Hồ sơ & Bảo mật Quản trị
-            </h1>
-            <p className="text-xs text-slate-500 font-sans mt-0.5">
-              Quản lý định danh tài khoản vận hành hệ thống Wonderlab.
-            </p>
+            <h1 className="font-heading text-xl font-bold text-slate-900">{dict.profile.title}</h1>
+            <p className="text-xs text-slate-500 font-sans mt-0.5">{dict.profile.subtitle}</p>
           </div>
           <div className="flex items-center gap-2">
             <Link href="/admin">
@@ -122,7 +123,7 @@ export default function AdminMyAccountPage() {
                 leftIcon={<LayoutDashboard className="h-3.5 w-3.5" />}
                 className="text-xs"
               >
-                Về Console
+                {dict.admin_nav.system_dashboard}
               </AppButton>
             </Link>
             <Link href="/">
@@ -132,7 +133,7 @@ export default function AdminMyAccountPage() {
                 leftIcon={<ArrowLeft className="h-3.5 w-3.5" />}
                 className="text-xs"
               >
-                Về Trang chủ
+                {dict.admin_nav.return_to_app}
               </AppButton>
             </Link>
           </div>
@@ -144,13 +145,15 @@ export default function AdminMyAccountPage() {
         <div className="flex items-center gap-2 border-b border-slate-200/80 pb-3">
           <Shield className="h-4 w-4 text-amber-600" />
           <h2 className="font-heading text-sm font-bold text-slate-900">
-            Thông tin Tài khoản Quản trị
+            {dict.profile.account_info}
           </h2>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="p-3 rounded-lg border border-slate-200 bg-slate-50/60">
-            <span className="text-xs font-mono text-slate-500 block uppercase">Tên đăng nhập</span>
+            <span className="text-xs font-mono text-slate-500 block uppercase">
+              {dict.profile.username_label}
+            </span>
             <div className="flex items-center gap-2 mt-1">
               <span className="text-sm font-mono font-bold text-slate-900">{user.username}</span>
               <AppTag variant="amber" size="sm">
@@ -160,28 +163,31 @@ export default function AdminMyAccountPage() {
           </div>
 
           <div className="p-3 rounded-lg border border-slate-200 bg-slate-50/60">
-            <span className="text-xs font-mono text-slate-500 block uppercase">Địa chỉ Email</span>
+            <span className="text-xs font-mono text-slate-500 block uppercase">
+              {dict.profile.email_label}
+            </span>
             <div className="flex items-center gap-1.5 mt-1 text-sm font-mono text-slate-800">
               <Mail className="h-3.5 w-3.5 text-slate-400" />
-              <span>{user.email || 'Chưa cung cấp email'}</span>
+              <span>{user.email || dict.profile.no_email}</span>
             </div>
           </div>
         </div>
 
         <div className="rounded-lg border border-slate-200 divide-y divide-slate-100 text-xs">
           <div className="flex items-center justify-between p-3">
-            <span className="text-slate-600 font-medium">Quyền hạn hệ thống</span>
-            <span className="font-mono font-semibold text-amber-700">Toàn quyền Quản trị</span>
+            <span className="text-slate-600 font-medium">{dict.admin_nav.account_role_label}</span>
+            <span className="font-mono font-semibold text-amber-700">Administrator</span>
           </div>
           <div className="flex items-center justify-between p-3">
-            <span className="text-slate-600 font-medium">Trạng thái bảo mật</span>
+            <span className="text-slate-600 font-medium">{dict.profile.password_status}</span>
             <div className="font-mono">
               {hasExistingPassword ? (
                 <span className="text-emerald-700 font-semibold flex items-center gap-1">
-                  <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" /> Đã thiết lập mật khẩu
+                  <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />{' '}
+                  {dict.profile.password_configured}
                 </span>
               ) : (
-                <span className="text-amber-700 font-semibold">Chưa thiết lập mật khẩu</span>
+                <span className="text-amber-700 font-semibold">{dict.profile.password_none}</span>
               )}
             </div>
           </div>
@@ -193,7 +199,9 @@ export default function AdminMyAccountPage() {
         <div className="flex items-center gap-2 border-b border-slate-200/80 pb-3">
           <KeyRound className="h-4 w-4 text-blue-600" />
           <h2 className="font-heading text-sm font-bold text-slate-900">
-            {hasExistingPassword ? 'Đổi Mật khẩu Quản trị' : 'Thiết lập Mật khẩu'}
+            {hasExistingPassword
+              ? dict.profile.change_password_title
+              : dict.profile.set_password_title}
           </h2>
         </div>
 
@@ -212,31 +220,31 @@ export default function AdminMyAccountPage() {
           {hasExistingPassword && (
             <AppFormField
               name="currentPassword"
-              label="Mật khẩu hiện tại"
+              label={dict.profile.curr_pass_label}
               type="password"
               showPasswordToggle
-              placeholder="Nhập mật khẩu hiện tại"
-              required="Vui lòng nhập mật khẩu hiện tại"
+              placeholder={dict.profile.curr_pass_placeholder}
+              required={dict.profile.curr_pass_required}
             />
           )}
 
           <AppFormField
             name="newPassword"
-            label="Mật khẩu mới"
+            label={dict.profile.new_pass_label}
             type="password"
             showPasswordToggle
-            placeholder="Tối thiểu 8 ký tự"
-            required="Vui lòng nhập mật khẩu mới"
-            rules={[{ minLength: 8, message: 'Mật khẩu mới phải có tối thiểu 8 ký tự' }]}
+            placeholder={dict.profile.new_pass_placeholder}
+            required={dict.profile.new_pass_required}
+            rules={[{ minLength: 8, message: dict.profile.password_min_length }]}
           />
 
           <AppFormField
             name="confirmPassword"
-            label="Xác nhận mật khẩu mới"
+            label={dict.profile.conf_pass_label}
             type="password"
             showPasswordToggle
-            placeholder="Nhập lại mật khẩu mới"
-            required="Vui lòng xác nhận mật khẩu mới"
+            placeholder={dict.profile.conf_pass_placeholder}
+            required={dict.profile.conf_pass_required}
           />
 
           <div className="pt-2">
@@ -246,7 +254,7 @@ export default function AdminMyAccountPage() {
               leftIcon={<Lock className="h-3.5 w-3.5" />}
               className="text-xs"
             >
-              Cập nhật mật khẩu quản trị
+              {hasExistingPassword ? dict.profile.submit_change : dict.profile.submit_set}
             </AppFormSubmit>
           </div>
         </AppForm>

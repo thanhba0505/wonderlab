@@ -28,6 +28,11 @@ export const accountEn: AccountDictionary = {
   minutes_unit: 'min',
   experiment_label: 'Experiment',
   min_read: 'min read',
+  syncing_session: 'Synchronizing secure session...',
+  login_required_title: 'Authentication Required',
+  login_required_desc:
+    'Please sign in to access your personal dashboard and review your scientific experiment records.',
+  login_now_btn: 'Sign In Now',
 };
 
 export const profileEn: ProfileDictionary = {
@@ -73,4 +78,15 @@ export const profileEn: ProfileDictionary = {
   save_profile: 'Save changes',
   profile_updated_success: 'Profile updated successfully!',
   profile_update_failed: 'Failed to update profile.',
+  username_min_length: 'Username must be at least 3 characters',
+  username_invalid_chars: 'Username can only contain letters, numbers, and underscores',
+  researcher_profile: 'Researcher Profile',
+  security_tab: 'Security & Password',
+  email_verified_status: 'Email verification status',
+  activated: 'Activated',
+  logout_btn: 'Sign out of account',
+  set_password_google_notice:
+    'Your account is currently linked with Google. You can set a password to sign in directly with your email without Google.',
+  set_password_btn: 'Set Personal Password',
+  change_password_btn: 'Update Password',
 };

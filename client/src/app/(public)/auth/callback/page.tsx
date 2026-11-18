@@ -4,11 +4,13 @@ import React, { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
+import { useTranslation } from '@/i18n';
 
 function SsoCallbackHandler() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { refreshUser } = useAuth();
+  const { dict } = useTranslation();
 
   const code = searchParams.get('code');
   const [error, setError] = useState<string | null>(null);
@@ -20,7 +22,7 @@ function SsoCallbackHandler() {
     async function handleExchange() {
       if (!code) {
         if (mounted) {
-          setError('Không tìm thấy mã xác thực SSO (authorization code).');
+          setError(dict.auth.sso_failed_title);
           setStatus('failed');
         }
         return;
@@ -45,7 +47,7 @@ function SsoCallbackHandler() {
         const data = await res.json().catch(() => ({}));
 
         if (!res.ok) {
-          throw new Error(data.message || 'Xác thực Single Sign-On thất bại.');
+          throw new Error(data.message || dict.auth.sso_failed_title);
         }
 
         if (mounted) {
@@ -58,7 +60,7 @@ function SsoCallbackHandler() {
         }
       } catch (err: unknown) {
         if (mounted) {
-          setError(err instanceof Error ? err.message : 'Có lỗi xảy ra khi xác thực SSO.');
+          setError(err instanceof Error ? err.message : dict.auth.sso_failed_title);
           setStatus('failed');
         }
       }
@@ -69,7 +71,7 @@ function SsoCallbackHandler() {
     return () => {
       mounted = false;
     };
-  }, [code, refreshUser, router]);
+  }, [code, refreshUser, router, dict.auth.sso_failed_title]);
 
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center px-4 py-16 text-center">
@@ -77,32 +79,30 @@ function SsoCallbackHandler() {
         {status === 'verifying' && (
           <div className="space-y-4">
             <Loader2 className="mx-auto h-10 w-10 animate-spin text-purple-600" />
-            <h2 className="text-lg font-bold text-slate-900">Đang đồng bộ phiên đăng nhập...</h2>
-            <p className="text-xs text-slate-500 leading-relaxed">
-              Wonderlab đang xác thực danh tính của bạn thông qua Central Gateway SSO Hub.
-            </p>
+            <h2 className="text-lg font-bold text-slate-900">{dict.auth.sso_syncing_title}</h2>
+            <p className="text-xs text-slate-500 leading-relaxed">{dict.auth.sso_syncing_desc}</p>
           </div>
         )}
 
         {status === 'success' && (
           <div className="space-y-4">
             <CheckCircle2 className="mx-auto h-10 w-10 text-emerald-500" />
-            <h2 className="text-lg font-bold text-slate-900">Đăng nhập thành công!</h2>
-            <p className="text-xs text-slate-500">Đang chuyển bạn về trang chính Wonderlab...</p>
+            <h2 className="text-lg font-bold text-slate-900">{dict.auth.sso_success_title}</h2>
+            <p className="text-xs text-slate-500">{dict.auth.sso_success_desc}</p>
           </div>
         )}
 
         {status === 'failed' && (
           <div className="space-y-4">
             <AlertCircle className="mx-auto h-10 w-10 text-rose-500" />
-            <h2 className="text-lg font-bold text-slate-900">Xác thực SSO thất bại</h2>
+            <h2 className="text-lg font-bold text-slate-900">{dict.auth.sso_failed_title}</h2>
             <p className="text-xs text-rose-600 font-medium">{error}</p>
             <div className="pt-2">
               <button
                 onClick={() => router.push('/')}
                 className="rounded-lg bg-slate-900 px-4 py-2 text-xs font-semibold text-white hover:bg-slate-800 transition active:scale-[0.98]"
               >
-                Quay về trang chủ
+                {dict.auth.sso_return_home}
               </button>
             </div>
           </div>

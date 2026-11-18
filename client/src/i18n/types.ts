@@ -78,6 +78,47 @@ export interface AuthDictionary {
   resend_wait: string;
   sending: string;
   logout_success: string;
+  username_placeholder: string;
+  username_required: string;
+  password_required: string;
+  password_placeholder: string;
+  password_min_length: string;
+  confirm_password_placeholder: string;
+  confirm_password_required: string;
+  passwords_mismatch: string;
+  email_required: string;
+  email_invalid: string;
+  email_placeholder: string;
+  register_username_placeholder: string;
+  register_username_required: string;
+  register_username_min: string;
+  register_username_max: string;
+  register_submit_btn: string;
+  register_success: string;
+  register_failed: string;
+  login_failed_credential: string;
+  google_failed: string;
+  google_no_credential: string;
+  google_not_configured: string;
+  google_dev_mock: string;
+  google_dev_bypass: string;
+  or_continue_with: string;
+  otp_enter_all_digits: string;
+  otp_invalid_or_expired: string;
+  otp_sent_success: string;
+  otp_verify_btn: string;
+  otp_resend_btn: string;
+  forgot_password_desc: string;
+  forgot_password_support_email: string;
+  back_to_login: string;
+  close_modal: string;
+  dev_db_test_account: string;
+  sso_syncing_title: string;
+  sso_syncing_desc: string;
+  sso_success_title: string;
+  sso_success_desc: string;
+  sso_failed_title: string;
+  sso_return_home: string;
 }
 
 export interface AccountDictionary {
@@ -108,6 +149,10 @@ export interface AccountDictionary {
   minutes_unit: string;
   experiment_label: string;
   min_read: string;
+  syncing_session: string;
+  login_required_title: string;
+  login_required_desc: string;
+  login_now_btn: string;
 }
 
 export interface ProfileDictionary {
@@ -153,6 +198,16 @@ export interface ProfileDictionary {
   save_profile: string;
   profile_updated_success: string;
   profile_update_failed: string;
+  username_min_length: string;
+  username_invalid_chars: string;
+  researcher_profile: string;
+  security_tab: string;
+  email_verified_status: string;
+  activated: string;
+  logout_btn: string;
+  set_password_google_notice: string;
+  set_password_btn: string;
+  change_password_btn: string;
 }
 
 export interface AdminNavDictionary {
@@ -172,6 +227,23 @@ export interface AdminNavDictionary {
   collapse_sidebar: string;
   expand_sidebar: string;
   return_to_app: string;
+  account_menu_title: string;
+  admin_account_label: string;
+  manage_admin_account: string;
+  access_denied_badge: string;
+  access_denied_title: string;
+  access_denied_desc: string;
+  current_account_label: string;
+  account_role_label: string;
+  access_denied_relogin_instruction: string;
+  logout_this_account_btn: string;
+  admin_auth_badge: string;
+  admin_login_title: string;
+  admin_login_desc: string;
+  admin_username_label: string;
+  admin_password_label: string;
+  admin_login_submit: string;
+  admin_login_authenticating: string;
 }
 
 export interface HomeDictionary {

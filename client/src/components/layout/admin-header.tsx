@@ -15,11 +15,13 @@ import {
   AppDropdownGroup,
 } from '@/components/ui';
 import { useAuth } from '@/lib/auth-context';
+import { useTranslation } from '@/i18n';
 import { cn } from '@/lib/utils';
 
 export function AdminHeader() {
   const pathname = usePathname();
   const { user, logout } = useAuth();
+  const { dict } = useTranslation();
   const isAdminView = pathname?.startsWith('/admin');
 
   return (
@@ -60,7 +62,7 @@ export function AdminHeader() {
               className="text-xs text-slate-700 hover:text-slate-900 border-slate-300 bg-white shadow-2xs font-medium"
               leftIcon={<ArrowLeft className="h-3.5 w-3.5" />}
             >
-              Về Trang chủ Lab
+              {dict.admin_nav.return_to_app}
             </AppButton>
           </Link>
 
@@ -78,7 +80,7 @@ export function AdminHeader() {
                         ? 'border-blue-500 ring-2 ring-blue-500/20 bg-blue-50/40'
                         : 'border-slate-200 hover:bg-slate-100 hover:border-slate-300',
                     )}
-                    title="Menu tài khoản Quản trị"
+                    title={dict.admin_nav.account_menu_title}
                     aria-expanded={isOpen}
                   >
                     <div className="h-5 w-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold font-mono shrink-0">
@@ -115,7 +117,7 @@ export function AdminHeader() {
                         <p className="text-xs text-slate-500 truncate mt-0.5">{user.email}</p>
                       ) : (
                         <p className="text-xs text-slate-400 italic truncate mt-0.5">
-                          Tài khoản Quản trị
+                          {dict.admin_nav.admin_account_label}
                         </p>
                       )}
                     </div>
@@ -124,24 +126,24 @@ export function AdminHeader() {
 
                 <AppDropdownGroup>
                   <AppDropdownItem href="/my-account" icon={<User className="h-4 w-4" />}>
-                    Tổng quan Cá nhân
+                    {dict.admin_nav.personal_overview}
                   </AppDropdownItem>
                   <AppDropdownItem
                     href="/my-account/profile"
                     icon={<KeyRound className="h-4 w-4" />}
                   >
-                    Hồ sơ & Bảo mật
+                    {dict.admin_nav.personal_profile}
                   </AppDropdownItem>
                   {user.role === 'ADMIN' && (
                     <AppDropdownItem
                       href="/admin"
                       icon={<LayoutDashboard className="h-4 w-4 text-amber-600" />}
                     >
-                      Tổng quan Quản trị
+                      {dict.admin_nav.system_dashboard}
                     </AppDropdownItem>
                   )}
                   <AppDropdownItem href="/" icon={<ArrowLeft className="h-4 w-4" />}>
-                    Về Trang chủ Lab
+                    {dict.admin_nav.return_to_app}
                   </AppDropdownItem>
                 </AppDropdownGroup>
 
@@ -153,7 +155,7 @@ export function AdminHeader() {
                     icon={<LogOut className="h-4 w-4" />}
                     onClick={() => logout()}
                   >
-                    Đăng xuất khỏi hệ thống
+                    {dict.nav.logout}
                   </AppDropdownItem>
                 </AppDropdownGroup>
               </AppDropdown>

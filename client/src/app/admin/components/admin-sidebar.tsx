@@ -329,7 +329,7 @@ export function AdminSidebar({ user, onLogout }: AdminSidebarProps) {
                   size="sm"
                   onClick={onLogout}
                   className="h-8 w-8 p-0 text-slate-400 hover:text-rose-600 hover:bg-rose-50 shrink-0"
-                  title="Đăng xuất"
+                  title={dict.nav.logout}
                 >
                   <LogOut className="h-3.5 w-3.5" />
                 </AppButton>
@@ -342,7 +342,7 @@ export function AdminSidebar({ user, onLogout }: AdminSidebarProps) {
                   className="w-full text-xs text-slate-600 hover:text-slate-900 border-slate-200 bg-white"
                 >
                   <ArrowLeft className="h-3.5 w-3.5 mr-1.5" />
-                  Về Trang chủ Lab
+                  {dict.admin_nav.return_to_app}
                 </AppButton>
               </Link>
             </div>
@@ -366,12 +366,14 @@ export function AdminSidebar({ user, onLogout }: AdminSidebarProps) {
             onMouseEnter={e =>
               handleItemHover(
                 e,
-                isCollapsed ? 'Mở rộng thanh điều hướng' : 'Thu gọn thanh điều hướng',
+                isCollapsed ? dict.admin_nav.expand_sidebar : dict.admin_nav.collapse_sidebar,
               )
             }
             onMouseLeave={handleItemLeave}
             className="group relative flex items-center h-10 w-full rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors duration-150 px-2"
-            aria-label={isCollapsed ? 'Mở rộng thanh điều hướng' : 'Thu gọn thanh điều hướng'}
+            aria-label={
+              isCollapsed ? dict.admin_nav.expand_sidebar : dict.admin_nav.collapse_sidebar
+            }
           >
             {/* Fixed Icon */}
             <div className="w-9 h-9 flex items-center justify-center shrink-0">
@@ -386,7 +388,7 @@ export function AdminSidebar({ user, onLogout }: AdminSidebarProps) {
                   : 'opacity-100 max-w-[160px] translate-x-0'
               }`}
             >
-              Thu gọn menu
+              {dict.admin_nav.collapse_sidebar}
             </span>
           </button>
         </div>
@@ -485,7 +487,7 @@ export function AdminSidebar({ user, onLogout }: AdminSidebarProps) {
             <Link
               href="/admin/my-account"
               className="flex items-center min-w-0 flex-1 hover:opacity-85 transition group"
-              title="Quản lý tài khoản Quản trị"
+              title={dict.admin_nav.manage_admin_account}
             >
               <div className="w-9 h-9 flex items-center justify-center shrink-0">
                 <div className="h-7 w-7 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold font-mono group-hover:ring-2 group-hover:ring-blue-400">

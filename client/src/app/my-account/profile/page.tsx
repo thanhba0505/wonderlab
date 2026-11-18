@@ -34,11 +34,11 @@ export default function MyAccountProfilePage() {
 
     if (newUsername && newUsername !== user.username) {
       if (newUsername.length < 3) {
-        helpers.setFieldError('username', 'Tên người dùng tối thiểu 3 ký tự');
+        helpers.setFieldError('username', dict.profile.username_min_length);
         return;
       }
       if (!/^[a-zA-Z0-9_]+$/.test(newUsername)) {
-        helpers.setFieldError('username', 'Tên người dùng chỉ chứa chữ cái, số và dấu gạch dưới');
+        helpers.setFieldError('username', dict.profile.username_invalid_chars);
         return;
       }
       payload.username = newUsername;
@@ -267,7 +267,7 @@ export default function MyAccountProfilePage() {
             rules={[
               {
                 minLength: 3,
-                message: 'Tên người dùng tối thiểu 3 ký tự',
+                message: dict.profile.username_min_length,
               },
             ]}
           />

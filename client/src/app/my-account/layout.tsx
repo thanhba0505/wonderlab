@@ -5,15 +5,17 @@ import { useAuth } from '@/lib/auth-context';
 import { Loader2, User } from 'lucide-react';
 import { AdminSidebar } from '../admin/components/admin-sidebar';
 import { AppButton } from '@/components/ui';
+import { useTranslation } from '@/i18n';
 
 export default function MyAccountLayout({ children }: { children: React.ReactNode }) {
   const { user, logout, isLoading, openAuthModal } = useAuth();
+  const { dict } = useTranslation();
 
   if (isLoading) {
     return (
       <div className="min-h-[70vh] flex flex-col items-center justify-center space-y-3">
         <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-        <span className="text-xs font-mono text-slate-500">Đang đồng bộ phiên bảo mật...</span>
+        <span className="text-xs font-mono text-slate-500">{dict.account.syncing_session}</span>
       </div>
     );
   }
@@ -27,15 +29,14 @@ export default function MyAccountLayout({ children }: { children: React.ReactNod
             <User className="h-6 w-6" />
           </div>
           <h1 className="font-heading text-lg font-bold text-slate-900 tracking-tight">
-            Yêu cầu Đăng nhập
+            {dict.account.login_required_title}
           </h1>
           <p className="mt-2 text-xs text-slate-600 leading-relaxed">
-            Vui lòng đăng nhập để truy cập không gian bảng điều khiển cá nhân và xem tiến trình thực
-            nghiệm của bạn.
+            {dict.account.login_required_desc}
           </p>
           <div className="mt-5 flex justify-center gap-3">
             <AppButton variant="primary" size="sm" onClick={() => openAuthModal('login')}>
-              Đăng nhập ngay
+              {dict.account.login_now_btn}
             </AppButton>
           </div>
         </div>

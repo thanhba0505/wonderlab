@@ -13,9 +13,11 @@ import {
   AppTag,
   type AppFormHelpers,
 } from '@/components/ui';
+import { useTranslation } from '@/i18n';
 
 export function AdminLoginCard() {
   const { user, login, logout } = useAuth();
+  const { dict } = useTranslation();
 
   const handleLogin = async (
     values: Record<string, unknown>,
@@ -28,10 +30,7 @@ export function AdminLoginCard() {
       if (result.errors) {
         helpers.setErrors(result.errors);
       } else {
-        helpers.setFieldError(
-          'password',
-          result.error || 'Tên đăng nhập hoặc mật khẩu không chính xác',
-        );
+        helpers.setFieldError('password', result.error || dict.auth.login_failed_credential);
       }
     }
   };
@@ -49,7 +48,7 @@ export function AdminLoginCard() {
                 className="gap-2 border-slate-300 text-slate-700 bg-white cursor-pointer"
                 leftIcon={<ArrowLeft className="h-4 w-4" />}
               >
-                Về Trang chủ
+                {dict.admin_nav.return_to_app}
               </AppButton>
             </Link>
             <span className="text-xs font-mono text-slate-500">Wonderlab Portal / Auth</span>
@@ -59,32 +58,35 @@ export function AdminLoginCard() {
             <div className="p-6 border-b border-slate-200 bg-rose-50/50 space-y-1">
               <div className="mb-2">
                 <AppTag variant="red" size="md" icon={<ShieldAlert className="h-3 w-3 mr-1" />}>
-                  TRUY CẬP BỊ TỪ CHỐI
+                  {dict.admin_nav.access_denied_badge}
                 </AppTag>
               </div>
               <h1 className="font-heading text-xl font-bold text-slate-900">
-                Không đủ quyền quản trị
+                {dict.admin_nav.access_denied_title}
               </h1>
               <p className="text-xs text-slate-500 font-sans">
-                Tài khoản hiện tại không có quyền truy cập vào Wonderlab Admin Console.
+                {dict.admin_nav.access_denied_desc}
               </p>
             </div>
 
             <div className="p-6 space-y-4">
               <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700 space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-slate-500 font-mono">Tài khoản hiện tại:</span>
+                  <span className="text-slate-500 font-mono">
+                    {dict.admin_nav.current_account_label}
+                  </span>
                   <span className="font-mono font-bold text-slate-900">{user.username}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-slate-500 font-mono">Vai trò tài khoản:</span>
+                  <span className="text-slate-500 font-mono">
+                    {dict.admin_nav.account_role_label}
+                  </span>
                   <AppTag variant="amber" size="sm">
                     {user.role}
                   </AppTag>
                 </div>
                 <div className="pt-2 text-xs text-slate-600 border-t border-slate-200">
-                  Vui lòng đăng xuất và đăng nhập lại bằng tài khoản được cấp quyền Quản trị viên
-                  (ADMIN) để tiếp tục.
+                  {dict.admin_nav.access_denied_relogin_instruction}
                 </div>
               </div>
 
@@ -96,7 +98,7 @@ export function AdminLoginCard() {
                   onClick={() => logout()}
                   className="font-semibold cursor-pointer"
                 >
-                  Đăng xuất tài khoản này
+                  {dict.admin_nav.logout_this_account_btn}
                 </AppButton>
                 <Link href="/" className="w-full">
                   <AppButton
@@ -105,7 +107,7 @@ export function AdminLoginCard() {
                     fullWidth
                     className="text-xs text-slate-600 hover:text-slate-900 cursor-pointer"
                   >
-                    Quay lại Trang chủ Lab
+                    {dict.admin_nav.return_to_app}
                   </AppButton>
                 </Link>
               </div>
@@ -128,7 +130,7 @@ export function AdminLoginCard() {
               className="gap-2 border-slate-300 text-slate-700 bg-white cursor-pointer"
               leftIcon={<ArrowLeft className="h-4 w-4" />}
             >
-              Về Trang chủ
+              {dict.admin_nav.return_to_app}
             </AppButton>
           </Link>
           <span className="text-xs font-mono text-slate-500">Wonderlab Portal / Auth</span>
@@ -138,15 +140,13 @@ export function AdminLoginCard() {
           <div className="p-6 border-b border-slate-200 bg-slate-50/70 space-y-1">
             <div className="mb-2">
               <AppTag variant="blue" size="md" icon={<Lock className="h-3 w-3 mr-1" />}>
-                XÁC THỰC QUẢN TRỊ
+                {dict.admin_nav.admin_auth_badge}
               </AppTag>
             </div>
             <h1 className="font-heading text-xl font-bold text-slate-900">
-              Đăng nhập Admin Console
+              {dict.admin_nav.admin_login_title}
             </h1>
-            <p className="text-xs text-slate-500 font-sans">
-              Khu vực dành cho quản trị viên vận hành hệ thống Wonderlab.
-            </p>
+            <p className="text-xs text-slate-500 font-sans">{dict.admin_nav.admin_login_desc}</p>
           </div>
 
           <AppForm
@@ -156,9 +156,9 @@ export function AdminLoginCard() {
           >
             <AppFormField
               name="username"
-              label="TÊN ĐĂNG NHẬP"
-              required="Vui lòng nhập tên đăng nhập"
-              placeholder="Nhập tên đăng nhập"
+              label={dict.admin_nav.admin_username_label}
+              required={dict.auth.register_username_required}
+              placeholder={dict.auth.username_placeholder}
               autoComplete="username"
             />
 
@@ -166,9 +166,9 @@ export function AdminLoginCard() {
               name="password"
               type="password"
               showPasswordToggle
-              label="MẬT KHẨU"
-              required="Vui lòng nhập mật khẩu"
-              placeholder="••••••••••••"
+              label={dict.admin_nav.admin_password_label}
+              required={dict.auth.password_required}
+              placeholder={dict.auth.password_placeholder}
               autoComplete="current-password"
             />
 
@@ -176,10 +176,10 @@ export function AdminLoginCard() {
               <AppFormSubmit
                 variant="primary"
                 fullWidth
-                loadingText="Đang xác thực..."
+                loadingText={dict.admin_nav.admin_login_authenticating}
                 className="py-2.5"
               >
-                Đăng nhập vào Hệ thống
+                {dict.admin_nav.admin_login_submit}
               </AppFormSubmit>
             </div>
           </AppForm>
