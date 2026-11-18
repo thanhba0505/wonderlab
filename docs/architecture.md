@@ -81,4 +81,4 @@ flowchart TD
 - **Central Gateway IAM**: Central Gateway serves as the single source of truth for user credentials, profile information, and account activation status.
 - **Shadow User Pattern**: Wonderlab stores a synchronized shadow user profile (`id`, `username`, `email`, `role`, `avatarUrl`, `isActive`) without maintaining passwords locally.
 - **SSO Login Handshake**: Users authenticate through OAuth2 PKCE with Central Gateway. Wonderlab validates the authorization code, upserts the shadow user record, and issues an HttpOnly session cookie.
-- **Decoupled Architecture**: See [ADR 0019](file:///Users/lethanhba/workspace/app/Wonderlab/docs/decisions/0019-service-connections-and-iam-user-sync.md).
+- **Decoupled Architecture**: See [ADR 0019](decisions/0019-service-connections-and-iam-user-sync.md).

@@ -6,7 +6,7 @@ Primary rules and standards for AI coding assistants working in Wonderlab.
 >
 > ### 🚨 Mandatory Single-Workspace & Standard Ports Protocol
 >
-> 1. **Primary Workspace**: `/Users/lethanhba/workspace/app/Wonderlab` is the sole and primary development workspace.
+> 1. **Primary Workspace**: The repository root directory is the sole and primary development workspace.
 > 2. **Standard Ecosystem Ports (Prism Hub)**:
 >    - Wonderlab Client: `http://localhost:4100`
 >    - Wonderlab Server: `http://localhost:4101` (`/api/v1`)
@@ -15,7 +15,6 @@ Primary rules and standards for AI coding assistants working in Wonderlab.
 >    - Database: Local PostgreSQL 16 on `127.0.0.1:5432`
 > 3. **Execution Workflow**:
 >    ```bash
->    cd /Users/lethanhba/workspace/app/Wonderlab
 >    git fetch origin && git checkout -B <type>/<task-name> origin/develop
 >    # Edits & verification:
 >    pnpm check

@@ -27,7 +27,7 @@ Wonderlab uses a unified trunk-based workflow targeting `develop`:
 1. **Branch Off `origin/develop`**:
    Always work directly within the primary workspace:
    ```bash
-   cd /Users/lethanhba/workspace/app/Wonderlab
+   cd wonderlab
    git fetch origin
    git checkout -B <type>/<task-name> origin/develop
    ```

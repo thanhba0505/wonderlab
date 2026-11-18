@@ -7,7 +7,7 @@ description: Git branching, Conventional Commits formatting, direct merge to dev
 
 ## 1. Single-Workspace & Standard Ports Protocol
 
-All development occurs directly in the primary workspace (`/Users/lethanhba/workspace/app/Wonderlab`). Git worktrees are forbidden.
+All development occurs directly in the primary workspace root. Git worktrees are forbidden.
 
 ### Standard Assigned Ports:
 
@@ -20,7 +20,6 @@ All development occurs directly in the primary workspace (`/Users/lethanhba/work
 ### Trunk-Based Execution & Direct Merge Workflow:
 
 ```bash
-cd /Users/lethanhba/workspace/app/Wonderlab
 git fetch origin
 git checkout -B <type>/<task-name> origin/develop
 

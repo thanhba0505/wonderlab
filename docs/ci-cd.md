@@ -42,7 +42,7 @@ The CI workflow runs on `ubuntu-latest` and executes **4 parallel & decoupled jo
 
 ## 3. Release Drafter Workflow (`.github/workflows/release-drafter.yml`)
 
-The workflow employs an automated Python script [`.github/scripts/update_draft_release.py`](file:///Users/lethanhba/workspace/app/Wonderlab/.github/scripts/update_draft_release.py):
+The workflow employs an automated Python script [`.github/scripts/update_draft_release.py`](../.github/scripts/update_draft_release.py):
 
 - **Commit Aggregation**:
   - Independent of PR labels, capturing 100% of commits pushed directly or via Pull Requests.
@@ -75,7 +75,7 @@ Triggered automatically upon official GitHub Release publishing or manual tag pu
     6. Triggers `wonderlab-server` build via Render REST API and registers `production - server` in GitHub Deployments with `state: in_progress` ⏳.
     7. Triggers `wonderlab-client` build via Render REST API and registers `production - client` in GitHub Deployments with `state: in_progress` ⏳.
     8. Registers overall `production` deployment with `state: in_progress` ⏳.
-    9. Executes [`scripts/verify-deployment.sh`](file:///Users/lethanhba/workspace/app/Wonderlab/scripts/verify-deployment.sh) with fail-fast polling against Render Deploy API and live `/health` endpoints.
+    9. Executes [`scripts/verify-deployment.sh`](../scripts/verify-deployment.sh) with fail-fast polling against Vercel Deploy Hook status and live `/health` endpoints.
     10. Transitions individual GitHub Deployments (`production - server` and `production - client`) to `success` 🟢 as soon as each service responds healthy.
     11. Finalizes overall `production` deployment to `success` 🟢 and dispatches `SUCCESS` alert to Slack `#deployments`.
     12. On failure: catches errors and marks all pending GitHub Deployments as `failure` ❌ with direct links to Render logs, dispatching `FAIL` alert to Slack.
