@@ -28,6 +28,11 @@ export const accountVi: AccountDictionary = {
   minutes_unit: 'phút',
   experiment_label: 'Thực nghiệm',
   min_read: 'phút đọc',
+  syncing_session: 'Đang đồng bộ phiên bảo mật...',
+  login_required_title: 'Yêu cầu Đăng nhập',
+  login_required_desc:
+    'Vui lòng đăng nhập để truy cập không gian bảng điều khiển cá nhân và xem tiến trình thực nghiệm của bạn.',
+  login_now_btn: 'Đăng nhập ngay',
 };
 
 export const profileVi: ProfileDictionary = {
@@ -73,4 +78,15 @@ export const profileVi: ProfileDictionary = {
   save_profile: 'Lưu thay đổi',
   profile_updated_success: 'Cập nhật thông tin cá nhân thành công!',
   profile_update_failed: 'Cập nhật thông tin thất bại.',
+  username_min_length: 'Tên người dùng tối thiểu 3 ký tự',
+  username_invalid_chars: 'Tên người dùng chỉ chứa chữ cái, số và dấu gạch dưới',
+  researcher_profile: 'Hồ sơ Nhà nghiên cứu',
+  security_tab: 'Bảo mật & Mật khẩu',
+  email_verified_status: 'Trạng thái xác thực email',
+  activated: 'Đã kích hoạt',
+  logout_btn: 'Đăng xuất tài khoản',
+  set_password_google_notice:
+    'Tài khoản của bạn hiện đang đăng nhập qua Google. Bạn có thể thiết lập mật khẩu để đăng nhập trực tiếp bằng email mà không cần thông qua Google.',
+  set_password_btn: 'Thiết lập mật khẩu cá nhân',
+  change_password_btn: 'Cập nhật mật khẩu mới',
 };

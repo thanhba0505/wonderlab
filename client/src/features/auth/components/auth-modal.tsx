@@ -147,10 +147,7 @@ export function AuthModal() {
       } else if (result.errors) {
         helpers.setErrors(result.errors);
       } else {
-        helpers.setFieldError(
-          'password',
-          result.error || 'Tên đăng nhập hoặc mật khẩu không chính xác.',
-        );
+        helpers.setFieldError('password', result.error || dict.auth.login_failed_credential);
       }
     }
   };
@@ -167,17 +164,17 @@ export function AuthModal() {
     const regConfirm = String(values.confirmPassword || '');
 
     if (!isDev && regPassword !== regConfirm) {
-      helpers.setFieldError('confirmPassword', 'Mật khẩu xác nhận không khớp.');
+      helpers.setFieldError('confirmPassword', dict.auth.passwords_mismatch);
       return;
     }
 
     if (isDev && regConfirm && regPassword !== regConfirm) {
-      helpers.setFieldError('confirmPassword', 'Mật khẩu xác nhận không khớp.');
+      helpers.setFieldError('confirmPassword', dict.auth.passwords_mismatch);
       return;
     }
 
     if (!isDev && regPassword.length < 8) {
-      helpers.setFieldError('password', 'Mật khẩu phải có độ dài tối thiểu 8 ký tự.');
+      helpers.setFieldError('password', dict.auth.password_min_length);
       return;
     }
 
@@ -189,11 +186,11 @@ export function AuthModal() {
       if (result.errors) {
         helpers.setErrors(result.errors);
       } else {
-        helpers.setFieldError('username', result.error || 'Đăng ký tài khoản thất bại.');
+        helpers.setFieldError('username', result.error || dict.auth.register_failed);
       }
     } else {
       setMode('login');
-      setSuccessMessage('Đăng ký tài khoản thành công! Vui lòng đăng nhập để tiếp tục.');
+      setSuccessMessage(dict.auth.register_success);
     }
   };
 
@@ -206,7 +203,7 @@ export function AuthModal() {
     const fullCode = otpCode.join('');
 
     if (fullCode.length !== 6) {
-      helpers.setFieldError('code', 'Vui lòng nhập đủ 6 chữ số mã xác thực.');
+      helpers.setFieldError('code', dict.auth.otp_enter_all_digits);
       return;
     }
 
@@ -218,7 +215,7 @@ export function AuthModal() {
       if (result.errors) {
         helpers.setErrors(result.errors);
       } else {
-        helpers.setFieldError('code', result.error || 'Mã xác thực không hợp lệ hoặc đã hết hạn.');
+        helpers.setFieldError('code', result.error || dict.auth.otp_invalid_or_expired);
       }
     }
   };
@@ -231,7 +228,7 @@ export function AuthModal() {
     const result = await resendOtp(email, type);
     if (result.success) {
       setCooldown(60);
-      setSuccessMessage('Mã xác thực mới đã được gửi đến hộp thư của bạn.');
+      setSuccessMessage(dict.auth.otp_sent_success);
     }
   };
 
@@ -244,18 +241,10 @@ export function AuthModal() {
       if (res.success) {
         closeAuthModal();
       } else {
-        setGeneralError(
-          res.error || (locale === 'vi' ? 'Đăng nhập Google thất bại.' : 'Google login failed.'),
-        );
+        setGeneralError(res.error || dict.auth.google_failed);
       }
     } catch (err) {
-      setGeneralError(
-        err instanceof Error
-          ? err.message
-          : locale === 'vi'
-            ? 'Đăng nhập Google thất bại.'
-            : 'Google login failed.',
-      );
+      setGeneralError(err instanceof Error ? err.message : dict.auth.google_failed);
     } finally {
       setIsSubmitting(false);
     }
@@ -309,7 +298,7 @@ export function AuthModal() {
           <button
             onClick={closeAuthModal}
             className="rounded-lg p-1 text-slate-400 hover:bg-slate-200 hover:text-slate-700 transition cursor-pointer"
-            aria-label="Đóng cửa sổ"
+            aria-label={dict.auth.close_modal}
           >
             <X className="h-4 w-4" />
           </button>
@@ -352,21 +341,23 @@ export function AuthModal() {
                   className="w-full mb-2 flex items-center justify-center gap-2 rounded-lg border border-amber-300 bg-amber-50/70 px-4 py-2 text-xs font-semibold text-amber-900 hover:bg-amber-100 hover:border-amber-400 transition shadow-2xs cursor-pointer"
                 >
                   <Database className="h-3.5 w-3.5 text-amber-700" />
-                  Chọn tài khoản trong DB để test (Local Dev)
+                  {dict.auth.dev_db_test_account}
                 </button>
               )}
 
               <AppFormField
                 name="username"
-                label="Tên đăng nhập hoặc Email"
-                required="Vui lòng nhập tên đăng nhập hoặc email"
-                placeholder="VD: admin hoặc user@domain.com"
+                label={dict.auth.username_label}
+                required={dict.auth.username_required}
+                placeholder={dict.auth.username_placeholder}
                 leftIcon={<User className="h-4 w-4" />}
               />
 
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-xs font-semibold text-slate-700">Mật khẩu *</span>
+                  <span className="text-xs font-semibold text-slate-700">
+                    {dict.auth.password_label} *
+                  </span>
                   <button
                     type="button"
                     onClick={() => {
@@ -375,22 +366,22 @@ export function AuthModal() {
                     }}
                     className="text-xs text-blue-600 hover:text-blue-700 font-medium hover:underline cursor-pointer"
                   >
-                    Quên mật khẩu?
+                    {dict.auth.forgot_password_link}
                   </button>
                 </div>
                 <AppFormField
                   name="password"
                   type="password"
                   showPasswordToggle
-                  required="Vui lòng nhập mật khẩu"
-                  placeholder="Nhập mật khẩu..."
+                  required={dict.auth.password_required}
+                  placeholder={dict.auth.password_placeholder}
                   leftIcon={<Lock className="h-4 w-4" />}
                 />
               </div>
 
               <AppFormSubmit className="w-full font-semibold shadow-xs">
                 <ArrowRight className="h-4 w-4 mr-2" />
-                Đăng nhập
+                {dict.auth.sign_in_btn}
               </AppFormSubmit>
 
               <div className="relative my-4 flex items-center justify-center">
@@ -398,7 +389,7 @@ export function AuthModal() {
                   <div className="w-full border-t border-slate-200" />
                 </div>
                 <span className="relative bg-white px-2 text-xs font-mono uppercase text-slate-400">
-                  Hoặc tiếp tục với
+                  {dict.auth.or_continue_with}
                 </span>
               </div>
 
@@ -413,7 +404,7 @@ export function AuthModal() {
               />
 
               <div className="pt-2 text-center text-xs text-slate-500">
-                Chưa có tài khoản Wonderlab?{' '}
+                {dict.auth.no_account}{' '}
                 <button
                   type="button"
                   onClick={() => {
@@ -422,7 +413,7 @@ export function AuthModal() {
                   }}
                   className="font-semibold text-blue-600 hover:text-blue-700 hover:underline cursor-pointer"
                 >
-                  Đăng ký ngay
+                  {dict.auth.create_account_link}
                 </button>
               </div>
             </AppForm>
@@ -442,15 +433,15 @@ export function AuthModal() {
             >
               <AppFormField
                 name="username"
-                label="Tên đăng nhập (Username)"
-                required="Vui lòng nhập tên đăng nhập"
-                placeholder="VD: galileo_2026"
+                label={dict.auth.username_label}
+                required={dict.auth.register_username_required}
+                placeholder={dict.auth.register_username_placeholder}
                 leftIcon={<User className="h-4 w-4" />}
                 rules={
                   !isDev
                     ? [
-                        { minLength: 3, message: 'Tên đăng nhập phải có ít nhất 3 ký tự' },
-                        { maxLength: 30, message: 'Tên đăng nhập không được quá 30 ký tự' },
+                        { minLength: 3, message: dict.auth.register_username_min },
+                        { maxLength: 30, message: dict.auth.register_username_max },
                       ]
                     : undefined
                 }
@@ -458,49 +449,43 @@ export function AuthModal() {
 
               <AppFormField
                 name="email"
-                label="Địa chỉ Email"
+                label={dict.auth.email_label}
                 type={isDev ? 'text' : 'email'}
-                required="Vui lòng nhập địa chỉ email"
-                placeholder="VD: researcher@gmail.com"
+                required={dict.auth.email_required}
+                placeholder={dict.auth.email_placeholder}
                 leftIcon={<Mail className="h-4 w-4" />}
-                rules={
-                  !isDev
-                    ? [{ email: true, message: 'Địa chỉ email không đúng định dạng' }]
-                    : undefined
-                }
+                rules={!isDev ? [{ email: true, message: dict.auth.email_invalid }] : undefined}
               />
 
               <AppFormField
                 name="password"
-                label={isDev ? 'Mật khẩu' : 'Mật khẩu (Tối thiểu 8 ký tự)'}
+                label={dict.auth.password_label}
                 type="password"
                 showPasswordToggle
-                required="Vui lòng nhập mật khẩu"
-                placeholder={isDev ? 'Nhập mật khẩu...' : 'Nhập mật khẩu an toàn...'}
+                required={dict.auth.password_required}
+                placeholder={dict.auth.password_placeholder}
                 leftIcon={<Lock className="h-4 w-4" />}
                 rules={
-                  !isDev
-                    ? [{ minLength: 8, message: 'Mật khẩu phải có độ dài tối thiểu 8 ký tự' }]
-                    : undefined
+                  !isDev ? [{ minLength: 8, message: dict.auth.password_min_length }] : undefined
                 }
               />
 
               <AppFormField
                 name="confirmPassword"
-                label="Xác nhận lại mật khẩu"
+                label={dict.auth.confirm_password_label}
                 type="password"
                 showPasswordToggle
-                required={!isDev ? 'Vui lòng xác nhận lại mật khẩu' : false}
-                placeholder={isDev ? 'Gõ lại mật khẩu...' : 'Gõ lại mật khẩu vừa nhập...'}
+                required={!isDev ? dict.auth.confirm_password_required : false}
+                placeholder={dict.auth.confirm_password_placeholder}
                 leftIcon={<KeyRound className="h-4 w-4" />}
                 rules={[
                   {
                     validate: (val, formValues) => {
                       if (!isDev && val !== formValues.password) {
-                        return 'Mật khẩu xác nhận không khớp.';
+                        return dict.auth.passwords_mismatch;
                       }
                       if (isDev && val && val !== formValues.password) {
-                        return 'Mật khẩu xác nhận không khớp.';
+                        return dict.auth.passwords_mismatch;
                       }
                       return null;
                     },
@@ -510,7 +495,7 @@ export function AuthModal() {
 
               <AppFormSubmit className="w-full font-semibold shadow-xs mt-2">
                 <ArrowRight className="h-4 w-4 mr-2" />
-                Tạo tài khoản & Nhận mã OTP
+                {dict.auth.register_submit_btn}
               </AppFormSubmit>
 
               <div className="relative my-3 flex items-center justify-center">
@@ -518,7 +503,7 @@ export function AuthModal() {
                   <div className="w-full border-t border-slate-200" />
                 </div>
                 <span className="relative bg-white px-2 text-xs font-mono uppercase text-slate-400">
-                  Hoặc
+                  {dict.auth.or_separator}
                 </span>
               </div>
 
@@ -533,7 +518,7 @@ export function AuthModal() {
               />
 
               <div className="pt-2 text-center text-xs text-slate-500">
-                Đã có tài khoản?{' '}
+                {dict.auth.has_account}{' '}
                 <button
                   type="button"
                   onClick={() => {
@@ -542,7 +527,7 @@ export function AuthModal() {
                   }}
                   className="font-semibold text-blue-600 hover:text-blue-700 hover:underline cursor-pointer"
                 >
-                  Đăng nhập ngay
+                  {dict.auth.sign_in_link}
                 </button>
               </div>
             </AppForm>
@@ -559,9 +544,7 @@ export function AuthModal() {
                 <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-blue-50 text-blue-600 mb-2">
                   <Mail className="h-6 w-6" />
                 </div>
-                <p className="text-xs text-slate-600">
-                  Mã xác thực 6 chữ số đã được gửi tới email:
-                </p>
+                <p className="text-xs text-slate-600">{dict.auth.otp_description}</p>
                 <div className="mt-1 font-mono font-bold text-slate-800 text-sm">{email}</div>
               </div>
 
@@ -598,7 +581,7 @@ export function AuthModal() {
                 className="w-full font-semibold shadow-xs mt-2"
               >
                 <CheckCircle2 className="h-4 w-4 mr-2" />
-                Xác thực & Vào phòng Lab
+                {dict.auth.otp_verify_btn}
               </AppFormSubmit>
 
               <div className="flex items-center justify-between pt-2 text-xs">
@@ -610,7 +593,7 @@ export function AuthModal() {
                   }}
                   className="flex items-center gap-1 text-slate-500 hover:text-slate-800 font-medium cursor-pointer"
                 >
-                  <ArrowLeft className="h-3 w-3" /> Quay lại
+                  <ArrowLeft className="h-3 w-3" /> {dict.nav.back}
                 </button>
 
                 <button
@@ -623,7 +606,9 @@ export function AuthModal() {
                       : 'text-blue-600 hover:text-blue-700 hover:underline'
                   }`}
                 >
-                  {cooldown > 0 ? `Gửi lại mã (${cooldown}s)` : 'Gửi lại mã OTP'}
+                  {cooldown > 0
+                    ? dict.auth.resend_wait.replace('{seconds}', String(cooldown))
+                    : dict.auth.otp_resend_btn}
                 </button>
               </div>
             </AppForm>
@@ -633,13 +618,11 @@ export function AuthModal() {
           {mode === 'forgot' && (
             <div className="space-y-4">
               <p className="text-xs text-slate-600 leading-relaxed">
-                Tài khoản Wonderlab được quản lý tập trung thông qua Central Gateway IAM Master. Để
-                khôi phục mật khẩu hoặc cấp lại quyền truy cập, vui lòng liên hệ quản trị viên hệ
-                thống.
+                {dict.auth.forgot_password_desc}
               </p>
 
               <div className="rounded-lg bg-slate-50 border border-slate-200 p-3 text-xs text-slate-700 font-mono">
-                Email hỗ trợ: admin@wonderlab.local
+                {dict.auth.forgot_password_support_email}
               </div>
 
               <div className="pt-2 text-center">
@@ -651,7 +634,7 @@ export function AuthModal() {
                   }}
                   className="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 font-medium cursor-pointer"
                 >
-                  <ArrowLeft className="h-3 w-3" /> Quay lại Đăng nhập
+                  <ArrowLeft className="h-3 w-3" /> {dict.auth.back_to_login}
                 </button>
               </div>
             </div>
