@@ -31,10 +31,10 @@ flowchart TD
     end
 
     subgraph Data ["Data Layer"]
-        DB[("PostgreSQL 16 (Local) / Neon Serverless (Prod)")]
-        UsersTable[("users (Shadow Profile)")]
-        ConnectionsTable[("service_connections (S2S Registry)")]
-        RunsTable[("simulation_runs & comments")]
+        DB["PostgreSQL 16 Local / Neon Serverless Prod"]
+        UsersTable["users (Shadow Profile)"]
+        ConnectionsTable["service_connections (S2S Registry)"]
+        RunsTable["simulation_runs and comments"]
         DB --- UsersTable
         DB --- ConnectionsTable
         DB --- RunsTable
@@ -42,7 +42,7 @@ flowchart TD
 
     Client -->|REST API / HttpOnly Session| API
     Client -.->|OAuth2 PKCE SSO Redirect| Gateway
-    API -->|BFF Auth Proxy (S2S: /auth/login, /auth/google)| Gateway
+    API -->|BFF Auth Proxy via S2S| Gateway
     S2S -->|Outbound Webhooks / Alerts| Gateway
     Server -->|Prisma ORM v6| DB
 ```

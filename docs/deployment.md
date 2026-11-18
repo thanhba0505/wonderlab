@@ -14,14 +14,14 @@ graph TD
     DNS --> CustomDomain["https://wonderlab.io.vn (Apex / WWW)"]
     CustomDomain --> Frontend["wonderlab-client (Next.js 15 App Router on Vercel)"]
     Frontend -->|NEXT_PUBLIC_API_BASE_URL| Backend["wonderlab-server (NestJS 10 on Vercel Serverless)"]
-    Backend -->|DATABASE_URL (Pooler)| NeonDB[("Neon Serverless PostgreSQL 16 (AWS Oregon us-west-2)")]
+    Backend -->|Pooled Connection| NeonDB["Neon Serverless PostgreSQL 16 (AWS Oregon)"]
     Backend -->|HMAC-SHA256 S2S Vault| Gateway["Central Gateway (IAM Master)"]
 ```
 
 ### Components:
 
-- **Frontend Client (`client/`)**: Next.js 15 App Router deployed to **Vercel** (`wonderlab-client`) with custom domain `https://wonderlab.io.vn`.
-- **Backend Server (`server/`)**: NestJS 10 REST API deployed to **Vercel** (`wonderlab-server`) with Serverless Functions at `https://wonderlab-server.vercel.app`.
+- **Frontend Client (`client/`)**: Next.js 15 App Router deployed to **Vercel** (`wonderlab-client`) with custom domain [wonderlab.io.vn](https://wonderlab.io.vn).
+- **Backend Server (`server/`)**: NestJS 10 REST API deployed to **Vercel** (`wonderlab-server`) with Serverless Functions at [wonderlab-server.vercel.app](https://wonderlab-server.vercel.app).
 - **Production Database**: **Neon Serverless PostgreSQL 16** (AWS Oregon `us-west-2`) with connection pooling.
 - **IAM Master**: Central Gateway providing Single Sign-On and S2S communication.
 
