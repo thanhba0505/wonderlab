@@ -337,4 +337,24 @@ describe('AuthService', () => {
       expect(mockResponse.cookie).toHaveBeenCalled();
     });
   });
+
+  describe('getDetailedProfile', () => {
+    it('should query central gateway via s2s to get real hasPassword and isGoogleLinked', async () => {
+      s2sService.call.mockResolvedValue({
+        id: 'test-uuid-123',
+        hasPassword: false,
+        isGoogleLinked: true,
+      });
+
+      const profile = await authService.getDetailedProfile(mockUser);
+
+      expect(s2sService.call).toHaveBeenCalledWith(
+        'central-gateway',
+        '/users/test-uuid-123',
+        expect.objectContaining({ method: 'GET' }),
+      );
+      expect(profile.hasPassword).toBe(false);
+      expect(profile.isGoogleLinked).toBe(true);
+    });
+  });
 });
