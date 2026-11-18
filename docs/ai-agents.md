@@ -2,7 +2,7 @@
 
 ## 1. Overview
 
-Wonderlab is maintained collaboratively with advanced AI coding assistants. To ensure high code quality, consistency, and zero regression, this repository specifies strict operating guidelines in [AGENTS.md](file:///Users/lethanhba/workspace/app/Wonderlab/AGENTS.md) and custom agent skills in `.agents/skills/`.
+Wonderlab is maintained collaboratively with advanced AI coding assistants. To ensure high code quality, consistency, and zero regression, this repository specifies strict operating guidelines in [AGENTS.md](../AGENTS.md) and custom agent skills in `.agents/skills/`.
 
 ---
 
@@ -24,7 +24,7 @@ The following skills are located in `.agents/skills/`:
 
 When an AI agent operates on this codebase:
 
-1. **Single-Workspace Execution**: All operations run directly in `/Users/lethanhba/workspace/app/Wonderlab` using standard assigned ports (`4100` Client, `4101` Server, `5100` Gateway Client, `5101` Gateway Server). Git worktrees are strictly forbidden. Always branch off `origin/develop` directly in the main repository.
+1. **Single-Workspace Execution**: All operations run directly in the repository root workspace using standard assigned ports (`4100` Client, `4101` Server, `5100` Gateway Client, `5101` Gateway Server). Git worktrees are strictly forbidden. Always branch off `origin/develop` directly in the main repository.
 2. **Context Loading**: The agent must read `AGENTS.md` and the relevant skill playbook in `.agents/skills/` before proposing or editing code.
 3. **Scope Discipline**: Never introduce unrequested dependencies, complex database schemas, or speculative features.
 4. **Execution Verification**: The agent must execute `pnpm check` and verify that all format, lint, typecheck, test, and build tasks exit with code 0 before concluding the turn.
@@ -41,7 +41,7 @@ To eliminate repetitive instructions and prevent regressions across sessions, ag
    - A new technical subsystem or feature category is introduced that brings ongoing guidelines (e.g., SEO metadata protocols when SEO is added, caching strategies, state management patterns, error reporting).
    - An architectural decision or engineering workflow is finalized or modified.
 2. **Action Plan**:
-   - **Repository-Wide Rules**: Add or update the rule directly in [AGENTS.md](file:///Users/lethanhba/workspace/app/Wonderlab/AGENTS.md) under Section 8 (Non-Negotiable Agent Rules) or the corresponding topical section.
+   - **Repository-Wide Rules**: Add or update the rule directly in [AGENTS.md](../AGENTS.md) under Section 8 (Non-Negotiable Agent Rules) or the corresponding topical section.
    - **Subsystem & Technical Details**: Update the matching file under `docs/` (e.g. `frontend.md`, `backend.md`, `architecture.md`, `testing.md`).
    - **Specialized Playbooks**: If the rule dictates agent workflows or domain design, update or create the relevant playbook in `.agents/skills/`.
 3. **Zero-Reminder Invariant**:

@@ -6,7 +6,7 @@ Primary rules and standards for AI coding assistants working in Wonderlab.
 >
 > ### 🚨 Mandatory Single-Workspace & Standard Ports Protocol
 >
-> 1. **Primary Workspace**: `/Users/lethanhba/workspace/app/Wonderlab` is the sole and primary development workspace.
+> 1. **Primary Workspace**: The repository root directory is the sole and primary development workspace.
 > 2. **Standard Ecosystem Ports (Prism Hub)**:
 >    - Wonderlab Client: `http://localhost:4100`
 >    - Wonderlab Server: `http://localhost:4101` (`/api/v1`)
@@ -15,7 +15,6 @@ Primary rules and standards for AI coding assistants working in Wonderlab.
 >    - Database: Local PostgreSQL 16 on `127.0.0.1:5432`
 > 3. **Execution Workflow**:
 >    ```bash
->    cd /Users/lethanhba/workspace/app/Wonderlab
 >    git fetch origin && git checkout -B <type>/<task-name> origin/develop
 >    # Edits & verification:
 >    pnpm check
@@ -43,6 +42,9 @@ Primary rules and standards for AI coding assistants working in Wonderlab.
 - **Zero Secret Leaks**: Never commit `.env*` or tokens (must be `.gitignore`d).
 - **Client Boundaries**: Only `NEXT_PUBLIC_*` variables allowed in client code; never expose secrets or DB credentials.
 - **Database**: Bind strictly to `127.0.0.1` (loopback).
+- **Production Database Safety & Migration Protocol**:
+  - STRICTLY FORBID executing manual or ad-hoc database migrations, schema pushes, or seed scripts (`prisma migrate deploy`, `prisma db push`, `prisma db seed`) directly against remote Neon production databases from local terminal or agent turns.
+  - Production database schema migrations must ONLY run automatically through the official Release workflow / CI/CD pipeline when releasing a new version (`v*.*.*`).
 - **Admin Security**: `/admin` requires active `Role.ADMIN` session via HttpOnly cookies.
 - **CORS**: Explicit whitelist via `CORS_ORIGINS`. Scoped strictly to browser clients, never to server-to-server HTTP calls.
 - **Service-to-Service (S2S) Architecture**:
@@ -114,7 +116,7 @@ Primary rules and standards for AI coding assistants working in Wonderlab.
 - **Single Source of Truth for Versioning**:
   - Root `package.json` (`version`) is authoritative. Dynamically consumed by `client` (`next.config.ts`) and `server` (`version.ts`).
   - Only bump versions on official release events (`release: [published]` or tag `push: tags: ['v*']`). Never bump on draft releases or regular commits to `develop`.
-- **Automated Production Releases**: Official GitHub Release or tag `v*` triggers CI/CD to merge `origin/develop` into `main`, bump version, tag, sync back to `develop`, and deploy to Production (Render Client & Server via Render REST API, record live GitHub Deployment environments with `in_progress` loading spinners, fail-fast verification, and route alerts through Central Gateway). Never deploy manually.
+- **Automated Production Releases**: Official GitHub Release or tag `v*` triggers CI/CD to merge `origin/develop` into `main`, bump version, tag, sync back to `develop`, and deploy to Production (Vercel Client & Server via Vercel Deploy Hooks, record live GitHub Deployment environments with `in_progress` loading spinners, fail-fast verification, and route alerts through Central Gateway). Never deploy manually.
 
 ---
 

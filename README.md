@@ -4,147 +4,143 @@
 
 **Interactive digital laboratory exploring science, probability, paradoxes, and logical reasoning — part of the Prism Hub ecosystem.**
 
-[![GitHub Release](https://img.shields.io/github/v/release/thanhba0505/wonderlab?style=flat-square&color=0284c7&label=version)](https://github.com/thanhba0505/wonderlab/releases)
-[![CI Status](https://img.shields.io/github/actions/workflow/status/thanhba0505/wonderlab/ci.yml?branch=main&style=flat-square&label=CI&color=10b981)](https://github.com/thanhba0505/wonderlab/actions/workflows/ci.yml)
+[![CI Pipeline](https://github.com/thanhba0505/wonderlab/actions/workflows/ci.yml/badge.svg)](https://github.com/thanhba0505/wonderlab/actions/workflows/ci.yml)
+[![Latest Release](https://img.shields.io/github/v/release/thanhba0505/wonderlab?color=0284c7&style=flat-square&label=Release)](https://github.com/thanhba0505/wonderlab/releases)
+[![Version](https://img.shields.io/badge/version-v0.19.0-0284c7?style=flat-square)](https://github.com/thanhba0505/wonderlab/releases)
+[![Client](https://img.shields.io/badge/Client-Live%20on%20Vercel-10b981?style=flat-square&logo=vercel)](https://wonderlab.io.vn)
+[![Server API](https://img.shields.io/badge/Server-API%20v1-0284c7?style=flat-square&logo=nestjs)](https://wonderlab-server.vercel.app/api/v1)
+[![Swagger OpenAPI](https://img.shields.io/badge/Docs-Swagger%20OpenAPI-85ea2d?style=flat-square&logo=swagger)](https://wonderlab-server.vercel.app/api/docs)
 [![License: MIT](https://img.shields.io/badge/License-MIT-6366f1?style=flat-square)](LICENSE)
-[![Next.js 15](https://img.shields.io/badge/Next.js-15-000000?style=flat-square&logo=next.js&logoColor=white)](https://nextjs.org/)
-[![NestJS 10](https://img.shields.io/badge/NestJS-10-e0234e?style=flat-square&logo=nestjs&logoColor=white)](https://nestjs.com/)
-[![Neon Database](https://img.shields.io/badge/Database-Neon_Postgres-00e599?style=flat-square&logo=postgresql&logoColor=white)](https://neon.tech/)
 
-[🌐 Live Experience](https://wonderlab.io.vn) • [📖 Architecture Documentation](docs/architecture.md) • [📋 Contributing Guide](CONTRIBUTING.md) • [🐛 Report Issue](https://github.com/thanhba0505/wonderlab/issues)
+[🌐 Live Experience](https://wonderlab.io.vn) • [📑 Swagger OpenAPI](https://wonderlab-server.vercel.app/api/docs) • [📖 Architecture Guide](docs/architecture.md) • [🚀 Deployment Guide](docs/deployment.md) • [📋 Contributing Guide](CONTRIBUTING.md)
 
 </div>
 
 ---
 
-## 🧭 Explorer & Learner Guide
+## 📌 Project Overview
 
-### 1. Philosophy & Mission
+**Wonderlab** transforms abstract mathematical laws, quantum physics phenomena, and counterintuitive decision dilemmas into tactile, engaging digital simulations. Rather than memorizing passive textbook formulas, learners manipulate parameters, run high-speed Monte Carlo simulations (up to 10,000+ trials), and witness the convergence between empirical observation and analytical theory.
 
-Wonderlab transforms abstract mathematical laws, quantum physics phenomena, and counterintuitive decision dilemmas into tactile, engaging digital experiments.
+### Core Capabilities:
 
-Rather than memorizing passive textbook equations, learners directly manipulate experimental parameters, trigger high-speed Monte Carlo simulations (up to 10,000+ trials), and witness firsthand the convergence between empirical data and analytical theory.
-
-### 2. Core Interactive Features
-
-- **Interactive Science Lab & Dynamic Simulations**: Tactile visual benches with immediate physics feedback, enabling real-time variable tweaking and instant state transitions.
-- **Intuition Gap Challenge**: Assesses the learner's pre-conceived intuition against analytical reality, highlighting cognitive heuristics and probability biases.
-- **Clean Mathematical Typography**: Scientific equations rendered via calibrated fractions, mathematical notation, and interactive distribution curves.
-- **Academic Discussion & Peer Insights**: A threaded discussion engine for community learners, researchers, and educators to debate strategies and mechanistic explanations.
-- **Research Data Export Suite**: One-click export of experimental trials, runs, and parameters to CSV or JSON formats for statistical analysis.
-
-### 3. Quick Links
-
-- **Production App**: [https://wonderlab.io.vn](https://wonderlab.io.vn)
-- **Interactive OpenAPI / Swagger Documentation**: [https://wonderlab-server.vercel.app/api/docs](https://wonderlab-server.vercel.app/api/docs)
-- **Service Health Probe**: [https://wonderlab.io.vn/health](https://wonderlab.io.vn/health)
+- **Interactive Science Lab & Simulations**: Tactile visual benches with immediate physics feedback, real-time parameter tweaking, and instant state transitions.
+- **Intuition Gap Challenge**: Assesses pre-conceived cognitive intuition against analytical truth, revealing cognitive heuristics and probability biases.
+- **Clean Mathematical Typography**: Scientific equations rendered via calibrated fraction components, mathematical notation, and interactive distribution curves.
+- **Academic Discussion & Peer Insights**: Threaded discussion engine for learners and educators to debate strategies and mechanistic explanations.
+- **Research Data Export Suite**: One-click data export of experimental trials, runs, and parameters to CSV or JSON formats for statistical analysis.
 
 ---
 
-## 🛠️ Developer & Contributor Guide
+## 🌌 Prism Hub Ecosystem
 
-### 1. Monorepo Architecture
+Wonderlab is a core interactive platform within the **Prism Hub** engineering ecosystem alongside its sister applications:
 
-Wonderlab is structured as a unified **pnpm workspace** monorepo designed for performance, modularity, and strict type safety:
+| Application         | Role & Mission                                        | Standard Local Port | Live Production                                            | Interactive Docs                                                      |
+| :------------------ | :---------------------------------------------------- | :-----------------: | :--------------------------------------------------------- | :-------------------------------------------------------------------- |
+| **Wonderlab**       | Interactive Science, Probability & Paradox Laboratory |   `4100` / `4101`   | [Live Experience](https://wonderlab.io.vn)                 | [Swagger OpenAPI](https://wonderlab-server.vercel.app/api/docs)       |
+| **Central Gateway** | Centralized IAM Master, OAuth2 SSO & Notification Hub |   `5100` / `5101`   | [Control Plane](https://central-gateway-client.vercel.app) | [Swagger OpenAPI](https://central-gateway-server.vercel.app/api/docs) |
+| **Git Pulse**       | Developer Intelligence, Dual-Core AI & Activity Radar |   `6100` / `6101`   | [Developer Workspace](https://git-pulse-app.vercel.app)    | [Swagger OpenAPI](https://git-pulse-server.vercel.app/api/docs)       |
+
+> All services share PostgreSQL 16 on local port `5432` during development and connect to serverless Neon Lakebase PostgreSQL in production.
+
+---
+
+## 🏗️ System Architecture
+
+```mermaid
+graph TD
+    Learner["Learner / Explorer Browser"] -->|HTTPS| VercelEdge["Vercel Edge Network"]
+    VercelEdge --> ClientApp["wonderlab-client (Next.js 15 App Router)"]
+    VercelEdge --> ServerAPI["wonderlab-server (NestJS 10 Serverless)"]
+    ServerAPI -->|Pooled Connection| NeonDB["Neon Lakebase PostgreSQL 16 (AWS Oregon)"]
+    ServerAPI -->|HMAC-SHA256 S2S| Gateway["Central Gateway (IAM Master & SSO)"]
+    ClientApp -->|Simulation Engine| PhysicsCanvas["Interactive Physics & Monte Carlo Canvas"]
+```
+
+---
+
+## 📦 Monorepo Structure
 
 ```text
 wonderlab/
-├── client/              # Next.js 15 (App Router), React 19, Tailwind CSS, Lucide React, Motion
-├── server/              # NestJS 10 REST API, Prisma ORM, Swagger OpenAPI, Terminus Health
-├── docs/                # Architectural guides, testing policy, CI/CD, deployment, and ADRs
-├── .github/             # Parallel CI/CD workflows, issue templates, PR templates, release automation
-├── .agents/skills/      # Coding guidelines, design principles, and playbooks for AI agents
-├── scripts/             # Local verification and deployment verification scripts
-├── docker-compose.yml   # PostgreSQL 16 Alpine container (Local loopback development)
-├── render.client.yaml   # Dedicated Render Frontend Blueprint specification
-└── render.server.yaml   # Dedicated Render Backend Blueprint specification
+├── client/          # Next.js 15 App Router, React 19, Tailwind CSS, Lucide React, Motion
+├── server/          # NestJS 10 REST API, Prisma ORM, Swagger OpenAPI, Terminus Health
+├── docs/            # Architecture guides, deployment protocols, testing standards, ADRs
+├── .github/         # Parallel CI/CD workflows, release automation, PR & issue templates
+├── .agents/skills/  # Coding guidelines, design principles, and engineering playbooks
+└── scripts/         # Automated release version synchronization and verification scripts
 ```
 
-### 2. Modern Tech Stack
+| Workspace    | Technology Stack                              | Local Port | Role & Responsibility                                                             |
+| :----------- | :-------------------------------------------- | :--------: | :-------------------------------------------------------------------------------- |
+| **`client`** | Next.js 15 App Router, React 19, Tailwind CSS |   `4100`   | Interactive simulation benches, intuition challenges, and public/admin portals.   |
+| **`server`** | NestJS 10, Prisma ORM, Neon PostgreSQL        |   `4101`   | REST API (`/api/v1`), simulation telemetry, comment threads, and S2S integration. |
 
-| Layer                    | Primary Technology                                        | Version / Standard                           |
-| :----------------------- | :-------------------------------------------------------- | :------------------------------------------- |
-| **Frontend (`client/`)** | Next.js App Router, React, Tailwind CSS                   | Next.js 15.5.29, React 19, TypeScript Strict |
-| **Backend (`server/`)**  | NestJS REST API, TypeScript, Swagger                      | NestJS 10.4.15, Node.js 24                   |
-| **Database**             | Neon Serverless PostgreSQL (Prod) / PostgreSQL 16 (Local) | Prisma ORM 6.x, Argon2id Password Hashing    |
-| **Package Manager**      | pnpm Workspace (pinned lockfile)                          | pnpm 12.11.2                                 |
-| **Deployment & Hosting** | Render (Frontend & Backend isolated workspaces)           | Render Web Services, Custom Domain SSL       |
-| **Automation & CI/CD**   | GitHub Actions (Parallel verification pipelines)          | GitHub Actions v4, Docker Compose            |
+---
 
-### 3. Local Development Setup
+## 🚀 Getting Started
 
-#### Prerequisites
+### Prerequisites
 
-- **Node.js**: `v24.x` / LTS (see `.nvmrc`)
-- **pnpm**: `12.11.2` (`npm i -g pnpm@12.11.2`)
-- **Docker & Docker Compose**: For local PostgreSQL container
+- **Node.js**: `v24.x` (enforced via `.nvmrc`)
+- **Package Manager**: `pnpm` `12.11.2` (`npm i -g pnpm@12.11.2`)
+- **Docker**: For local PostgreSQL 16 container (`127.0.0.1:5432`)
 
-#### Getting Started
-
-1. **Clone repository and install dependencies**:
-
-   ```bash
-   git clone https://github.com/thanhba0505/wonderlab.git
-   cd wonderlab
-   cp .env.example .env.local
-   pnpm install
-   ```
-
-2. **Start the Local PostgreSQL Container**:
-
-   ```bash
-   docker compose up -d postgres
-   ```
-
-   _(PostgreSQL securely binds to loopback `127.0.0.1:5432`)_
-
-3. **Run Development Servers**:
-   ```bash
-   # Concurrently run both Frontend and Backend:
-   pnpm dev
-
-   # Or run individually:
-   pnpm dev:client   # Next.js Client on http://localhost:4100
-   pnpm dev:server   # NestJS Server on http://localhost:4101
-   ```
-
-### 4. Quality Assurance & Verification Pipeline
-
-Every contribution is subject to a strict verification pipeline. Zero warnings and zero type errors are tolerated:
+### 1. Clone & Install Dependencies
 
 ```bash
-pnpm check          # Full pipeline: Format -> Lint -> Typecheck -> Unit Tests -> E2E Tests -> Build
-pnpm test           # Unit Tests (Vitest for client, Jest for server)
-pnpm test:e2e       # E2E Tests against isolated PostgreSQL database
+git clone https://github.com/thanhba0505/wonderlab.git
+cd wonderlab
+cp .env.example .env.local
+pnpm install
+```
+
+### 2. Start Local PostgreSQL Database
+
+```bash
+docker compose up -d postgres
+```
+
+_(PostgreSQL securely binds to loopback `127.0.0.1:5432` with database `wonderlab`)_
+
+### 3. Run Development Servers
+
+```bash
+# Start both Client and Server concurrently:
+pnpm dev
+
+# Or run services individually:
+pnpm dev:client   # Next.js Client on port 4100
+pnpm dev:server   # NestJS Server on port 4101
+```
+
+### 4. Verification & Testing
+
+```bash
+pnpm check          # Full pipeline: Format -> Lint -> Typecheck -> Unit Tests -> E2E -> Build
+pnpm test           # Unit test suites (Vitest for client, Jest for server)
+pnpm test:e2e       # End-to-end API tests against local database
 pnpm lint           # ESLint verification with 0 warnings policy
 pnpm format:check   # Prettier code formatting check
 ```
 
-### 5. Decoupled Parallel CI/CD Pipelines
+---
 
-Upon pushing commits or opening Pull Requests to `main`, GitHub Actions automatically triggers **4 parallel jobs**:
+## 📑 Technical Documentation Index
 
-- **`🎨 Quality & Types`** (~40s): Prettier, ESLint, and strict TypeScript compilation.
-- **`🧪 Unit Tests`** (~31s): Runs isolated unit tests across client and server.
-- **`🛡️ E2E Tests (Database)`** (~59s): Spawns PostgreSQL 16 Alpine container, deploys Prisma migrations, seeds data, and runs API tests.
-- **`📦 Build Applications`** (~57s): Verifies production compilation for both Next.js and NestJS.
+Explore in-depth architectural guides and specifications in `docs/`:
 
-Production deployments trigger on published GitHub Releases (`v*`), rolling out backend migrations, deploying frontend assets, and verifying live health endpoints.
-
-### 6. Technical Documentation Index (`docs/`)
-
-Explore in-depth architectural decisions, guidelines, and specifications:
-
-- [System Architecture (`docs/architecture.md`)](docs/architecture.md)
-- [Frontend Engineering & UI Standards (`docs/frontend.md`)](docs/frontend.md)
-- [Backend Services & API Architecture (`docs/backend.md`)](docs/backend.md)
-- [Database Configuration & Operations (`docs/database.md`)](docs/database.md)
-- [Deployment & Cloud Infrastructure (`docs/deployment.md`)](docs/deployment.md)
-- [CI/CD Automation & Release Pipeline (`docs/ci-cd.md`)](docs/ci-cd.md)
-- [Architecture Decision Records (`docs/decisions/`)](docs/decisions/)
+- [System Architecture](docs/architecture.md)
+- [Deployment & Vercel Serverless Operations](docs/deployment.md)
+- [CI/CD Automation Pipeline](docs/ci-cd.md)
+- [Frontend Engineering & UI Standards](docs/frontend.md)
+- [Backend Architecture & S2S Security](docs/backend.md)
+- [Database Configuration & Pooling](docs/database.md)
+- [Architecture Decision Records (ADRs)](docs/decisions/)
 
 ---
 
 ## 📄 License
 
-Wonderlab is licensed under the [MIT License](LICENSE) © 2026 **thanhba0505**. Open source and freely usable for educational, research, and non-commercial scientific exploration.
+Licensed under the [MIT License](LICENSE) © 2026 **thanhba0505**.

@@ -31,7 +31,15 @@ describe('Wonderlab S2SCryptoUtil', () => {
   it('should normalize paths and canonicalize body accurately', () => {
     expect(normalizeS2SPath('api/v1/health')).toBe('/api/v1/health');
     expect(normalizeS2SPath('/api/v1/health?param=1')).toBe('/api/v1/health');
+    expect(canonicalizeS2SBody(undefined)).toBe('');
     expect(canonicalizeS2SBody(null)).toBe('');
+    expect(canonicalizeS2SBody({})).toBe('');
     expect(canonicalizeS2SBody('raw_payload')).toBe('raw_payload');
+  });
+
+  it('should verify signature generated with undefined body against parsed empty object {}', () => {
+    const sig = generateS2SSignature(secret, timestamp, 'GET', '/api/v1/users/usr_1', undefined);
+    const isValid = verifyS2SSignature(secret, timestamp, 'GET', '/api/v1/users/usr_1', sig, {});
+    expect(isValid).toBe(true);
   });
 });

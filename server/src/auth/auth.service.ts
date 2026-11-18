@@ -175,6 +175,7 @@ export class AuthService {
     user: SafeUser,
     response: Response,
     locale?: string,
+    overrides?: { hasPassword?: boolean; isGoogleLinked?: boolean },
   ): Promise<{ message: string; user: UserProfileDto }> {
     const payload: JwtPayload = {
       sub: user.id,
@@ -194,7 +195,7 @@ export class AuthService {
       maxAge: maxAgeMs,
     });
 
-    const detailedUser = await this.getDetailedProfile(user);
+    const detailedUser = await this.getDetailedProfile(user, overrides);
 
     const resolvedLocale = this.i18nService.resolveLocale(locale);
     const successMsg = resolvedLocale === 'en' ? 'Logged in successfully' : 'Đăng nhập thành công';
@@ -400,6 +401,8 @@ export class AuthService {
         role: string;
         avatarUrl?: string | null;
         isActive?: boolean;
+        hasPassword?: boolean;
+        isGoogleLinked?: boolean;
       };
     }>('central-gateway', '/auth/google', {
       method: 'POST',
@@ -422,7 +425,10 @@ export class AuthService {
     }
 
     const safeUser = await this.syncLocalUser(gwUser);
-    return this.login(safeUser, response, locale);
+    return this.login(safeUser, response, locale, {
+      hasPassword: gwUser.hasPassword,
+      isGoogleLinked: gwUser.isGoogleLinked,
+    });
   }
 
   /**
@@ -563,11 +569,37 @@ export class AuthService {
   /**
    * Lấy thông tin hồ sơ chi tiết của người dùng
    */
-  async getDetailedProfile(safeUser: SafeUser): Promise<UserProfileDto> {
+  async getDetailedProfile(
+    safeUser: SafeUser,
+    overrides?: { hasPassword?: boolean; isGoogleLinked?: boolean },
+  ): Promise<UserProfileDto> {
+    let hasPassword = overrides?.hasPassword ?? true;
+    let isGoogleLinked = overrides?.isGoogleLinked ?? false;
+
+    if (overrides?.hasPassword === undefined && this.s2sService) {
+      try {
+        const gwUser = await this.s2sService.call<{
+          id: string;
+          hasPassword?: boolean;
+          isGoogleLinked?: boolean;
+          isEmailVerified?: boolean;
+        }>('central-gateway', `/users/${safeUser.id}`, {
+          method: 'GET',
+        });
+
+        if (gwUser) {
+          if (gwUser.hasPassword !== undefined) hasPassword = gwUser.hasPassword;
+          if (gwUser.isGoogleLinked !== undefined) isGoogleLinked = gwUser.isGoogleLinked;
+        }
+      } catch {
+        // Fallback gracefully
+      }
+    }
+
     return {
       ...safeUser,
-      hasPassword: true,
-      isGoogleLinked: false,
+      hasPassword,
+      isGoogleLinked,
       isEmailVerified: true,
       avatarUrl: safeUser.avatarUrl,
     };

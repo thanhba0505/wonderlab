@@ -535,6 +535,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(null);
       setIsLoading(false);
       setIsProfileModalOpen(false);
+      if (typeof window !== 'undefined') {
+        window.location.href = '/';
+      }
     }
   };
 

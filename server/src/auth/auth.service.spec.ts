@@ -268,4 +268,93 @@ describe('AuthService', () => {
       global.fetch = originalFetch;
     });
   });
+
+  describe('loginWithGoogle', () => {
+    it('should forward google credential to central gateway via s2s and login user', async () => {
+      const mockGwUser = {
+        id: 'gw-google-1',
+        username: 'google_user',
+        email: 'google@example.com',
+        role: 'USER',
+        avatarUrl: null,
+        isActive: true,
+      };
+
+      const googleCreatedUser = {
+        id: 'gw-google-1',
+        username: 'google_user',
+        email: 'google@example.com',
+        role: Role.USER,
+        avatarUrl: null,
+        isActive: true,
+        isDeleted: false,
+        deletedAt: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      prismaService.user.findUnique.mockImplementation(
+        async (args: { where: { id?: string; username?: string; email?: string } }) => {
+          if (
+            args.where.id === 'gw-google-1' ||
+            args.where.username === 'google_user' ||
+            args.where.email === 'google@example.com'
+          ) {
+            return googleCreatedUser;
+          }
+          return mockUser;
+        },
+      );
+      prismaService.user.create.mockResolvedValue(googleCreatedUser);
+      prismaService.user.update.mockResolvedValue(googleCreatedUser);
+
+      s2sService.call.mockResolvedValue({
+        user: mockGwUser,
+      });
+
+      const mockResponse = {
+        cookie: jest.fn(),
+      } as unknown as Response;
+
+      const result = await authService.loginWithGoogle(
+        {
+          email: 'google@example.com',
+          name: 'Google User',
+          credential: 'mock-google-credential-token',
+        },
+        mockResponse,
+        'vi',
+      );
+
+      expect(s2sService.call).toHaveBeenCalledWith(
+        'central-gateway',
+        '/auth/google',
+        expect.objectContaining({
+          method: 'POST',
+        }),
+      );
+      expect(result.user.username).toBe('google_user');
+      expect(mockResponse.cookie).toHaveBeenCalled();
+    });
+  });
+
+  describe('getDetailedProfile', () => {
+    it('should query central gateway via s2s to get real hasPassword and isGoogleLinked', async () => {
+      s2sService.call.mockResolvedValue({
+        id: 'test-uuid-123',
+        hasPassword: false,
+        isGoogleLinked: true,
+      });
+
+      const profile = await authService.getDetailedProfile(mockUser);
+
+      expect(s2sService.call).toHaveBeenCalledWith(
+        'central-gateway',
+        '/users/test-uuid-123',
+        expect.objectContaining({ method: 'GET' }),
+      );
+      expect(profile.hasPassword).toBe(false);
+      expect(profile.isGoogleLinked).toBe(true);
+    });
+  });
 });

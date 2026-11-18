@@ -31,10 +31,10 @@ flowchart TD
     end
 
     subgraph Data ["Data Layer"]
-        DB[("PostgreSQL 16 (Local) / Neon Serverless (Prod)")]
-        UsersTable[("users (Shadow Profile)")]
-        ConnectionsTable[("service_connections (S2S Registry)")]
-        RunsTable[("simulation_runs & comments")]
+        DB["PostgreSQL 16 Local / Neon Serverless Prod"]
+        UsersTable["users (Shadow Profile)"]
+        ConnectionsTable["service_connections (S2S Registry)"]
+        RunsTable["simulation_runs and comments"]
         DB --- UsersTable
         DB --- ConnectionsTable
         DB --- RunsTable
@@ -42,7 +42,7 @@ flowchart TD
 
     Client -->|REST API / HttpOnly Session| API
     Client -.->|OAuth2 PKCE SSO Redirect| Gateway
-    API -->|BFF Auth Proxy (S2S: /auth/login, /auth/google)| Gateway
+    API -->|BFF Auth Proxy via S2S| Gateway
     S2S -->|Outbound Webhooks / Alerts| Gateway
     Server -->|Prisma ORM v6| DB
 ```
@@ -81,4 +81,4 @@ flowchart TD
 - **Central Gateway IAM**: Central Gateway serves as the single source of truth for user credentials, profile information, and account activation status.
 - **Shadow User Pattern**: Wonderlab stores a synchronized shadow user profile (`id`, `username`, `email`, `role`, `avatarUrl`, `isActive`) without maintaining passwords locally.
 - **SSO Login Handshake**: Users authenticate through OAuth2 PKCE with Central Gateway. Wonderlab validates the authorization code, upserts the shadow user record, and issues an HttpOnly session cookie.
-- **Decoupled Architecture**: See [ADR 0019](file:///Users/lethanhba/workspace/app/Wonderlab/docs/decisions/0019-service-connections-and-iam-user-sync.md).
+- **Decoupled Architecture**: See [ADR 0019](decisions/0019-service-connections-and-iam-user-sync.md).
