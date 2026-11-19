@@ -12,7 +12,7 @@
 [![Swagger OpenAPI](https://img.shields.io/badge/Docs-Swagger%20OpenAPI-85ea2d?style=flat-square&logo=swagger)](https://wonderlab-server.vercel.app/api/docs)
 [![License: MIT](https://img.shields.io/badge/License-MIT-6366f1?style=flat-square)](LICENSE)
 
-[🌐 Live Experience](https://wonderlab.io.vn) • [📑 Swagger OpenAPI](https://wonderlab-server.vercel.app/api/docs) • [📖 Architecture Guide](docs/architecture.md) • [🚀 Deployment Guide](docs/deployment.md) • [📋 Contributing Guide](CONTRIBUTING.md)
+[🌐 Live Experience](https://wonderlab.io.vn) • [📑 Swagger OpenAPI](https://wonderlab-server.vercel.app/api/docs) • [🧭 Prism Hub Docs](https://github.com/thanhba0505/prism-hub/blob/main/docs/README.md) • [📖 Architecture Guide](https://github.com/thanhba0505/prism-hub/blob/main/docs/wonderlab/architecture.md) • [🚀 Deployment Guide](https://github.com/thanhba0505/prism-hub/blob/main/docs/wonderlab/deployment.md) • [🤖 AGENTS.md](https://github.com/thanhba0505/prism-hub/blob/main/AGENTS.md)
 
 </div>
 
@@ -66,11 +66,11 @@ graph TD
 wonderlab/
 ├── client/          # Next.js 15 App Router, React 19, Tailwind CSS, Lucide React, Motion
 ├── server/          # NestJS 10 REST API, Prisma ORM, Swagger OpenAPI, Terminus Health
-├── docs/            # Architecture guides, deployment protocols, testing standards, ADRs
 ├── .github/         # Parallel CI/CD workflows, release automation, PR & issue templates
-├── .agents/skills/  # Coding guidelines, design principles, and engineering playbooks
 └── scripts/         # Automated release version synchronization and verification scripts
 ```
+
+> Architectural documentation, ADRs, AI rules (`AGENTS.md`), and shared local Docker PostgreSQL orchestration are centralized in [`thanhba0505/prism-hub`](https://github.com/thanhba0505/prism-hub).
 
 | Workspace    | Technology Stack                              | Local Port | Role & Responsibility                                                             |
 | :----------- | :-------------------------------------------- | :--------: | :-------------------------------------------------------------------------------- |
@@ -85,40 +85,37 @@ wonderlab/
 
 - **Node.js**: `v24.x` (enforced via `.nvmrc`)
 - **Package Manager**: `pnpm` `12.11.2` (`npm i -g pnpm@12.11.2`)
-- **Docker**: For local PostgreSQL 16 container (`127.0.0.1:5432`)
+- **PostgreSQL 16**: Running on `127.0.0.1:5432` (managed centrally via Docker Compose in `prism-hub` or native local Postgres)
 
-### 1. Clone & Install Dependencies
+### 1. Recommended Setup via Prism Hub
+
+```bash
+git clone https://github.com/thanhba0505/prism-hub.git
+cd prism-hub
+make init              # Starts shared PostgreSQL (127.0.0.1:5432), installs deps & syncs DBs
+make wonderlab-start   # Starts Wonderlab client (4100) + server (4101)
+```
+
+### 2. Standalone Usage (Requires PostgreSQL 16 on `127.0.0.1:5432` with `wonderlab` DB)
 
 ```bash
 git clone https://github.com/thanhba0505/wonderlab.git
 cd wonderlab
 cp .env.example .env.local
 pnpm install
+pnpm dev               # Client on 4100 + Server on 4101
 ```
 
-### 2. Start Local PostgreSQL Database
+Or run individually:
+
+- `pnpm dev:client` — Next.js Client on port `4100`
+- `pnpm dev:server` — NestJS Server on port `4101`
+
+### 3. Verification & Testing
 
 ```bash
-docker compose up -d postgres
-```
-
-_(PostgreSQL securely binds to loopback `127.0.0.1:5432` with database `wonderlab`)_
-
-### 3. Run Development Servers
-
-```bash
-# Start both Client and Server concurrently:
-pnpm dev
-
-# Or run services individually:
-pnpm dev:client   # Next.js Client on port 4100
-pnpm dev:server   # NestJS Server on port 4101
-```
-
-### 4. Verification & Testing
-
-```bash
-pnpm check          # Full pipeline: Format -> Lint -> Typecheck -> Unit Tests -> E2E -> Build
+pnpm check          # Verification pipeline: Format -> Lint -> Typecheck -> Unit Tests -> E2E
+pnpm build          # Production build (client + server)
 pnpm test           # Unit test suites (Vitest for client, Jest for server)
 pnpm test:e2e       # End-to-end API tests against local database
 pnpm lint           # ESLint verification with 0 warnings policy
@@ -129,15 +126,17 @@ pnpm format:check   # Prettier code formatting check
 
 ## 📑 Technical Documentation Index
 
-Explore in-depth architectural guides and specifications in `docs/`:
+All documentation, ADRs, and AI coding guidelines have moved to the central **[Prism Hub](https://github.com/thanhba0505/prism-hub)** repository:
 
-- [System Architecture](docs/architecture.md)
-- [Deployment & Vercel Serverless Operations](docs/deployment.md)
-- [CI/CD Automation Pipeline](docs/ci-cd.md)
-- [Frontend Engineering & UI Standards](docs/frontend.md)
-- [Backend Architecture & S2S Security](docs/backend.md)
-- [Database Configuration & Pooling](docs/database.md)
-- [Architecture Decision Records (ADRs)](docs/decisions/)
+- [Prism Hub Documentation Hub](https://github.com/thanhba0505/prism-hub/blob/main/docs/README.md)
+- [Unified AGENTS.md & Contributing Guide](https://github.com/thanhba0505/prism-hub/blob/main/AGENTS.md)
+- [Wonderlab System Architecture](https://github.com/thanhba0505/prism-hub/blob/main/docs/wonderlab/architecture.md)
+- [Frontend Engineering & UI Standards](https://github.com/thanhba0505/prism-hub/blob/main/docs/wonderlab/frontend.md)
+- [Backend Architecture & S2S Security](https://github.com/thanhba0505/prism-hub/blob/main/docs/wonderlab/backend.md)
+- [Deployment & Vercel Serverless Operations](https://github.com/thanhba0505/prism-hub/blob/main/docs/wonderlab/deployment.md)
+- [Environment Configuration](https://github.com/thanhba0505/prism-hub/blob/main/docs/wonderlab/environment.md)
+- [Architecture Decision Records (ADRs 0001–0019)](https://github.com/thanhba0505/prism-hub/tree/main/docs/wonderlab/decisions)
+- [Shared Database & Neon Safety Guide](https://github.com/thanhba0505/prism-hub/blob/main/docs/shared/database.md)
 
 ---
 
