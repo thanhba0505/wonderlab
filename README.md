@@ -114,7 +114,8 @@ Or run individually:
 ### 3. Verification & Testing
 
 ```bash
-pnpm check          # Full pipeline: Format -> Lint -> Typecheck -> Unit Tests -> E2E -> Build
+pnpm check          # Verification pipeline: Format -> Lint -> Typecheck -> Unit Tests -> E2E
+pnpm build          # Production build (client + server)
 pnpm test           # Unit test suites (Vitest for client, Jest for server)
 pnpm test:e2e       # End-to-end API tests against local database
 pnpm lint           # ESLint verification with 0 warnings policy
