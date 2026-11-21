@@ -15,6 +15,7 @@ export const authVi: AuthDictionary = {
   sign_in_btn: 'Đăng nhập',
   register_btn: 'Đăng ký tài khoản',
   google_btn: 'Tiếp tục với Google',
+  google_connecting: 'Đang kết nối Google...',
   google_production_notice:
     'Tính năng đăng nhập Google đã được tích hợp. Bạn có thể đăng nhập bằng tài khoản Google hoặc tài khoản thông thường.',
   or_separator: 'HOẶC',
