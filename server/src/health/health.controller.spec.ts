@@ -1,4 +1,6 @@
+import { HttpStatus } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import type { Response } from 'express';
 import { HealthController } from './health.controller';
 import { HealthService } from './health.service';
 import { PrismaService } from '../prisma/prisma.service';
@@ -10,9 +12,16 @@ describe('HealthController', () => {
 
   const mockPrisma = {
     $queryRaw: jest.fn().mockResolvedValue([{ 1: 1 }]),
+    serviceConnection: {
+      findMany: jest.fn().mockResolvedValue([]),
+    },
   };
 
   beforeEach(async () => {
+    jest.clearAllMocks();
+    mockPrisma.$queryRaw.mockResolvedValue([{ 1: 1 }]);
+    mockPrisma.serviceConnection.findMany.mockResolvedValue([]);
+
     const module: TestingModule = await Test.createTestingModule({
       controllers: [HealthController],
       providers: [
@@ -28,31 +37,92 @@ describe('HealthController', () => {
     healthService = module.get<HealthService>(HealthService);
   });
 
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   it('should be defined', () => {
     expect(healthController).toBeDefined();
     expect(healthService).toBeDefined();
   });
 
-  describe('check', () => {
-    it('should return valid health status response with database connected', async () => {
-      const response = await healthController.check();
+  describe('check (lightweight)', () => {
+    it('should return valid liveness response without querying the database', () => {
+      const response = healthController.check();
 
       expect(response).toBeDefined();
       expect(response.status).toBe('ok');
       expect(response.service).toBe('wonderlab-server');
-      expect(response.database).toBe('connected');
       expect(response.version).toBe(APP_VERSION);
       expect(typeof response.timestamp).toBe('string');
       expect(new Date(response.timestamp).toISOString()).toBe(response.timestamp);
+      expect(mockPrisma.$queryRaw).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('checkFull', () => {
+    it('should return HTTP 200 and connected peer services when DB and peers succeed', async () => {
+      mockPrisma.serviceConnection.findMany.mockResolvedValueOnce([
+        {
+          slug: 'central-gateway',
+          name: 'Central Gateway',
+          domain: 'http://localhost:5101',
+          apiPrefix: '/api/v1',
+          timeoutMs: 3000,
+          metadata: null,
+        },
+      ]);
+
+      jest.spyOn(global, 'fetch').mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => ({ status: 'ok' }),
+      } as unknown as globalThis.Response);
+
+      const mockRes = { status: jest.fn() } as unknown as Response;
+      const response = await healthController.checkFull(mockRes);
+
+      expect(mockRes.status).toHaveBeenCalledWith(HttpStatus.OK);
+      expect(response.status).toBe('ok');
+      expect(response.database).toBe('connected');
+      expect(response.services).toHaveLength(1);
+      expect(response.services[0]?.status).toBe('connected');
     });
 
-    it('should report degraded and disconnected when database ping fails', async () => {
+    it('should still return HTTP 200 when a peer service connection fails', async () => {
+      mockPrisma.serviceConnection.findMany.mockResolvedValueOnce([
+        {
+          slug: 'central-gateway',
+          name: 'Central Gateway',
+          domain: 'http://localhost:5101',
+          apiPrefix: '/api/v1',
+          timeoutMs: 3000,
+          metadata: null,
+        },
+      ]);
+
+      jest.spyOn(global, 'fetch').mockRejectedValueOnce(new Error('ECONNREFUSED'));
+
+      const mockRes = { status: jest.fn() } as unknown as Response;
+      const response = await healthController.checkFull(mockRes);
+
+      expect(mockRes.status).toHaveBeenCalledWith(HttpStatus.OK);
+      expect(response.status).toBe('degraded');
+      expect(response.database).toBe('connected');
+      expect(response.services[0]?.status).toBe('unreachable');
+      expect(response.services[0]?.error).toContain('ECONNREFUSED');
+    });
+
+    it('should return HTTP 503 and error status when database ping fails', async () => {
       mockPrisma.$queryRaw.mockRejectedValueOnce(new Error('DB unreachable'));
 
-      const response = await healthController.check();
+      const mockRes = { status: jest.fn() } as unknown as Response;
+      const response = await healthController.checkFull(mockRes);
 
-      expect(response.status).toBe('degraded');
+      expect(mockRes.status).toHaveBeenCalledWith(HttpStatus.SERVICE_UNAVAILABLE);
+      expect(response.status).toBe('error');
       expect(response.database).toBe('disconnected');
+      expect(response.services).toEqual([]);
     });
   });
 });
