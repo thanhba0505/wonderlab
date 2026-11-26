@@ -29,10 +29,12 @@ export function configureWonderlabApp(app: INestApplication): void {
   // Parse Cookie for HttpOnly Session Tokens
   app.use(cookieParser());
 
-  // Alias root (/) and (/health) requests to /api/v1/health for versatile health checking
+  // Alias root (/), (/health), and (/health-full) requests to /api/v1/health* for versatile probing
   app.use((req: Request, res: Response, next: NextFunction) => {
     if (req.method === 'GET' && (req.url === '/' || req.url === '/health')) {
       req.url = '/api/v1/health';
+    } else if (req.method === 'GET' && req.url === '/health-full') {
+      req.url = '/api/v1/health-full';
     }
     next();
   });

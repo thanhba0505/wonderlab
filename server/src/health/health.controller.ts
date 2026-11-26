@@ -1,21 +1,46 @@
-import { Controller, Get, HttpCode, HttpStatus } from '@nestjs/common';
-import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Controller, Get, HttpCode, HttpStatus, Res } from '@nestjs/common';
+import {
+  ApiOkResponse,
+  ApiOperation,
+  ApiServiceUnavailableResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import type { Response } from 'express';
 import { HealthService } from './health.service';
-import { HealthResponseDto } from './dto/health-response.dto';
+import { FullHealthResponseDto, HealthResponseDto } from './dto/health-response.dto';
 
 @ApiTags('Health')
-@Controller('health')
+@Controller()
 export class HealthController {
   constructor(private readonly healthService: HealthService) {}
 
-  @Get()
+  @Get('health')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'System health check endpoint with database connectivity check' })
+  @ApiOperation({ summary: 'Lightweight liveness health probe (no database query)' })
   @ApiOkResponse({
-    description: 'System is healthy and database is connected',
+    description: 'Service process is alive',
     type: HealthResponseDto,
   })
-  async check(): Promise<HealthResponseDto> {
+  check(): HealthResponseDto {
     return this.healthService.check();
+  }
+
+  @Get('health-full')
+  @ApiOperation({
+    summary: 'Full readiness check verifying local database and connected peer services',
+  })
+  @ApiOkResponse({
+    description:
+      'Local service and database are healthy (returns 200 even if a peer service is unreachable)',
+    type: FullHealthResponseDto,
+  })
+  @ApiServiceUnavailableResponse({
+    description: 'Local service or database connectivity failed',
+    type: FullHealthResponseDto,
+  })
+  async checkFull(@Res({ passthrough: true }) res?: Response): Promise<FullHealthResponseDto> {
+    const result = await this.healthService.checkFull();
+    res?.status(result.database === 'connected' ? HttpStatus.OK : HttpStatus.SERVICE_UNAVAILABLE);
+    return result;
   }
 }
