@@ -18,8 +18,8 @@ export function configureWonderlabApp(app: INestApplication): void {
       contentSecurityPolicy: {
         directives: {
           defaultSrc: [`'self'`],
-          styleSrc: [`'self'`, `'unsafe-inline'`],
-          imgSrc: [`'self'`, 'data:', 'validator.swagger.io'],
+          styleSrc: [`'self'`, `'unsafe-inline'`, 'https://cdn.jsdelivr.net'],
+          imgSrc: [`'self'`, 'data:', 'validator.swagger.io', 'https://cdn.jsdelivr.net'],
           scriptSrc: [`'self'`, `https: 'unsafe-inline'`],
         },
       },
@@ -97,9 +97,20 @@ export function configureWonderlabApp(app: INestApplication): void {
       .build();
 
     const document = SwaggerModule.createDocument(app, config);
+    const swaggerUiCdn = 'https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.18.2';
     SwaggerModule.setup('api/docs', app, document, {
       customSiteTitle: 'Wonderlab API Documentation',
       customCss: '.swagger-ui .topbar { display: none }',
+      ...(process.env.VERCEL
+        ? {
+            customCssUrl: `${swaggerUiCdn}/swagger-ui.css`,
+            customJs: [
+              `${swaggerUiCdn}/swagger-ui-bundle.js`,
+              `${swaggerUiCdn}/swagger-ui-standalone-preset.js`,
+            ],
+            customfavIcon: `${swaggerUiCdn}/favicon-32x32.png`,
+          }
+        : {}),
     });
     logger.log('Swagger API documentation enabled at /api/docs');
   }
